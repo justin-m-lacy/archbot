@@ -222,6 +222,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 		channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
+		console.log(err);
 		channel.send( gameName + ': No record for ' + displayName + ' found.' );
 	}
 
