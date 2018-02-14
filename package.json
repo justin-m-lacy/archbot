@@ -1,0 +1,22 @@
+{
+  "name": "archbot",
+  "version": "1.0.0",
+  "description": "Bot for discord",
+  "main": "archbot.js",
+  "scripts": {
+    "test": "node archbot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lerpinglemur/archbot.git"
+  },
+  "author": "Lerping Lemur",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lerpinglemur/archbot/issues"
+  },
+  "homepage": "https://github.com/lerpinglemur/archbot#readme",
+  "dependencies": {
+    "discord.js": "^11.3.0"
+  }
+}
