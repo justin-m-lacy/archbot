@@ -43,6 +43,44 @@ exports.Bot = class {
 
 	}
 
+	printCommand( chan, cmdname ) {
+
+		let cmds = this._dispatch.commands;
+		if ( cmds != null && cmds.hasOwnProperty( cmdname ) ) {
+
+			let cmdInfo = cmds[cmdname];
+			let desc;
+			if ( cmdInfo.hasOwnProperty( 'usage')) {
+				desc = cmdname + ' usage: ' + cmdInfo.usage;
+			} else {
+				desc = 'No usage information found for: ' + cmdname;
+			}
+			chan.send( desc );
+
+		} else {
+			chan.send( 'Command not found.');
+		}
+
+	}
+
+	printCommands( chan ) {
+
+		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
+		let cmds = this._dispatch.commands;
+		if ( cmds != null ) {
+
+			let a = [];
+			for( let k in cmds ){
+				a.push(k);
+			}
+
+			str += a.join(',');
+
+		}
+		chan.send( str );
+
+	}
+
 	async fetchUserData( uObject ){
 
 		let objPath;

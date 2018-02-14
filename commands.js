@@ -1,6 +1,7 @@
 
 exports.Dispatch = class CmdDispatch {
 
+	get commands() { return this._cmds; }
 	constructor( cmdPrefix='!') {
 
 		this._cmds = {};
