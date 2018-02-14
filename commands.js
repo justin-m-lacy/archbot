@@ -71,11 +71,18 @@ class CmdLine {
 		this._input = str;
 
 		let ind = str.indexOf( ' ', this._prefixLen );
+		console.log( 'setting input: ' + str );
+
 		if ( ind >= 0 ) {
 
 			this._cmd = str.slice( this._prefixLen, ind );
 			this._argStr = str.slice(ind);
 	
+		} else {
+
+			this._cmd = str.slice( this._prefixLen );
+			this._argStr = '';
+
 		}
 
 	}

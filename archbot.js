@@ -1,27 +1,22 @@
 var Discord = require( 'discord.js');
 var auth = require('./auth.json');
-var fsys = require( './botfs.js');
 
 const fs = require( 'fs' );
 
 const path = require( 'path' );
-const Cmd = require( './commands.js');
+const fsys = require( './botfs.js');
 const dformat = require( './datedisplay.js' );
 const Dice = require( './dice.js' );
 const jsutils = require( './jsutils.js' );
 
+const DiscordBot = require( './discordbot.js');
+
 const PLUGINS_DIR = './plugins/';
 const CmdPrefix = '!';
 
-function initCache() {
-
-	var cacher = require ( './cache.js' );
-	let cache = new cacher.Cache( 250, fsys.readData, fsys.writeData );
-	return cache;
-
-}
-
 function initReactions() {
+
+	console.log( 'loading reactions.');
 
 	let React = require( './reactions.js');
 	let reactData = require('./reactions.json');
@@ -30,8 +25,10 @@ function initReactions() {
 
 function initCmds(){ 
 
-	let cmds = new Cmd.Dispatch( CmdPrefix );
-	
+	let cmds = dispatch;
+
+	console.log( 'adding default commands.');
+
 	cmds.add( 'schedule', cmdSchedule, 2, 2, '!schedule [activity] [times]', 'right');
 	cmds.add( 'sleep', cmdSleep, 1, 1, '!sleep [sleep schedule]');
 	cmds.add( 'when', cmdWhen, 2, 2, '!when [userName] [activity]');
@@ -51,31 +48,47 @@ function initCmds(){
 
 	cmds.add( 'test', cmdTest, 1, 1, '!test [ping message]');
 
-	return cmds;
-
 }
 
+
 // init bot
-var bot = new Discord.Client( {} );
+var client = new Discord.Client( {} );
+console.log( 'client created.');
+
+var bot = new DiscordBot.Bot( client, CmdPrefix );
+console.log( 'bot created.');
 
 var reactions = initReactions();
-var dispatch = initCmds();
-var cache = initCache();
+var dispatch = bot.dispatch;
+var cache = bot.cache;
 
-var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
+initCmds();
 
-bot.on( 'ready', function(evt) {
-    console.log('Scheduler Connected: ' + bot.username + ' - (' + bot.id + ')');
+function init_plug( p ) {
+
+	if ( typeof( p.init ) == 'function' ) {
+		console.log( 'initializing plugin');
+		p.init( bot );
+	} else {
+		console.log( 'no init function found.');
+	}
+
+}
+var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR, init_plug );
+
+client.on( 'ready', function(evt) {
+    console.log('client ready: ' + client.username + ' - (' + client.id + ')');
 });
 
-bot.on( 'message', doMsg );
-bot.on( 'presenceUpdate', presenceChanged );
-bot.on( 'error', doError );
-
-bot.login( auth.token );
+client.on( 'message', doMsg );
+client.on( 'presenceUpdate', presenceChanged );
+client.on( 'error', doError );
 
 process.on( 'exit', onShutdown );
 process.on( 'SIGINT', onShutdown );
+
+console.log( 'logging in...');
+client.login( auth.token );
 
 
 function doError( err ) {
@@ -83,16 +96,16 @@ function doError( err ) {
 }
 
 function onShutdown() {
-	if ( bot != null ) {
-		bot.destroy();
-		bot = null;
+	if ( client != null ) {
+		client.destroy();
+		client = null;
 	}
 }
 
 
 function doMsg( msg ) {
 
-	if ( msg.author.id == bot.user.id ) return;
+	if ( msg.author.id == client.user.id ) return;
 
 	try {
 
@@ -204,7 +217,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 
 	try {
 
-		let data = await fetchMemberData( gMember );
+		let data = await bot.fetchMemberData( gMember );
 		let games = data.games;
 
 		let dateStr = dformat.DateDisplay.recent( games[gameName] );
@@ -299,7 +312,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 	try {
 
-		let memData = await fetchMemberData( gMember );
+		let memData = await bot.fetchMemberData( gMember );
 		let lastTime = latestStatus( memData.history, statuses );
 
 		let dateStr = dformat.DateDisplay.recent( lastTime );
@@ -374,7 +387,7 @@ async function sendSchedule( channel, displayName, activity ) {
 // return members history object.
 async function readHistory( gMember ){
 
-	let data = await fetchMemberData( gMember );
+	let data = await bot.fetchMemberData( gMember );
 	if ( data != null && data.hasOwnProperty('history')) return data.history;
 	return null;
 
@@ -387,7 +400,7 @@ async function readSchedule( gMember, schedType ) {
 
 	try {
 
-		let data = await fetchMemberData( gMember );
+		let data = await bot.fetchMemberData( gMember );
 		if ( data != null && data.hasOwnProperty('schedule') ) {
 			return data.schedule[schedType];
 		}
@@ -416,7 +429,7 @@ async function setSchedule( gMember, scheduleType, scheduleString ) {
 
 function presenceChanged( oldMember, newMember ) {
 	
-	if ( oldMember.id == bot.id ) {
+	if ( oldMember.id == client.id ) {
 		// ignore bot events.
 		return;
 	}
@@ -513,7 +526,7 @@ async function mergeMember( guildMember, newData ){
 
 	try {
 
-		let data = await fetchMemberData( guildMember );
+		let data = await bot.fetchMemberData( guildMember );
 		jsutils.recurMerge( newData, data );
 	
 		newData = data;
@@ -526,23 +539,9 @@ async function mergeMember( guildMember, newData ){
 	} finally {
 
 		try {
-			await storeMemberData( guildMember, newData );
+			await bot.storeMemberData( guildMember, newData );
 		} catch(err){}
 
 	}
-
-}
-
-async function fetchMemberData( gMember ) {
-
-	let memPath = fsys.memberPath( gMember );
-	return await cache.get( memPath );
-
-}
-
-async function storeMemberData( gMember, data ) {
-
-	let memPath = fsys.memberPath( gMember );
-	await cache.store( memPath, data );
 
 }
