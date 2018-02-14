@@ -25,6 +25,7 @@ function initCmds(){
 
 	console.log( 'adding default commands.');
 
+	cmds.add( 'help', cmdHelp, 0, 1, '!help {cmd}' );
 	cmds.add( 'schedule', cmdSchedule, 2, 2, '!schedule [activity] [times]', 'right');
 	cmds.add( 'sleep', cmdSleep, 1, 1, '!sleep [sleep schedule]');
 	cmds.add( 'when', cmdWhen, 2, 2, '!when [userName] [activity]');
@@ -150,6 +151,16 @@ function cmdNick( msg, name ) {
 	let gMember = tryGetUser( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' nickname: ' + gMember.nickname )
+
+}
+
+function cmdHelp( msg, cmd ) {
+
+	if ( cmd == null ) {
+		bot.printCommands( msg.channel );
+	} else {
+		bot.printCommand( msg.channel, cmd);
+	}
 
 }
 

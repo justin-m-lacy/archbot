@@ -110,7 +110,8 @@ module.exports = class {
 	}
 
 	computeHp() {
-		this._hp = Math.floor( (this._race.HD + this._charclass.HD)/2) + this.getModifier('str');
+		this._hp = Math.floor( (this._race.HD + this._charclass.HD)/2) + this.getModifier('con');
+		if ( this._hp < 1 ) this._hp = 1;
 	}
 
 	getModifier( stat ) {

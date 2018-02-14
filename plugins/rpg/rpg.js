@@ -16,7 +16,7 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', cmdRollChar, 0, 0, '!rollchar' );
+	cmds.add( 'rollchar', cmdRollChar, 0, 0, '!rollchar {charname}' );
 
 }
 
@@ -37,13 +37,19 @@ function initRaces() {
 	a.push( new Race( 'half-elf', 8, {} ) );
 	a.push( new Race( 'dwarf', 10, {'con':2, 'wis':2, 'dex':-2} ) );
 	a.push( new Race( 'human', 8, {} ) );
-	a.push( new Race( 'gnome', 7, {'str':-4, 'int':2, 'con':2} ) );
-	a.push( new Race( 'halfling', 6, {'str':-2, 'dex':1, 'int':1, 'chr':1, 'wis':1, 'con':1} ) );
+	a.push( new Race( 'gnome', 7, {'str':-4, 'int':3, 'con':2} ) );
+	a.push( new Race( 'halfling', 6, {'str':-2, 'dex':2, 'int':1, 'chr':1, 'wis':1, 'con':1} ) );
 	a.push( new Race( 'half-orc', 10, { 'str':3, 'int':-2, 'chr':-2, 'con':2 } ) );
 	a.push( new Race( 'orc', 14, { 'str':4, 'int':-3, 'con':2, 'wis':-2} ) );
 	a.push( new Race( 'fairy', 4, { 'str':-6, 'int':4, 'dex':4, 'chr':2 } ) );
 	a.push( new Race( 'troll', 20, { 'str':6, 'con':4, 'int':-4, 'wis':-4, 'chr':-4 } ) );
+	a.push( new Race( 'half-troll', 18, { 'str':5, 'con':3, 'int':-3, 'wis':-3, 'chr':-3 } ) );
 	a.push( new Race( 'pixie', 2, {  'str':-8, 'int':2, 'dex':6, 'chr':2 }  ) );
+	a.push( new Race( 'minotaur', 14, {  'str':2, 'con':2, 'int':-2, 'dex':-2, 'wis':2, 'chr':-2 }  ) );
+	a.push( new Race( 'centaur', 2, {  'dex':2, 'wis':2, 'chr':-2 }  ) );
+	a.push( new Race( 'goblin', 6, {  'str':-2, 'wis':-3, 'dex':2, 'int':2, 'chr':-2 }  ) );
+	a.push( new Race( 'kobold', 6, {  'str':-2, 'wis':-2, 'dex':3, 'chr':-2 }  ) );
+	a.push( new Race( 'demigod', 14, {  'str':4, 'con':4, 'dex':4, 'int':4, 'wis':4, 'chr':4 }  ) );
 
 	races = a;
 
@@ -54,10 +60,13 @@ function initClasses() {
 	let a = [];
 
 	a.push( new CharClass( 'wizard', 6 ) );
+	a.push( new CharClass( 'sorcerer', 6 ) );
+	a.push( new CharClass( 'witch', 6 ) );
 	a.push( new CharClass( 'fighter', 10 ) );
 	a.push( new CharClass( 'ranger', 8 ) );
 	a.push( new CharClass( 'rogue', 6 ) );
 	a.push( new CharClass( 'druid', 8 ) );
+	a.push( new CharClass( 'paladin', 8 ) );
 	a.push( new CharClass( 'barbarian', 12 ) );
 	a.push( new CharClass( 'priest', 6 ) );
 	a.push( new CharClass( 'bard', 6 ) );
