@@ -55,64 +55,6 @@ function initCmds(){
 
 }
 
-function loadPlugins() {
-
-	let plugins = {};
-
-	try {
-
-	dirs = fs.readdirSync( PLUGINS_DIR );
-	let file, dir, stats;
-	for( let dir of dirs ) {
-
-		dir = path.resolve( PLUGINS_DIR, dir );
-		stats = fs.statSync( dir );
-		if ( !stats.isDirectory() ) continue;
-		let files = fs.readdirSync( dir );
-		for( let file of files ) {
-
-			if ( !(path.extname(file) === '.json')) continue;
-			file = path.resolve( dir, file );
-			stats = fs.statSync( file );
-			if ( !stats.isFile() ) continue;
-			// desc file.
-			loadPlugin( dir, file, plugins);
-
-		}
-
-	}
-} catch (err){
-	console.log(err);
-}
-
-	return plugins;
-
-}
-
-// load plugin described by json.
-function loadPlugin( dir, descPath, plugins ){
-
-	try {
-
-		console.log( 'loading: ' + descPath );
-
-		let data = fs.readFileSync( descPath );
-		let desc = JSON.parse(data);
-
-		if ( desc.hasOwnProperty( 'plugin')){
-
-			let plugFile = path.join( dir, desc.plugin );
-			let plugName = desc.hasOwnProperty('name') ? desc.name : plugFile;
-			let plugin = plugins[plugName] = require( plugFile );
-
-		}
-
-	} catch ( err ){
-		console.log( err );
-	}
-
-}
-
 // init bot
 var bot = new Discord.Client( {} );
 
@@ -120,7 +62,7 @@ var reactions = initReactions();
 var dispatch = initCmds();
 var cache = initCache();
 
-var plugins = loadPlugins();
+var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
 
 bot.on( 'ready', function(evt) {
     console.log('Scheduler Connected: ' + bot.username + ' - (' + bot.id + ')');
@@ -151,7 +93,6 @@ function onShutdown() {
 function doMsg( msg ) {
 
 	if ( msg.author.id == bot.user.id ) return;
-	if ( !msg.hasOwnProperty('guild') || msg.guild == null) return;
 
 	try {
 
