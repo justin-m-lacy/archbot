@@ -2,7 +2,7 @@ var Discord = require( 'discord.js');
 var auth = require('./auth.json');
 
 const dformat = require( './datedisplay.js' );
-const Dice = require( './dice.js' );
+const dice = require( './plugins/dice/dice.js' );
 const jsutils = require( './jsutils.js' );
 
 const DiscordBot = require( './discordbot.js');
@@ -165,7 +165,7 @@ function cmdRoll( msg, dice ) {
 
 	let sender = bot.getSender( msg );
 	if ( dice == null ) dice = '';
-	let total = Dice.Roller.roll( dice );
+	let total = dice.parseRoll( dice );
 	msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
 
 }
