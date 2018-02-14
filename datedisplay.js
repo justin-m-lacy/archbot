@@ -24,7 +24,7 @@ exports.DateDisplay = class {
 		}
 
 		if ( this.inDay(dt) ) return 'at ' + time.toLocaleTimeString();
-		return 'on ' + time.toLocalDateString() + ' at ' + time.toLocaleTimeString();
+		return 'on ' + time.toLocaleDateString() + ' at ' + time.toLocaleTimeString();
 
 
 	}
