@@ -1,13 +1,15 @@
-exports.Race = class {
+module.exports = class {
 
-	constructor( name, hitdice ) {
+	constructor( name, hitdice, statMods={} ) {
 
-		this.name = name;
-		this.hitdice = hitdice;
+		this._name = name;
+		this._hitdice = hitdice;
+		this._statMods = statMods;
 
 	}
 
-	get HD() { return this.hitdice; }
-	get name() { return this.name; }
+	get HD() { return this._hitdice; }
+	get name() { return this._name; }
+	get statMods() { return this._statMods; }
 
 }
