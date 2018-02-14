@@ -45,6 +45,7 @@ function initCmds(){
 
 	cmds.add( 'offtime', cmdOffTime, 1,1, '!offtime [userName]');
 	cmds.add( 'ontime', cmdOnTime, 1,1, '!ontime [username]');
+	cmds.add( 'playtime', cmdPlayTime, 1,1, '!playtime [userName');
 
 	cmds.add( 'test', cmdTest, 1, 1, '!test [ping message]');
 
@@ -229,6 +230,36 @@ async function sendGameTime( channel, displayName, gameName ) {
 
 }
 
+async function cmdPlayTime( msg, name ){
+
+	let chan = msg.channel;
+	let gMember = tryGetUser( chan, name );
+	if (!gMember) return;
+
+	if ( gMember.presence.game == null ) {
+		chan.send( name + ' is not playing a game.');
+		return;
+	}
+
+	let gameName = gMember.presence.game.name;
+	console.log( "game: " + gameName );
+
+	try {
+
+		let data = await bot.fetchMemberData( gMember );
+		if ( data.hasOwnProperty('games') && data.games.hasOwnProperty( gameName )) {
+			let lastTime = data.games[gameName];
+			chan.send( name + ' has been playing ' + gameName + ' for ' + dformat.DateDisplay.elapsed(lastTime) );
+			return;
+		}
+
+	} catch ( err ) {
+		console.log(err);
+	}
+	chan.send( 'I do not know when ' + name + '\'s game started.');
+
+}
+
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
@@ -253,12 +284,13 @@ async function cmdOnTime( msg, name ) {
 			}
 
 		}
-		chan.send( 'No online record for ' + name );
 
 	} catch ( err ){
-		chan.send( 'No online record for ' + name );
+		
 		console.log( err );
 	}
+
+	chan.send( 'I do not know when ' + name + ' came online.' );
 
 }
 
@@ -320,7 +352,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
-		channel.send( 'I haven\t seen ' + name + ' ' + statusName );
+		channel.send( 'I haven\'t seen ' + name + ' ' + statusName );
 	}
 
 }
@@ -452,9 +484,8 @@ function presenceChanged( oldMember, newMember ) {
 
 	if ( oldGameName != newGameName ){
 
-		if ( oldGame != null ) {
-			logGame( oldMember, oldGame );
-		}
+		logGames( oldMember, oldGame, newGame );
+
 		if ( newGame != null ) {
 			console.log( newMember.displayName + ' game changed: ' + newGame.name );
 		}
@@ -463,14 +494,17 @@ function presenceChanged( oldMember, newMember ) {
 
 }
 
-function logGame( guildMember, game ) {
+function logGames( guildMember, prevGame, curGame ) {
 
-	let gameName = game.name;
-	let newData = { games:{
-			[game.name]:Date.now()
-		}
-	};
-	mergeMember( guildMember, newData );
+	let now = Date.now();
+	var gameData = {};
+
+	if ( prevGame ) { gameData[prevGame.name] = now;
+	}
+	if ( curGame ){ gameData[curGame.name] = now;
+	}
+	
+	mergeMember( guildMember, {games:gameData} );
 
 }
 
