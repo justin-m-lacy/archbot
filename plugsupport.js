@@ -3,22 +3,23 @@ const path = require('path');
 
 let plugins = {};
 
-exports.loadPlugins = function( plugins_dir ) {
-
-	let plugins = {};
+exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 	try {
 
 		dirs = fs.readdirSync( plugins_dir );
 	
-		let file, dir, stats;
+		let plugin, dir, stats;
 		for( let dir of dirs ) {
 
 			dir = path.resolve( plugins_dir, dir );
 			stats = fs.statSync( dir );
 			if ( !stats.isDirectory() ) continue;
 
-			findAndLoad( dir );
+			plugin = findAndLoad( dir );
+			if ( init_func != null && plugin != null ){
+				init_func(plugin);
+			}
 
 		}
 
@@ -53,7 +54,7 @@ function findAndLoad( dir ) {
 			let plugin = loadPlugin( dir, desc );
 			if ( plugin ) {
 				desc[desc.name] = plugin;
-				return;
+				return plugin;
 			}
 
 		} catch (err ){
@@ -61,6 +62,7 @@ function findAndLoad( dir ) {
 		}
 
 	}
+	return null;
 
 }
 
