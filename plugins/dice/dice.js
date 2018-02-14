@@ -1,19 +1,6 @@
 exports.roll = roll;
 
-
-function roll( count, sides, bonus=0 ) {
-
-	let total = bonus;
-	while ( count-- > 0 ) {
-		total += Math.floor( sides*Math.random() ) + 1;
-	}
-
-	return total;
-
-}
-
-
-exports.parseRoll = ( str ) => {
+exports.parseRoll = function( str ) {
 
 	if ( str == null || str === '' ) return roll( 1, 6);
 
@@ -44,6 +31,17 @@ exports.parseRoll = ( str ) => {
 	if ( isNaN(sides)) sides = 6;
 
 	while ( num-- > 0 ) {
+		total += Math.floor( sides*Math.random() ) + 1;
+	}
+
+	return total;
+
+}
+
+function roll( count, sides, bonus=0 ) {
+
+	let total = bonus;
+	while ( count-- > 0 ) {
 		total += Math.floor( sides*Math.random() ) + 1;
 	}
 

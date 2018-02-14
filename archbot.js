@@ -173,11 +173,12 @@ function cmdUid( msg, name ) {
 
 }
 
-function cmdRoll( msg, dice ) {
+function cmdRoll( msg, dicestr ) {
 
 	let sender = bot.getSender( msg );
-	if ( dice == null ) dice = '';
-	let total = dice.parseRoll( dice );
+	if ( dicestr == null ) dicestr = '';
+
+	let total = dice.parseRoll( dicestr );
 	msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
 
 }
@@ -386,6 +387,8 @@ async function sendHistory( channel, name, statuses, statusName ) {
 	let gMember = tryGetUser( channel, name );
 	if ( !gMember ) return;
 
+	if ( statusName == null ) statusName = statuses;
+
 	if ( hasStatus(gMember, statuses ) ) {
 
 		channel.send( name + ' is now ' + statusName );
@@ -399,7 +402,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		let lastTime = latestStatus( memData.history, statuses );
 
 		let dateStr = dformat.DateDisplay.recent( lastTime );
-		if ( statusName == null ) statusName = statuses;
+		
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
