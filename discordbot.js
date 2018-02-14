@@ -1,7 +1,7 @@
 const fsys = require( './botfs.js');
 const cmd = require( './commands.js');
 const cacher = require( './cache.js' );
-
+const Discord = require ( 'discord.js');
 exports.Bot = class {
 
 	get client() {
@@ -27,18 +27,47 @@ exports.Bot = class {
 
 	}
 
-	async fetchMemberData( gMember ) {
+	displayName( uObject ){
+		if ( uObject instanceof Discord.GuildMember ){
+			return uObject.displayName;
+		} else {
+			return uObject.username;
+		}
 
-		let memPath = fsys.memberPath( gMember );
-		return await this._cache.get( memPath );
-	
 	}
+
+	getSender( msg ) {
+
+		if ( msg.member != null ) return msg.member;
+		return msg.author;
+
+	}
+
+	async fetchUserData( uObject ){
+
+		let objPath;
+		if ( uObject instanceof Discord.GuildMember ){
+			objPath = fsys.memberPath( uObject );
+		} else {
+			objPath = fsys.userPath( uObject );
+		}
+		let data = await this._cache.get( objPath );
+		// save key for recaching.
+		if ( data ) data.key = objPath;
+		return data;
+	}
+
+	async storeUserData( uObject, data ){
+
+		let objPath;
+		if ( uObject instanceof Discord.GuildMember ){
+			objPath = fsys.memberPath( uObject );
 	
-	async storeMemberData( gMember, data ) {
-	
-		let memPath = fsys.memberPath( gMember );
-		await this._cache.store( memPath, data );
-	
+		} else {
+			objPath = fsys.userPath( uObject );
+		}
+		await this._cache.store( objPath, data );
+
 	}
 
 }

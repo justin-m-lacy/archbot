@@ -163,19 +163,23 @@ function cmdUid( msg, name ) {
 
 function cmdRoll( msg, dice ) {
 
+	let sender = bot.getSender( msg );
+	if ( dice == null ) dice = '';
 	let total = Dice.Roller.roll( dice );
-	msg.channel.send( msg.member.displayName + ' rolled ' + total );
+	msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
 
 }
 
 function cmdSleep( msg, when ) {
-	setSchedule( msg.member, 'sleep', when );
+	let sender = bot.getSender(msg);
+	setSchedule( sender, 'sleep', when );
 }
 function cmdSchedule( msg, activity, when ) {
 
 	console.log( 'scheduling: ' + activity + ' at: ' + when );
-	setSchedule( msg.member, activity, when );
-	msg.channel.send( 'Scheduled ' + activity + ' for ' + msg.member.displayName );
+	let sender = bot.getSender(msg);
+	setSchedule( sender, activity, when );
+	msg.channel.send( 'Scheduled ' + activity + ' for ' + bot.displayName(sender) );
 
 }
 
@@ -205,17 +209,17 @@ function cmdTest( msg, reply ){
 
 async function sendGameTime( channel, displayName, gameName ) {
 	
-	let gMember = tryGetUser( channel, displayName );
-	if ( !gMember ) return;
+	let uObject = tryGetUser( channel, displayName );
+	if ( !uObject ) return;
 
-	if ( gMember.presence.game != null && gMember.presence.game.name === gameName ) {
+	if ( uObject.presence.game != null && uObject.presence.game.name === gameName ) {
 		channel.send( displayName + ' is playing ' + gameName );
 		return;
 	}
 
 	try {
 
-		let data = await bot.fetchMemberData( gMember );
+		let data = await bot.fetchUserData( uObject );
 		let games = data.games;
 
 		let dateStr = dformat.DateDisplay.recent( games[gameName] );
@@ -244,7 +248,7 @@ async function cmdPlayTime( msg, name ){
 
 	try {
 
-		let data = await bot.fetchMemberData( gMember );
+		let data = await bot.fetchUserData( gMember );
 		if ( data.hasOwnProperty('games') && data.games.hasOwnProperty( gameName )) {
 			let lastTime = data.games[gameName];
 			chan.send( name + ' has been playing ' + gameName + ' for ' + dformat.DateDisplay.elapsed(lastTime) );
@@ -376,7 +380,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 	try {
 
-		let memData = await bot.fetchMemberData( gMember );
+		let memData = await bot.fetchUserData( gMember );
 		let lastTime = latestStatus( memData.history, statuses );
 
 		let dateStr = dformat.DateDisplay.recent( lastTime );
@@ -451,7 +455,7 @@ async function sendSchedule( channel, displayName, activity ) {
 // return members history object.
 async function readHistory( gMember ){
 
-	let data = await bot.fetchMemberData( gMember );
+	let data = await bot.fetchUserData( gMember );
 	if ( data != null && data.hasOwnProperty('history')) return data.history;
 	return null;
 
@@ -464,7 +468,7 @@ async function readSchedule( gMember, schedType ) {
 
 	try {
 
-		let data = await bot.fetchMemberData( gMember );
+		let data = await bot.fetchUserData( gMember );
 		if ( data != null && data.hasOwnProperty('schedule') ) {
 			return data.schedule[schedType];
 		}
@@ -478,12 +482,12 @@ async function readSchedule( gMember, schedType ) {
 }
 
 /// sets the schedule of a given guild member, for a given schedule type.
-async function setSchedule( gMember, scheduleType, scheduleString ) {
+async function setSchedule( uobject, scheduleType, scheduleString ) {
 
 	try {
 
 		let newData = { schedule: { [scheduleType]:scheduleString } };
-		await mergeMember( gMember, newData );
+		await mergeMember( uobject, newData );
 
 	} catch ( err ) {
 		console.log( 'could not set schedule.');
@@ -580,6 +584,8 @@ function findMember( channel, name ) {
 
 			break;
 		case 'dm':
+			name = name.toLowerCase();
+			if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
 			return null;
 			break;
 		case 'group':
@@ -590,25 +596,27 @@ function findMember( channel, name ) {
 
 }
 
-// merge with existing member data.
-async function mergeMember( guildMember, newData ){
+// merge existing data.
+// uobject could be a GuildMember or a User.
+async function mergeMember( uObject, newData ){
 
 	try {
 
-		let data = await bot.fetchMemberData( guildMember );
-		jsutils.recurMerge( newData, data );
-	
-		newData = data;
+		let data = await bot.fetchUserData( uObject );
+		if ( data != null ) {
+			jsutils.recurMerge( newData, data );
+			newData = data;
+		}
 
 	} catch ( err ){
 
 		console.log( err );
-		console.log( 'No data for ' + guildMember.displayName );
+		console.log( 'No data for ' + uObject.displayName );
 
 	} finally {
 
 		try {
-			await bot.storeMemberData( guildMember, newData );
+			await bot.storeUserData( uObject, newData );
 		} catch(err){}
 
 	}
