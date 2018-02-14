@@ -19,20 +19,31 @@ exports.Cache = class {
 		}
 		if ( !this.loader ) return null;
 
-		console.log( 'fetching from file.');
-		let val = await this.loader( key );
-		if ( val != null ) {
-			this.dict[key] = val;
+		try {
+
+			console.log( 'fetching from file.');
+			let val = await this.loader( key );
+			if ( val != null ) {
+				this.dict[key] = val;
+			}
+			return val;
+
+		} catch ( err ){
+			console.log(err);
+			return null;
 		}
-		return val;
 
 	}
 
 	async store( key, value ) {
 
 		this.dict[key] = value;
-		if ( this.saver ) {
-			await this.saver( key, value );
+		try {
+			if ( this.saver ) {
+				await this.saver( key, value );
+			}
+		} catch ( err ){
+			console.log(err);
 		}
 
 	}

@@ -23,12 +23,8 @@ async function writeData( relPath, data ) {
 
 	let absPath = path.join( BASE_DIR, relPath );
 
-	try {
-		await fsj.mkdir( path.dirname( absPath ) );
-	} catch ( err ){
-		console.log( err );
-	}
-	await fsj.writeJSON( filePath, jsonData );
+	await fsj.mkdir( path.dirname( absPath ) );
+	await fsj.writeJSON( absPath, data );
 
 }
 
