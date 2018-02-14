@@ -12,19 +12,6 @@ exports.readdir = (path, options=null) => new Promise( (res,rej)=>{
 
 });
 
-exports.readJSON = path => new Promise( (res,rej)=>{
-
-	fs.readFile( path, (err,data)=>{
-
-		if ( err )
-			rej(err);
-		else {
-			let json = JSON.parse( data );
-			res( json );
-		 }
-	});
-
-});
 
 exports.readJSONSync = path => {
 
@@ -43,13 +30,32 @@ exports.mkdir = path => new Promise( (res,rej)=> {
 
 });
 
-exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
+exports.readJSON = path => new Promise( (res,rej)=>{
 
-	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, (err)=>{
+	fs.readFile( path, (err,data)=>{
 
-		if ( err ) rej(err);
-		else
-		res();
+		if ( err )
+			rej(err);
+		else {
+			let json = JSON.parse( data );
+			res( json );
+		 }
+	});
+
+});
+
+exports.writeData = (path,data) => new Promise( (res, rej)=>{
+
+	fs.writeFile( path, data, {flag:'w+'}, (err)=>{
+
+		if ( err ) {
+			console.log('file err ' + err )
+			rej(err);
+		}
+		else {
+			console.log( 'write file success.');
+			res();
+		}
 
 	});
 
