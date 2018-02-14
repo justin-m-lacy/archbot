@@ -37,6 +37,7 @@ function initCmds(){
 	
 	cmds.add( 'lastplay', cmdLastPlay, 2, 2, '!lastplay [userName] [gameName]');
 	cmds.add( 'laston', cmdLastOn, 1, 1, '!laston [userName]');
+	cmds.add( 'lastidle', cmdLastIdle, 1, 1, '!lastidle [userName]');
 	cmds.add( 'lastactive', cmdLastActive, 1, 1, '!lastactive [userName]');
 	cmds.add( 'lastoff', cmdLastOff, 1, 1, '!lastoff [userName]');
 
@@ -206,12 +207,15 @@ function cmdLastOn( msg, who ){
 	sendHistory( msg.channel, who, ['online','idle','dnd'], 'online' );
 }
 
+function cmdLastIdle( msg, who){
+	sendHistory( msg.channel, who, 'idle');
+}
 function cmdLastActive( msg, who ){
 	sendHistory( msg.channel, who, 'online', 'active' );
 }
 
 function cmdLastOff( msg, who ){
-	sendHistory( msg.channel, who, 'offline', 'offline' );
+	sendHistory( msg.channel, who, 'offline' );
 }
 
 function cmdTest( msg, reply ){
@@ -395,7 +399,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		let lastTime = latestStatus( memData.history, statuses );
 
 		let dateStr = dformat.DateDisplay.recent( lastTime );
-		if ( statusName == null ) statusName = evtType;
+		if ( statusName == null ) statusName = statuses;
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
@@ -571,6 +575,10 @@ function logHistory( guildMember, statuses ) {
 
 function tryGetUser( channel, name ) {
 
+	if ( name == null || name === '') {
+		channel.send( 'User name expected.');
+		return null;
+	}
 	let member = findMember( channel, name );
 	if ( member == null ) channel.send( 'User ' + name + ' not found.' );
 	return member;
