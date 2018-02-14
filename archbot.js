@@ -1,10 +1,6 @@
 var Discord = require( 'discord.js');
 var auth = require('./auth.json');
 
-const fs = require( 'fs' );
-
-const path = require( 'path' );
-const fsys = require( './botfs.js');
 const dformat = require( './datedisplay.js' );
 const Dice = require( './dice.js' );
 const jsutils = require( './jsutils.js' );
@@ -45,6 +41,7 @@ function initCmds(){
 
 	cmds.add( 'offtime', cmdOffTime, 1,1, '!offtime [userName]');
 	cmds.add( 'ontime', cmdOnTime, 1,1, '!ontime [username]');
+	cmds.add( 'idletime', cmdIdleTime, 1,1, '!idletime [username]');
 	cmds.add( 'playtime', cmdPlayTime, 1,1, '!playtime [userName');
 
 	cmds.add( 'test', cmdTest, 1, 1, '!test [ping message]');
@@ -260,6 +257,40 @@ async function cmdPlayTime( msg, name ){
 
 }
 
+async function cmdIdleTime( msg, name ){
+
+	let chan = msg.channel;
+	let gMember = tryGetUser( chan, name );
+	if ( !gMember ) return;
+
+	if ( !hasStatus( gMember, 'idle')){
+		chan.send( name + ' is not currently idle.');
+		return;
+	}
+
+	try {
+
+		let history = await readHistory(gMember);
+		if ( history != null ) {
+
+			let lastTime = latestStatus( history, ['offline','dnd','online'] );
+
+			if ( lastTime != null ){
+				chan.send( name + ' has been idle for ' + dformat.DateDisplay.elapsed( lastTime ) );
+				return;
+			}
+
+		}
+
+	} catch ( err ){
+		
+		console.log( err );
+	}
+
+	chan.send( 'I do not know when ' + name + ' went idle.' );
+
+}
+
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
@@ -318,12 +349,12 @@ async function cmdOffTime( msg, name ) {
 			}
 
 		}
-		chan.send( 'No offline record for ' + name );
 
 	} catch ( err ){
-		chan.send( 'No offline record for ' + name );
+
 		console.log( err );
 	}
+	chan.send( 'I do not know when ' + name + ' went offline.' );
 
 }
 
@@ -514,6 +545,7 @@ function logHistory( guildMember, statuses ) {
 	let now = Date.now();
 	let history = {};
 	for( var i = statuses.length-1; i >= 0; i-- ) {
+		console.log( 'logging status: ' + statuses[i]);
 		history[ statuses[i] ] = now;
 	}
 
