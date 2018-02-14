@@ -22,10 +22,13 @@ exports.readJSONSync = path => {
 
 exports.mkdir = path => new Promise( (res,rej)=> {
 
+	if ( fs.existsSync(path) ) {
+		res();
+		return;
+	}
 	fs.mkdir( path, function( err ) {
 		if ( err ) rej(err);
-		else
-		res();
+		else res();
 	});
 
 });
@@ -44,9 +47,9 @@ exports.readJSON = path => new Promise( (res,rej)=>{
 
 });
 
-exports.writeData = (path,data) => new Promise( (res, rej)=>{
+exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
 
-	fs.writeFile( path, data, {flag:'w+'}, (err)=>{
+	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, (err)=>{
 
 		if ( err ) {
 			console.log('file err ' + err )
