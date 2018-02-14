@@ -506,7 +506,9 @@ function findMember( channel, name ) {
 		case 'text':
 		case 'voice':
 
-			let user = channel.guild.members.find( 'displayName', name );
+			let user = channel.guild.members.find(
+				gm=> gm.displayName.toLowerCase() === name.toLowerCase()
+			);
 			return user;
 
 			break;
@@ -514,7 +516,7 @@ function findMember( channel, name ) {
 			return null;
 			break;
 		case 'group':
-			return channel.nicks.find( val => val === name );
+			return channel.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
 			break;
 
 	}
