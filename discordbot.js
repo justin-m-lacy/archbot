@@ -74,7 +74,7 @@ exports.Bot = class {
 				a.push(k);
 			}
 
-			str += a.join(',');
+			str += a.join(', ');
 
 		}
 		chan.send( str );
