@@ -82,15 +82,22 @@ exports.Bot = class {
 
 	}
 
+	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
+
 		let data = await this._cache.get(key);
 		if ( data ) data.key = key;
 		return data;
+
 	}
+
+	// associate data with key.
 	async storeKeyData( key, data ){
 		await this._cache.store( key, data );
 	}
 
+	// get a key to associate with the
+	// given chain of data objects.
 	getDataKey( baseObj, ...subs ) {
 
 		if ( baseObj instanceof Discord.Channel ) {

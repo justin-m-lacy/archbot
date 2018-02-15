@@ -1,1 +1,19 @@
-{}
+[
+    { "name":"elf", "hitdice":7, "statMods":{ "str":-2, "wis":2, "dex":2 } },
+    { "name":"half-elf", "hitdice":8, "statMods":{ "dex":1, "wis":1, "str":-1} },
+    { "name":"dwarf", "hitdice":10, "statMods":{"con":2, "wis":2, "dex":-2} },
+    { "name":"human", "hitdice":8, "statMods":{} },
+    { "name":"gnome", "hitdice":7, "statMods":{"str":-4, "int":3, "con":2} },
+    { "name":"halfling", "hitdice":6, "statMods":{"str":-2, "dex":2, "int":1, "chr":1, "wis":1, "con":1} },
+    { "name":"half-orc", "hitdice":10, "statMods":{ "str":3, "int":-2, "chr":-2, "con":2 } },
+    { "name":"orc", "hitdice":14, "statMods":{ "str":4, "int":-3, "con":2, "wis":-2} },
+    { "name":"fairy", "hitdice":4, "statMods":{ "str":-6, "int":4, "dex":4, "chr":2 } },
+    { "name":"troll", "hitdice":20, "statMods":{ "str":6, "con":4, "int":-4, "wis":-4, "chr":-4 } },
+    { "name":"half-troll", "hitdice":18, "statMods":{ "str":5, "con":3, "int":-3, "wis":-3, "chr":-3 } },
+    { "name":"pixie", "hitdice":2, "statMods":{ "str":-8, "int":2, "dex":6, "chr":2 }  },
+    { "name":"minotaur", "hitdice":14, "statMods":{ "str":2, "con":2, "int":-2, "dex":-2, "wis":2, "chr":-2 }  },
+    { "name":"centaur", "hitdice":2, "statMods":{ "dex":2, "wis":2, "chr":-2 }  },
+    { "name":"goblin", "hitdice":6, "statMods":{ "str":-2, "wis":-3, "dex":2, "int":2, "chr":-2 }  },
+    { "name":"kobold", "hitdice":6, "statMods":{ "str":-2, "wis":-2, "dex":3, "chr":-2 }  },
+    { "name":"demigod", "hitdice":14, "statMods":{ "str":4, "con":4, "dex":4, "int":4, "wis":4, "chr":4 }  }
+]
