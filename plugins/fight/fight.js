@@ -29,8 +29,8 @@ function cmdFight( msg, uname ) {
 
 	let attacker = msg.hasOwnProperty( 'member' ) ? msg.member.displayName : msg.author.username;
 
-	result = result.replace( '%t', uname );
-	result = result.replace( '%a', attacker );
+	result = result.replace( /%t/g, uname );
+	result = result.replace( /%a/g, attacker );
 
 	msg.channel.send( result );
 
