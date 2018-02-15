@@ -30,6 +30,7 @@ function initCmds(){
 	cmds.add( 'sleep', cmdSleep, 1, 1, '!sleep [sleep schedule]');
 	cmds.add( 'when', cmdWhen, 2, 2, '!when [userName] [activity]');
 	cmds.add( 'roll', cmdRoll, 1,1, '!roll [n]d[s]');
+	cmds.add( 'attack', (msg)=>{msg.channel.send( 'You attack the darkness.' ); }, 0,0, '!attack');
 
 	cmds.add( 'uid', cmdUid, 1,1, '!uid [username]' );
 	cmds.add( 'uname', cmdUName, 1,1, '!uname [nickname]' );
@@ -141,7 +142,7 @@ function doCommand( msg ) {
 
 function cmdUName( msg, name ) {
 
-	let gMember = tryGetUser( msg.channel, name );
+	let gMember = bot.tryGetUser( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' user name: ' + gMember.user.username )
 
@@ -149,7 +150,7 @@ function cmdUName( msg, name ) {
 
 function cmdNick( msg, name ) {
 
-	let gMember = tryGetUser( msg.channel, name );
+	let gMember = bot.tryGetUser( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' nickname: ' + gMember.nickname )
 
@@ -167,7 +168,7 @@ function cmdHelp( msg, cmd ) {
 
 function cmdUid( msg, name ) {
 
-	let gMember = tryGetUser( msg.channel, name );
+	let gMember = bot.tryGetUser( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' uid: ' + gMember.user.id )
 
@@ -225,7 +226,7 @@ function cmdTest( msg, reply ){
 
 async function sendGameTime( channel, displayName, gameName ) {
 	
-	let uObject = tryGetUser( channel, displayName );
+	let uObject = bot.tryGetUser( channel, displayName );
 	if ( !uObject ) return;
 
 	if ( uObject.presence.game != null && uObject.presence.game.name === gameName ) {
@@ -251,7 +252,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 async function cmdPlayTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = tryGetUser( chan, name );
+	let gMember = bot.tryGetUser( chan, name );
 	if (!gMember) return;
 
 	if ( gMember.presence.game == null ) {
@@ -281,7 +282,7 @@ async function cmdPlayTime( msg, name ){
 async function cmdIdleTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = tryGetUser( chan, name );
+	let gMember = bot.tryGetUser( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus( gMember, 'idle')){
@@ -315,7 +316,7 @@ async function cmdIdleTime( msg, name ){
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
-	let gMember = tryGetUser( chan, name );
+	let gMember = bot.tryGetUser( chan, name );
 	if ( !gMember ) return;
 
 	if ( hasStatus(gMember, 'offline') ) {
@@ -349,7 +350,7 @@ async function cmdOnTime( msg, name ) {
 async function cmdOffTime( msg, name ) {
 
 	let chan = msg.channel;
-	let gMember = tryGetUser( chan, name );
+	let gMember = bot.tryGetUser( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus(gMember, 'offline') ) {
@@ -384,7 +385,7 @@ async function cmdOffTime( msg, name ) {
 // statusName is the status to display in channel.
 async function sendHistory( channel, name, statuses, statusName ) {
 
-	let gMember = tryGetUser( channel, name );
+	let gMember = bot.tryGetUser( channel, name );
 	if ( !gMember ) return;
 
 	if ( statusName == null ) statusName = statuses;
@@ -458,7 +459,7 @@ function latestStatus( history, statuses ) {
 // send schedule message to channel, for user with displayName
 async function sendSchedule( channel, displayName, activity ) {
 
-	let gMember = tryGetUser( channel, displayName );
+	let gMember = bot.tryGetUser( channel, displayName );
 	if ( !gMember ) return;
 
 	let sched = await readSchedule( gMember, activity );
@@ -573,48 +574,6 @@ function logHistory( guildMember, statuses ) {
 	}
 
 	mergeMember( guildMember, { history:history } );
-
-}
-
-function tryGetUser( channel, name ) {
-
-	if ( name == null || name === '') {
-		channel.send( 'User name expected.');
-		return null;
-	}
-	let member = findMember( channel, name );
-	if ( member == null ) channel.send( 'User ' + name + ' not found.' );
-	return member;
-
-}
-
-// hasMembers is an object with a members property,
-// such as a Guild or a Channel.
-function findMember( channel, name ) {
-
-	if ( channel == null ) return null;
-
-	switch ( channel.type ) {
-
-		case 'text':
-		case 'voice':
-
-			let user = channel.guild.members.find(
-				gm=> gm.displayName.toLowerCase() === name.toLowerCase()
-			);
-			return user;
-
-			break;
-		case 'dm':
-			name = name.toLowerCase();
-			if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
-			return null;
-			break;
-		case 'group':
-			return channel.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
-			break;
-
-	}
 
 }
 

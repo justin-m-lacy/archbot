@@ -114,9 +114,11 @@ function cmdRollChar( msg, charname=null, racename=null, classname=null ) {
 
 	let charclass, race;
 	
+	if ( racename != null )racename = racename.toLowerCase();
 	if ( racename != null && classByName.hasOwnProperty(racename)) race = classByName[racename];
 	else race = u.randElm( classes );
 	
+	if ( classname != null ) classname = classname.toLowerCase();
 	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
 	else charclass = u.randElm( classes );
 

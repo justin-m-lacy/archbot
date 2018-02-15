@@ -137,4 +137,44 @@ exports.Bot = class {
 
 	}
 
+	tryGetUser( channel, name ) {
+
+		if ( name == null || name === '') {
+			channel.send( 'User name expected.');
+			return null;
+		}
+		let member = findMember( channel, name );
+		if ( member == null ) channel.send( 'User ' + name + ' not found.' );
+		return member;
+
+	}
+
+	findMember( channel, name ) {
+
+		if ( channel == null ) return null;
+
+		switch ( channel.type ) {
+
+			case 'text':
+			case 'voice':
+
+				let user = channel.guild.members.find(
+					gm=> gm.displayName.toLowerCase() === name.toLowerCase()
+				);
+				return user;
+
+				break;
+			case 'dm':
+				name = name.toLowerCase();
+				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
+				return null;
+				break;
+			case 'group':
+				return channel.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
+				break;
+
+		}
+
+	}
+
 }

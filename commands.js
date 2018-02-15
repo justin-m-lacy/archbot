@@ -72,7 +72,6 @@ class CmdLine {
 		this._input = str;
 
 		let ind = str.indexOf( ' ', this._prefixLen );
-		console.log( 'setting input: ' + str );
 
 		if ( ind >= 0 ) {
 
