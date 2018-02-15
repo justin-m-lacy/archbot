@@ -97,14 +97,11 @@ async function cmdLoadChar( msg, charname=null ) {
 
 	try {
 
-		let charData = await tryLoadChar( msg.channel, msg.author, charname );
-		if ( charData == null ) {
+		let char = await tryLoadChar( msg.channel, msg.author, charname );
+		if ( char == null ) {
 			msg.channel.send( charname + ' not found on server. D:' );
 			return;
 		}
-
-		let char = new Char();
-		char.initJSON( charData, raceByName, classByName );
 
 		echoChar( msg.channel, char );
 
@@ -168,7 +165,18 @@ async function tryLoadChar( chan, user, charname) {
 	}
 
 	try {
-		return await bot.fetchKeyData( key );
+
+		let data = await bot.fetchKeyData( key );
+		if ( data instanceof Char ) {
+			console.log('already char.');
+			return data;
+		}
+
+		console.log('parsing json char' );
+		let char = new Char();
+		char.initJSON( data, raceByName, classByName );
+		return char;
+
 	} catch ( err ){
 		console.log(err );
 	}

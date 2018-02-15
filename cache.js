@@ -15,6 +15,8 @@ exports.Cache = class {
 	async get( key ) {
 
 		if ( this.dict.hasOwnProperty(key)){
+			console.log( 'key found: ' + key );
+			console.log( 'key val: ' + this.dict[key]);
 			return this.dict[key];
 		}
 		if ( !this.loader ) return null;
@@ -37,6 +39,7 @@ exports.Cache = class {
 
 	async store( key, value ) {
 
+		console.log('writing key: ' + key );
 		this.dict[key] = value;
 		try {
 			if ( this.saver ) {

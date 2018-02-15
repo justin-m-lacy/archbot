@@ -41,9 +41,6 @@ module.exports = class {
 		this._stats = json._stats;
 		this._level = json._level;
 
-		for( let k in racesObj ){
-			console.log( 'race: ' + k );
-		}
 		console.log( json.race );
 		this._race = racesObj[ json.race ];
 		this._charClass = classesObj[ json.charClass ];
