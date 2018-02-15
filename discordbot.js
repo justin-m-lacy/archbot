@@ -143,7 +143,7 @@ exports.Bot = class {
 			channel.send( 'User name expected.');
 			return null;
 		}
-		let member = findMember( channel, name );
+		let member = this.findMember( channel, name );
 		if ( member == null ) channel.send( 'User ' + name + ' not found.' );
 		return member;
 
