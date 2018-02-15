@@ -1,5 +1,9 @@
 const fs = require( 'fs');
 
+exports.exists = ( path ) => new Promise( (res,rej)=>{
+	fs.exists( path, (b)=>{res(b);} )
+});
+
 exports.readdir = (path, options=null) => new Promise( (res,rej)=>{
 
 	fs.readdir( path, options, (err,files)=>{

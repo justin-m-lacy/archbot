@@ -22,7 +22,7 @@ exports.Bot = class {
 
 		this._client = client;
 		this._fsys = fsys;
-		this._cache = new cacher.Cache( 250, fsys.readData, fsys.writeData );
+		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists );
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
 		console.log( 'creating bot' );
 
