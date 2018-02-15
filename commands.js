@@ -16,7 +16,7 @@ exports.Dispatch = class CmdDispatch {
 		this.cmdLine.input = input;
 		console.log( 'cmd: ' + this.cmdLine.cmd );
 
-		let cmdInfo = this.getCmd( this.cmdLine.cmd );
+		let cmdInfo = this.getCmd( this.cmdLine.cmd.toLowerCase() );
 
 		if ( cmdInfo ) {
 

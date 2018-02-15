@@ -1,9 +1,18 @@
-module.exports = class {
+let CharClass = module.exports = class {
 
-	constructor( name, hitdice ) {
+	constructor() {
+	}
 
-		this._name = name;
-		this._hitdice = hitdice;
+	static FromJSON( json ) {
+
+		let r = new CharClass();
+		if ( json.hasOwnProperty('name')){
+			r._name = json.name;
+		}
+		if ( json.hasOwnProperty('hitdice')){
+			r._hitdice = json.hitdice;
+		}
+		return r;
 
 	}
 

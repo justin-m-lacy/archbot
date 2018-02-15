@@ -1,0 +1,15 @@
+[
+{ "name":"wizard", "hitdice":6 },
+{ "name":"sorcerer", "hitdice":6 },
+{ "name":"witch", "hitdice":6 },
+{ "name":"fighter", "hitdice":10 },
+{ "name":"ranger", "hitdice":8 },
+{ "name":"rogue", "hitdice":6 },
+{ "name":"druid", "hitdice":8 },
+{ "name":"paladin", "hitdice":8 },
+{ "name":"barbarian", "hitdice":12 },
+{ "name":"priest", "hitdice":6 },
+{ "name":"bard", "hitdice":6 },
+{ "name":"monk", "hitdice":8 }
+
+]

@@ -8,8 +8,8 @@ var initialized = false;
 var classes;
 var classByName;
 
-var races;
-var raceByName;
+var classes;
+var classByName;
 
 var bot;
 
@@ -19,7 +19,7 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', cmdRollChar, 0, 1, '!rollchar {charname}' );
+	cmds.add( 'rollchar', cmdRollChar, 0, 3, '!rollchar {charname} {racename} {classname}' );
 	cmds.add( 'loadchar', cmdLoadChar, 0, 1,  '!loadchar {charname}' );
 
 }
@@ -35,58 +35,57 @@ function initData() {
 
 function initRaces() {
 
-	let a = [];
+	if ( classes != null ) return;
 
-	a.push( new Race( "elf", 7, { 'str':-2, 'wis':2, 'dex':2 } ) );
-	a.push( new Race( 'half-elf', 8, {} ) );
-	a.push( new Race( 'dwarf', 10, {'con':2, 'wis':2, 'dex':-2} ) );
-	a.push( new Race( 'human', 8, {} ) );
-	a.push( new Race( 'gnome', 7, {'str':-4, 'int':3, 'con':2} ) );
-	a.push( new Race( 'halfling', 6, {'str':-2, 'dex':2, 'int':1, 'chr':1, 'wis':1, 'con':1} ) );
-	a.push( new Race( 'half-orc', 10, { 'str':3, 'int':-2, 'chr':-2, 'con':2 } ) );
-	a.push( new Race( 'orc', 14, { 'str':4, 'int':-3, 'con':2, 'wis':-2} ) );
-	a.push( new Race( 'fairy', 4, { 'str':-6, 'int':4, 'dex':4, 'chr':2 } ) );
-	a.push( new Race( 'troll', 20, { 'str':6, 'con':4, 'int':-4, 'wis':-4, 'chr':-4 } ) );
-	a.push( new Race( 'half-troll', 18, { 'str':5, 'con':3, 'int':-3, 'wis':-3, 'chr':-3 } ) );
-	a.push( new Race( 'pixie', 2, { 'str':-8, 'int':2, 'dex':6, 'chr':2 }  ) );
-	a.push( new Race( 'minotaur', 14, { 'str':2, 'con':2, 'int':-2, 'dex':-2, 'wis':2, 'chr':-2 }  ) );
-	a.push( new Race( 'centaur', 2, { 'dex':2, 'wis':2, 'chr':-2 }  ) );
-	a.push( new Race( 'goblin', 6, { 'str':-2, 'wis':-3, 'dex':2, 'int':2, 'chr':-2 }  ) );
-	a.push( new Race( 'kobold', 6, { 'str':-2, 'wis':-2, 'dex':3, 'chr':-2 }  ) );
-	a.push( new Race( 'demigod', 14, { 'str':8, 'con':8, 'dex':8, 'int':8, 'wis':8, 'chr':8 }  ) );
+	try {
 
-	raceByName = {};
-	for( let i = a.length-1; i>= 0; i-- ){
-		raceByName[ a[i].name ] = a[i];
+		let a = require( './data/races.json');
+
+		classes = [];
+		classByName = {};
+
+		let raceObj, race;
+		for( let i = a.length-1; i>= 0; i-- ) {
+
+			raceObj = a[i];
+			race = Race.FromJSON( raceObj );
+			classByName[ race.name ] = race;
+			classes.push( race );
+
+		}
+
+
+	} catch (e){
+		console.log(e);
 	}
-
-	races = a;
 
 }
 
 function initClasses() {
 
-	let a = [];
+	if ( classes != null ) return;
 
-	a.push( new CharClass( 'wizard', 6 ) );
-	a.push( new CharClass( 'sorcerer', 6 ) );
-	a.push( new CharClass( 'witch', 6 ) );
-	a.push( new CharClass( 'fighter', 10 ) );
-	a.push( new CharClass( 'ranger', 8 ) );
-	a.push( new CharClass( 'rogue', 6 ) );
-	a.push( new CharClass( 'druid', 8 ) );
-	a.push( new CharClass( 'paladin', 8 ) );
-	a.push( new CharClass( 'barbarian', 12 ) );
-	a.push( new CharClass( 'priest', 6 ) );
-	a.push( new CharClass( 'bard', 6 ) );
-	a.push( new CharClass( 'monk', 8 ) );
+	try {
 
-	classByName = {};
-	for( let i = a.length-1; i>= 0; i-- ){
-		classByName[ a[i].name ] = a[i];
+		let a = require( './data/classes.json');
+
+		classes = [];
+		classByName = {};
+
+		let classObj, charclass;
+		for( let i = a.length-1; i>= 0; i-- ) {
+
+			classObj = a[i];
+			charclass = CharClass.FromJSON( classObj );
+			classByName[ charclass.name ] = charclass;
+			classes.push( charclass );
+
+		}
+
+
+	} catch (e){
+		console.log(e);
 	}
-
-	classes = a;
 
 }
 
@@ -109,12 +108,17 @@ async function cmdLoadChar( msg, charname=null ) {
 
 }
 
-function cmdRollChar( msg, charname=null ) {
+function cmdRollChar( msg, charname=null, racename=null, classname=null ) {
 
 	if ( !initialized ) initData();
 
-	let charclass = u.randElm( classes );
-	let race = u.randElm( races );
+	let charclass, race;
+	
+	if ( racename != null && classByName.hasOwnProperty(racename)) race = classByName[racename];
+	else race = u.randElm( classes );
+	
+	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
+	else charclass = u.randElm( classes );
 
 	if ( charname == null ) charname = msg.author.username;
 	let char = new Char();
@@ -173,8 +177,7 @@ async function tryLoadChar( chan, user, charname) {
 		}
 
 		console.log('parsing json char' );
-		let char = new Char();
-		char.initJSON( data, raceByName, classByName );
+		let char = Char.FromJSON( data, classByName, classByName );
 		return char;
 
 	} catch ( err ){

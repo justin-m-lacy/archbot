@@ -21,10 +21,10 @@ exports.guildPath = (guild, subs )=> {
 
 	let len = subs.length;
 	let subobj;
-	console.log( 'subs len: ' + len );
+
 	for( let i = 0; i < len; i++ ) {
 		subobj = subs[i];
-		console.log( 'typeofsub: ' + typeof(subjobj ));
+
 		if ( typeof(subobj) == 'string' ) {
 			thepath += '/' + subobj;
 		} else {

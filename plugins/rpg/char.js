@@ -1,9 +1,10 @@
 const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
+const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
 
 const dice = require( '../dice/dice.js' );
 
-module.exports = class {
+class Char {
 
 	get hp() { return this._hp; }
 	set hp( v) { this._hp = v; }
@@ -23,27 +24,52 @@ module.exports = class {
 	set str( n ) { this._str = n;}
 
 	get stats() { return this._stats; }
+	get owner() { return this._owner; }
 
 	toJSON() {
-		let json = { _name:this._name, _hp:this._hp, _stats:this._stats, _level:this._level };
+	
+		let json = {};
+		let p;
+		for( let i = saveProps.length-1; i>=0; i-- ) {
+
+			p = saveProps[i];
+			json[p] = this[p];
+
+		}
 		json.race = this._race.name;
 		json.charClass = this._charClass.name;
+
 		return json;
 	}
 
-	constructor() {
+	static FromJSON( json, racesObj, classesObj ) {
+
+		let char = new Char();
+
+		let p;
+		let priv;
+		for( let i = saveProps.length-1; i>=0; i-- ) {
+
+			p = saveProps[i];
+			priv = '_' + p;
+			if ( json.hasOwnProperty(p)) {
+				char[priv] = json[p];
+			} else if ( json.hasOwnProperty(priv)) {
+				char[priv] = json[priv];
+			}
+
+		}
+
+		char._race = racesObj[ json.race ];
+		char._charClass = classesObj[ json.charClass ];
+
+		return char;
+
 	}
 
-	initJSON( json, racesObj, classesObj ) {
+	constructor( owner=null) {
 
-		this._name = json._name;
-		this._hp = json._hp;
-		this._stats = json._stats;
-		this._level = json._level;
-
-		console.log( json.race );
-		this._race = racesObj[ json.race ];
-		this._charClass = classesObj[ json.charClass ];
+		this._owner = owner;
 
 	}
 
@@ -163,3 +189,5 @@ module.exports = class {
 	}
 
 }
+
+module.exports = Char;
