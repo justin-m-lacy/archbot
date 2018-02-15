@@ -391,7 +391,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 	if ( hasStatus(gMember, statuses ) ) {
 
-		channel.send( name + ' is now ' + statusName );
+		channel.send( name + ' is now ' + statusName + '.' );
 		return;
 
 	}
@@ -406,7 +406,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
-		channel.send( 'I haven\'t seen ' + name + ' ' + statusName );
+		channel.send( 'I haven\'t seen ' + name + ' ' + statusName + '.' );
 	}
 
 }

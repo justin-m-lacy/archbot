@@ -11,8 +11,10 @@ module.exports = class {
 	get name() { return this._name;}
 	set name( v ) { this._name = v; }
 
-	get charClass() { return this._charclass; }
+	get charClass() { return this._charClass; }
+	set charClass( c ) { this._charClass = c; }
 	get race() { return this._race; }
+	set race( r) { this._race =  r; }
 
 	get level() { return this._level; }
 	set level( n ) { this._level = n; }
@@ -22,11 +24,37 @@ module.exports = class {
 
 	get stats() { return this._stats; }
 
-	constructor( name, race, charclass, info) {
+	toJSON() {
+		let json = { _name:this._name, _hp:this._hp, _stats:this._stats, _level:this._level };
+		json.race = this._race.name;
+		json.charClass = this._charClass.name;
+		return json;
+	}
+
+	constructor() {
+	}
+
+	initJSON( json, racesObj, classesObj ) {
+
+		this._name = json._name;
+		this._hp = json._hp;
+		this._stats = json._stats;
+		this._level = json._level;
+
+		for( let k in racesObj ){
+			console.log( 'race: ' + k );
+		}
+		console.log( json.race );
+		this._race = racesObj[ json.race ];
+		this._charClass = classesObj[ json.charClass ];
+
+	}
+
+	rollNew( name, race, charclass, info ){
 
 		this._name = name;
 		this._race = race;
-		this._charclass = charclass;
+		this._charClass = charclass;
 		this._level = 1;
 
 		this._hp = 0;
@@ -77,7 +105,7 @@ module.exports = class {
 
 	getLongDesc() {
 
-		let desc = 'level ' + this._level + ' ' + this._race.name + ' ' + this._charclass.name;
+		let desc = 'level ' + this._level + ' ' + this._race.name + ' ' + this._charClass.name;
 		desc += '\nhp: ' + this._hp;
 		desc += '\n' + this.getStatString();
 
@@ -110,7 +138,7 @@ module.exports = class {
 	}
 
 	computeHp() {
-		this._hp = Math.floor( (this._race.HD + this._charclass.HD)/2) + this.getModifier('con');
+		this._hp = Math.floor( (this._race.HD + this._charClass.HD)/2) + this.getModifier('con');
 		if ( this._hp < 1 ) this._hp = 1;
 	}
 

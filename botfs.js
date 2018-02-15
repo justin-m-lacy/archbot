@@ -2,7 +2,7 @@ const path = require( 'path');
 const fsj = require( './async_fs.js');
 
 const BASE_DIR = './savedata/';
-const SERVERS_DIR = 'guilds/';
+const GUILDS_DIR = 'guilds/';
 const CHANNELS_DIR = 'channels/'
 const GAMES_DIR = 'games';
 const PLUGINS_DIR = 'plugins/';
@@ -12,6 +12,49 @@ exports.readData = readData;
 exports.writeData = writeData;
 exports.memberPath = getMemberPath;
 exports.userPath = getUserPath;
+
+exports.guildPath = (guild, subs )=> {
+	if ( guild == null ) return CHANNELS_DIR;
+
+	let thepath = GUILDS_DIR + guild.id;
+	if ( subs == null ) return thepath;
+
+	let len = subs.length;
+	let subobj;
+	console.log( 'subs len: ' + len );
+	for( let i = 0; i < len; i++ ) {
+		subobj = subs[i];
+		console.log( 'typeofsub: ' + typeof(subjobj ));
+		if ( typeof(subobj) == 'string' ) {
+			thepath += '/' + subobj;
+		} else {
+			thepath += '/' + subobj.id;
+		}
+	}
+
+	return thepath;
+}
+
+exports.channelPath = ( chan, subs ) => {
+	if ( chan == null ) return CHANNELS_DIR;
+
+	let thepath = CHANNELS_DIR + '/' + chan.id;
+	if ( subs == null ) return thepath;
+	let len = subs.length;
+
+	let subobj;
+	for( let i = 0; i < len; i++ ) {
+		subobj = subs[i];
+		if ( typeof(subobj) == 'string' ) {
+			thepath += '/' + subobj;
+		} else {
+			thepath += '/' + subobj.id;
+		}
+	}
+
+	return thepath;
+}
+
 
 exports.pluginDir = getPluginDir;
 exports.getPluginFile = getPluginFile;
@@ -43,8 +86,8 @@ function getPluginDir( plugname, guild ) {
 
 // path to guild storage.
 function getGuildDir( guild ) {
-	if ( guild == null ) return SERVERS_DIR;
-	return path.join( SERVERS_DIR, guild.id );
+	if ( guild == null ) return GUILDS_DIR;
+	return path.join( GUILDS_DIR, guild.id );
 }
 
 // path to user not in guild.
@@ -63,6 +106,6 @@ function getMemberPath( member ) {
 
 	let gid = member.guild.id;
 
-	return path.join( SERVERS_DIR, gid, (member.id) );
+	return path.join( GUILDS_DIR, gid, (member.id) );
 
 }
