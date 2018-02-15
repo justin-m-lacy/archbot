@@ -2,6 +2,7 @@ const fsys = require( './botfs.js');
 const cmd = require( './commands.js');
 const cacher = require( './cache.js' );
 const Discord = require ( 'discord.js');
+
 exports.Bot = class {
 
 	get client() {
@@ -78,6 +79,27 @@ exports.Bot = class {
 
 		}
 		chan.send( str );
+
+	}
+
+	async fetchKeyData( key ) {
+		let data = await this._cache.get(key);
+		if ( data ) data.key = key;
+		return data;
+	}
+	async storeKeyData( key, data ){
+		await this._cache.store( key, data );
+	}
+
+	getDataKey( baseObj, ...subs ) {
+
+		if ( baseObj instanceof Discord.Channel ) {
+			return fsys.channelPath( baseObj, subs );
+		} else if ( baseObj instanceof Discord.GuildMember ){
+			return fsys.guildPath( baseObj.guild, subs );
+		} else if ( baseObj instanceof Discord.Guild ){
+			return fsys.guildPath( baseObj, subs );
+		}
 
 	}
 

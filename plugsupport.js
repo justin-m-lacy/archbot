@@ -68,7 +68,6 @@ function findAndLoad( dir ) {
 
 function loadPlugDesc( descPath ) {
 
-	console.log( 'loading: ' + descPath );
 	let data = fs.readFileSync(descPath);
 	let desc = JSON.parse( data );
 
@@ -85,6 +84,7 @@ function loadPlugin( plugDir, desc ){
 	try {
 
 		let plugFile = path.resolve( plugDir, desc.plugin );
+		console.log( 'loading plugin: ' + desc.plugin );
 		return require( plugFile );
 
 	} catch ( err ){

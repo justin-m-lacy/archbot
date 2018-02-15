@@ -6,7 +6,10 @@ const CharClass = exports.CharClass = require( './charclass.js' );
 var initialized = false;
 
 var classes;
+var classByName;
+
 var races;
+var raceByName;
 
 var bot;
 
@@ -16,7 +19,8 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', cmdRollChar, 0, 0, '!rollchar {charname}' );
+	cmds.add( 'rollchar', cmdRollChar, 0, 1, '!rollchar {charname}' );
+	cmds.add( 'loadchar', cmdLoadChar, 0, 1,  '!loadchar {charname}' );
 
 }
 
@@ -33,7 +37,7 @@ function initRaces() {
 
 	let a = [];
 
-	a.push( new Race( "elf", 7, {'str':-2, 'wis':2, 'dex':2 } ) );
+	a.push( new Race( "elf", 7, { 'str':-2, 'wis':2, 'dex':2 } ) );
 	a.push( new Race( 'half-elf', 8, {} ) );
 	a.push( new Race( 'dwarf', 10, {'con':2, 'wis':2, 'dex':-2} ) );
 	a.push( new Race( 'human', 8, {} ) );
@@ -44,12 +48,17 @@ function initRaces() {
 	a.push( new Race( 'fairy', 4, { 'str':-6, 'int':4, 'dex':4, 'chr':2 } ) );
 	a.push( new Race( 'troll', 20, { 'str':6, 'con':4, 'int':-4, 'wis':-4, 'chr':-4 } ) );
 	a.push( new Race( 'half-troll', 18, { 'str':5, 'con':3, 'int':-3, 'wis':-3, 'chr':-3 } ) );
-	a.push( new Race( 'pixie', 2, {  'str':-8, 'int':2, 'dex':6, 'chr':2 }  ) );
-	a.push( new Race( 'minotaur', 14, {  'str':2, 'con':2, 'int':-2, 'dex':-2, 'wis':2, 'chr':-2 }  ) );
-	a.push( new Race( 'centaur', 2, {  'dex':2, 'wis':2, 'chr':-2 }  ) );
-	a.push( new Race( 'goblin', 6, {  'str':-2, 'wis':-3, 'dex':2, 'int':2, 'chr':-2 }  ) );
-	a.push( new Race( 'kobold', 6, {  'str':-2, 'wis':-2, 'dex':3, 'chr':-2 }  ) );
-	a.push( new Race( 'demigod', 14, {  'str':4, 'con':4, 'dex':4, 'int':4, 'wis':4, 'chr':4 }  ) );
+	a.push( new Race( 'pixie', 2, { 'str':-8, 'int':2, 'dex':6, 'chr':2 }  ) );
+	a.push( new Race( 'minotaur', 14, { 'str':2, 'con':2, 'int':-2, 'dex':-2, 'wis':2, 'chr':-2 }  ) );
+	a.push( new Race( 'centaur', 2, { 'dex':2, 'wis':2, 'chr':-2 }  ) );
+	a.push( new Race( 'goblin', 6, { 'str':-2, 'wis':-3, 'dex':2, 'int':2, 'chr':-2 }  ) );
+	a.push( new Race( 'kobold', 6, { 'str':-2, 'wis':-2, 'dex':3, 'chr':-2 }  ) );
+	a.push( new Race( 'demigod', 14, { 'str':8, 'con':8, 'dex':8, 'int':8, 'wis':8, 'chr':8 }  ) );
+
+	raceByName = {};
+	for( let i = a.length-1; i>= 0; i-- ){
+		raceByName[ a[i].name ] = a[i];
+	}
 
 	races = a;
 
@@ -72,7 +81,34 @@ function initClasses() {
 	a.push( new CharClass( 'bard', 6 ) );
 	a.push( new CharClass( 'monk', 8 ) );
 
+	classByName = {};
+	for( let i = a.length-1; i>= 0; i-- ){
+		classByName[ a[i].name ] = a[i];
+	}
+
 	classes = a;
+
+}
+
+async function cmdLoadChar( msg, charname=null ) {
+
+	if ( !initialized ) initData();
+	if ( charname == null ) charname = msg.author.username;
+
+	try {
+
+		let charData = await tryLoadChar( msg.channel, msg.author, charname );
+		if ( charData == null ) {
+			msg.channel.send( charname + ' not found on server. D:' );
+			return;
+		}
+
+		let char = new Char();
+		char.initJSON( charData, raceByName, classByName );
+
+		echoChar( msg.channel, char );
+
+	} catch(e) {console.log(e);}
 
 }
 
@@ -83,12 +119,60 @@ function cmdRollChar( msg, charname=null ) {
 	let charclass = u.randElm( classes );
 	let race = u.randElm( races );
 
-	let char = new Char( charname, race, charclass );
-	let namestr = charname != null ? charname + ' is a' : 'You are a';
+	if ( charname == null ) charname = msg.author.username;
+	let char = new Char();
+	char.rollNew(  charname, race, charclass );
+
+	echoChar( msg.channel, char );
+	trySaveChar( msg.channel, msg.author, char );
+	
+}
+
+function echoChar( chan, char ) {
+
+	let namestr = char.name + ' is a';
 
 	let desc = char.getLongDesc();
 
-	msg.channel.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
+	chan.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
+
+}
+
+async function trySaveChar( chan, user, char ) {
+
+	let type = chan.type;
+	let key;
+	if ( type == 'text' || type == 'voice ') {
+		key = bot.getDataKey( chan.guild, user, char.name );
+	} else {
+		key = bot.getDataKey( chan, user, char.name );
+	}
+
+	console.log( 'char save key: ' + key );
+	try {
+		await bot.storeKeyData( key, char );
+	} catch (err) {
+		console.log(err);
+	}
+
+}
+
+async function tryLoadChar( chan, user, charname) {
+
+	let type = chan.type;
+	let key;
+	if ( type == 'text' || type == 'voice ') {
+		key = bot.getDataKey( chan.guild, user, charname );
+	} else {
+		key = bot.getDataKey( chan, user, charname );
+	}
+
+	try {
+		return await bot.fetchKeyData( key );
+	} catch ( err ){
+		console.log(err );
+	}
+	return null;
 
 }
 
