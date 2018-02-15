@@ -24,6 +24,119 @@ exports.init = function( discordbot ){
 
 }
 
+async function cmdLoadChar( msg, charname=null ) {
+
+	if ( !initialized ) initData();
+	if ( charname == null ) charname = msg.author.username;
+
+	try {
+
+		let char = await tryLoadChar( msg.channel, msg.author, charname );
+		if ( char == null ) {
+			msg.channel.send( charname + ' not found on server. D:' );
+			return;
+		}
+
+		echoChar( msg.channel, char );
+
+	} catch(e) {console.log(e);}
+
+}
+
+async function cmdRollChar( msg, charname=null, racename=null, classname=null ) {
+
+	if ( !initialized ) initData();
+
+	let charclass, race;
+	
+	if ( racename != null )racename = racename.toLowerCase();
+	if ( racename != null && classByName.hasOwnProperty(racename)) race = classByName[racename];
+	else race = u.randElm( classes );
+	
+	if ( classname != null ) classname = classname.toLowerCase();
+	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
+	else charclass = u.randElm( classes );
+
+	if ( charname == null ) charname = msg.author.username;
+
+	try {
+		let key = getCharKey( msg.channel, msg.author, charname );
+		let exists = await bot.cache.exists( key );
+		if ( exists ) {
+			msg.channel.send( 'Character ' + charname + ' already exists.' );
+			return;
+		}
+	} catch (e){console.log(e);return; }
+
+	let char = new Char();
+	char.rollNew(  charname, race, charclass );
+
+	echoChar( msg.channel, char );
+	trySaveChar( msg.channel, msg.author, char );
+	
+}
+
+function echoChar( chan, char ) {
+
+	let namestr = char.name + ' is a';
+
+	let desc = char.getLongDesc();
+
+	chan.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
+
+}
+
+async function trySaveChar( chan, user, char ) {
+
+	let key = getCharKey( chan, user, char.name );
+
+	console.log( 'char save key: ' + key );
+	try {
+		await bot.storeKeyData( key, char );
+	} catch (err) {
+		console.log(err);
+	}
+
+}
+
+async function tryLoadChar( chan, user, charname) {
+
+	let key = getCharKey( chan, user, charname );
+
+	try {
+
+		let data = await bot.fetchKeyData( key );
+		if ( data instanceof Char ) {
+			console.log('already char.');
+			return data;
+		}
+
+		console.log('parsing json char' );
+		let char = Char.FromJSON( data, classByName, classByName );
+		return char;
+
+	} catch ( err ){
+		console.log(err );
+	}
+	return null;
+
+}
+
+function getCharKey( chan, user, charname ) {
+
+	let type = chan.type;
+	if ( type == 'text' || type == 'voice ') {
+		return bot.getDataKey( chan.guild, user, charname );
+	} else {
+		return bot.getDataKey( chan, user, charname );
+	}
+
+}
+
+function isVowel( lt ) {
+	return lt === 'a' || lt === 'e' || lt === 'i' || lt === 'o' || lt === 'u';
+}
+
 function initData() {
 
 	initialized = true;
@@ -86,120 +199,5 @@ function initClasses() {
 	} catch (e){
 		console.log(e);
 	}
-
-}
-
-async function cmdLoadChar( msg, charname=null ) {
-
-	if ( !initialized ) initData();
-	if ( charname == null ) charname = msg.author.username;
-
-	try {
-
-		let char = await tryLoadChar( msg.channel, msg.author, charname );
-		if ( char == null ) {
-			msg.channel.send( charname + ' not found on server. D:' );
-			return;
-		}
-
-		echoChar( msg.channel, char );
-
-	} catch(e) {console.log(e);}
-
-}
-
-function cmdRollChar( msg, charname=null, racename=null, classname=null ) {
-
-	if ( !initialized ) initData();
-
-	let charclass, race;
-	
-	if ( racename != null )racename = racename.toLowerCase();
-	if ( racename != null && classByName.hasOwnProperty(racename)) race = classByName[racename];
-	else race = u.randElm( classes );
-	
-	if ( classname != null ) classname = classname.toLowerCase();
-	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
-	else charclass = u.randElm( classes );
-
-	if ( charname == null ) charname = msg.author.username;
-	let char = new Char();
-	char.rollNew(  charname, race, charclass );
-
-	echoChar( msg.channel, char );
-	trySaveChar( msg.channel, msg.author, char );
-	
-}
-
-function echoChar( chan, char ) {
-
-	let namestr = char.name + ' is a';
-
-	let desc = char.getLongDesc();
-
-	chan.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
-
-}
-
-async function trySaveChar( chan, user, char ) {
-
-	let type = chan.type;
-	let key;
-	if ( type == 'text' || type == 'voice ') {
-		key = bot.getDataKey( chan.guild, user, char.name );
-	} else {
-		key = bot.getDataKey( chan, user, char.name );
-	}
-
-	console.log( 'char save key: ' + key );
-	try {
-		await bot.storeKeyData( key, char );
-	} catch (err) {
-		console.log(err);
-	}
-
-}
-
-async function tryLoadChar( chan, user, charname) {
-
-	let type = chan.type;
-	let key;
-	if ( type == 'text' || type == 'voice ') {
-		key = bot.getDataKey( chan.guild, user, charname );
-	} else {
-		key = bot.getDataKey( chan, user, charname );
-	}
-
-	try {
-
-		let data = await bot.fetchKeyData( key );
-		if ( data instanceof Char ) {
-			console.log('already char.');
-			return data;
-		}
-
-		console.log('parsing json char' );
-		let char = Char.FromJSON( data, classByName, classByName );
-		return char;
-
-	} catch ( err ){
-		console.log(err );
-	}
-	return null;
-
-}
-
-function getModifier( stat ) {
-	return Math.floor( ( stat - 10)/2 );
-}
-
-function isVowel( lt ) {
-	return lt === 'a' || lt === 'e' || lt === 'i' || lt === 'o' || lt === 'u';
-}
-
-function initChar( char ) {
-
-	char.level = 1;
-	char.hp = Math.floor( char.charClass.HD + char.race.HD )/2;
 
 }

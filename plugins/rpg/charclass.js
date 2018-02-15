@@ -6,10 +6,10 @@ let CharClass = module.exports = class {
 	static FromJSON( json ) {
 
 		let r = new CharClass();
-		if ( json.hasOwnProperty('name')){
+		if ( json.hasOwnProperty('name')) {
 			r._name = json.name;
 		}
-		if ( json.hasOwnProperty('hitdice')){
+		if ( json.hasOwnProperty('hitdice')) {
 			r._hitdice = json.hitdice;
 		}
 		return r;

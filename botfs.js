@@ -1,5 +1,5 @@
 const path = require( 'path');
-const fsj = require( './async_fs.js');
+const afs = require( './async_fs.js');
 
 const BASE_DIR = './savedata/';
 const GUILDS_DIR = 'guilds/';
@@ -12,6 +12,10 @@ exports.readData = readData;
 exports.writeData = writeData;
 exports.memberPath = getMemberPath;
 exports.userPath = getUserPath;
+
+exports.fileExists = async (filePath) => {
+	return await( afs.exists( BASE_DIR + filePath + '.json') );
+}
 
 exports.guildPath = (guild, subs )=> {
 	if ( guild == null ) return CHANNELS_DIR;
@@ -59,17 +63,16 @@ exports.channelPath = ( chan, subs ) => {
 exports.pluginDir = getPluginDir;
 exports.getPluginFile = getPluginFile;
 
-
 async function readData( relPath ) {
-	return await fsj.readJSON( path.join( BASE_DIR, relPath + '.json' ) );
+	return await afs.readJSON( path.join( BASE_DIR, relPath + '.json' ) );
 }
 
 async function writeData( relPath, data ) {
 
 	let absPath = path.join( BASE_DIR, relPath );
 
-	await fsj.mkdir( path.dirname( absPath ) );
-	await fsj.writeJSON( absPath + '.json', data );
+	await afs.mkdir( path.dirname( absPath ) );
+	await afs.writeJSON( absPath + '.json', data );
 
 }
 

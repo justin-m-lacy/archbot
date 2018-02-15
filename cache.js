@@ -1,15 +1,30 @@
 exports.Cache = class {
 
+	get cacheKey() { return this._cacheKey; }
+
 	// loader fallback loads with (key)
 	// saver stores with (key,value)
-	constructor( max_entries, loader, saver ) {
+	constructor( loader, saver, checker, cacheKey = '' ) {
 
-		this.max_size = max_entries;
+		this._cacheKey = cacheKey;
+
 		this.loader = loader;
+		this.checker = checker;
 		this.saver = saver;
 
 		this.dict = {};
 
+	}
+
+	makeSubCache( subkey ) {
+
+		if ( subkey.charAt( subkey.length-1 ) != '/' ) subkey = subkey + '/';
+
+		let cache = new exports.Cache( this.max_size,
+			this.loader, this.saver, this._cacheKey + '/' + subkey );
+
+		this.dict[subkey] = cache;
+		return cache;
 	}
 
 	async get( key ) {
@@ -55,6 +70,19 @@ exports.Cache = class {
 		delete this.dict[key];
 	}
 
+	// checks if data exists in cache
+	// or backing store.
+	async exists( key ){
+
+		if ( this.dict.hasOwnProperty(key)) return true;
+		if ( this.checker ) {
+			return await this.checker(key);
+		}
+		return false;
+
+	}
+
+	// checks if key item is cached.
 	has( key ) {
 		return this.dict.hasOwnProperty(key);
 	}
