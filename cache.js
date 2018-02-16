@@ -20,8 +20,8 @@ exports.Cache = class {
 
 		if ( subkey.charAt( subkey.length-1 ) != '/' ) subkey = subkey + '/';
 
-		let cache = new exports.Cache( this.max_size,
-			this.loader, this.saver, this._cacheKey + '/' + subkey );
+		let cache = new exports.Cache(
+			this.loader, this.saver, this.checker, this._cacheKey + '/' + subkey );
 
 		this._dict[subkey] = cache;
 		return cache;

@@ -1,0 +1,11 @@
+{
+  "name": "archdice",
+  "version": "1.0.0",
+  "description": "Simple dice roller",
+  "main": "dice.js",
+  "scripts": {
+    "test": "node dice.js"
+  },
+  "author": "Lerping Lemur",
+  "license": "ISC"
+}

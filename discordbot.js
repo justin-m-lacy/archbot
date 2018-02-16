@@ -15,7 +15,6 @@ exports.GetBot = () => Bot;
 class DiscordBot {
 
 	get client() { return this._client;}
-	get fsys() { return this._fsys; }
 	get cache() { return this._cache; }
 	get dispatch() { return this._dispatch;}
 	get contexts() { return this._contexts;}
@@ -30,7 +29,6 @@ class DiscordBot {
 		this._contextClasses = [];
 
 		this._client = client;
-		this._fsys = fsys;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists );
 
 		this._cmdPrefix = cmdPrefix;
@@ -63,10 +61,14 @@ class DiscordBot {
 
 		this._contextClasses.push(cls);
 
+		console.log( 'Adding context class.');
+
 		let context;
 		for( let k in this._contexts ){
 
 			context = this._contexts[k];
+			//console.log( 'instantiating context class: ' + cls.prototype );
+
 			context.addInstance( new cls(context ) );
 
 		}
@@ -117,6 +119,7 @@ class DiscordBot {
 		let type = m.channel.type;
 		let idobj;
 
+		try {
 		if ( type == 'text' || type == 'voice ') idobj = m.guild;
 		else if ( type == 'group' ) idobj = m.channel;
 		else idobj = m.reciever;
@@ -124,8 +127,10 @@ class DiscordBot {
 		let id = idobj.id;
 		let context = this._contexts[id];
 		if ( context != null ) return context;
-		return makeContext( idobj, type );
+		return this.makeContext( idobj, type );
 
+		} catch ( e) {console.log(e);}
+		return;
 	}
 
 	/**
@@ -146,21 +151,25 @@ class DiscordBot {
 	makeContext( idobj, type ) {
 
 		console.log( 'creating context.' );
-		let c;
+		let context;
 
-		if ( type == 'text' || type == 'voice ') c = new Contexts.GuildContext( this, idobj );
-		else if ( type == 'group' ) c = new Contexts.GroupContext( this, idobj );
-		else  c = new Contexts.UserContext( this, idobj );;
+		if ( type == 'text' || type == 'voice ') context = new Contexts.GuildContext( this, idobj );
+		else if ( type == 'group' ) context = new Contexts.GroupContext( this, idobj );
+		else  context = new Contexts.UserContext( this, idobj );;
 
 		let cls;
 		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
 
 			cls = this._contextClasses[i];
-			c.addInstance( new cls( c ) );
+			//console.log( 'instantiating context class: ' + cls.prototype );
+
+			context.addInstance( new cls( context ) );
 
 		}
 
-		return c;
+		this._contexts[idobj.id] = context;
+
+		return context;
 
 	}
 
@@ -237,11 +246,11 @@ class DiscordBot {
 	getDataKey( baseObj, ...subs ) {
 
 		if ( baseObj instanceof Discord.Channel ) {
-			return this._fsys.channelPath( baseObj, subs );
+			return fsys.channelPath( baseObj, subs );
 		} else if ( baseObj instanceof Discord.GuildMember ){
-			return this._fsys.guildPath( baseObj.guild, subs );
+			return fsys.guildPath( baseObj.guild, subs );
 		} else if ( baseObj instanceof Discord.Guild ){
-			return this._fsys.guildPath( baseObj, subs );
+			return fsys.guildPath( baseObj, subs );
 		}
 
 	}
