@@ -3,7 +3,7 @@ const cmd = require( './commands.js');
 const cacher = require( './cache.js' );
 const Discord = require ( 'discord.js');
 
-const Context = exports.Context = require( './botcontext.js');
+const Contexts = exports.Context = require( './botcontext.js');
 
 var Bot;
 exports.InitBot = ( client, cmdPrefix='!') => {
@@ -92,16 +92,7 @@ class DiscordBot {
 		if ( m.author.id == this._client.user.id ) return;
 
 		// get Context for cmd routing.
-		let type = m.channel.type;
-		let context;
-		if ( type == 'text' || type == 'voice ') {
-			context = this.getContext( m.guild, 'guild');
-		} else if ( type == 'group' ) {
-			context = this.getContext( m.channel, type )
-		} else {
-			// dm
-			context = this.getContext( m.reciever, type );
-		}
+		let context = this.getMsgContext( m );
 
 		try {
 	
@@ -120,20 +111,46 @@ class DiscordBot {
 
 	}
 
+	// context for the given mesg.
+	getMsgContext( m ) {
+
+		let type = m.channel.type;
+		let idobj;
+
+		if ( type == 'text' || type == 'voice ') idobj = m.guild;
+		else if ( type == 'group' ) idobj = m.channel;
+		else idobj = m.reciever;
+
+		let id = idobj.id;
+		let context = this._contexts[id];
+		if ( context != null ) return context;
+		return makeContext( idobj, type );
+
+	}
+
 	/**
 	 * 
-	 * @param {*} obj 
+	 * @param {*} idobj 
 	 * @param {*} type 
 	 */
-	getContext( obj, type=null ) {
+	getContext( idobj, type=null ) {
 
-		let id = obj.id;
+		let id = idobj.id;
 		if ( this._contexts.hasOwnProperty(id) ) {
 			return this._contexts[id];
 		}
+		return this.makeContext( idobj, type );
 
-		console.log( 'creating new context.' );
-		let c = this._contexts[id] = new Context( this, obj, type );
+	}
+
+	makeContext( idobj, type ) {
+
+		console.log( 'creating context.' );
+		let c;
+
+		if ( type == 'text' || type == 'voice ') c = new Contexts.GuildContext( this, idobj );
+		else if ( type == 'group' ) c = new Contexts.GroupContext( this, idobj );
+		else  c = new Contexts.UserContext( this, idobj );;
 
 		let cls;
 		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
@@ -220,11 +237,11 @@ class DiscordBot {
 	getDataKey( baseObj, ...subs ) {
 
 		if ( baseObj instanceof Discord.Channel ) {
-			return fsys.channelPath( baseObj, subs );
+			return this._fsys.channelPath( baseObj, subs );
 		} else if ( baseObj instanceof Discord.GuildMember ){
-			return fsys.guildPath( baseObj.guild, subs );
+			return this._fsys.guildPath( baseObj.guild, subs );
 		} else if ( baseObj instanceof Discord.Guild ){
-			return fsys.guildPath( baseObj, subs );
+			return this._fsys.guildPath( baseObj, subs );
 		}
 
 	}

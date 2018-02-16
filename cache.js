@@ -12,7 +12,7 @@ exports.Cache = class {
 		this.checker = checker;
 		this.saver = saver;
 
-		this.dict = {};
+		this._dict = {};
 
 	}
 
@@ -23,16 +23,16 @@ exports.Cache = class {
 		let cache = new exports.Cache( this.max_size,
 			this.loader, this.saver, this._cacheKey + '/' + subkey );
 
-		this.dict[subkey] = cache;
+		this._dict[subkey] = cache;
 		return cache;
 	}
 
 	async get( key ) {
 
-		if ( this.dict.hasOwnProperty(key)){
+		if ( this._dict.hasOwnProperty(key)){
 			console.log( 'key found: ' + key );
-			console.log( 'key val: ' + this.dict[key]);
-			return this.dict[key];
+			console.log( 'key val: ' + this._dict[key]);
+			return this._dict[key];
 		}
 		if ( !this.loader ) return null;
 
@@ -41,7 +41,7 @@ exports.Cache = class {
 			console.log( 'fetching from file.');
 			let val = await this.loader( key );
 			if ( val != null ) {
-				this.dict[key] = val;
+				this._dict[key] = val;
 			}
 			return val;
 
@@ -55,7 +55,7 @@ exports.Cache = class {
 	async store( key, value ) {
 
 		console.log('writing key: ' + key );
-		this.dict[key] = value;
+		this._dict[key] = value;
 		try {
 			if ( this.saver ) {
 				await this.saver( key, value );
@@ -67,14 +67,14 @@ exports.Cache = class {
 	}
 
 	free( key ){
-		delete this.dict[key];
+		delete this._dict[key];
 	}
 
 	// checks if data exists in cache
 	// or backing store.
 	async exists( key ){
 
-		if ( this.dict.hasOwnProperty(key)) return true;
+		if ( this._dict.hasOwnProperty(key)) return true;
 		if ( this.checker ) {
 			return await this.checker(key);
 		}
@@ -84,7 +84,7 @@ exports.Cache = class {
 
 	// checks if key item is cached.
 	has( key ) {
-		return this.dict.hasOwnProperty(key);
+		return this._dict.hasOwnProperty(key);
 	}
 
 
