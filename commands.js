@@ -1,4 +1,22 @@
 
+const Command = exports.Command = class {
+
+	get opts() { return this._opts;}
+	get label() { return this._label; }
+	get func() { return this._func };
+	get usage() { return this._usage; }
+
+	constructor( label, usage, opts=null, func=null ) {
+
+		this._label = label;
+		this._func = func;
+		this._usage = usage;
+		this._opts = opts;
+
+	}
+
+}
+
 exports.Dispatch = class CmdDispatch {
 
 	get commands() { return this._cmds; }
@@ -9,14 +27,45 @@ exports.Dispatch = class CmdDispatch {
 
 	}
 
-	// lead args precede any arguments from processed command
+	routeCmd( context, input, leadArgs=null ) {
+
+		this.cmdLine.input = input;
+		console.log( 'cmd: ' + this.cmdLine.cmdname );
+
+		let cmd = this.getCmd( this.cmdLine.cmdname );
+
+		if ( cmd ) {
+
+			var args;
+			if ( cmd.group === 'left') args = this.cmdLine.groupLeft( cmd.maxArgs );
+			else args = this.cmdLine.groupRight( cmd.maxArgs );
+
+			if ( leadArgs != null ){
+				args = leadArgs.concat(args);
+			}
+
+			let f = cmd.func;
+			if ( f != null ) {
+				f.apply( null, args );
+				return null;
+			} else {
+
+				return context.routeCommand( cmd.name, args );
+			}
+
+		}
+		return 'Command not found';
+
+	}
+
+	// lead args precede arguments from processed command
 	// returns error message on failure.
 	process( input, leadArgs=null ) {
 
 		this.cmdLine.input = input;
-		console.log( 'cmd: ' + this.cmdLine.cmd );
+		console.log( 'cmd: ' + this.cmdLine.cmdname );
 
-		let cmdInfo = this.getCmd( this.cmdLine.cmd.toLowerCase() );
+		let cmdInfo = this.getCmd( this.cmdLine.cmdname );
 
 		if ( cmdInfo ) {
 
@@ -28,9 +77,9 @@ exports.Dispatch = class CmdDispatch {
 				args = leadArgs.concat(args);
 			}
 
-			let cmd = cmdInfo.cmd;
-			if ( cmd != null ) {
-				cmd.apply( null, args );
+			let f = cmdInfo.func;
+			if ( f != null ) {
+				f.apply( null, args );
 				return null;
 			}
 
@@ -40,18 +89,13 @@ exports.Dispatch = class CmdDispatch {
 	}
 
 	// group - group arguments on right or left
-	add( label, cmd, minArgs, maxArgs, usage, group='left') {
+	add( label, func, minArgs, maxArgs, usage, group='left') {
 
-		this._cmds[label] = { cmd:cmd, minArgs:minArgs, maxArgs:maxArgs, usage:usage, group:group };
+		this._cmds[label] = { func:func, minArgs:minArgs, maxArgs:maxArgs, usage:usage, group:group };
 	}
 
 	getCmd( label ) {
-
-		if ( this._cmds.hasOwnProperty( label )) {
-			return this._cmds[label];
-		}
-		return null;
-
+		return this._cmds[label];
 	}
 
 	clearCmd( label ) {
@@ -75,19 +119,19 @@ class CmdLine {
 
 		if ( ind >= 0 ) {
 
-			this._cmd = str.slice( this._prefixLen, ind );
+			this._cmd = str.slice( this._prefixLen, ind ).toLowerCase();
 			this._argStr = str.slice(ind);
 	
 		} else {
 
-			this._cmd = str.slice( this._prefixLen );
+			this._cmd = str.slice( this._prefixLen ).toLowerCase();
 			this._argStr = '';
 
 		}
 
 	}
 
-	get cmd() {
+	get cmdname() {
 		return this._cmd;
 	}
 

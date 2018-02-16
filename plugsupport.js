@@ -25,7 +25,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 	} catch ( err ) {
 		console.log(err);
-	}
+	} 
 
 	return plugins;
 
