@@ -2,7 +2,7 @@ var Discord = require( 'discord.js');
 var auth = require('./auth.json');
 
 const DateFormat = require( './datedisplay.js' );
-const dice = require( 'dice.js' );
+const dice = require( 'archdice' );
 const jsutils = require( './jsutils.js' );
 const cmd = require( './commands.js');
 const DiscordBot = require( './discordbot.js');
@@ -108,6 +108,7 @@ function onShutdown() {
 		client.destroy();
 		client = null;
 	}
+	process.exit(1);
 }
 
 
@@ -120,8 +121,6 @@ function doMsg( msg ) {
 		let content = msg.content;
 
 		if ( content.substring(0,1) === CmdPrefix ) {
-
-			doCommand( msg );
 
 		} else {
 
@@ -140,15 +139,6 @@ function doMsg( msg ) {
 
 function cmdUptime( m ) {
 	m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
-}
-
-function doCommand( msg ) {
-
-	let error = dispatch.process( msg.content, [msg] );
-
-	if ( error )
-		msg.channel.send( error );
-
 }
 
 function cmdUName( msg, name ) {
