@@ -6,7 +6,27 @@ auth.json
 
 savedata
 
-node_modules
+node_modules/async-limiter*
 
+node_modules/discord.js*
+
+node_modules/long*
+
+node_modules/prism-media*
+
+node_modules/safe-buffer*
+
+node_modules/snekfetch*
+
+node_modules/tweetnacl*
+
+node_modules/ultron*
+
+node_modules/uws*
+
+node_modules/ws*
 *.lnk
+package-lock.json
+package-lock.json
+package-lock.json
 client_link.txt

@@ -2,7 +2,7 @@ const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
 const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
 
-const dice = require( '../../node_modules/archdice/archdice.js' );
+const dice = require( '../../node_modules/archdice' );
 
 class Char {
 
@@ -84,6 +84,8 @@ class Char {
 
 		this._info = {};
 		this._stats = {};
+
+		console.log( 'new: ' + race.name + ' ' + charclass.name );
 
 		this.readinfo( info );
 

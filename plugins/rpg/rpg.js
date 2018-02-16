@@ -14,15 +14,15 @@ var classByName;
 var bot;
 
 // created for each discord context.
-exports.ContextClass = new class {
+var RPG = exports.ContextClass = class {
 
 	constructor( context ) {
 
 		this._context = context;
 		console.log( "Creating RPG instance.");
 
-		context.bindCommand( 'rollchar', this.cmdRollChar );
-		context.bindCommand( 'loadchar', this.cmdLoadChar );
+		context.bindCommand( 'rollchar', this );
+		context.bindCommand( 'loadchar', this );
 
 	}
 
@@ -57,37 +57,52 @@ exports.ContextClass = new class {
 	
 		if ( !initialized ) initData();
 	
-		console.log( "INSTANCE ROLL CHAR" );
+		console.log( "INSTANCE ROLLCHAR" );
 
-		let charclass, race;
-		
-		if ( racename != null )racename = racename.toLowerCase();
-		if ( racename != null && raceByName.hasOwnProperty(racename)) race = raceByName[racename];
-		else race = u.randElm( races );
-		
-		if ( classname != null ) classname = classname.toLowerCase();
-		if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
-		else charclass = u.randElm( classes );
-	
-		if ( charname == null ) charname = msg.author.username;
-	
 		try {
-			let key = this.getCharKey( msg.channel, msg.author, charname );
-			let exists = await this._context.cache.exists( key );
+
+			let charclass, race;
+			
+			if ( racename != null )racename = racename.toLowerCase();
+			if ( racename != null && raceByName.hasOwnProperty(racename)) race = raceByName[racename];
+			else race = u.randElm( races );
+			
+			if ( classname != null ) classname = classname.toLowerCase();
+			if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
+			else charclass = u.randElm( classes );
+		
+			if ( charname == null ) charname = msg.author.username;
+
+			let exists = await this.charExists(charname);
 			if ( exists ) {
 				msg.channel.send( 'Character ' + charname + ' already exists.' );
 				return;
 			}
-		} catch (e){console.log(e);return; }
-	
-		let char = new Char();
-		char.rollNew(  charname, race, charclass );
-	
-		this.echoChar( msg.channel, char );
-		this.trySaveChar( msg.author, char );
-		
+
+			console.log( 'new character');
+
+			let char = new Char();
+			char.rollNew(  charname, race, charclass );
+
+			console.log( 'char rolled: ' + char.name );
+
+			this.echoChar( msg.channel, char );
+			await this.trySaveChar( msg.author, char );
+
+		} catch ( e ){ console.log(e); }
+
 	}
 	
+	async charExists( charname ) {
+
+		try {
+			let key = this.getCharKey( charname );
+			return await this._context.cache.exists( key );
+		} catch (e){console.log(e); }
+		return false;
+
+	}
+
 	echoChar( chan, char ) {
 	
 		let namestr = char.name + ' is a';
@@ -98,7 +113,7 @@ exports.ContextClass = new class {
 	
 	async trySaveChar( user, char ) {
 
-		let key = this.getCharKey( user, char.name );
+		let key = this.getCharKey( char.name );
 
 		console.log( 'char save key: ' + key );
 		try {
@@ -111,7 +126,7 @@ exports.ContextClass = new class {
 
 	async tryLoadChar( user, charname) {
 
-		let key = this.getCharKey( user, charname );
+		let key = this.getCharKey( charname );
 
 		try {
 
@@ -132,15 +147,8 @@ exports.ContextClass = new class {
 
 	}
 
-	getCharKey( user, charname ) {
-
-		let type = chan.type;
-		if ( type == 'text' || type == 'voice ') {
-			return this._context.getDataKey( user, charname );
-		} else {
-			return this._context.getDataKey( charname );
-		}
-	
+	getCharKey( charname ) {
+		return this._context.getDataKey( 'RPG', charname );
 	}
 
 } // class
@@ -151,118 +159,10 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', '!rollchar {charname} {racename} {classname}', cmdRollChar, {maxArgs:3} );
-	cmds.add( 'loadchar', '!loadchar {charname}', cmdLoadChar, {maxArgs:1}  );
-
-}
-
-
-async function cmdLoadChar( msg, charname=null ) {
-
-	if ( !initialized ) initData();
-	if ( charname == null ) charname = msg.author.username;
-
-	try {
-
-		let char = await tryLoadChar( msg.channel, msg.author, charname );
-		if ( char == null ) {
-			msg.channel.send( charname + ' not found on server. D:' );
-			return;
-		}
-
-		echoChar( msg.channel, char );
-
-	} catch(e) {console.log(e);}
-
-}
-
-async function cmdRollChar( msg, charname=null, racename=null, classname=null ) {
-
-	if ( !initialized ) initData();
-
-	let charclass, race;
-	
-	if ( racename != null )racename = racename.toLowerCase();
-	if ( racename != null && raceByName.hasOwnProperty(racename)) race = raceByName[racename];
-	else race = u.randElm( races );
-	
-	if ( classname != null ) classname = classname.toLowerCase();
-	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
-	else charclass = u.randElm( classes );
-
-	if ( charname == null ) charname = msg.author.username;
-
-	try {
-		let key = getCharKey( msg.channel, msg.author, charname );
-		let exists = await bot.cache.exists( key );
-		if ( exists ) {
-			msg.channel.send( 'Character ' + charname + ' already exists.' );
-			return;
-		}
-	} catch (e){console.log(e);return; }
-
-	let char = new Char();
-	char.rollNew(  charname, race, charclass );
-
-	echoChar( msg.channel, char );
-	trySaveChar( msg.channel, msg.author, char );
-	
-}
-
-function echoChar( chan, char ) {
-
-	let namestr = char.name + ' is a';
-
-	let desc = char.getLongDesc();
-
-	chan.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
-
-}
-
-async function trySaveChar( chan, user, char ) {
-
-	let key = getCharKey( chan, user, char.name );
-
-	console.log( 'char save key: ' + key );
-	try {
-		await bot.storeKeyData( key, char );
-	} catch (err) {
-		console.log(err);
-	}
-
-}
-
-async function tryLoadChar( chan, user, charname) {
-
-	let key = getCharKey( chan, user, charname );
-
-	try {
-
-		let data = await bot.fetchKeyData( key );
-		if ( data instanceof Char ) {
-			console.log('already char.');
-			return data;
-		}
-
-		console.log('parsing json char' );
-		let char = Char.FromJSON( data, raceByName, classByName );
-		return char;
-
-	} catch ( err ){
-		console.log(err );
-	}
-	return null;
-
-}
-
-function getCharKey( chan, user, charname ) {
-
-	let type = chan.type;
-	if ( type == 'text' || type == 'voice ') {
-		return bot.getDataKey( chan.guild, user, charname );
-	} else {
-		return bot.getDataKey( chan, user, charname );
-	}
+	cmds.add( 'rollchar', '!rollchar {charname} {racename} {classname}',
+		RPG.prototype.cmdRollChar, { type:'instance', maxArgs:3} );
+	cmds.add( 'loadchar', '!loadchar {charname}', RPG.prototype.cmdLoadChar,
+		{type:'instance', maxArgs:1}  );
 
 }
 

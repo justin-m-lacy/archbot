@@ -4,8 +4,6 @@ const afs = require( './async_fs.js');
 const BASE_DIR = './savedata/';
 const GUILDS_DIR = 'guilds/';
 const CHANNELS_DIR = 'channels/'
-const GAMES_DIR = 'games';
-const PLUGINS_DIR = 'plugins/';
 const USERS_DIR = 'users/';
 
 exports.readData = readData;
@@ -18,7 +16,8 @@ exports.fileExists = async (filePath) => {
 }
 
 exports.guildPath = (guild, subs )=> {
-	if ( guild == null ) return CHANNELS_DIR;
+
+	if ( guild == null ) return GUILDS_DIR;
 
 	let thepath = GUILDS_DIR + guild.id;
 	if ( subs == null ) return thepath;
@@ -30,7 +29,7 @@ exports.guildPath = (guild, subs )=> {
 		subobj = subs[i];
 
 		if ( typeof(subobj) == 'string' ) {
-			thepath += '/' + subobj;
+			thepath += '/' + subobj.toLowerCase();
 		} else {
 			thepath += '/' + subobj.id;
 		}
@@ -50,7 +49,7 @@ exports.channelPath = ( chan, subs ) => {
 	for( let i = 0; i < len; i++ ) {
 		subobj = subs[i];
 		if ( typeof(subobj) == 'string' ) {
-			thepath += '/' + subobj;
+			thepath += '/' + subobj.toLowerCase();
 		} else {
 			thepath += '/' + subobj.id;
 		}
@@ -58,10 +57,6 @@ exports.channelPath = ( chan, subs ) => {
 
 	return thepath;
 }
-
-
-exports.pluginDir = getPluginDir;
-exports.getPluginFile = getPluginFile;
 
 async function readData( relPath ) {
 	return await afs.readJSON( path.join( BASE_DIR, relPath + '.json' ) );
@@ -74,17 +69,6 @@ async function writeData( relPath, data ) {
 	await afs.mkdir( path.dirname( absPath ) );
 	await afs.writeJSON( absPath + '.json', data );
 
-}
-
-function getPluginFile( plugname, file, guild ) {
-	if ( guild == null ) return path.join( PLUGINS_DIR, plugname, file );
-	return path.join( PLUGINS_DIR, guild.id, plugname, file )
-
-}
-
-function getPluginDir( plugname, guild ) {
-	if ( guild == null ) return path.join( PLUGINS_DIR, plugname );
-	return path.join( PLUGINS_DIR, guild.id, plugname );
 }
 
 // path to guild storage.

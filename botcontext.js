@@ -1,62 +1,5 @@
 const Discord = require('discord.js');
-
-exports.UserContext = class extends Context {
-
-	get type() { return 'user'; }
-	get name() { return this._idobj.username; }
-
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-	}
-
-	findUser( name ) {
-
-		if ( this._idobj.username.toLowerCase() == name.toLowerCase() ) {
-			return this._idobj;
-		}
-		return null;
-
-	}
-
-}
-
-//GroupDMChannel
-exports.GroupContext = class extends Context {
-
-	get type() { return 'group'; }
-	get name() { return this._idobj.name; }
-
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-		return fsys.channelPath( this._idobj, subs );
-	}
-
-	findUser( name ){
-		return this._idobj.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
-	}
-
-}
-
-exports.GuildContext = class extends Context {
-
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-		return fsys.guildPath( this._idobj, subs );
-	}
-
-	get type() { return 'guild'; }
-	get name() { return this._idobj.name; }
-
-	findUser( name ) {
-
-		let user = channel.guild.members.find(
-			gm => gm.displayName.toLowerCase() === name.toLowerCase()
-		);
-		return user;
-
-	}
-
-}
+const fsys = require( './botfs.js');
 
 // base Context.
 const Context = class {
@@ -79,8 +22,6 @@ const Context = class {
 
 		this._idobj = idobj;
 		this._bot = bot;
-
-		this._fsys = bot.fsys;
 
 		// plugin instances running.
 		this._instances = [];
@@ -108,7 +49,7 @@ const Context = class {
 
 	// add a running plugin instance.
 	addInstance( inst ) {
-		this._instances.add( inst );
+		this._instances.push( inst );
 	}
 
 	// cmd routed to this context dispatched
@@ -117,12 +58,12 @@ const Context = class {
 		this._cmdRoutes[name] = target;
 	}
 
-	routeCommand( name, args ) {
+	routeCommand( name, f, args ) {
 
 		let target = this._cmdRoutes[ name ];
 		if ( target != null ) {
 
-			target.call( null, args );
+			f.apply( target, args );
 
 		} else return 'Command not found.';
 
@@ -148,6 +89,65 @@ const Context = class {
 
 	// recieved message.
 	message( m ) {
+	}
+
+}
+
+exports.UserContext = class extends Context {
+
+	get type() { return 'user'; }
+	get name() { return this._idobj.username; }
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+		return fsys.channelPath( this._idobj, objs );
+	}
+
+	findUser( name ) {
+
+		if ( this._idobj.username.toLowerCase() == name.toLowerCase() ) {
+			return this._idobj;
+		}
+		return null;
+
+	}
+
+}
+
+//GroupDMChannel
+exports.GroupContext = class extends Context {
+
+	get type() { return 'group'; }
+	get name() { return this._idobj.name; }
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+		return fsys.channelPath( this._idobj, objs );
+	}
+
+	findUser( name ){
+		return this._idobj.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
+	}
+
+}
+
+exports.GuildContext = class extends Context {
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+		return fsys.guildPath( this._idobj, objs );
+	}
+
+	get type() { return 'guild'; }
+	get name() { return this._idobj.name; }
+
+	findUser( name ) {
+
+		let user = channel.guild.members.find(
+			gm => gm.displayName.toLowerCase() === name.toLowerCase()
+		);
+		return user;
+
 	}
 
 }

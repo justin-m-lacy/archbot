@@ -1,7 +1,11 @@
 const fs = require( 'fs');
 
 exports.exists = ( path ) => new Promise( (res,rej)=>{
-	fs.exists( path, (b)=>{res(b);} )
+	fs.access( path,
+		(err)=>{
+			if ( err ) res(false);
+			else res(true);
+		});
 });
 
 exports.readdir = (path, options=null) => new Promise( (res,rej)=>{
@@ -53,6 +57,7 @@ exports.readJSON = path => new Promise( (res,rej)=>{
 
 exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
 
+	console.log( 'data: ' + JSON.stringify(data));
 	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, (err)=>{
 
 		if ( err ) {

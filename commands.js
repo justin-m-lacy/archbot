@@ -1,10 +1,20 @@
 
 const Command = exports.Command = class {
 
+	/**
+	 * opts.type: 'global', or 'instance'
+	 * maxArgs: max arguments to form from command line.
+	 * minArgs: not implemented.
+	 * group: 'left' or 'right' when using maxArgs, determines
+	 * how remainder args are grouped together.
+	 */
 	get opts() { return this._opts;}
+
 	get name() { return this._name; }
 	get func() { return this._func };
 	get usage() { return this._usage; }
+
+	get type() { return (this._opts ? this._opts.type : 'global' );}
 
 	constructor( name, usage, func=null, opts=null ) {
 
@@ -48,42 +58,11 @@ exports.Dispatch = class CmdDispatch {
 			}
 
 			let f = cmd.func;
-			if ( f != null ) {
+			if ( cmd.type != 'instance') {
 				f.apply( null, args );
 				return null;
 			} else {
-
-				return context.routeCommand( cmd.name, args );
-			}
-
-		}
-		return 'Command not found';
-
-	}
-
-	// lead args precede arguments from processed command
-	// returns error message on failure.
-	process( input, leadArgs=null ) {
-
-		this.cmdLine.input = input;
-		console.log( 'cmd: ' + this.cmdLine.cmdname );
-
-		let cmdInfo = this.getCmd( this.cmdLine.cmdname );
-
-		if ( cmdInfo ) {
-
-			var args;
-			if ( cmdInfo.group === 'left') args = this.cmdLine.groupLeft( cmdInfo.maxArgs );
-			else args = this.cmdLine.groupRight( cmdInfo.maxArgs );
-
-			if ( leadArgs != null ){
-				args = leadArgs.concat(args);
-			}
-
-			let f = cmdInfo.func;
-			if ( f != null ) {
-				f.apply( null, args );
-				return null;
+				return context.routeCommand( cmd.name, f, args );
 			}
 
 		}
