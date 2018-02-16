@@ -37,8 +37,11 @@ exports.Dispatch = class CmdDispatch {
 		if ( cmd ) {
 
 			var args;
-			if ( cmd.group === 'left') args = this.cmdLine.groupLeft( cmd.maxArgs );
-			else args = this.cmdLine.groupRight( cmd.maxArgs );
+			if ( cmd.maxArgs == null ) args = this.cmdLine.splitArgs();
+			else {
+				if ( cmd.group === 'left') args = this.cmdLine.groupLeft( cmd.maxArgs );
+				else args = this.cmdLine.groupRight( cmd.maxArgs );
+			}
 
 			if ( leadArgs != null ){
 				args = leadArgs.concat(args);
@@ -144,6 +147,45 @@ class CmdLine {
 		this._input = '';
 		this._cmd = '';
 		this._argStr = '';
+
+	}
+
+	splitArgs() {
+
+		let str = this._argStr;
+
+		var args = [];
+		let len = str.length;
+		let start = 0;
+		let end;
+		let char;
+
+		while( true ) {
+
+			// skip spaces.
+			while ( start < len && str.charAt(start) == ' ' ) start++;
+			if ( start >= len ) break;
+
+			char = str.charAt( start );
+			end = start + 1;
+
+			if ( char == '\"') {
+
+				// quoted arg.
+				while ( end < len && str.charAt(end) != '\"') end++;
+				args.push( str.slice( start+1, end ) );
+
+			} else {
+
+				while ( end < len && str.charAt(end) != ' ' ) end++;
+				args.push( str.slice( start, end ) );
+			}
+
+			start = end+1;
+
+		}
+
+		return args;
 
 	}
 

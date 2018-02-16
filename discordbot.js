@@ -7,11 +7,10 @@ const Context = exports.Context = require( './botcontext.js');
 
 var Bot;
 exports.InitBot = ( client, cmdPrefix='!') => {
-	Bot = exports.Bot = new DiscordBot( client, cmdPrefix );
+	Bot = new DiscordBot( client, cmdPrefix );
 	return Bot;
 }
 exports.GetBot = () => Bot;
-exports.DiscordBot = DiscordBot;
 
 class DiscordBot {
 
@@ -33,6 +32,8 @@ class DiscordBot {
 		this._client = client;
 		this._fsys = fsys;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists );
+
+		this._cmdPrefix = cmdPrefix;
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
 
 		this.initClient();
@@ -64,30 +65,27 @@ class DiscordBot {
 
 		if ( m.author.id == this._client.user.id ) return;
 
-		// ensure Context is available for processing
-		// the message.
+		// get Context for cmd routing.
 		let type = m.channel.type;
+		let context;
 		if ( type == 'text' || type == 'voice ') {
-			this.getContext( m.guild, 'guild');
+			context = this.getContext( m.guild, 'guild');
 		} else if ( type == 'group' ) {
-			this.getContext( m.channel, type )
+			context = this.getContext( m.channel, type )
 		} else {
 			// dm
-			this.getContext( m.reciever, type );
+			context = this.getContext( m.reciever, type );
 		}
 
 		try {
 	
 			let content = m.content;
 	
-			if ( content.substring(0,1) === CmdPrefix ) {
+			if ( content.substring(0,1) === this._cmdPrefix ) {
 
-				let error = this._dispatch.process( m.content, [m] );
-				
+				let error = this._dispatch.routeCmd( context, m.content, [m] );
 				if ( error ) m.channel.send( error );
 				
-
-
 			}
 	
 		} catch ( exp ) {
@@ -96,7 +94,6 @@ class DiscordBot {
 
 	}
 
-
 	/**
 	 * 
 	 * @param {*} obj 
@@ -104,13 +101,12 @@ class DiscordBot {
 	 */
 	getContext( obj, type=null ) {
 
-		console.log( 'creating new context.' );
-
 		let id = obj.id;
 		if ( this._contexts.hasOwnProperty(id) ) {
 			return this._contexts[id];
 		}
 
+		console.log( 'creating new context.' );
 		let c = this._contexts[id] = new Context( this, obj, type );
 		return c;
 
