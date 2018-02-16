@@ -1,25 +1,86 @@
 const Discord = require('discord.js');
 
-// context for processing client events.
-module.exports = class {
+exports.UserContext = class extends Context {
+
+	get type() { return 'user'; }
+	get name() { return this._idobj.username; }
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+	}
+
+	findUser( name ) {
+
+		if ( this._idobj.username.toLowerCase() == name.toLowerCase() ) {
+			return this._idobj;
+		}
+		return null;
+
+	}
+
+}
+
+//GroupDMChannel
+exports.GroupContext = class extends Context {
+
+	get type() { return 'group'; }
+	get name() { return this._idobj.name; }
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+		return fsys.channelPath( this._idobj, subs );
+	}
+
+	findUser( name ){
+		return this._idobj.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
+	}
+
+}
+
+exports.GuildContext = class extends Context {
+
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
+		return fsys.guildPath( this._idobj, subs );
+	}
+
+	get type() { return 'guild'; }
+	get name() { return this._idobj.name; }
+
+	findUser( name ) {
+
+		let user = channel.guild.members.find(
+			gm => gm.displayName.toLowerCase() === name.toLowerCase()
+		);
+		return user;
+
+	}
+
+}
+
+// base Context.
+const Context = class {
 
 	// 'guild', 'user', 'dm', 'group', 'channel'
-	get type() { return this._type; }
+	get type() { return 'unknown'; }
 
-	get context() { return this._context; }
+	// discord obj with id that serves as context base.
+	get idObject() { return this._idobj; }
 
 	get bot() { return this._bot; }
 
 	get cache() { return this._cache; }
 
 	/**
-	 * @param {discord object} contextObj - the discord guild, channel, or user
-	 * that servers as the basis for the context.
+	 * @param {discord object} idobj - guild, channel, or user
+	 * that acts as the basis for the context.
 	 */
-	constructor( bot, contextObj, type ) {
+	constructor( bot, idobj ) {
 
-		this._context = contextObj;
+		this._idobj = idobj;
 		this._bot = bot;
+
+		this._fsys = bot.fsys;
 
 		// plugin instances running.
 		this._instances = [];
@@ -27,12 +88,23 @@ module.exports = class {
 		// routed commands.
 		this._cmdRoutes = {};
 
-		if ( type == null ){
-			this._type = this.findType( contextObj);
-		}
-		this._type = type;
+		this._cache = bot.cache.makeSubCache( idobj.id );
 
 	}
+
+	tryGetUser( chan, name ) {
+
+		if ( name == null || name === '') {
+			chan.send( 'User name expected.');
+			return null;
+		}
+		let member = this.findUser( name );
+		if ( member == null ) chan.send( 'User ' + name + ' not found.' );
+		return member;
+
+	}
+
+	findUser( name ) { return null; }
 
 	// add a running plugin instance.
 	addInstance( inst ) {
@@ -56,28 +128,26 @@ module.exports = class {
 
 	}
 
-	// recieved message.
-	message( m ) {
+	// objs are idables or path strings.
+	getDataKey( ...objs ) {
 	}
 
-	findType( obj ) {
+	// fetch data for abitrary key.
+	async fetchKeyData( key ) {
 
-		if ( obj instanceof Discord.Guild ){
-			return 'guild';
-		}
-		if ( obj instanceof Discord.User){
-			return 'user';
-		}
-		if ( obj instanceof Discord.DMChannel){
-			return 'dm';
-		}
-		if ( obj instanceof Discord.GroupDMChannel) {
-			return 'group';
-		}
-		if ( obj instanceof Discord.Channel) {
-			return 'channel';
-		}
+		let data = await this._cache.get(key);
+		if ( data ) data.key = key;
+		return data;
+	
+	}
+	
+	// associate data with key.
+	async storeKeyData( key, data ){
+		await this._cache.store( key, data );
+	}
 
+	// recieved message.
+	message( m ) {
 	}
 
 }
