@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-let plugins = {};
-
 exports.loadPlugins = function( plugins_dir, init_func=null ) {
+
+	let plugins = [];
 
 	try {
 
@@ -17,9 +17,15 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 			if ( !stats.isDirectory() ) continue;
 
 			plugin = findAndLoad( dir );
-			if ( init_func != null && plugin != null ){
-				init_func(plugin);
+			if ( plugin != null ) {
+
+				plugins.push( plugin );
+				if ( init_func != null ){
+					init_func(plugin);
+				}
+
 			}
+
 
 		}
 
@@ -50,12 +56,8 @@ function findAndLoad( dir ) {
 			let desc = loadPlugDesc( file );
 			if ( !desc ) continue;
 
-			// desc file.
 			let plugin = loadPlugin( dir, desc );
-			if ( plugin ) {
-				desc[desc.name] = plugin;
-				return plugin;
-			}
+			if ( plugin ) return plugin;
 
 		} catch (err ){
 			console.log(err);

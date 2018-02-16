@@ -2,13 +2,13 @@
 const Command = exports.Command = class {
 
 	get opts() { return this._opts;}
-	get label() { return this._label; }
+	get name() { return this._name; }
 	get func() { return this._func };
 	get usage() { return this._usage; }
 
-	constructor( label, usage, opts=null, func=null ) {
+	constructor( name, usage, func=null, opts=null ) {
 
-		this._label = label;
+		this._name = name;
 		this._func = func;
 		this._usage = usage;
 		this._opts = opts;
@@ -89,17 +89,18 @@ exports.Dispatch = class CmdDispatch {
 	}
 
 	// group - group arguments on right or left
-	add( label, func, minArgs, maxArgs, usage, group='left') {
+	add( name, usage, func, opts ) {
 
-		this._cmds[label] = { func:func, minArgs:minArgs, maxArgs:maxArgs, usage:usage, group:group };
+		this._cmds[name] = new Command( name, usage, func, opts );
+
 	}
 
-	getCmd( label ) {
-		return this._cmds[label];
+	getCmd( name ) {
+		return this._cmds[name];
 	}
 
-	clearCmd( label ) {
-		delete this._cmds[label];
+	clearCmd( name ) {
+		delete this._cmds[name];
 	}
 
 	clear() {

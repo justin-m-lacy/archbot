@@ -2,56 +2,13 @@ var Discord = require( 'discord.js');
 var auth = require('./auth.json');
 
 const DateFormat = require( './datedisplay.js' );
-const dice = require( './plugins/dice/dice.js' );
+const dice = require( 'dice.js' );
 const jsutils = require( './jsutils.js' );
-
+const cmd = require( './commands.js');
 const DiscordBot = require( './discordbot.js');
 
 const PLUGINS_DIR = './plugins/';
 const CmdPrefix = '!';
-
-function initReactions() {
-
-	console.log( 'loading reactions.');
-
-	let React = require( './reactions.js');
-	let reactData = require('./reactions.json');
-	return new React.Reactions( reactData );
-}
-
-function initCmds(){ 
-
-	let cmds = dispatch;
-
-	console.log( 'adding default commands.');
-
-	cmds.add( 'help', cmdHelp, 0, 1, '!help {cmd}' );
-	cmds.add( 'schedule', cmdSchedule, 2, 2, '!schedule [activity] [times]', 'right');
-	cmds.add( 'sleep', cmdSleep, 1, 1, '!sleep [sleep schedule]');
-	cmds.add( 'when', cmdWhen, 2, 2, '!when [userName] [activity]');
-	cmds.add( 'roll', cmdRoll, 1,1, '!roll [n]d[s]');
-	cmds.add( 'attack', (msg)=>{msg.channel.send( 'You attack the darkness.' ); }, 0,0, '!attack');
-
-	cmds.add( 'uid', cmdUid, 1,1, '!uid [username]' );
-	cmds.add( 'uname', cmdUName, 1,1, '!uname [nickname]' );
-	cmds.add( 'nick', cmdNick, 1,1, '!nick [displayName]' );
-	cmds.add( 'uptime', cmdUptime, 0, 0, '!uptime' );
-
-	cmds.add( 'lastplay', cmdLastPlay, 2, 2, '!lastplay [userName] [gameName]');
-	cmds.add( 'laston', cmdLastOn, 1, 1, '!laston [userName]');
-	cmds.add( 'lastidle', cmdLastIdle, 1, 1, '!lastidle [userName]');
-	cmds.add( 'lastactive', cmdLastActive, 1, 1, '!lastactive [userName]');
-	cmds.add( 'lastoff', cmdLastOff, 1, 1, '!lastoff [userName]');
-
-	cmds.add( 'offtime', cmdOffTime, 1,1, '!offtime [userName]');
-	cmds.add( 'ontime', cmdOnTime, 1,1, '!ontime [username]');
-	cmds.add( 'idletime', cmdIdleTime, 1,1, '!idletime [username]');
-	cmds.add( 'playtime', cmdPlayTime, 1,1, '!playtime [userName');
-
-	cmds.add( 'test', cmdTest, 1, 1, '!test [ping message]');
-
-}
-
 
 // init bot
 var client = new Discord.Client(
@@ -69,6 +26,50 @@ var dispatch = bot.dispatch;
 var cache = bot.cache;
 
 initCmds();
+
+function initReactions() {
+
+	console.log( 'loading reactions.');
+
+	let React = require( './reactions.js');
+	let reactData = require('./reactions.json');
+	return new React.Reactions( reactData );
+}
+
+function initCmds(){ 
+
+	let cmds = dispatch;
+
+	console.log( 'adding default commands.');
+
+	cmds.add( 'help', '!help {cmd}', cmdHelp, {maxArgs:1} );
+
+	cmds.add( 'schedule', '!schedule [activity] [times]', cmdSchedule, { maxArgs:2, group:'right'} );
+
+	cmds.add( 'sleep', '!sleep [sleep schedule]', cmdSleep, {maxArgs:1} );
+	cmds.add( 'when', '!when [userName] [activity]', cmdWhen,{maxArgs:2} );
+	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1} );
+	cmds.add( 'attack', '!attack', (msg)=>{msg.channel.send( 'You attack the darkness.' ); } );
+
+	cmds.add( 'uid', '!uid [username]', cmdUid, {maxArgs:1}  );
+	cmds.add( 'uname', '!uname [nickname]', cmdUName, {maxArgs:1} );
+	cmds.add( 'nick', '!nick [displayName]', cmdNick, {maxArgs:1}  );
+	cmds.add( 'uptime', '!uptime', cmdUptime );
+
+	cmds.add( 'lastplay','!lastplay [userName] [gameName]', cmdLastPlay, {maxArgs:2} );
+	cmds.add( 'laston', '!laston [userName]', cmdLastOn, {maxArgs:1} );
+	cmds.add( 'lastidle', '!lastidle [userName]', cmdLastIdle, {maxArgs:1} );
+	cmds.add( 'lastactive', '!lastactive [userName]', cmdLastActive, {maxArgs:1} );
+	cmds.add( 'lastoff', '!lastoff [userName]', cmdLastOff, {maxArgs:1} );
+
+	cmds.add( 'offtime', '!offtime [userName]', cmdOffTime, {maxArgs:1} );
+	cmds.add( 'ontime', '!ontime [username]', cmdOnTime, {maxArgs:1} );
+	cmds.add( 'idletime', '!idletime [username]', cmdIdleTime, {maxArgs:1} );
+	cmds.add( 'playtime', '!playtime [userName', cmdPlayTime, {maxArgs:1} );
+
+	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1} );
+
+}
 
 function init_plug( p ) {
 

@@ -1,17 +1,28 @@
-const u = require('./jsutils.js');
+const u = require('../../jsutils.js');
 const Char = exports.Char = require( './char.js');
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
 
 var initialized = false;
 
-var classes;
-var classByName;
+var races;
+var raceByName;
 
 var classes;
 var classByName;
 
 var bot;
+
+exports.PluginClass = new class {
+
+	constructor( context ) {
+
+		this._context = context;
+		console.log( "Creating RPG instance.")
+	}
+
+}
+
 
 exports.init = function( discordbot ){
 
@@ -19,8 +30,8 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', cmdRollChar, 0, 3, '!rollchar {charname} {racename} {classname}' );
-	cmds.add( 'loadchar', cmdLoadChar, 0, 1,  '!loadchar {charname}' );
+	cmds.add( 'rollchar', '!rollchar {charname} {racename} {classname}', cmdRollChar, {maxArgs:3} );
+	cmds.add( 'loadchar', '!loadchar {charname}', cmdLoadChar, {maxArgs:1}  );
 
 }
 
@@ -57,8 +68,8 @@ async function cmdRollChar( msg, charname=null, racename=null, classname=null ) 
 	let charclass, race;
 	
 	if ( racename != null )racename = racename.toLowerCase();
-	if ( racename != null && classByName.hasOwnProperty(racename)) race = classByName[racename];
-	else race = u.randElm( classes );
+	if ( racename != null && raceByName.hasOwnProperty(racename)) race = raceByName[racename];
+	else race = u.randElm( races );
 	
 	if ( classname != null ) classname = classname.toLowerCase();
 	if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
@@ -119,7 +130,7 @@ async function tryLoadChar( chan, user, charname) {
 		}
 
 		console.log('parsing json char' );
-		let char = Char.FromJSON( data, classByName, classByName );
+		let char = Char.FromJSON( data, raceByName, classByName );
 		return char;
 
 	} catch ( err ){
@@ -155,22 +166,22 @@ function initData() {
 
 function initRaces() {
 
-	if ( classes != null ) return;
+	if ( races != null ) return;
 
 	try {
 
 		let a = require( './data/races.json');
 
-		classes = [];
-		classByName = {};
+		races = [];
+		raceByName = {};
 
 		let raceObj, race;
 		for( let i = a.length-1; i>= 0; i-- ) {
 
 			raceObj = a[i];
 			race = Race.FromJSON( raceObj );
-			classByName[ race.name ] = race;
-			classes.push( race );
+			raceByName[ race.name ] = race;
+			races.push( race );
 
 		}
 

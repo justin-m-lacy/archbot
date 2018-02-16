@@ -39,6 +39,13 @@ class DiscordBot {
 
 	}
 
+	addPlugClass( cls ) {
+
+		this._plugClasses.push(cls);
+		// todo: init for each running context?
+
+	}
+
 	initClient() {
 
 		// NOTE: 'this' for events is always client.
