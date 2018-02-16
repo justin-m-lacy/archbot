@@ -19,15 +19,15 @@ class DiscordBot {
 	get cache() { return this._cache; }
 	get dispatch() { return this._dispatch;}
 	get contexts() { return this._contexts;}
-	get plugClasses() { return this._plugClasses; }
+	get contextClasses() { return this._contextClasses; }
 
 	constructor( client, cmdPrefix='!' ) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
 
-		// active plugin classes.
-		this._plugClasses = [];
+		// classes to instantiate for each context.
+		this._contextClasses = [];
 
 		this._client = client;
 		this._fsys = fsys;
@@ -40,10 +40,36 @@ class DiscordBot {
 
 	}
 
-	addPlugClass( cls ) {
+	addPlugins( plug_files ) {
 
-		this._plugClasses.push(cls);
-		// todo: init for each running context?
+		let plug;
+		let init;
+		let contClass;
+		for( let i = plug_files.length-1; i >= 0; i-- ) {
+
+			plug = plug_files[i];
+			init = plug.init;
+			if ( init != null && typeof(init) == 'function' ){
+				plug.init( this );
+			}
+			contClass = plug.ContextClass;
+			if ( contClass != null ) this.addContextClass( contClass );
+
+		}
+
+	}
+
+	addContextClass( cls ) {
+
+		this._contextClasses.push(cls);
+
+		let context;
+		for( let k in this._contexts ){
+
+			context = this._contexts[k];
+			context.addInstance( new cls(context ) );
+
+		}
 
 	}
 
@@ -108,6 +134,15 @@ class DiscordBot {
 
 		console.log( 'creating new context.' );
 		let c = this._contexts[id] = new Context( this, obj, type );
+
+		let cls;
+		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
+
+			cls = this._contextClasses[i];
+			c.addInstance( new cls( c ) );
+
+		}
+
 		return c;
 
 	}
