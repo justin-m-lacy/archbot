@@ -2,14 +2,19 @@ const ms_per_day = 1000*3600*24;
 const ms_per_hr = 1000*3600;
 const ms_per_min = 60*1000;
 
-exports.DateDisplay = class {
+module.exports = class {
 
 	static elapsed( since ) {
 
 		let dt = Date.now() - since;
+		return this.timespan( Date.now() - since );
+
+	}
+
+	// returns string of span of time.
+	static timespan( dt ) {
 		if ( dt < ms_per_hr ) return ( (dt/ms_per_min).toFixed(2) + ' minutes');
 		return ( dt / ms_per_hr).toFixed(2) + ' hours';
-
 	}
 
 	static recent( time ) {

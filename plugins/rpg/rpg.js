@@ -24,6 +24,13 @@ exports.init = function( discordbot ){
 
 }
 
+async function cmdListChars( msg, uname=null ) {
+}
+
+async function cmdDeleteChar( msg, charname ) {
+
+}
+
 async function cmdLoadChar( msg, charname=null ) {
 
 	if ( !initialized ) initData();

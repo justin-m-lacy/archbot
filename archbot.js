@@ -1,7 +1,7 @@
 var Discord = require( 'discord.js');
 var auth = require('./auth.json');
 
-const dformat = require( './datedisplay.js' );
+const DateFormat = require( './datedisplay.js' );
 const dice = require( './plugins/dice/dice.js' );
 const jsutils = require( './jsutils.js' );
 
@@ -35,7 +35,8 @@ function initCmds(){
 	cmds.add( 'uid', cmdUid, 1,1, '!uid [username]' );
 	cmds.add( 'uname', cmdUName, 1,1, '!uname [nickname]' );
 	cmds.add( 'nick', cmdNick, 1,1, '!nick [displayName]' );
-	
+	cmds.add( 'uptime', cmdUptime, 0, 0, '!uptime' );
+
 	cmds.add( 'lastplay', cmdLastPlay, 2, 2, '!lastplay [userName] [gameName]');
 	cmds.add( 'laston', cmdLastOn, 1, 1, '!laston [userName]');
 	cmds.add( 'lastidle', cmdLastIdle, 1, 1, '!lastidle [userName]');
@@ -53,10 +54,14 @@ function initCmds(){
 
 
 // init bot
-var client = new Discord.Client( {} );
+var client = new Discord.Client(
+	{"disabledEvents":["TYPING_START"],
+	"messageCacheMaxSize":50,
+	"messageCacheLifetime":100 } );
+
 console.log( 'client created.');
 
-var bot = new DiscordBot.Bot( client, CmdPrefix );
+var bot = DiscordBot.InitBot( client, CmdPrefix );
 console.log( 'bot created.');
 
 var reactions = initReactions();
@@ -77,8 +82,9 @@ function init_plug( p ) {
 }
 var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR, init_plug );
 
+// for 'ready', 'this' is client.
 client.on( 'ready', function(evt) {
-    console.log('client ready: ' + client.username + ' - (' + client.id + ')');
+    console.log('client ready: ' + this.user.username + ' - (' + this.user.id + ')');
 });
 
 client.on( 'message', doMsg );
@@ -129,6 +135,10 @@ function doMsg( msg ) {
 		console.error( exp );
 	}
 
+}
+
+function cmdUptime( m ) {
+	m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
 }
 
 function doCommand( msg ) {
@@ -239,7 +249,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 		let data = await bot.fetchUserData( uObject );
 		let games = data.games;
 
-		let dateStr = dformat.DateDisplay.recent( games[gameName] );
+		let dateStr = DateFormat.recent( games[gameName] );
 		channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
@@ -268,7 +278,7 @@ async function cmdPlayTime( msg, name ){
 		let data = await bot.fetchUserData( gMember );
 		if ( data.hasOwnProperty('games') && data.games.hasOwnProperty( gameName )) {
 			let lastTime = data.games[gameName];
-			chan.send( name + ' has been playing ' + gameName + ' for ' + dformat.DateDisplay.elapsed(lastTime) );
+			chan.send( name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime) );
 			return;
 		}
 
@@ -298,7 +308,7 @@ async function cmdIdleTime( msg, name ){
 			let lastTime = latestStatus( history, ['offline','dnd','online'] );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been idle for ' + dformat.DateDisplay.elapsed( lastTime ) );
+				chan.send( name + ' has been idle for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -332,7 +342,7 @@ async function cmdOnTime( msg, name ) {
 			let lastTime = latestStatus( history, 'offline' );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been online for ' + dformat.DateDisplay.elapsed( lastTime ) );
+				chan.send( name + ' has been online for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -366,7 +376,7 @@ async function cmdOffTime( msg, name ) {
 			let lastTime = latestStatus( history, 'offline' );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been offline for ' + dformat.DateDisplay.elapsed( lastTime ) );
+				chan.send( name + ' has been offline for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -402,7 +412,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		let memData = await bot.fetchUserData( gMember );
 		let lastTime = latestStatus( memData.history, statuses );
 
-		let dateStr = dformat.DateDisplay.recent( lastTime );
+		let dateStr = DateFormat.recent( lastTime );
 		
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
