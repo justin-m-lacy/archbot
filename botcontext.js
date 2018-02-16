@@ -1,36 +1,16 @@
 const Discord = require('discord.js');
 
-/**
- * plugins should extend this class.
- * a new instance will be created for
- * every context.
- */
-exports.PluginClass = class {
-
-	init( context ) {
-	}
-
-}
-
 // context for processing client events.
 module.exports = class {
 
 	// 'guild', 'user', 'dm', 'group', 'channel'
-	get type() {
-		return this._type;
-	}
+	get type() { return this._type; }
 
-	get context() {
-		return this._context;
-	}
+	get context() { return this._context; }
 
-	get bot() {
-		return this._bot;
-	}
+	get bot() { return this._bot; }
 
-	get cache() {
-		return this._cache;
-	}
+	get cache() { return this._cache; }
 
 	/**
 	 * @param {discord object} contextObj - the discord guild, channel, or user
@@ -42,7 +22,9 @@ module.exports = class {
 		this._bot = bot;
 
 		// plugin instances running.
-		this._plugs = {};
+		this._plugs = [];
+
+		// routed commands.
 		this._cmdRoutes = {};
 
 		if ( type == null ){
@@ -50,6 +32,11 @@ module.exports = class {
 		}
 		this._type = type;
 
+	}
+
+	// add a running plugin instance.
+	addInstance( plug ) {
+		this._plugs.add( plug );
 	}
 
 	// cmd routed to this context dispatched

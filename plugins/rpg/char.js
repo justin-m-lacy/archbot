@@ -2,7 +2,7 @@ const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
 const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
 
-const dice = require( '../dice/dice.js' );
+const dice = require( 'dice.js' );
 
 class Char {
 
