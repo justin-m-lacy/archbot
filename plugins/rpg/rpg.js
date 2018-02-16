@@ -13,7 +13,8 @@ var classByName;
 
 var bot;
 
-exports.PluginClass = new class {
+// created for each discord context.
+exports.ContextClass = new class {
 
 	constructor( context ) {
 

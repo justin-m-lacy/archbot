@@ -71,17 +71,8 @@ function initCmds(){
 
 }
 
-function init_plug( p ) {
-
-	if ( typeof( p.init ) == 'function' ) {
-		console.log( 'initializing plugin');
-		p.init( bot );
-	} else {
-		console.log( 'no init function found.');
-	}
-
-}
-var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR, init_plug );
+var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
+bot.addPlugins( plugins );
 
 // for 'ready', 'this' is client.
 client.on( 'ready', function(evt) {
@@ -120,9 +111,7 @@ function doMsg( msg ) {
 
 		let content = msg.content;
 
-		if ( content.substring(0,1) === CmdPrefix ) {
-
-		} else {
+		if ( content.substring(0,1) != CmdPrefix ) {
 
 			let reaction = reactions.react( content );
 			if ( reaction != null ) {

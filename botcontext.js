@@ -22,7 +22,7 @@ module.exports = class {
 		this._bot = bot;
 
 		// plugin instances running.
-		this._plugs = [];
+		this._instances = [];
 
 		// routed commands.
 		this._cmdRoutes = {};
@@ -35,8 +35,8 @@ module.exports = class {
 	}
 
 	// add a running plugin instance.
-	addInstance( plug ) {
-		this._plugs.add( plug );
+	addInstance( inst ) {
+		this._instances.add( inst );
 	}
 
 	// cmd routed to this context dispatched
