@@ -30,3 +30,10 @@ package-lock.json
 package-lock.json
 package-lock.json
 client_link.txt
+
+
+node_modules/chess-rules
+
+node_modules/colors
+
+node_modules/underscore

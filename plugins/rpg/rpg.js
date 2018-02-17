@@ -24,6 +24,8 @@ var RPG = exports.ContextClass = class {
 		context.bindCommand( 'rollchar', this );
 		context.bindCommand( 'loadchar', this );
 
+		this.loadedChars = {};
+
 	}
 
 	async cmdListChars( msg, uname=null ) {
