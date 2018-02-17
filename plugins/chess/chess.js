@@ -95,7 +95,7 @@ let Room = exports.ContextClass = class {
 
 	showGameStatus( chan, game ) {
 
-		chan.send( this.getStatusString( game.status ) );
+		chan.send( this.getStatusString( game ) );
 
 	}
 
@@ -126,7 +126,7 @@ let Room = exports.ContextClass = class {
 
 			sqr = b[i];
 			if ( sqr == null ) {
-				row.push( ' . ');
+				row.push( '.');
 			} else {
 				if ( sqr.side == 'B') row.push(sqr.type.toLowerCase() );
 				else row.push( sqr.type );
@@ -142,7 +142,7 @@ let Room = exports.ContextClass = class {
 
 		} //
 
-		return game.lastMove + '\n' + rows.join( '\n') + '\n' + this.getStatusString(game);
+		return '```' + game.lastMove + '\n' + rows.join( '\n') + '\n' + this.getStatusString(game) + '```';
 
 	}
 
@@ -152,6 +152,8 @@ let Room = exports.ContextClass = class {
 
 		let oldBoard = game.board;
 		let move = Chess.pgnToMove( oldBoard, moveStr );
+		if ( move == null ) { console.log( "MOVE NULL"); return; }
+
 		let newBoard = Chess.applyMove( oldBoard, move );
 
 		if ( newBoard == oldBoard ) return false;

@@ -12,7 +12,10 @@ const Command = exports.Command = class {
 
 	get name() { return this._name; }
 	get func() { return this._func };
-	get usage() { return this._usage; }
+	get usage() { return this._usage ? this._usage : 'Unknown.'; }
+	get group() { return this._opts ? this._opts.group : null; }
+
+	get maxArgs() { return this._opts ? this._opts.maxArgs : null; }
 
 	get type() { return (this._opts ? this._opts.type : 'global' );}
 
@@ -49,8 +52,8 @@ exports.Dispatch = class CmdDispatch {
 			var args;
 			if ( cmd.maxArgs == null ) args = this.cmdLine.splitArgs();
 			else {
-				if ( cmd.group === 'left') args = this.cmdLine.groupLeft( cmd.maxArgs );
-				else args = this.cmdLine.groupRight( cmd.maxArgs );
+				if ( cmd.group === 'right') args = this.cmdLine.groupRight( cmd.maxArgs );
+				else args = this.cmdLine.groupLeft( cmd.maxArgs );
 			}
 
 			if ( leadArgs != null ){
