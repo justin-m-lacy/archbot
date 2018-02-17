@@ -2,28 +2,14 @@ const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
 const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
 
+const Actor = require( './actor.js');
 const dice = require( '../../node_modules/archdice' );
 
-class Char {
-
-	get hp() { return this._hp; }
-	set hp( v) { this._hp = v; }
-
-	get name() { return this._name;}
-	set name( v ) { this._name = v; }
+class Char extends Actor {
 
 	get charClass() { return this._charClass; }
 	set charClass( c ) { this._charClass = c; }
-	get race() { return this._race; }
-	set race( r) { this._race =  r; }
 
-	get level() { return this._level; }
-	set level( n ) { this._level = n; }
-
-	get str() { return this._str; }
-	set str( n ) { this._str = n;}
-
-	get stats() { return this._stats; }
 	get owner() { return this._owner; }
 
 	toJSON() {
