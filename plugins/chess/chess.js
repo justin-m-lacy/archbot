@@ -20,7 +20,7 @@ let Room = exports.ContextClass = class {
 		let game = this.tryGetGame( m.channel, m.author, oppName );
 		if ( game == null ) return;
 
-		m.channel.send( this.getBoardStr(game.board ) );
+		m.channel.send( this.getBoardStr( game ) );
 
 	}
 
@@ -50,7 +50,7 @@ let Room = exports.ContextClass = class {
 
 		}
 
-		m.channel.send( this.getBoardStr( game.board ));
+		m.channel.send( this.getBoardStr( game ));
 
 	}
 
@@ -61,6 +61,7 @@ let Room = exports.ContextClass = class {
 		if ( len == 0 ) {
 
 			m.channel.send( 'Must specify a move.');
+			return;
 
 		} else if ( len == 1 ) {
 
@@ -72,9 +73,19 @@ let Room = exports.ContextClass = class {
 			moveStr = args[1];
 		}
 
-		if ( game != null && game.turn == m.author.id ){
+		if ( game == null ) return;
 
-			this.doMove( game, moveStr );
+		if ( game.status != 'OPEN') {
+
+			this.showGameStatus( m.channel, game );
+
+		} else if ( game.turn == m.author.id ){
+
+			if ( this.doMove( game, moveStr ) ) {
+				this.showGameStatus( m.channel, game );
+			} else {
+				m.channel.send( moveStr + ' is not a legal move.');
+			}
 
 		} else {
 			m.channel.send( 'It is not your turn to move.' );
@@ -82,17 +93,77 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	getBoardStr( board ) {
-		return Chess.positionToString( board );
+	showGameStatus( chan, game ) {
+
+		chan.send( this.getStatusString( game.status ) );
+
+	}
+
+	getStatusString( game ) {
+
+		let status = game.status;
+
+		if ( status == 'WHITEWON') {
+			return 'White has won the game.';
+		} else if ( status == 'BLACKWON') {
+			return 'Black has won the game.';
+		} else if ( status == 'PAT') {
+			return 'The game is a stalemate.';
+		}
+		return ( game.board.turn === 'W') ? 'White to move.' : 'Black to move.';
+
+	}
+
+	getBoardStr( game ) {
+
+		let b = game.board.board;
+		let i = 0;
+		let sqr;
+		let row = [];
+		let rows = [];
+
+		while ( i < 64 ) {
+
+			sqr = b[i];
+			if ( sqr == null ) {
+				row.push( ' . ');
+			} else {
+				if ( sqr.side == 'B') row.push(sqr.type.toLowerCase() );
+				else row.push( sqr.type );
+			}
+
+			
+			if ( ++i % 8 == 0 ) {
+
+				rows.unshift( row.join(' ') );
+				row = [];
+
+			}
+
+		} //
+
+		return game.lastMove + '\n' + rows.join( '\n') + '\n' + this.getStatusString(game);
+
 	}
 
 	doMove( game, moveStr ) {
 
-		let move = Chess.pgnToMove( game.board, moveStr );
-		game.board = Chess.applyMove( game.board, move );
+		let turn = game.board.turn;
 
-		if ( game.board.turn == 'W') game.turn = game.w;
-		else game.turn = game.b;
+		let oldBoard = game.board;
+		let move = Chess.pgnToMove( oldBoard, moveStr );
+		let newBoard = Chess.applyMove( oldBoard, move );
+
+		if ( newBoard == oldBoard ) return false;
+
+		game.board = newBoard;
+		game.lastMove = turn + ' ' + moveStr;
+		game.status = Chess.getGameStatus( newBoard );
+
+		if ( turn === 'W') game.turn = game.b;
+		else game.turn = game.w;
+
+		return true;
 
 	}
 
@@ -104,6 +175,8 @@ let Room = exports.ContextClass = class {
 		var game = this.activeGames[gid] = {
 			board:Chess.getInitialPosition(),
 			w:w_user.id, b:b_user.id,
+			lastMove:'',
+			status:'OPEN',
 			turn:w_user
 		};
 
