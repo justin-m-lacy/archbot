@@ -143,7 +143,7 @@ exports.GuildContext = class extends Context {
 
 	findUser( name ) {
 
-		let user = channel.guild.members.find(
+		let user = this._idobj.members.find(
 			gm => gm.displayName.toLowerCase() === name.toLowerCase()
 		);
 		return user;

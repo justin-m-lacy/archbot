@@ -161,9 +161,9 @@ exports.init = function( discordbot ){
 	console.log( 'rpg INIT' );
 
 	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', '!rollchar {charname} {racename} {classname}',
+	cmds.add( 'rollchar', '!rollchar [charname] [racename] [classname]',
 		RPG.prototype.cmdRollChar, { type:'instance', maxArgs:3} );
-	cmds.add( 'loadchar', '!loadchar {charname}', RPG.prototype.cmdLoadChar,
+	cmds.add( 'loadchar', '!loadchar charname', RPG.prototype.cmdLoadChar,
 		{type:'instance', maxArgs:1}  );
 
 }
