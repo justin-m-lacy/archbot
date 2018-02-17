@@ -195,12 +195,7 @@ class DiscordBot {
 		if ( cmds != null && cmds.hasOwnProperty( cmdname ) ) {
 
 			let cmdInfo = cmds[cmdname];
-			let desc;
-			if ( cmdInfo.hasOwnProperty( 'usage')) {
-				desc = cmdname + ' usage: ' + cmdInfo.usage;
-			} else {
-				desc = 'No usage information found for: ' + cmdname;
-			}
+			let desc = cmdname + ' usage: ' + cmdInfo.usage;
 			chan.send( desc );
 
 		} else {
