@@ -66,7 +66,7 @@ exports.Dispatch = class CmdDispatch {
 	// group - group arguments on right or left
 	add( name, usage, func, opts=null ) {
 
-		console.log( 'static command: ' + name );
+		//console.log( 'static command: ' + name );
 		let cmd = new Command( name, usage, func );
 		cmd.opts = opts;
 

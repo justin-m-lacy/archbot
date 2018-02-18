@@ -54,18 +54,18 @@ const Context = class {
 
 	// a cmd routed to this context is dispatched
 	// to the target object.
-	bindCommand( name, target ) {
-		this._cmdRoutes[name] = target;
+	bindCommand( cls, target ) {
+		this._cmdRoutes[cls.name] = target;
 	}
 
 	routeCommand( cmd, args ) {
 
-		let target = this._cmdRoutes[ cmd.name ];
+		let target = this._cmdRoutes[ cmd.instClass.name ];
 		if ( target == null ) {
 
 			// instantiate the cmd class.
 			target = new cmd.instClass( this );
-			this._cmdRoutes[ cmd.name ] = target;
+			this._cmdRoutes[ cmd.instClass.name ] = target;
 
 		}
 		cmd.func.apply( target, args );

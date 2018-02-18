@@ -2,7 +2,10 @@ const Chess = require( 'chess-rules');
 const ID_SEPARATOR = '-';
 
 // maps chess letters to unicode chess characters.
-const char_to_unicode = {};
+const to_unicode = { 'K':'\u2654', 'Q':'\u2655', 'R':'\u2656',
+						'B':'\u2657', 'N':'\u2658', 'P':'\u2659',
+						'k':'\u265A', 'q':'\u265B', 'r':'\u265C',
+						'b':'\u265D', 'n':'\u265E', 'p':'\u265F' };
 
 let Room = exports.ContextClass = class {
 
@@ -141,14 +144,19 @@ let Room = exports.ContextClass = class {
 		let row = [];
 		let rows = [];
 
+		let wasPiece = false;
+
 		while ( i < 64 ) {
 
 			sqr = b[i];
 			if ( sqr == null ) {
-				row.push( '.');
+				if ( wasPiece) row.push('. ')
+				else row.push( '. ');
+				wasPiece = false;
 			} else {
-				if ( sqr.side == 'B') row.push(sqr.type.toLowerCase() );
-				else row.push( sqr.type );
+				if ( sqr.side == 'B') row.push( to_unicode[sqr.type.toLowerCase()] );
+				else row.push( to_unicode[sqr.type] );
+				wasPiece = true;
 			}
 
 			
@@ -156,7 +164,7 @@ let Room = exports.ContextClass = class {
 
 				rows.unshift( row.join(' ') );
 				row = [];
-
+				wasPiece = false;
 			}
 
 		} //
@@ -228,7 +236,7 @@ let Room = exports.ContextClass = class {
 			if ( !opp ) return;
 			game = this.getGame( user, opp );
 			if ( game == null ) {
-				chan.send( 'No game with  ' + oppName + ' found.' );
+				chan.send( 'No game with ' + oppName + ' found.' );
 			}
 
 		}
@@ -241,16 +249,13 @@ let Room = exports.ContextClass = class {
 	findGames( user ) {
 
 		let games = [];
-		let sep;
 		let id = user.id;
+		let game;
+
 		for( let gid in this.activeGames ) {
 
-			sep = gid.indexOf( ID_SEPARATOR );
-			if ( gid.substring(0, sep) === id ) {
-				games.push( this.activeGames[gid]);
-			} else if ( gid.substring(sep+1) === id ) {
-				games.push( this.activeGames[gid]);
-			}
+			game = this.activeGames[gid];
+			if ( game.w == id || game.b == id ) games.push(game);
 
 		}
 
@@ -270,7 +275,7 @@ let Room = exports.ContextClass = class {
 		let id1 = user1.id;
 		let id2 = user2.id;
 
-		return ( id1 < id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
+		return ( id1 <= id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
 
 	}
 
