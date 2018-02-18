@@ -52,26 +52,28 @@ const Context = class {
 		this._instances.push( inst );
 	}
 
-	// cmd routed to this context dispatched
-	// to the target method.
+	// a cmd routed to this context is dispatched
+	// to the target object.
 	bindCommand( name, target ) {
 		this._cmdRoutes[name] = target;
 	}
 
-	routeCommand( name, f, args ) {
+	routeCommand( cmd, args ) {
 
-		let target = this._cmdRoutes[ name ];
-		if ( target != null ) {
+		let target = this._cmdRoutes[ cmd.name ];
+		if ( target == null ) {
 
-			f.apply( target, args );
+			// instantiate the cmd class.
+			target = new cmd.instClass( this );
+			this._cmdRoutes[ cmd.name ] = target;
 
-		} else return 'Command not found.';
+		}
+		cmd.func.apply( target, args );
 
 	}
 
 	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-	}
+	getDataKey( ...objs ) {}
 
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
@@ -83,7 +85,7 @@ const Context = class {
 	}
 	
 	// associate data with key.
-	async storeKeyData( key, data ){
+	async storeKeyData( key, data ) {
 		await this._cache.store( key, data );
 	}
 

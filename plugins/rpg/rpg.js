@@ -21,9 +21,6 @@ var RPG = exports.ContextClass = class {
 		this._context = context;
 		console.log( "Creating RPG instance.");
 
-		context.bindCommand( 'rollchar', this );
-		context.bindCommand( 'loadchar', this );
-
 		this.loadedChars = {};
 
 	}
@@ -155,16 +152,14 @@ var RPG = exports.ContextClass = class {
 
 } // class
 
-exports.init = function( discordbot ){
+exports.init = function( bot ){
 
-	bot = discordbot;
 	console.log( 'rpg INIT' );
 
-	let cmds = bot.dispatch;
-	cmds.add( 'rollchar', '!rollchar [charname] [racename] [classname]',
-		RPG.prototype.cmdRollChar, { type:'instance', maxArgs:3} );
-	cmds.add( 'loadchar', '!loadchar charname', RPG.prototype.cmdLoadChar,
-		{type:'instance', maxArgs:1}  );
+	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]',
+		RPG.prototype.cmdRollChar, RPG, { type:'instance', maxArgs:3} );
+	bot.addContextCmd( 'loadchar', '!loadchar charname',
+		RPG.prototype.cmdLoadChar, RPG, {type:'instance', maxArgs:1}  );
 
 }
 

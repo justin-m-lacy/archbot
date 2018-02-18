@@ -1,6 +1,9 @@
 const Chess = require( 'chess-rules');
 const ID_SEPARATOR = '-';
 
+// maps chess letters to unicode chess characters.
+const char_to_unicode = {};
+
 let Room = exports.ContextClass = class {
 
 	constructor( context ) {
@@ -10,9 +13,22 @@ let Room = exports.ContextClass = class {
 		this._context = context;
 		this.activeGames = {};
 
-		this._context.bindCommand( 'chess', this );
-		this._context.bindCommand( 'move', this );
-		this._context.bindCommand( 'viewboard', this );
+	}
+
+	cmdResign( m, oppName ) {
+
+		let game = this.tryGetGame( m.channel, m.author, oppName );
+		if ( game == null ) return;
+
+		if ( game.status != 'OPEN' ) m.channel.send( 'The game is already over.');
+		else {
+
+			if ( game.w == m.author.id ) game.status = 'BLACKWON';
+			else game.status = 'WHITEWON';
+
+		}
+		this.showGameStatus( m.channel, game );
+
 	}
 
 	cmdViewBoard( m, oppName ) {
@@ -46,7 +62,10 @@ let Room = exports.ContextClass = class {
 		} else {
 
 			game = this.startGame( this.getGameId(m.author, opp), m.author, opp );
-			this.doMove( game, firstMove );
+			if ( !this.doMove( game, firstMove ) ) {
+				m.channel.send( firstMove + ' is not a legal move.');
+				return;
+			}
 
 		}
 
@@ -79,7 +98,7 @@ let Room = exports.ContextClass = class {
 
 			this.showGameStatus( m.channel, game );
 
-		} else if ( game.turn == m.author.id ){
+		} else if ( game.turn === m.author.id ){
 
 			if ( this.doMove( game, moveStr ) ) {
 				this.showGameStatus( m.channel, game );
@@ -142,7 +161,10 @@ let Room = exports.ContextClass = class {
 
 		} //
 
-		return '```' + game.lastMove + '\n' + rows.join( '\n') + '\n' + this.getStatusString(game) + '```';
+		let res = '```';
+		if ( game.lastMove != null ) res += ' ' + game.lastMove;
+
+		return res + '\n' + rows.join( '\n') + '\n' + this.getStatusString(game) + '```';
 
 	}
 
@@ -152,11 +174,11 @@ let Room = exports.ContextClass = class {
 
 		let oldBoard = game.board;
 		let move = Chess.pgnToMove( oldBoard, moveStr );
-		if ( move == null ) { console.log( "MOVE NULL"); return; }
+		if ( move == null ) { return false; }
 
 		let newBoard = Chess.applyMove( oldBoard, move );
 
-		if ( newBoard == oldBoard ) return false;
+		//if ( newBoard == oldBoard ) return false;
 
 		game.board = newBoard;
 		game.lastMove = turn + ' ' + moveStr;
@@ -177,9 +199,8 @@ let Room = exports.ContextClass = class {
 		var game = this.activeGames[gid] = {
 			board:Chess.getInitialPosition(),
 			w:w_user.id, b:b_user.id,
-			lastMove:'',
 			status:'OPEN',
-			turn:w_user
+			turn:w_user.id
 		};
 
 		return game;
@@ -255,19 +276,19 @@ let Room = exports.ContextClass = class {
 
 } // class
 
-exports.init = function( discordbot ){
+exports.init = function( bot ){
 
-	bot = discordbot;
 	console.log( 'Chess INIT' );
 
-	let cmds = bot.dispatch;
+	bot.addContextCmd( 'chess', '!chess opponentName [firstMove]',
+		Room.prototype.cmdNewGame, Room, { type:'instance', maxArgs:2} );
 
-	cmds.add( 'chess', '!chess opponentName [firstMove]',
-		Room.prototype.cmdNewGame, { type:'instance', maxArgs:2} );
+	bot.addContextCmd( 'move', '!move [opponentName] moveString',
+		Room.prototype.cmdDoMove, Room, {type:'instance', maxArgs:2} );
+	bot.addContextCmd( 'viewboard', '!viewboard [opponentName]',
+		Room.prototype.cmdViewBoard, Room, {type:'instance', maxArgs:1} );
 
-	cmds.add( 'move', '!move [opponentName] moveString',
-		Room.prototype.cmdDoMove, {type:'instance', maxArgs:2} );
-	cmds.add( 'viewboard', '!viewboard [opponentName]',
-		Room.prototype.cmdViewBoard, {type:'instance', maxArgs:1} );
+	bot.addContextCmd( 'resign', '!resign [opponentName]',
+		Room.prototype.cmdResign, Room, {type:'instance', maxArgs:1} );
 
-}
+} // init()
