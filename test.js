@@ -1,4 +1,15 @@
-let a = {};
-let b = a.test;
-console.log( a.test );
-if ( b == null ) console.log('b is null');
+
+class TestClass {
+
+	constructor() {
+	}
+
+	myMethod() {
+	}
+
+}
+
+var f = TestClass.prototype.myMethod;
+for ( let t in f ) {
+	console.log( t );
+}

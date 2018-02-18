@@ -47,7 +47,7 @@ function initCmds(){
 	cmds.add( 'schedule', '!schedule [activity] [times]', cmdSchedule, { maxArgs:2, group:'right'} );
 
 	cmds.add( 'sleep', '!sleep [sleep schedule]', cmdSleep, {maxArgs:1} );
-	cmds.add( 'when', '!when [userName] [activity]', cmdWhen,{maxArgs:2} );
+	cmds.add( 'when', '!when [userName] [activity]', cmdWhen, {maxArgs:2} );
 	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1} );
 	cmds.add( 'attack', '!attack', (msg)=>{msg.channel.send( 'You attack the darkness.' ); } );
 

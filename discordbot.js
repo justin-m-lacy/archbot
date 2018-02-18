@@ -61,17 +61,16 @@ class DiscordBot {
 
 		this._contextClasses.push(cls);
 
-		console.log( 'Adding context class.');
+		/*console.log( 'Adding context class.');
 
 		let context;
 		for( let k in this._contexts ){
 
 			context = this._contexts[k];
 			//console.log( 'instantiating context class: ' + cls.prototype );
-
 			context.addInstance( new cls(context ) );
 
-		}
+		}*/
 
 	}
 
@@ -89,27 +88,48 @@ class DiscordBot {
 
 	}
 
+	addCmd( name, usage, func, opts=null ) {
+		this._dispatch.add( name, usage, func, opts );
+	}
+
+	// command instantiates context class
+	addContextCmd( name, usage, func, plugClass, opts=null ) {
+		this._dispatch.addContextCmd( name, usage, func, plugClass, opts );
+	}
+
 	onMessage( m ) {
 
 		if ( m.author.id == this._client.user.id ) return;
 
-		// get Context for cmd routing.
-		let context = this.getMsgContext( m );
-
 		try {
-	
-			let content = m.content;
-	
-			if ( content.substring(0,1) === this._cmdPrefix ) {
+			let command = this._dispatch.getCommand( m.content );
+		
 
-				let error = this._dispatch.routeCmd( context, m.content, [m] );
-				if ( error ) m.channel.send( error );
-				
+		if ( command == null ) return;
+
+		if ( command.isDirect ) {
+
+			this._dispatch.dispatch( command, [m] );
+
+
+		} else {
+
+			// context command.
+			// get Context for cmd routing.
+			let context = this.getMsgContext( m );
+
+			try {
+		
+				let error = this._dispatch.routeCmd( context, command, [m] );
+				if ( error ) m.channel.send( error );	
+		
+			} catch ( exp ) {
+				console.error( exp );
 			}
-	
-		} catch ( exp ) {
-			console.error( exp );
+
 		}
+
+	} catch ( e ){console.log(e); }
 
 	}
 
@@ -156,16 +176,6 @@ class DiscordBot {
 		if ( type == 'text' || type == 'voice ') context = new Contexts.GuildContext( this, idobj );
 		else if ( type == 'group' ) context = new Contexts.GroupContext( this, idobj );
 		else  context = new Contexts.UserContext( this, idobj );;
-
-		let cls;
-		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
-
-			cls = this._contextClasses[i];
-			//console.log( 'instantiating context class: ' + cls.prototype );
-
-			context.addInstance( new cls( context ) );
-
-		}
 
 		this._contexts[idobj.id] = context;
 

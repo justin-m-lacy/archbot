@@ -2,29 +2,34 @@
 const Command = exports.Command = class {
 
 	/**
-	 * opts.type: 'global', or 'instance'
 	 * maxArgs: max arguments to form from command line.
 	 * minArgs: not implemented.
 	 * group: 'left' or 'right' when using maxArgs, determines
 	 * how remainder args are grouped together.
 	 */
 	get opts() { return this._opts;}
+	set opts( o ) { this._opts = o; }
 
 	get name() { return this._name; }
+
+	// whether the cmd calls a function directly.
+	get isDirect() { return this._instClass == null; }
+	get isContext() { return this._instClass != null; }
+
+	get instClass() { return this._instClass; }
+
 	get func() { return this._func };
 	get usage() { return this._usage ? this._usage : 'Unknown.'; }
 	get group() { return this._opts ? this._opts.group : null; }
 
 	get maxArgs() { return this._opts ? this._opts.maxArgs : null; }
 
-	get type() { return (this._opts ? this._opts.type : 'global' );}
-
-	constructor( name, usage, func=null, opts=null ) {
+	constructor( name, usage, func, instClass=null ) {
 
 		this._name = name;
 		this._func = func;
 		this._usage = usage;
-		this._opts = opts;
+		this._instClass = instClass;
 
 	}
 
@@ -32,109 +37,109 @@ const Command = exports.Command = class {
 
 exports.Dispatch = class CmdDispatch {
 
-	get commands() { return this._cmds; }
 	constructor( cmdPrefix='!') {
 
-		this._cmds = {};
 		this.cmdLine = new CmdLine( cmdPrefix );
 
 	}
 
-	routeCmd( context, input, leadArgs=null ) {
+	getCommand( input ) {
+		return this.cmdLine.setInput(input);
+	} //
 
-		this.cmdLine.input = input;
-		console.log( 'cmd: ' + this.cmdLine.cmdname );
+	dispatch( cmd, leadArgs ) {
+		cmd.func.apply( null, leadArgs.concat( this.cmdLine.args ) );
+	}
 
-		let cmd = this.getCmd( this.cmdLine.cmdname );
+	routeCmd( context, cmd, leadArgs ) {
+		return context.routeCommand( cmd, leadArgs.concat( this.cmdLine.args ) );
+	}
 
-		if ( cmd ) {
+	addContextCmd( name, usage, func, cmdClass, opts=null ) {
 
-			var args;
-			if ( cmd.maxArgs == null ) args = this.cmdLine.splitArgs();
-			else {
-				if ( cmd.group === 'right') args = this.cmdLine.groupRight( cmd.maxArgs );
-				else args = this.cmdLine.groupLeft( cmd.maxArgs );
-			}
-
-			if ( leadArgs != null ){
-				args = leadArgs.concat(args);
-			}
-
-			let f = cmd.func;
-			if ( cmd.type != 'instance') {
-				f.apply( null, args );
-				return null;
-			} else {
-				return context.routeCommand( cmd.name, f, args );
-			}
-
-		}
-		return 'Command not found';
+		let cmd = new Command( name, usage, func, cmdClass );
+		cmd.opts = opts;
+		this.cmdLine.commands[name] = cmd;
 
 	}
 
 	// group - group arguments on right or left
-	add( name, usage, func, opts ) {
+	add( name, usage, func, opts=null ) {
 
-		this._cmds[name] = new Command( name, usage, func, opts );
+		console.log( 'static command: ' + name );
+		let cmd = new Command( name, usage, func );
+		cmd.opts = opts;
+
+		this.cmdLine.commands[name] = cmd;
 
 	}
 
-	getCmd( name ) {
-		return this._cmds[name];
-	}
-
-	clearCmd( name ) {
-		delete this._cmds[name];
-	}
-
-	clear() {
-		this._cmds = {};
-	}
+	getCmd( name ) { return this._cmds[name]; }
+	clearCmd( name ) { delete this._cmds[name];	}
+	clear() { this._cmds = {}; }
 
 }
 
 class CmdLine {
 
-	set input( str ) {
+	get commands() { return this._cmds; }
 
-		str = str.trim();
-		this._input = str;
+	get args() { return this._args; }
+	get prefix() { return this._prefix; }
 
-		let ind = str.indexOf( ' ', this._prefixLen );
-
-		if ( ind >= 0 ) {
-
-			this._cmd = str.slice( this._prefixLen, ind ).toLowerCase();
-			this._argStr = str.slice(ind);
-	
-		} else {
-
-			this._cmd = str.slice( this._prefixLen ).toLowerCase();
-			this._argStr = '';
-
-		}
-
-	}
-
-	get cmdname() {
-		return this._cmd;
-	}
+	get command() { return this._cmd; }
 
 	constructor( cmdPrefix='!' ) {
 	
 		this._prefix = cmdPrefix;
 		this._prefixLen = cmdPrefix ? cmdPrefix.length : 0;
 
-		this._input = '';
-		this._cmd = '';
-		this._argStr = '';
+		this._cmds = {};
 
 	}
 
-	splitArgs() {
+	setInput( str ) {
 
-		let str = this._argStr;
+		str = str.trim();
+
+		// cmd prefix.
+		if ( str.slice( 0, this._prefixLen ) != this._prefix ) {
+
+			this._cmd = null;
+			return;
+
+		}
+		
+		let ind = str.indexOf( ' ', this._prefixLen );
+		if ( ind < 0 ){
+
+			this._cmd = this._cmds[ str.slice( this._prefixLen ).toLowerCase() ];
+			this._args = null;
+			return this._cmd;
+
+		}
+
+		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
+		if ( this._cmd == null ) return;
+
+		this.readArgs( str.slice( ind ), this._cmd.opts );
+
+		return this._cmd;
+
+	}
+
+	readArgs( argstr, opts ) {
+		
+		if ( opts == null ) this._args = this.splitArgs( argstr );
+		else if ( opts.maxArgs == null ) args = this.splitArgs( argstr );
+		else {
+			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );
+			else this._args = this.groupLeft( argstr, opts.maxArgs );
+		}
+
+	}
+
+	splitArgs( str ) {
 
 		var args = [];
 		let len = str.length;
@@ -172,9 +177,7 @@ class CmdLine {
 	}
 
 	// groups args on right to max count.
-	groupRight( argCount ) {
-
-		let str = this._argStr;
+	groupRight( str, argCount ) {
 
 		var args = [];
 		let len = str.length;
@@ -218,9 +221,7 @@ class CmdLine {
 	}
 
 	// groups args on left to max count.
-	groupLeft( argCount ) {
-
-		let str = this._argStr;
+	groupLeft( str, argCount ) {
 
 		var args = [];
 		let start = str.length-1;
