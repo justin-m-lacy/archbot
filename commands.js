@@ -231,7 +231,7 @@ class CmdLine {
 		while( true ) {
 
 			// skip spaces.
-			while ( start <= 0 && str.charAt(start) == ' ' ) start--;
+			while ( start >= 0 && str.charAt(start) == ' ' ) start--;
 			if ( start <= 0 ) break;
 
 			argCount--;
