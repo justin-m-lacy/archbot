@@ -142,7 +142,7 @@ class DiscordBot {
 		try {
 		if ( type == 'text' || type == 'voice ') idobj = m.guild;
 		else if ( type == 'group' ) idobj = m.channel;
-		else idobj = m.reciever;
+		else idobj = m.channel.recipient;
 
 		let id = idobj.id;
 		let context = this._contexts[id];
