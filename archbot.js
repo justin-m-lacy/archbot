@@ -229,7 +229,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 		let data = await bot.fetchUserData( uObject );
 		let games = data.games;
 
-		let dateStr = DateFormat.recent( games[gameName] );
+		let dateStr = DateFormat.dateString( games[gameName] );
 		channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
@@ -392,7 +392,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		let memData = await bot.fetchUserData( gMember );
 		let lastTime = latestStatus( memData.history, statuses );
 
-		let dateStr = DateFormat.recent( lastTime );
+		let dateStr = DateFormat.dateString( lastTime );
 		
 		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
