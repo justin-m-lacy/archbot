@@ -6,34 +6,11 @@ auth.json
 
 savedata
 
-node_modules/async-limiter*
-
-node_modules/discord.js*
-
-node_modules/long*
-
-node_modules/prism-media*
-
-node_modules/safe-buffer*
-
-node_modules/snekfetch*
-
-node_modules/tweetnacl*
-
-node_modules/ultron*
-
-node_modules/uws*
-
-node_modules/ws*
+node_modules
 *.lnk
 package-lock.json
 package-lock.json
 package-lock.json
 client_link.txt
 
-
-node_modules/chess-rules
-
-node_modules/colors
-
-node_modules/underscore
+!node_modules/archdice
