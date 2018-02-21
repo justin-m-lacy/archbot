@@ -74,6 +74,7 @@ exports.Dispatch = class CmdDispatch {
 
 	}
 
+	get commands() { return this.cmdLine.commands; }
 	getCmd( name ) { return this._cmds[name]; }
 	clearCmd( name ) { delete this._cmds[name];	}
 	clear() { this._cmds = {}; }

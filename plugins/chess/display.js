@@ -1,4 +1,5 @@
 const jimp = require( 'jimp' );
+const Discord = require( 'discord.js');
 
 // image manip.
 var imgBoard;
@@ -34,17 +35,17 @@ exports.loadImages = async function() {
 				
 }
 
-exports.showBoard = function( chan, game ) {
+exports.showBoard = async function( chan, game ) {
 
 	if ( imagesLoaded ) {
 
 		try {
 
-			let buff = await Display.getBoardImg(game);
+			let buff = await getBoardImg(game);
 			if ( buff != null ) {
 
 				let attach = new Discord.Attachment( buff );
-				m.channel.send( game.getStatusString(), attach );
+				chan.send( game.getStatusString(), attach );
 
 				return;
 
@@ -56,7 +57,7 @@ exports.showBoard = function( chan, game ) {
 
 	}
 
-	m.channel.send( getBoardStr(game));
+	chan.send( getBoardStr(game));
 
 }
 

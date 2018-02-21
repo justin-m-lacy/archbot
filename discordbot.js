@@ -58,20 +58,7 @@ class DiscordBot {
 	}
 
 	addContextClass( cls ) {
-
 		this._contextClasses.push(cls);
-
-		/*console.log( 'Adding context class.');
-
-		let context;
-		for( let k in this._contexts ){
-
-			context = this._contexts[k];
-			//console.log( 'instantiating context class: ' + cls.prototype );
-			context.addInstance( new cls(context ) );
-
-		}*/
-
 	}
 
 	initClient() {
@@ -199,39 +186,6 @@ class DiscordBot {
 
 	}
 
-	printCommand( chan, cmdname ) {
-
-		let cmds = this._dispatch.commands;
-		if ( cmds != null && cmds.hasOwnProperty( cmdname ) ) {
-
-			let cmdInfo = cmds[cmdname];
-			let desc = cmdname + ' usage: ' + cmdInfo.usage;
-			chan.send( desc );
-
-		} else {
-			chan.send( 'Command not found.');
-		}
-
-	}
-
-	printCommands( chan ) {
-
-		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
-		let cmds = this._dispatch.commands;
-		if ( cmds != null ) {
-
-			let a = [];
-			for( let k in cmds ){
-				a.push(k);
-			}
-
-			str += a.join(', ');
-
-		}
-		chan.send( str );
-
-	}
-
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
 
@@ -287,14 +241,24 @@ class DiscordBot {
 
 	}
 
-	tryGetUser( channel, name ) {
+	showUserNotFound( chan, user ) {
+		chan.send( 'User \'' + user + '\' not found.');
+	}
+
+	/**
+	 * Finds and returns the named user in the channel,
+	 * or replies with an error message.
+	 * @param {*} channel 
+	 * @param {*} name 
+	 */
+	userOrShowErr( channel, name ) {
 
 		if ( name == null || name === '') {
 			channel.send( 'User name expected.');
 			return null;
 		}
 		let member = this.findUser( channel, name );
-		if ( member == null ) channel.send( 'User ' + name + ' not found.' );
+		if ( member == null ) channel.send( 'User \'' + user + '\' not found.');
 		return member;
 
 	}
@@ -312,18 +276,47 @@ class DiscordBot {
 					gm=> gm.displayName.toLowerCase() === name.toLowerCase()
 				);
 				return user;
-
-				break;
 			case 'dm':
 				name = name.toLowerCase();
 				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
 				return null;
-				break;
 			case 'group':
 				return channel.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
-				break;
 
 		}
+
+	}
+
+	printCommand( chan, cmdname ) {
+
+		let cmds = this._dispatch.commands;
+		if ( cmds != null && cmds.hasOwnProperty( cmdname ) ) {
+
+			let cmdInfo = cmds[cmdname];
+			let usage = cmdInfo.usage;
+			if ( usage == null ) chan.send( 'No usage information found for command \'' + cmdname + '\'.');
+			else chan.send( cmdname + ' usage: ' + cmdInfo.usage );
+
+
+		} else chan.send( 'Command \'' + cmdname + '\' not found.' );
+
+	}
+
+	printCommands( chan ) {
+
+		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
+		let cmds = this._dispatch.commands;
+		if ( cmds != null ) {
+
+			let a = [];
+			for( let k in cmds ){
+				a.push(k);
+			}
+
+			str += a.join(', ');
+
+		}
+		chan.send( str );
 
 	}
 

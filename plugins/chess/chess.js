@@ -2,6 +2,7 @@ const Chess = require( 'chess-rules');
 const Discord = require( 'discord.js');
 const Game = require( './game.js');
 const Display = require( './display.js' );
+const Export = require( './export.js' );
 
 const ID_SEPARATOR = '-';
 
@@ -13,6 +14,23 @@ let Room = exports.ContextClass = class {
 
 		this._context = context;
 		this.activeGames = {};
+
+	}
+
+	cmdPGN( m, opp1, opp2 ) {
+
+		if ( opp1 == null ) opp1 = m.author;
+		else if ( opp2 == null ) opp2 = m.author;
+
+		let game = this.tryGetGame( opp1, opp2 );
+		if ( game == null ) return;
+
+		try {
+
+			let str = Export.toPGN( game );
+			m.channel.send( str );
+
+		} catch ( e) { console.log(e); }
 
 	}
 
@@ -29,9 +47,12 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	async cmdViewBoard( m, oppName ) {
+	async cmdViewBoard( m, opp1, opp2 ) {
 
-		let game = this.tryGetGame( m.channel, m.author, oppName );
+		if ( opp1 == null ) opp1 = m.author;
+		else if ( opp2 == null ) opp2 = m.author;
+
+		let game = this.tryGetGame( m.channel, opp1, opp2 );
 		if ( game == null ) return;
 
 		Display.showBoard( m.channel, game );
@@ -44,12 +65,12 @@ let Room = exports.ContextClass = class {
 			m.channel.send( 'Must specify an opponent.');
 			return;
 		}
-		let opp = this._context.tryGetUser( m.channel, oppName );
+		let opp = this._context.userOrShowErr( m.channel, oppName );
 		if ( !opp ) return;
 
 		let game = this.getGame( m.author, opp );
 		if ( game != null ) {
-			m.channel.send( 'You are already playing a game against ' + oppName + '.');
+			this.tryPlayMove( m, game, firstMove );
 			return;
 		}
 
@@ -60,9 +81,8 @@ let Room = exports.ContextClass = class {
 		} else {
 
 			game = this.startGame( this.getGameId(m.author, opp), m.author, opp );
-			if ( !game.tryMove( game, firstMove ) ) {
+			if ( !game.tryMove( firstMove ) ) {
 				m.channel.send( firstMove + ' is not a legal move.');
-				return;
 			}
 
 		}
@@ -85,12 +105,21 @@ let Room = exports.ContextClass = class {
 			game = this.tryGetGame( m.channel, m.author, null );
 			moveStr = args[0];
 
-		} else {
+		} else if ( len == 2 ) {
+			// !move opponent moveStr
 			game = this.tryGetGame( m.channel, m.author, args[0]);
 			moveStr = args[1];
+		} else {
+			m.channel.send( 'Unexpected move input.' );
+			return;
 		}
-
 		if ( game == null ) return;
+
+		tryPlayMove( m, game, moveStr );
+		
+	}
+
+	tryPlayMove( m, game, moveStr ) {
 
 		if ( game.status != 'OPEN') {
 
@@ -98,7 +127,7 @@ let Room = exports.ContextClass = class {
 
 		} else if ( game.turn === m.author.id ){
 
-			if ( game.tryMove( game, moveStr ) ) {
+			if ( game.tryMove( moveStr ) ) {
 				this.showGameStatus( m.channel, game );
 			} else {
 				m.channel.send( moveStr + ' is not a legal move.');
@@ -115,7 +144,13 @@ let Room = exports.ContextClass = class {
 	}
 
 	startGame( gid, w_user, b_user ) {
-		return this.activeGames[gid] = new Game( w_user.id, b_user.id );
+
+		try {
+			let game = this.activeGames[gid] = new Game( w_user.id, b_user.id );
+			return game;
+
+		} catch ( e) { console.log(e); }
+		return null;
 	}
 
 	/**
@@ -123,32 +158,37 @@ let Room = exports.ContextClass = class {
 	 * and the named player.
 	 * An error message is displayed to the channel on failure.
 	 * @param {Discord.Channel} chan 
-	 * @param {Discord.User} user 
-	 * @param {string} oppName
+	 * @param {string|Discord.User} p1 
+	 * @param {string|Discord.User} p2
 	 * @returns {Game} The game being played.
 	 */
-	tryGetGame( chan, user, oppName ) {
+	tryGetGame( chan, p1, p2 ) {
 
 		let game;
 
-		if ( oppName == null ) {
+		if ( typeof(p1) == 'string' ) p1 = this._context.userOrShowErr( chan, p1 );
+		if ( p1 == null ) return;
 
-			let games = this.findGames( user );
+		if ( p2 == null ) {
+
+			let games = this.findGames( p1 );
 			if ( games.length == 0 ) {
 				chan.send( 'No active games found.');
 			} else if ( games.length > 1 ) {
-				chan.send( 'Multiple games found. Specify opponent in command.' );
-			} else {
-				game = games[0];
-			}
+				chan.send( 'Multiple games for ' + this._context.userString(p1) +
+					' found.  Specify opponent in command.' );
+			} else game = games[0];
 
 		} else {
 
-			let opp = this._context.tryGetUser( chan, oppName );
-			if ( !opp ) return;
-			game = this.getGame( user, opp );
+			if ( typeof(p2) == 'string' ) p2 = this._context.userOrShowErr( p2 );
+			if ( !p2 ) return;
+
+			game = this.getGame( p1, p2 );
+
 			if ( game == null ) {
-				chan.send( 'No game with ' + oppName + ' found.' );
+				chan.send( 'No game between ' + this._context.userString(p1) +
+				' and ' + this._context.userString( p2 ) + ' found.' );
 			}
 
 		}
@@ -199,15 +239,17 @@ exports.init = async function( bot ){
 	await Display.loadImages();
 
 	bot.addContextCmd( 'chess', '!chess opponentName [firstMove]',
-		Room.prototype.cmdNewGame, Room, { type:'instance', maxArgs:2} );
+		Room.prototype.cmdNewGame, Room, {maxArgs:2} );
 
 	bot.addContextCmd( 'move', '!move [opponentName] moveString',
-		Room.prototype.cmdDoMove, Room, {type:'instance', maxArgs:2} );
+		Room.prototype.cmdDoMove, Room, {maxArgs:2} );
 	bot.addContextCmd( 'viewboard', '!viewboard [opponentName]',
-		Room.prototype.cmdViewBoard, Room, {type:'instance', maxArgs:1} );
+		Room.prototype.cmdViewBoard, Room, {maxArgs:1} );
 
 	bot.addContextCmd( 'resign', '!resign [opponentName]',
-		Room.prototype.cmdResign, Room, {type:'instance', maxArgs:1} );
+		Room.prototype.cmdResign, Room, { maxArgs:1} );
+
+	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:1} );
 
 	} catch ( e ) { console.log(e); }
 

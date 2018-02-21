@@ -67,6 +67,9 @@ function initCmds(){
 	cmds.add( 'idletime', '!idletime [username]', cmdIdleTime, {maxArgs:1} );
 	cmds.add( 'playtime', '!playtime [userName', cmdPlayTime, {maxArgs:1} );
 
+	cmds.add( 'ranking', '!ranking', cmdRanking, {maxArgs:0});
+	cmds.add( 'fuck', null, cmdFuck );
+
 	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1} );
 
 }
@@ -126,13 +129,17 @@ function doMsg( msg ) {
 
 }
 
+function cmdRanking( m ) {
+	m.channel.send( 'Last place: garnish.');
+}
+
 function cmdUptime( m ) {
 	m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
 }
 
 function cmdUName( msg, name ) {
 
-	let gMember = bot.tryGetUser( msg.channel, name );
+	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' user name: ' + gMember.user.username )
 
@@ -140,7 +147,7 @@ function cmdUName( msg, name ) {
 
 function cmdNick( msg, name ) {
 
-	let gMember = bot.tryGetUser( msg.channel, name );
+	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' nickname: ' + gMember.nickname )
 
@@ -158,7 +165,7 @@ function cmdHelp( msg, cmd ) {
 
 function cmdUid( msg, name ) {
 
-	let gMember = bot.tryGetUser( msg.channel, name );
+	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
 	msg.channel.send( name + ' uid: ' + gMember.user.id )
 
@@ -213,10 +220,13 @@ function cmdLastOff( msg, who ){
 function cmdTest( msg, reply ){
 	msg.channel.send( reply + ' yourself, ' + msg.member.displayName );
 }
+function cmdFuck( m ) {
+	m.channel.send( m.content.slice(1) + ' yourself, ' + msg.member.displayName );
+}
 
 async function sendGameTime( channel, displayName, gameName ) {
 	
-	let uObject = bot.tryGetUser( channel, displayName );
+	let uObject = bot.userOrShowErr( channel, displayName );
 	if ( !uObject ) return;
 
 	if ( uObject.presence.game != null && uObject.presence.game.name === gameName ) {
@@ -242,7 +252,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 async function cmdPlayTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = bot.tryGetUser( chan, name );
+	let gMember = bot.userOrShowErr( chan, name );
 	if (!gMember) return;
 
 	if ( gMember.presence.game == null ) {
@@ -272,7 +282,7 @@ async function cmdPlayTime( msg, name ){
 async function cmdIdleTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = bot.tryGetUser( chan, name );
+	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus( gMember, 'idle')){
@@ -306,7 +316,7 @@ async function cmdIdleTime( msg, name ){
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
-	let gMember = bot.tryGetUser( chan, name );
+	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( hasStatus(gMember, 'offline') ) {
@@ -340,7 +350,7 @@ async function cmdOnTime( msg, name ) {
 async function cmdOffTime( msg, name ) {
 
 	let chan = msg.channel;
-	let gMember = bot.tryGetUser( chan, name );
+	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus(gMember, 'offline') ) {
@@ -375,7 +385,7 @@ async function cmdOffTime( msg, name ) {
 // statusName is the status to display in channel.
 async function sendHistory( channel, name, statuses, statusName ) {
 
-	let gMember = bot.tryGetUser( channel, name );
+	let gMember = bot.userOrShowErr( channel, name );
 	if ( !gMember ) return;
 
 	if ( statusName == null ) statusName = statuses;
@@ -447,16 +457,16 @@ function latestStatus( history, statuses ) {
 }
 
 // send schedule message to channel, for user with displayName
-async function sendSchedule( channel, displayName, activity ) {
+async function sendSchedule( channel, name, activity ) {
 
-	let gMember = bot.tryGetUser( channel, displayName );
+	let gMember = bot.userOrShowErr( channel, name );
 	if ( !gMember ) return;
 
 	let sched = await readSchedule( gMember, activity );
 	if ( sched ) {
-		channel.send( displayName + ' ' + activity + ': ' + sched );
+		channel.send( name + ' ' + activity + ': ' + sched );
 	} else {
-		channel.send( 'No ' + activity + ' schedule found for ' +  displayName + '.' );
+		channel.send( 'No ' + activity + ' schedule found for ' +  name + '.' );
 	}
 
 }
