@@ -22,6 +22,8 @@ module.exports = class Game {
 		this.w_id = w;
 		this.b_id = b;
 
+		this._tags = {};
+
 		this._history = [];
 
 		this._status = Chess.getGameStatus( state );
@@ -29,6 +31,12 @@ module.exports = class Game {
 		this._lastMove = null;
 
 	}
+
+	/**
+	 * Returns a named pgn tag.
+	 * @param {string} tagName 
+	 */
+	getTag( tagName ) { return this._tags[tagName]; }
 
 	/**
 	 * returns the current board position.
@@ -64,7 +72,7 @@ module.exports = class Game {
 
 		let newState = Chess.applyMove( oldState, move );
 
-		this._history.push( oldState );
+		this._history.push( moveStr );
 
 		this._gameState = newState;
 		this._lastMove = oldState.turn + ' ' + moveStr;
