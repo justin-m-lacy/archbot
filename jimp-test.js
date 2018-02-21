@@ -34,7 +34,7 @@ function compose( locs ){
 		srcR = obj.side == 'W' ? 1 : 0;
 		srcC = pieceCol[ obj.piece ];
 
-		b.blit( pieces, obj.col*tileSize, obj.row*tileSize, srcC*tileSize, srcR*tileSize, tileSize, tileSize );
+		b.composite( pieces, obj.col*tileSize, obj.row*tileSize, srcC*tileSize, srcR*tileSize, tileSize, tileSize );
 
 	}
 
