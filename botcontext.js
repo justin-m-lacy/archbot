@@ -33,16 +33,38 @@ const Context = class {
 
 	}
 
-	tryGetUser( chan, name ) {
+	/**
+	 * Displays standard user not found message to the given
+	 * channel.
+	 * @param {Discord.Channel} chan 
+	 * @param {string|number} user 
+	 */
+	showUserNotFound( chan, user ) {
+		chan.send( 'User \'' + user + '\' not found.');
+	}
+
+	userOrShowErr( chan, name ) {
 
 		if ( name == null || name === '') {
 			chan.send( 'User name expected.');
 			return null;
 		}
 		let member = this.findUser( name );
-		if ( member == null ) chan.send( 'User ' + name + ' not found.' );
+		if ( member == null ) chan.send( 'User \'' + name + '\' not found.' );
 		return member;
 
+	}
+
+	/**
+	 * Returns a name to display for the given user.
+	 * @param {string|Discord.User|Discord.GuildMember} o 
+	 */
+	userString( o ) {
+
+		if ( typeof(o) == 'string') return o;
+		if ( o instanceof Discord.User ) return o.username;
+		if ( o instanceof Discord.GuildMember ) return o.displayName;
+		return o.id;
 	}
 
 	findUser( name ) { return null; }
@@ -145,10 +167,9 @@ exports.GuildContext = class extends Context {
 
 	findUser( name ) {
 
-		let user = this._idobj.members.find(
+		return this._idobj.members.find(
 			gm => gm.displayName.toLowerCase() === name.toLowerCase()
 		);
-		return user;
 
 	}
 

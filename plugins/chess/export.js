@@ -42,17 +42,74 @@ function toPGN( game ) {
 function getTagsStr( game ) {
 }
 
+function fromJSON( data ) {
+
+	if ( data.wid == null ) {
+	}
+	if ( data.bid == null ) {
+	}
+	if ( data.state == null ) {
+	}
+
+	let state = Chess.fenToPosition( data.fen );
+
+	let game = new Game( data.wid, data.bid, state );
+
+	return game;
+
+}
+
 function toJSON( game ) {
 
 	let obj = {
 
 		pgn:toPGN(game),
-		state:Chess.positionToFen( game.state ),
+		fen:Chess.positionToFen( game.state ),
 		wid:game.whiteID,
 		bid:game.blackID
 
 	}
 
 	return JSON.stringify( obj );
+
+}
+
+/**
+ * Parses pgn history and returns an array
+ * of the game moves played.
+ * @param {string} pgn 
+ */
+function readPGNHistory( pgn ) {
+
+	// parsing tags.
+	let regex = /\[(\w+)\s\"((?[\w\d\s]|\\")+)"\]/g;
+	var results;
+	var len;
+
+	let tags = {};
+
+	while ((results = regex.exec(pgn)) !== null ) {
+
+		if ( results.length == 3 ) {
+			tags[ results[1] ] = results[2];
+		} else if ( results.length == 2 ) {
+			// should never happen.
+			tags[results[1]] = '';
+		}
+
+	}
+
+	// parsing moves.
+
+	regex = /\d+\.\s(\w+)\s(\w+)/g;
+	let history = [];
+	while ( (results = regex.exec(pgn)) !== null ) {
+
+		if ( results.length == 2 ) history.push( results[1]);
+		else if ( results.length == 3 ){
+			history.push( results[1]);
+			history.push( results[2]);
+		}
+	}
 
 }

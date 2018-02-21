@@ -1,8 +1,11 @@
 const Chess = require( 'chess-rules');
+const Display = require( './display.js');
 
 module.exports = class Game {
 
 	get history() { return this._history; }
+	set history( h ) { this._history = h; }
+
 	get turn() { return this._turn; }
 	get whiteID() { return this.w_id; }
 	get blackID() { return this.b_id; }
@@ -37,6 +40,12 @@ module.exports = class Game {
 	 * @param {string} tagName 
 	 */
 	getTag( tagName ) { return this._tags[tagName]; }
+
+	/**
+	 * Returns all tags.
+	*/
+	getTags() {
+	}
 
 	/**
 	 * returns the current board position.
