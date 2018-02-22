@@ -2,6 +2,7 @@ let Chess = require( 'chess-rules' );
 let Game = require( './game.js' );
 
 exports.toPGN = toPGN;
+exports.toJSONData = toJSONData;
 
 function toPGN( game ) {
 
@@ -27,6 +28,12 @@ function toPGN( game ) {
 	// remainder ply.
 	if ( len % 2 != 0 ) fullMoves.push(turnStr);
 
+	let status = game.status;
+	if ( status == 'OPEN' ) fullMoves.push( '*');
+	else if ( status == 'WHITEWON') fullMoves.push('1-0');
+	else if ( status == 'BLACKWON') fullMoves.push('0-1');
+	else if ( status == 'PAT') fullMoves.push('1/2-1/2');
+
 	let pgnStr = fullMoves.join( ' ' );
 
 	console.log( pgnStr );
@@ -45,41 +52,29 @@ function getTagsStr( game ) {
 function fromJSON( data ) {
 
 	if ( data.wid == null ) {
+		return "White player not known.";
 	}
 	if ( data.bid == null ) {
+		return "Black player not known.";
 	}
-	if ( data.state == null ) {
+	if ( data.fen == null ) {
+		return "Game state not found."
 	}
 
 	let state = Chess.fenToPosition( data.fen );
 
-	let game = new Game( data.wid, data.bid, state );
+	let game = new Game( data.wid, data.bid, state, data.time );
 
 	return game;
 
 }
 
-function toJSON( game ) {
-
-	let obj = {
-
-		pgn:toPGN(game),
-		fen:Chess.positionToFen( game.state ),
-		wid:game.whiteID,
-		bid:game.blackID
-
-	}
-
-	return JSON.stringify( obj );
-
-}
-
 /**
- * Parses pgn history and returns an array
- * of the game moves played.
+ * Parses pgn history and tags and
+ * sets the appropriate data in a game.
  * @param {string} pgn 
  */
-function readPGNHistory( pgn ) {
+function readPGN( pgn, game ) {
 
 	// parsing tags.
 	let regex = /\[(\w+)\s\"((?[\w\d\s]|\\")+)"\]/g;
@@ -99,6 +94,8 @@ function readPGNHistory( pgn ) {
 
 	}
 
+	game.tags = tags;
+
 	// parsing moves.
 
 	regex = /\d+\.\s(\w+)\s(\w+)/g;
@@ -111,5 +108,7 @@ function readPGNHistory( pgn ) {
 			history.push( results[2]);
 		}
 	}
+
+	game.history = history;
 
 }

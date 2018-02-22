@@ -22,7 +22,7 @@ let Room = exports.ContextClass = class {
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = this.tryGetGame( opp1, opp2 );
+		let game = this.gameOrShowErr( opp1, opp2 );
 		if ( game == null ) return;
 
 		try {
@@ -36,7 +36,7 @@ let Room = exports.ContextClass = class {
 
 	cmdResign( m, oppName ) {
 
-		let game = this.tryGetGame( m.channel, m.author, oppName );
+		let game = this.gameOrShowErr( m.channel, m.author, oppName );
 		if ( game == null ) return;
 
 		if ( !game.tryResign() ) {
@@ -52,7 +52,7 @@ let Room = exports.ContextClass = class {
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = this.tryGetGame( m.channel, opp1, opp2 );
+		let game = this.gameOrShowErr( m.channel, opp1, opp2 );
 		if ( game == null ) return;
 
 		Display.showBoard( m.channel, game );
@@ -68,7 +68,7 @@ let Room = exports.ContextClass = class {
 		let opp = this._context.userOrShowErr( m.channel, oppName );
 		if ( !opp ) return;
 
-		let game = this.getGame( m.author, opp );
+		let game = await this.getGame( m.author, opp );
 		if ( game != null ) {
 			this.tryPlayMove( m, game, firstMove );
 			return;
@@ -102,12 +102,12 @@ let Room = exports.ContextClass = class {
 
 		} else if ( len == 1 ) {
 
-			game = this.tryGetGame( m.channel, m.author, null );
+			game = this.gameOrShowErr( m.channel, m.author, null );
 			moveStr = args[0];
 
 		} else if ( len == 2 ) {
 			// !move opponent moveStr
-			game = this.tryGetGame( m.channel, m.author, args[0]);
+			game = this.gameOrShowErr( m.channel, m.author, args[0]);
 			moveStr = args[1];
 		} else {
 			m.channel.send( 'Unexpected move input.' );
@@ -146,7 +146,7 @@ let Room = exports.ContextClass = class {
 	startGame( gid, w_user, b_user ) {
 
 		try {
-			let game = this.activeGames[gid] = new Game( w_user.id, b_user.id );
+			let game = this.activeGames[gid] = new Game( w_user.id, b_user.id, Date.now() );
 			return game;
 
 		} catch ( e) { console.log(e); }
@@ -162,7 +162,7 @@ let Room = exports.ContextClass = class {
 	 * @param {string|Discord.User} p2
 	 * @returns {Game} The game being played.
 	 */
-	tryGetGame( chan, p1, p2 ) {
+	gameOrShowErr( chan, p1, p2 ) {
 
 		let game;
 
@@ -184,7 +184,7 @@ let Room = exports.ContextClass = class {
 			if ( typeof(p2) == 'string' ) p2 = this._context.userOrShowErr( p2 );
 			if ( !p2 ) return;
 
-			game = this.getGame( p1, p2 );
+			game = await this.getGame( p1, p2 );
 
 			if ( game == null ) {
 				chan.send( 'No game between ' + this._context.userString(p1) +
@@ -197,8 +197,32 @@ let Room = exports.ContextClass = class {
 
 	}
 
+	async getGame( user1, user2 ) {
+
+		try {
+
+			let gid = Game.getActiveId( user1, user2 );
+			let game = this.activeGames[ gid ];
+			if ( game == null ) {
+				game = await this.tryLoadGame(gid);
+			}
+			return game;
+
+		} catch ( e ) { console.log(e); }
+
+	}
+
+	async tryLoadGame( gid ) {
+
+		let data = await this._context.fetchKeyData( 'chess/' + gid );
+		if ( data != null ) {
+			return Export.fromJSON( data );
+		}
+
+	}
+
 	// find all boards played by user.
-	findGames( user ) {
+	async findGames( user ) {
 
 		let games = [];
 		let id = user.id;
@@ -215,10 +239,6 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	getGame( user1, user2 ) {
-		return this.activeGames[ this.getGameId(user1, user2 ) ];
-	}
-
 	getGameId( user1, user2 ) {
 
 		let id1 = user1.id;
@@ -226,6 +246,10 @@ let Room = exports.ContextClass = class {
 
 		return ( id1 <= id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
 
+	}
+
+	saveGame( game ) {
+		this._context.storeKeyData( 'chess/' + game.getSaveId(), game );
 	}
 
 } // class
@@ -244,12 +268,12 @@ exports.init = async function( bot ){
 	bot.addContextCmd( 'move', '!move [opponentName] moveString',
 		Room.prototype.cmdDoMove, Room, {maxArgs:2} );
 	bot.addContextCmd( 'viewboard', '!viewboard [opponentName]',
-		Room.prototype.cmdViewBoard, Room, {maxArgs:1} );
+		Room.prototype.cmdViewBoard, Room, {maxArgs:2} );
 
 	bot.addContextCmd( 'resign', '!resign [opponentName]',
 		Room.prototype.cmdResign, Room, { maxArgs:1} );
 
-	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:1} );
+	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:2} );
 
 	} catch ( e ) { console.log(e); }
 

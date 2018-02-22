@@ -22,6 +22,9 @@ const Command = exports.Command = class {
 	get usage() { return this._usage ? this._usage : 'Unknown.'; }
 	get group() { return this._opts ? this._opts.group : null; }
 
+	// hidden commands not displayed in help list.
+	get hidden() { return this._opts? this._opts.hidden : false; }
+
 	get maxArgs() { return this._opts ? this._opts.maxArgs : null; }
 
 	constructor( name, usage, func, instClass=null ) {
@@ -132,7 +135,7 @@ class CmdLine {
 	readArgs( argstr, opts ) {
 		
 		if ( opts == null ) this._args = this.splitArgs( argstr );
-		else if ( opts.maxArgs == null ) args = this.splitArgs( argstr );
+		else if ( opts.maxArgs == null ) this._args = this.splitArgs( argstr );
 		else {
 			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );
 			else this._args = this.groupLeft( argstr, opts.maxArgs );

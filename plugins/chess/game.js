@@ -1,7 +1,25 @@
 const Chess = require( 'chess-rules');
 const Display = require( './display.js');
+const Export = require( './export.js');
+
+const ID_SEPARATOR = '-';
 
 module.exports = class Game {
+	
+	/**
+	 * Id for a game still in progress. Once a game is over
+	 * the timestamp is appended to the id.
+	 * @param {*} user1 
+	 * @param {*} user2 
+	 */
+	static getActiveId( user1, user2 ) {
+
+		let id1 = user1.id;
+		let id2 = user2.id;
+
+		return ( id1 <= id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
+
+	}
 
 	get history() { return this._history; }
 	set history( h ) { this._history = h; }
@@ -15,9 +33,16 @@ module.exports = class Game {
 
 	get lastMove() { return this._lastMove; }
 
-	constructor( w, b, state ) {
+	get timestamp() { return this._timestamp; }
+
+	get tags() { return this._tags; }
+	set tags( t ) { this._tags = t; }
+
+	constructor( w, b, state, createTime ) {
 
 		if ( state == null ) state = Chess.getInitialPosition();
+
+		this._timestamp = createTime;
 
 		this._gameState = state;
 
@@ -35,17 +60,21 @@ module.exports = class Game {
 
 	}
 
+	getSaveId() {
+
+		if ( this.status === 'OPEN') return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id ) :
+		( this.w_id + ID_SEPARATOR + this.b_id );
+
+		return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp ) :
+		( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp );
+
+	}
+
 	/**
 	 * Returns a named pgn tag.
 	 * @param {string} tagName 
 	 */
 	getTag( tagName ) { return this._tags[tagName]; }
-
-	/**
-	 * Returns all tags.
-	*/
-	getTags() {
-	}
 
 	/**
 	 * returns the current board position.
@@ -117,4 +146,15 @@ module.exports = class Game {
 
 	}
 
+	toJSON(){
+
+		return {
+			pgn:Export.toPGN(this),
+			fen:Chess.positionToFen( this._state ),
+			wid:this.w_id,
+			bid:this.b_id,
+			time:this._timestamp
+		};
+
+	}
 }

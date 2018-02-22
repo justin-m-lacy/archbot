@@ -49,7 +49,6 @@ function initCmds(){
 	cmds.add( 'sleep', '!sleep [sleep schedule]', cmdSleep, {maxArgs:1} );
 	cmds.add( 'when', '!when [userName] [activity]', cmdWhen, {maxArgs:2} );
 	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1} );
-	cmds.add( 'attack', '!attack', (msg)=>{msg.channel.send( 'You attack the darkness.' ); } );
 
 	cmds.add( 'uid', '!uid [username]', cmdUid, {maxArgs:1}  );
 	cmds.add( 'uname', '!uname [nickname]', cmdUName, {maxArgs:1} );
@@ -67,8 +66,11 @@ function initCmds(){
 	cmds.add( 'idletime', '!idletime [username]', cmdIdleTime, {maxArgs:1} );
 	cmds.add( 'playtime', '!playtime [userName', cmdPlayTime, {maxArgs:1} );
 
-	cmds.add( 'ranking', '!ranking', cmdRanking, {maxArgs:0});
-	cmds.add( 'fuck', null, cmdFuck );
+	cmds.add( 'magicmissile', 'You need material components for all of your spells.',
+		(m)=>m.channel.send( 'You attack the darkness.' ), {hidden:true} );
+	cmds.add( 'palantir', 'What does the Great Eye command?', (m)=>m.channel.send( 'Build me an army worthy of Mordor.'), {hidden:true} );
+	cmds.add( 'ranking', '!ranking', cmdRanking, { hidden:true, maxArgs:0});
+	cmds.add( 'fuck', null, cmdFuck, {hidden:true} );
 
 	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1} );
 
@@ -218,10 +220,11 @@ function cmdLastOff( msg, who ){
 }
 
 function cmdTest( msg, reply ){
-	msg.channel.send( reply + ' yourself, ' + msg.member.displayName );
+	if ( reply == null ) msg.channel.send( 'eh?' );
+	else msg.channel.send( reply + ' yourself, ' + msg.member.displayName );
 }
 function cmdFuck( m ) {
-	m.channel.send( m.content.slice(1) + ' yourself, ' + msg.member.displayName );
+	m.channel.send( m.content.slice(1) + ' yourself, ' + m.member.displayName );
 }
 
 async function sendGameTime( channel, displayName, gameName ) {
