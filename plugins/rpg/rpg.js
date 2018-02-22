@@ -147,7 +147,7 @@ var RPG = exports.ContextClass = class {
 	}
 
 	getCharKey( charname ) {
-		return this._context.getDataKey( 'RPG', charname );
+		return this._context.getDataKey( 'rpg', charname );
 	}
 
 } // class

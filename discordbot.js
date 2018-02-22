@@ -309,9 +309,12 @@ class DiscordBot {
 		if ( cmds != null ) {
 
 			let a = [];
-			for( let k in cmds ){
-				a.push(k);
-			}
+			//let info;
+			for( let k in cmds ) {
+
+				if ( !cmds[k].hidden ) a.push(k);
+
+			} //
 
 			str += a.join(', ');
 
