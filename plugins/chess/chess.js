@@ -14,15 +14,16 @@ let Room = exports.ContextClass = class {
 
 		this._context = context;
 		this.activeGames = {};
+		this.archiveGames = {};
 
 	}
 
-	cmdPGN( m, opp1, opp2 ) {
+	async cmdPGN( m, opp1, opp2 ) {
 
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = this.gameOrShowErr( opp1, opp2 );
+		let game = await this.gameOrShowErr( opp1, opp2 );
 		if ( game == null ) return;
 
 		try {
@@ -34,9 +35,9 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	cmdResign( m, oppName ) {
+	async cmdResign( m, oppName ) {
 
-		let game = this.gameOrShowErr( m.channel, m.author, oppName );
+		let game = await this.gameOrShowErr( m.channel, m.author, oppName );
 		if ( game == null ) return;
 
 		if ( !game.tryResign() ) {
@@ -52,7 +53,7 @@ let Room = exports.ContextClass = class {
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = this.gameOrShowErr( m.channel, opp1, opp2 );
+		let game = await this.gameOrShowErr( m.channel, opp1, opp2 );
 		if ( game == null ) return;
 
 		Display.showBoard( m.channel, game );
@@ -69,7 +70,7 @@ let Room = exports.ContextClass = class {
 		if ( !opp ) return;
 
 		let game = await this.getGame( m.author, opp );
-		if ( game != null ) {
+		if ( game != null && game.status === 'OPEN' ) {
 			this.tryPlayMove( m, game, firstMove );
 			return;
 		}
@@ -91,7 +92,7 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	cmdDoMove( m, ...args ) {
+	async cmdDoMove( m, ...args ) {
 
 		let len = args.length;
 		let game, moveStr;
@@ -102,12 +103,12 @@ let Room = exports.ContextClass = class {
 
 		} else if ( len == 1 ) {
 
-			game = this.gameOrShowErr( m.channel, m.author, null );
+			game = await this.gameOrShowErr( m.channel, m.author, null );
 			moveStr = args[0];
 
 		} else if ( len == 2 ) {
 			// !move opponent moveStr
-			game = this.gameOrShowErr( m.channel, m.author, args[0]);
+			game = await this.gameOrShowErr( m.channel, m.author, args[0]);
 			moveStr = args[1];
 		} else {
 			m.channel.send( 'Unexpected move input.' );
@@ -115,7 +116,7 @@ let Room = exports.ContextClass = class {
 		}
 		if ( game == null ) return;
 
-		tryPlayMove( m, game, moveStr );
+		this.tryPlayMove( m, game, moveStr );
 		
 	}
 
@@ -128,7 +129,14 @@ let Room = exports.ContextClass = class {
 		} else if ( game.turn === m.author.id ){
 
 			if ( game.tryMove( moveStr ) ) {
+
 				this.showGameStatus( m.channel, game );
+
+				/// check game ended this turn.
+				if ( game.status != 'OPEN' ) {
+					this.saveGame( game );
+				}
+
 			} else {
 				m.channel.send( moveStr + ' is not a legal move.');
 			}
@@ -162,7 +170,7 @@ let Room = exports.ContextClass = class {
 	 * @param {string|Discord.User} p2
 	 * @returns {Game} The game being played.
 	 */
-	gameOrShowErr( chan, p1, p2 ) {
+	async gameOrShowErr( chan, p1, p2 ) {
 
 		let game;
 
@@ -204,7 +212,7 @@ let Room = exports.ContextClass = class {
 			let gid = Game.getActiveId( user1, user2 );
 			let game = this.activeGames[ gid ];
 			if ( game == null ) {
-				game = await this.tryLoadGame(gid);
+				game = await this.loadActiveGame(gid);
 			}
 			return game;
 
@@ -212,7 +220,11 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	async tryLoadGame( gid ) {
+	/**
+	 * Attempt to find an in-progress game in cache or disk.
+	 * @param {} gid 
+	 */
+	async loadActiveGame( gid ) {
 
 		let data = await this._context.fetchKeyData( 'chess/' + gid );
 		if ( data != null ) {
@@ -248,8 +260,12 @@ let Room = exports.ContextClass = class {
 
 	}
 
-	saveGame( game ) {
-		this._context.storeKeyData( 'chess/' + game.getSaveId(), game );
+	/**
+	 * 
+	 * @param {Game} game 
+	 */
+	async saveGame( game ) {
+		await this._context.storeKeyData( 'chess/' + game.getSaveId(), game );
 	}
 
 } // class

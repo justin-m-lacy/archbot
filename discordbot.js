@@ -50,21 +50,34 @@ class DiscordBot {
 			if ( init != null && typeof(init) == 'function' ){
 				plug.init( this );
 			}
-			contClass = plug.ContextClass;
-			if ( contClass != null ) this.addContextClass( contClass );
 
 		}
 
 	}
 
+	/**
+	 * Add class that will be instantiated on every running
+	 * context.
+	 * @param {class} cls 
+	 */
 	addContextClass( cls ) {
+
+		console.log( 'adding context class');
 		this._contextClasses.push(cls);
+
+		if ( this.client != null ) {
+			this.client.guilds.forEach( (g, id) => {
+				let c = this.getContext( g );
+				c.addClass( cls );
+			});
+		}
+
 	}
 
 	initClient() {
 
 		// NOTE: 'this' for events is always client.
-		this._client.on( 'ready', onReady );
+		this._client.on( 'ready', ()=>{this.initContexts();});
 		this._client.on( 'guildUnavailable', onGuildUnavail )
 
 		this._client.on( 'resume', onResume );
@@ -72,6 +85,22 @@ class DiscordBot {
 		this._client.on( 'message', (m)=>{this.onMessage(m);} );
 
 		this._client.on( 'presenceUpdate', onPresence );
+
+	}
+
+	initContexts() {
+
+		try {
+			let classes = this._contextClasses;
+			if ( classes.length == 0 ) {
+				console.log('no classes to instantiate.');
+				return;
+			}
+
+			this.client.guilds.forEach( (g, id) => {
+				this.getContext(g);
+			});
+		} catch ( e) { console.log(e);}
 
 	}
 
@@ -89,34 +118,28 @@ class DiscordBot {
 		if ( m.author.id == this._client.user.id ) return;
 
 		try {
+
 			let command = this._dispatch.getCommand( m.content );
-		
 
-		if ( command == null ) return;
+			if ( command == null ) return;
 
-		if ( command.isDirect ) {
+			if ( command.isDirect ) {
 
-			this._dispatch.dispatch( command, [m] );
+				this._dispatch.dispatch( command, [m] );
 
 
-		} else {
+			} else {
 
-			// context command.
-			// get Context for cmd routing.
-			let context = this.getMsgContext( m );
+				// context command.
+				// get Context for cmd routing.
 
-			try {
-		
+				let context = this.getMsgContext( m );
 				let error = this._dispatch.routeCmd( context, command, [m] );
-				if ( error ) m.channel.send( error );	
-		
-			} catch ( exp ) {
-				console.error( exp );
+				if ( error ) m.channel.send( error );
+
 			}
 
-		}
-
-	} catch ( e ){console.log(e); }
+		} catch ( e ){console.log(e); }
 
 	}
 
@@ -157,12 +180,18 @@ class DiscordBot {
 
 	makeContext( idobj, type ) {
 
-		console.log( 'creating context.' );
+		console.log( 'creating context for: ' + idobj.id );
 		let context;
 
-		if ( type == 'text' || type == 'voice ') context = new Contexts.GuildContext( this, idobj );
-		else if ( type == 'group' ) context = new Contexts.GroupContext( this, idobj );
-		else  context = new Contexts.UserContext( this, idobj );;
+		if ( type == 'text' || type == 'voice' || type == null )
+			context = new Contexts.GuildContext( this, idobj, this._cache.makeSubCache( fsys.getGuildDir(idobj) ) );
+		else if ( type == 'group' )
+			context = new Contexts.GroupContext( this, idobj, this._cache.makeSubCache( fsys.getChannelDir(idobj) ) );
+		else  context = new Contexts.UserContext( this, idobj, this._cache.makeSubCache( fsys.getUserDir(idobj)) );
+
+		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
+			context.addClass( this._contextClasses[i]);
+		}
 
 		this._contexts[idobj.id] = context;
 
@@ -220,7 +249,7 @@ class DiscordBot {
 		if ( uObject instanceof Discord.GuildMember ){
 			objPath = fsys.memberPath( uObject );
 		} else {
-			objPath = fsys.userPath( uObject );
+			objPath = fsys.getUserDir( uObject );
 		}
 		let data = await this._cache.get( objPath );
 		// save key for recaching.
@@ -235,7 +264,7 @@ class DiscordBot {
 			objPath = fsys.memberPath( uObject );
 	
 		} else {
-			objPath = fsys.userPath( uObject );
+			objPath = fsys.getUserDir( uObject );
 		}
 		await this._cache.store( objPath, data );
 

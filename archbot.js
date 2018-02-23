@@ -21,20 +21,11 @@ console.log( 'client created.');
 var bot = DiscordBot.InitBot( client, CmdPrefix );
 console.log( 'bot created.');
 
-var reactions = initReactions();
 var dispatch = bot.dispatch;
 var cache = bot.cache;
 
 initCmds();
 
-function initReactions() {
-
-	console.log( 'loading reactions.');
-
-	let React = require( './reactions.js');
-	let reactData = require('./reactions.json');
-	return new React.Reactions( reactData );
-}
 
 function initCmds(){ 
 
@@ -84,7 +75,6 @@ client.on( 'ready', function(evt) {
     console.log('client ready: ' + this.user.username + ' - (' + this.user.id + ')');
 });
 
-client.on( 'message', doMsg );
 client.on( 'presenceUpdate', presenceChanged );
 client.on( 'error', doError );
 
@@ -107,29 +97,6 @@ function onShutdown() {
 	process.exit(1);
 }
 
-
-function doMsg( msg ) {
-
-	if ( msg.author.id == client.user.id ) return;
-
-	try {
-
-		let content = msg.content;
-
-		if ( content.substring(0,1) != CmdPrefix ) {
-
-			let reaction = reactions.react( content );
-			if ( reaction != null ) {
-				msg.channel.send( reaction );
-			}
-
-		}
-
-	} catch ( exp ) {
-		console.error( exp );
-	}
-
-}
 
 function cmdRanking( m ) {
 	m.channel.send( 'Last place: garnish.');

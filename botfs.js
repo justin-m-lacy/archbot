@@ -8,8 +8,13 @@ const USERS_DIR = 'users/';
 
 exports.readData = readData;
 exports.writeData = writeData;
-exports.memberPath = getMemberPath;
 exports.userPath = getUserPath;
+exports.memberPath = getMemberPath;
+
+exports.getUserDir = getUserDir;
+exports.getGuildDir = getGuildDir;
+exports.getChannelDir = getChannelDir;
+
 
 exports.fileExists = async (filePath) => {
 	return await( afs.exists( BASE_DIR + filePath + '.json') );
@@ -71,17 +76,27 @@ async function writeData( relPath, data ) {
 
 }
 
+function getChannelDir( chan ) {
+	if ( chan == null ) return CHANNELS_DIR;
+	return CHANNELS_DIR + channel.id + '/';
+}
+
 // path to guild storage.
 function getGuildDir( guild ) {
 	if ( guild == null ) return GUILDS_DIR;
-	return path.join( GUILDS_DIR, guild.id );
+	return GUILDS_DIR + guild.id + '/';
+}
+
+function getUserDir( user ) {
+	if ( user == null ) return USERS_DIR;
+	return USERS_DIR + user.id + '/';
 }
 
 // path to user not in guild.
 function getUserPath( user ) {
 
 	if ( user == null ) return '';
-	return path.join( USERS_DIR, user.id );
+	return USERS_DIR + user.id;
 
 }
 
@@ -93,6 +108,6 @@ function getMemberPath( member ) {
 
 	let gid = member.guild.id;
 
-	return path.join( GUILDS_DIR, gid, (member.id) );
+	return GUILDS_DIR + '/' + gid + '/' + (member.id);
 
 }

@@ -2,7 +2,6 @@ let Chess = require( 'chess-rules' );
 let Game = require( './game.js' );
 
 exports.toPGN = toPGN;
-exports.toJSONData = toJSONData;
 
 function toPGN( game ) {
 
@@ -63,7 +62,7 @@ function fromJSON( data ) {
 
 	let state = Chess.fenToPosition( data.fen );
 
-	let game = new Game( data.wid, data.bid, state, data.time );
+	let game = new Game( data.wid, data.bid, data.time, state );
 
 	return game;
 
