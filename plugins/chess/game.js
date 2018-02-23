@@ -38,7 +38,14 @@ module.exports = class Game {
 	get tags() { return this._tags; }
 	set tags( t ) { this._tags = t; }
 
-	constructor( w, b, state, createTime ) {
+	/**
+	 * 
+	 * @param {string} w White user id. 
+	 * @param {string} b Black user id.
+	 * @param {number} createTime Timestamp when game began.
+	 * @param {object} state Current chess-rules position of game.
+	 */
+	constructor( w, b, createTime, state ) {
 
 		if ( state == null ) state = Chess.getInitialPosition();
 
@@ -58,6 +65,14 @@ module.exports = class Game {
 
 		this._lastMove = null;
 
+	}
+
+	/**
+	 * id for a game that will be archived.
+	*/
+	getArchiveId() {
+		return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp ) :
+		( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp );
 	}
 
 	getSaveId() {
@@ -109,12 +124,20 @@ module.exports = class Game {
 		if ( move == null ) return false;
 
 		let newState = Chess.applyMove( oldState, move );
+		this._status = Chess.getGameStatus( newState );
+
+		if ( newState.check ) {
+			// append check or mate symbols to move if necessary.
+			if ( this._status != 'OPEN') moveStr += '#';
+			else moveStr += '+';
+
+		}
 
 		this._history.push( moveStr );
 
 		this._gameState = newState;
 		this._lastMove = oldState.turn + ' ' + moveStr;
-		this._status = Chess.getGameStatus( newState );
+	
 
 		this._turn = ( newState.turn === 'W') ? this.w_id : this.b_id;
 

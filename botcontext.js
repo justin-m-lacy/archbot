@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const fsys = require( './botfs.js');
+const afs = require( './async_fs');
 
 // base Context.
 const Context = class {
@@ -18,19 +19,38 @@ const Context = class {
 	 * @param {discord object} idobj - guild, channel, or user
 	 * that acts as the basis for the context.
 	 */
-	constructor( bot, idobj ) {
+	constructor( bot, idobj, cache ) {
 
 		this._idobj = idobj;
 		this._bot = bot;
 
-		// plugin instances running.
-		this._instances = [];
+		// context instances.
+		// _instances[class name] = class instance;
+		this._instances = {};
 
-		// routed commands.
-		this._cmdRoutes = {};
+		this._cache = cache;
 
-		this._cache = bot.cache.makeSubCache( idobj.id );
+		console.log( 'cache key: ' + this._cache.cacheKey );
 
+	}
+
+	/**
+	 * Register an event with the underlying Discord client.
+	 * @param {string} evtName 
+	 * @param {function} func 
+	 */
+	onEvent( evtName, func ) {
+		this._bot.client.on( evtName, func );
+	}
+
+	/**
+	 * Returns a list of all files stored at the given
+	 * data path.
+	 * ( path is relative to this context's save directory. )
+	 * @param {string} path 
+	 */
+	async getDataList( path ) {
+		return await afs.readdir( this._cache.cacheKey + path );
 	}
 
 	/**
@@ -69,33 +89,51 @@ const Context = class {
 
 	findUser( name ) { return null; }
 
-	// add a running plugin instance.
-	addInstance( inst ) {
-		this._instances.push( inst );
+	/**
+	 * Adds a class to be instantiated for the given context,
+	 * if an instance does not already exists.
+	 * @param {class} cls
+	 */
+	addClass( cls ) {
+
+		if ( this._instances[cls.name] != null ) return;
+
+		let inst = new cls( this );
+		this._instances[ cls.name ] = inst;
+		return inst;
+
 	}
 
-	// a cmd routed to this context is dispatched
-	// to the target object.
-	bindCommand( cls, target ) {
-		this._cmdRoutes[cls.name] = target;
+	// add a context instance.
+	addInstance( inst ) {
+		this._instances[ inst.constructor.name ] = inst;
 	}
 
 	routeCommand( cmd, args ) {
 
-		let target = this._cmdRoutes[ cmd.instClass.name ];
-		if ( target == null ) {
-
-			// instantiate the cmd class.
-			target = new cmd.instClass( this );
-			this._cmdRoutes[ cmd.instClass.name ] = target;
-
-		}
+		let target = this._instances[ cmd.instClass.name ];
+		if ( target == null ) target = this.addClass( cmd.instClass );
+	
 		cmd.func.apply( target, args );
 
 	}
 
 	// objs are idables or path strings.
-	getDataKey( ...objs ) {}
+	getDataKey( ...objs ) {
+
+		let len = objs.length;
+		let keys = [];
+		let pt;
+		for( let i = 0; i < len; i++ ){
+	
+			pt = objs[i];
+			if ( typeof(pt) === 'string')keys.push(pt);
+			else keys.push(pt.id);
+
+		}
+		return keys.join( '/' );
+
+	}
 
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
@@ -111,21 +149,12 @@ const Context = class {
 		await this._cache.store( key, data );
 	}
 
-	// recieved message.
-	message( m ) {
-	}
-
 }
 
 exports.UserContext = class extends Context {
 
 	get type() { return 'user'; }
 	get name() { return this._idobj.username; }
-
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-		return fsys.channelPath( this._idobj, objs );
-	}
 
 	findUser( name ) {
 
@@ -144,11 +173,6 @@ exports.GroupContext = class extends Context {
 	get type() { return 'group'; }
 	get name() { return this._idobj.name; }
 
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-		return fsys.channelPath( this._idobj, objs );
-	}
-
 	findUser( name ){
 		return this._idobj.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
 	}
@@ -156,11 +180,6 @@ exports.GroupContext = class extends Context {
 }
 
 exports.GuildContext = class extends Context {
-
-	// objs are idables or path strings.
-	getDataKey( ...objs ) {
-		return fsys.guildPath( this._idobj, objs );
-	}
 
 	get type() { return 'guild'; }
 	get name() { return this._idobj.name; }

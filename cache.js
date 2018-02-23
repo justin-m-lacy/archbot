@@ -39,7 +39,7 @@ exports.Cache = class {
 		try {
 
 			console.log( 'fetching from file.');
-			let val = await this.loader( key );
+			let val = await this.loader( this._cacheKey + key );
 			if ( val != null ) {
 				this._dict[key] = val;
 			}
@@ -58,15 +58,15 @@ exports.Cache = class {
 		this._dict[key] = value;
 		try {
 			if ( this.saver ) {
-				await this.saver( key, value );
+				await this.saver( this._cacheKey + key, value );
 			}
-		} catch ( err ){
+		} catch ( err ) {
 			console.log(err);
 		}
 
 	}
 
-	free( key ){
+	free( key ) {
 		delete this._dict[key];
 	}
 
@@ -76,7 +76,7 @@ exports.Cache = class {
 
 		if ( this._dict.hasOwnProperty(key)) return true;
 		if ( this.checker ) {
-			return await this.checker(key);
+			return await this.checker( this._cacheKey + key);
 		}
 		return false;
 

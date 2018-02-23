@@ -3,9 +3,92 @@ const ms_per_hr = 1000*3600;
 const ms_per_min = 60*1000;
 
 const months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+const fullMonths = [ 'January', 'February', 'March', 'April', 'May', 'June',
+	'July', 'August', 'September', 'October', 'November', 'December' ];
+
 const days = [ 'Sun', 'Mon', 'Tues', 'Wed', 'Thr', 'Fri', 'Sat' ];
+const fullDays = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
 
 module.exports = class {
+
+	static parse( str ) {
+
+		let parts = str.split( ' ' );
+		let len = parts.length;
+		let part, value, num;
+
+		let date = new Date();
+
+		for( let i = 0; i < len; i++ ) {
+
+			part = parts[i];
+
+			if ( part.indexOf( ':' ) > 0 ) {
+				parseTime( part );
+			}
+
+			num = parseInt( part );
+			if ( isNaN(num)) {
+
+				value = this.tryGetMonth(part);
+				if ( value >= 0 ) {
+					date.setMonth( value );
+				} else {
+
+					day = tryGetDay( part );
+					if ( value >= 0 ) {
+					}
+
+				}
+
+
+			} else {
+
+			}
+
+		} //
+
+		return new Date();
+
+	}
+
+	/**
+	 * 
+	 * @param {Date} date 
+	 * @param {string} str 
+	 */
+	static parseTime( date, str ) {
+
+		let parts = str.split( ':' );
+		if ( parts.length == 2 ) {
+			date.setHours( parseInt( parts[0]), parseInt(parseInt[1]) );
+		} else if ( parts.length == 3 ) {
+
+			date.setHours( parseInt( parts[0]), parseInt(parts[1]), parseInt( parts[2]) );
+
+		}
+
+	}
+
+	static tryGetDay( str ) {
+
+		let day = days.indexOf(str);
+		if ( day < 0 ) {
+			day = fullDays.indexOf(str);
+		}
+		return day;
+
+	}
+
+	static tryGetMonth( str ) {
+
+		let month = months.indexOf(str);
+		if ( month < 0 ) {
+			month = fullMonths.indexOf(str);
+		}
+		return month;
+
+	}
 
 	static elapsed( since ) {
 
