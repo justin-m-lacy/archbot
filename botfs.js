@@ -46,7 +46,7 @@ exports.guildPath = (guild, subs )=> {
 exports.channelPath = ( chan, subs ) => {
 	if ( chan == null ) return CHANNELS_DIR;
 
-	let thepath = CHANNELS_DIR + '/' + chan.id;
+	let thepath = CHANNELS_DIR + chan.id;
 	if ( subs == null ) return thepath;
 	let len = subs.length;
 
@@ -108,6 +108,6 @@ function getMemberPath( member ) {
 
 	let gid = member.guild.id;
 
-	return GUILDS_DIR + '/' + gid + '/' + (member.id);
+	return GUILDS_DIR + gid + '/' + (member.id);
 
 }

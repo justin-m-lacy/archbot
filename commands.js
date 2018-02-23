@@ -126,7 +126,11 @@ class CmdLine {
 		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
 		if ( this._cmd == null ) return;
 
-		this.readArgs( str.slice( ind ), this._cmd.opts );
+		try {
+
+			this.readArgs( str.slice( ind ), this._cmd.opts );
+
+		} catch ( e ) { console.log(e);}
 
 		return this._cmd;
 
@@ -134,8 +138,7 @@ class CmdLine {
 
 	readArgs( argstr, opts ) {
 		
-		if ( opts == null ) this._args = this.splitArgs( argstr );
-		else if ( opts.maxArgs == null ) this._args = this.splitArgs( argstr );
+		if ( opts == null || opts.maxArgs == null ) this._args = this.splitArgs( argstr );
 		else {
 			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );
 			else this._args = this.groupLeft( argstr, opts.maxArgs );

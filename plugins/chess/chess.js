@@ -278,10 +278,10 @@ exports.init = async function( bot ){
 
 	await Display.loadImages();
 
-	bot.addContextCmd( 'chess', '!chess opponentName [firstMove]',
+	bot.addContextCmd( 'chess', '!chess <opponentName> [firstMove]',
 		Room.prototype.cmdNewGame, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'move', '!move [opponentName] moveString',
+	bot.addContextCmd( 'move', '!move [opponentName] <moveString>',
 		Room.prototype.cmdDoMove, Room, {maxArgs:2} );
 	bot.addContextCmd( 'viewboard', '!viewboard [opponentName]',
 		Room.prototype.cmdViewBoard, Room, {maxArgs:2} );

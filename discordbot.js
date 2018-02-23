@@ -19,6 +19,7 @@ class DiscordBot {
 	get dispatch() { return this._dispatch;}
 	get contexts() { return this._contexts;}
 	get contextClasses() { return this._contextClasses; }
+	get cmdPrefix() { return this._cmdPrefix; }
 
 	constructor( client, cmdPrefix='!' ) {
 
@@ -183,7 +184,7 @@ class DiscordBot {
 		console.log( 'creating context for: ' + idobj.id );
 		let context;
 
-		if ( type == 'text' || type == 'voice' || type == null )
+		if ( type == 'text' || type == null || type == 'voice' )
 			context = new Contexts.GuildContext( this, idobj, this._cache.makeSubCache( fsys.getGuildDir(idobj) ) );
 		else if ( type == 'group' )
 			context = new Contexts.GroupContext( this, idobj, this._cache.makeSubCache( fsys.getChannelDir(idobj) ) );
