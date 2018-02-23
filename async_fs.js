@@ -57,7 +57,7 @@ exports.readJSON = path => new Promise( (res,rej)=>{
 
 exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
 
-	console.log( 'data: ' + JSON.stringify(data));
+	//console.log( 'data: ' + JSON.stringify(data));
 	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, (err)=>{
 
 		if ( err ) {

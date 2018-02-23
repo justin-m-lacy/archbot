@@ -156,9 +156,9 @@ exports.init = function( bot ){
 
 	console.log( 'rpg INIT' );
 
-	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]',
+	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]',
 		RPG.prototype.cmdRollChar, RPG, { type:'instance', maxArgs:3} );
-	bot.addContextCmd( 'loadchar', '!loadchar charname',
+	bot.addContextCmd( 'loadchar', '!loadchar <charname>',
 		RPG.prototype.cmdLoadChar, RPG, {type:'instance', maxArgs:1}  );
 
 }

@@ -33,29 +33,29 @@ function initCmds(){
 
 	console.log( 'adding default commands.');
 
-	cmds.add( 'help', '!help {cmd}', cmdHelp, {maxArgs:1} );
+	cmds.add( 'help', '!help <cmd>', cmdHelp, {maxArgs:1} );
 
-	cmds.add( 'schedule', '!schedule [activity] [times]', cmdSchedule, { maxArgs:2, group:'right'} );
+	cmds.add( 'schedule', '!schedule <activity> <times>', cmdSchedule, { maxArgs:2, group:'right'} );
 
-	cmds.add( 'sleep', '!sleep [sleep schedule]', cmdSleep, {maxArgs:1} );
-	cmds.add( 'when', '!when [userName] [activity]', cmdWhen, {maxArgs:2} );
+	cmds.add( 'sleep', '!sleep <sleep schedule>', cmdSleep, {maxArgs:1} );
+	cmds.add( 'when', '!when <userName> <activity>', cmdWhen, {maxArgs:2} );
 	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1} );
 
-	cmds.add( 'uid', '!uid [username]', cmdUid, {maxArgs:1}  );
-	cmds.add( 'uname', '!uname [nickname]', cmdUName, {maxArgs:1} );
-	cmds.add( 'nick', '!nick [displayName]', cmdNick, {maxArgs:1}  );
+	cmds.add( 'uid', '!uid <username>', cmdUid, {maxArgs:1}  );
+	cmds.add( 'uname', '!uname <nickname>', cmdUName, {maxArgs:1} );
+	cmds.add( 'nick', '!nick <displayName>', cmdNick, {maxArgs:1}  );
 	cmds.add( 'uptime', '!uptime', cmdUptime );
 
-	cmds.add( 'lastplay','!lastplay [userName] [gameName]', cmdLastPlay, {maxArgs:2} );
-	cmds.add( 'laston', '!laston [userName]', cmdLastOn, {maxArgs:1} );
-	cmds.add( 'lastidle', '!lastidle [userName]', cmdLastIdle, {maxArgs:1} );
-	cmds.add( 'lastactive', '!lastactive [userName]', cmdLastActive, {maxArgs:1} );
-	cmds.add( 'lastoff', '!lastoff [userName]', cmdLastOff, {maxArgs:1} );
+	cmds.add( 'lastplay','!lastplay <userName> <gameName>', cmdLastPlay, {maxArgs:2} );
+	cmds.add( 'laston', '!laston <userName>', cmdLastOn, {maxArgs:1} );
+	cmds.add( 'lastidle', '!lastidle <userName>', cmdLastIdle, {maxArgs:1} );
+	cmds.add( 'lastactive', '!lastactive <userName>', cmdLastActive, {maxArgs:1} );
+	cmds.add( 'lastoff', '!lastoff <userName>', cmdLastOff, {maxArgs:1} );
 
-	cmds.add( 'offtime', '!offtime [userName]', cmdOffTime, {maxArgs:1} );
-	cmds.add( 'ontime', '!ontime [username]', cmdOnTime, {maxArgs:1} );
-	cmds.add( 'idletime', '!idletime [username]', cmdIdleTime, {maxArgs:1} );
-	cmds.add( 'playtime', '!playtime [userName', cmdPlayTime, {maxArgs:1} );
+	cmds.add( 'offtime', '!offtime <userName>', cmdOffTime, {maxArgs:1} );
+	cmds.add( 'ontime', '!ontime <username>', cmdOnTime, {maxArgs:1} );
+	cmds.add( 'idletime', '!idletime <username>', cmdIdleTime, {maxArgs:1} );
+	cmds.add( 'playtime', '!playtime <userName>', cmdPlayTime, {maxArgs:1} );
 
 	cmds.add( 'magicmissile', 'You need material components for all of your spells.',
 		(m)=>m.channel.send( 'You attack the darkness.' ), {hidden:true} );

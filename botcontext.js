@@ -40,7 +40,23 @@ const Context = class {
 	 * @param {function} func 
 	 */
 	onEvent( evtName, func ) {
-		this._bot.client.on( evtName, func );
+		this._bot.client.on( evtName, (m)=>{
+
+			if ( m.author.id === m.client.user.id ) return;
+			if ( m.content.charAt(0) == this._bot.cmdPrefix) return;
+
+			let t = this.type;
+			if ( t == 'guild' ){
+				if ( m.guild == null || m.guild.id != this._idobj.id) return;
+			} else if ( t == 'group' || t == 'channel') {
+				if ( m.channel.id != this._idobj.id) return;
+			} else if ( t == 'user' ) {
+				if ( m.author.id != this._idobj.id ) return;
+			}
+
+			func(m);
+
+		} );
 	}
 
 	/**
