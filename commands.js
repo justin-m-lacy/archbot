@@ -138,6 +138,8 @@ class CmdLine {
 
 	readArgs( argstr, opts ) {
 		
+		argstr = argstr.replace( /“|”/g, '\"');
+
 		if ( opts == null || opts.maxArgs == null ) this._args = this.splitArgs( argstr );
 		else {
 			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );

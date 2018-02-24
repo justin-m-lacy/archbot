@@ -1,6 +1,6 @@
 class Room {
 
-	constructor(){
+	constructor() {
 
 		// chars in room.
 		this.loadedChars = {};
