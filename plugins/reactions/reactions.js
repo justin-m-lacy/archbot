@@ -110,7 +110,7 @@ class GuildReactions {
 	tryReact( obj ) {
 
 		let last = obj.last;
-		if ( last != null && (this.gTime - last) < this.minWait ) return null;
+		if ( last != null && (this.lastMsg - last) < this.minWait ) return null;
 
 		obj.last = this.lastMsg;
 		return obj.r;
