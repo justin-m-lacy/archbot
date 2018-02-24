@@ -102,3 +102,21 @@ exports.Loc = class {
 	}
 
 }
+
+var reverses = { north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
+
+exports.Exit = class {
+
+	static reverse( dir ) {
+		return reverses[dir];
+	}
+
+	get dir() { return this._dir; } 
+
+	constructor( dir ) {
+
+		this._dir = dir;
+
+	}
+
+}

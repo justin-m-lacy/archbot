@@ -50,13 +50,17 @@ let Room = exports.ContextClass = class {
 
 	async cmdViewBoard( m, opp1, opp2 ) {
 
-		if ( opp1 == null ) opp1 = m.author;
-		else if ( opp2 == null ) opp2 = m.author;
+		if ( opp1 == null ) {
+			opp1 = m.author;
+		}
+		else if ( opp2 == null ) {
+			opp2 = m.author;
+		}
 
 		let game = await this.gameOrShowErr( m.channel, opp1, opp2 );
-		if ( game == null ) return;
-
-		Display.showBoard( m.channel, game );
+		if ( game != null ) {
+			Display.showBoard( m.channel, game );
+		}
 
 	}
 
@@ -155,6 +159,7 @@ let Room = exports.ContextClass = class {
 
 		try {
 			let game = this.activeGames[gid] = new Game( w_user.id, b_user.id, Date.now() );
+			//console.log('creating game: ' + gid );
 			return game;
 
 		} catch ( e) { console.log(e); }
@@ -174,12 +179,18 @@ let Room = exports.ContextClass = class {
 
 		let game;
 
+		try {
 		if ( typeof(p1) == 'string' ) p1 = this._context.userOrShowErr( chan, p1 );
-		if ( p1 == null ) return;
+		if ( p1 == null ) {
+			chan.send( 'Player not found.');
+			return;
+		}
 
 		if ( p2 == null ) {
 
-			let games = this.findGames( p1 );
+			//console.log( 'p1 not null. p2 null');
+			let games = await this.findGames( p1 );
+
 			if ( games.length == 0 ) {
 				chan.send( 'No active games found.');
 			} else if ( games.length > 1 ) {
@@ -187,10 +198,14 @@ let Room = exports.ContextClass = class {
 					' found.  Specify opponent in command.' );
 			} else game = games[0];
 
+
 		} else {
 
-			if ( typeof(p2) == 'string' ) p2 = this._context.userOrShowErr( p2 );
-			if ( !p2 ) return;
+			if ( typeof(p2) == 'string' ) p2 = this._context.userOrShowErr( chan, p2 );
+			if ( !p2 ) {
+				chan.send( 'Second player not found.');
+				return;
+			};
 
 			game = await this.getGame( p1, p2 );
 
@@ -203,6 +218,8 @@ let Room = exports.ContextClass = class {
 
 		return game;
 
+	} catch ( e ) {console.log(e); }
+	return null;
 	}
 
 	async getGame( user1, user2 ) {
@@ -240,10 +257,11 @@ let Room = exports.ContextClass = class {
 		let id = user.id;
 		let game;
 
+		//console.log('searching games for: ' + id );
 		for( let gid in this.activeGames ) {
 
 			game = this.activeGames[gid];
-			if ( game.hasPlayer(id)) games.push(game);
+			if ( game.hasPlayer(id) ) games.push(game);
 
 		}
 

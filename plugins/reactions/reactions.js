@@ -19,7 +19,7 @@ class GuildReactions {
 
 		} );
 
-		this.minWait = 5*60*1000;
+		this.minWait = 0*5*60*1000;
 		this.gWait = 3000;
 		this.lastMsg = 0;
 
@@ -53,8 +53,28 @@ class GuildReactions {
 	async addReactData( substr, react ) {
 
 		try {
-			this.reactions[ substr.toLowerCase() ] = { "r":react };
-			await this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+
+			let key = substr.toLowerCase();
+			let cur = this.reactions[ key ];
+
+			if ( cur != null ) {
+
+				// merge with existing react.
+				let r = cur.r;
+				if ( (r instanceof Array )) {
+					r.push( react );
+				} else {
+					cur.r = [ r, react ];
+				}
+
+			} else {
+
+				this.reactions[ key ] = { "r":react };
+			}
+
+			await this._context.storeKeyData(
+				this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+	
 		} catch ( e ) { console.log(e); }
 	}
 
@@ -109,11 +129,18 @@ class GuildReactions {
 
 	tryReact( obj ) {
 
+		if ( !(obj instanceof Object) ) return;
+
 		let last = obj.last;
 		if ( last != null && (this.lastMsg - last) < this.minWait ) return null;
-
 		obj.last = this.lastMsg;
-		return obj.r;
+
+		let r = obj.r;
+		if ( r instanceof Array ) {
+			return r[ Math.floor( r.length*Math.random() )];
+		} else {
+			return r;
+		}
 
 	}
 
