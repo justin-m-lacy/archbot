@@ -220,7 +220,7 @@ class DiscordBot {
 	async fetchKeyData( key ) {
 
 		let data = await this._cache.get(key);
-		if ( data ) data.key = key;
+		//if ( data ) data.key = key;
 		return data;
 
 	}

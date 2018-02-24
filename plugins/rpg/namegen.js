@@ -9,9 +9,9 @@ var nameParts = {
 	'dwarf':{
 
 		'm':{
-			roots:[ 'bom', 'dor', 'dur', 'dwa', 'fi', 'gim', 'glo', 'ki', 'nor', 'od', 'ori', 'tho' ],
+			roots:[ 'bom', 'dor', 'dur', 'dwa', 'fi', 'gim', 'glo', 'ki', 'nor', 'od', 'ori', 'tho', 'thra' ],
 			parts:[ 'boro', 'bur', 'fith', 'r', 'rin', 'th', 'thur' ],
-			ends:[ 'bur', 'in', 'li', 'lin', 'ly', 'mir', 'thor', 'urn' ]
+			ends:[ 'bur', 'in', 'li', 'lin', 'ly', 'mir', 'ne', 'thor', 'urn' ]
 		},
 		'f':{
 			roots:[ 'bre', 'brum', 'dop', 'elg', 'folg', 'frey', 'gil', 'gin', 'gold', 'helg', 'lus', 'nan',
@@ -25,14 +25,14 @@ var nameParts = {
 	'elf':{
 
 		'm':{
-			roots:[ 'ael', 'galad',  'cele', 'cin', 'leg', 'mirth', 'quel', 'tun'],
-			parts:[ 'aelf', 'ael', 'arf', 'gil', 'gol', 'ilu', 'lent', 'o', 'vanya' ],
+			roots:[ 'ael', 'galad',  'cel', 'cin', 'leg', 'mirth', 'quel', 'tun'],
+			parts:[ 'a', 'aelf', 'ael', 'arf', 'e', 'gil', 'gol', 'ilu', 'lent', 'o', 'vanya' ],
 			ends:[ 'in', 'las', 'lin', 'ol', 'orn', 'orn' ]
 		},
 		'f':{
-			roots:[ 'al', 'ar', 'cin', 'el', 'eth', 'gal', 'gwyn', 'il', 'lor', 'nia', 'ti', 'tuv', 'va' ],
-			parts:[ 'ael', 'anya', 'ay', 'la', 'lev', 'ie', 'ilu', 'wyn'],
-			ends:[ 'ial', 'iel', 'ien', 'lyn', 'wen']
+			roots:[ 'al', 'ar', 'cin', 'el', 'eth', 'gal', 'gwyn', 'il', 'lor', 'ni', 'ny', 'ti', 'tuv', 'val' ],
+			parts:[ 'a', 'ad', 'ael', 'anya', 'ay', 'e', 'la', 'lev', 'ie', 'ilu'],
+			ends:[ 'beth', 'ial', 'iel', 'ien', 'lyn', 'na', 'ya', 'wen', 'wyn']
 		}
 
 	},
@@ -58,14 +58,14 @@ var nameParts = {
 		'm':{
 			roots:[ 'ad', 'ben', 'bra', 'deo', 'dor', 'ed', 'garn', 'fra', 'fre', 'han', 'hen', 'hu', 'im',
 				'jas', 'jus', 'joh', 'ke', 'lan', 'lar', 'leo', 'luk', 'mat', 'mic', 'nat',
-				'nath', 'pet', 'ron', 'sam', 'ti', 'vin', 'wil', 'wal', 'war'],
+				'nath', 'pet', 'phi', 'ron', 'sam', 'ti', 'vin', 'wil', 'wal', 'war'],
 			parts:[ 'ada', 'bern', 'char', 'dor', 'e', 'of', 'or', 'jor', 'li', 'mard', 'mir', 'ath', 'per', 'tal'],
-			ends:[ 'ad', 'an', 'ar', 'ard', 'd', 'do', 'el', 'ew', 'iam', 'ian', 'id', 'in', 'on', 'osh', 'ry' ]
+			ends:[ 'ad', 'an', 'ar', 'ard', 'd', 'do', 'el', 'ew', 'iam', 'ian', 'id', 'in', 'ip', 'on', 'osh', 'ry' ]
 		},
 		'f':{
 			roots:[ 'ana', 'be', 'cam', 'cas', 'cel', 'cind', 'cla', 'cle', 'da', 'di', 'des', 'em', 'es', 'han',
 			'hel', 'jen', 'kel', 'kim', 'li', 'lis',
-				'may', 'pam', 'pri', 're', 'san', 'shan', 'ti', 'vi', 'wan', 'winn', 'ze'],
+				'may', 'pam', 'pri', 're', 'san', 'shan', 'ter', 'ti', 'vi', 'wan', 'winn', 'ze'],
 			parts:[ 'a', 'an', 'el', 'en', 'es', 'la', 'li', 'nal', 'th', 'tra', 'zel'],
 			ends:[ 'a', 'ana', 'anne', 'bell', 'beth', 'ca', 'da', 'dy', 'ea', 'este',
 			'ia', 'ie', 'ina', 'ine', 'ippy', 'ix',

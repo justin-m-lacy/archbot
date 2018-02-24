@@ -151,7 +151,7 @@ module.exports = class Game {
 	 * @param {number} uid - user id of player to check. 
 	 */
 	hasPlayer( uid ) {
-		return this.w_id == uid || this.b_id == uid;
+		return ( this.w_id === uid || this.b_id === uid );
 	}
 
 	getStatusString() {
