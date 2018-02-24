@@ -9,23 +9,17 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 		dirs = fs.readdirSync( plugins_dir );
 	
-		let plugin, dir, stats;
+		let plugs, dir, stats;
 		for( let dir of dirs ) {
 
 			dir = path.resolve( plugins_dir, dir );
 			stats = fs.statSync( dir );
 			if ( !stats.isDirectory() ) continue;
 
-			plugin = findAndLoad( dir );
-			if ( plugin != null ) {
-
-				plugins.push( plugin );
-				if ( init_func != null ){
-					init_func(plugin);
-				}
-
+			plugs = findAndLoad( dir, init_func );
+			if ( plugs != null ) {
+				plugins = plugins.concat( plugs );
 			}
-
 
 		}
 
@@ -37,8 +31,13 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 }
 
-// look for a plugin desc file.
-function findAndLoad( dir ) {
+/**
+ * Searches the directory for a plugin description file,
+ * and loads any plugins listed.
+ * @param {string} dir 
+ * @param {function} init_func 
+ */
+function findAndLoad( dir, init_func=null ) {
 
 	let files = fs.readdirSync( dir );
 	let stats;
@@ -53,11 +52,15 @@ function findAndLoad( dir ) {
 			stats = fs.statSync( file );
 			if ( !stats.isFile() ) continue;
 
-			let desc = loadPlugDesc( file );
-			if ( !desc ) continue;
+			let plugs = loadPlugDesc( dir, file );
+			if ( plugs ) {
 
-			let plugin = loadPlugin( dir, desc );
-			if ( plugin ) return plugin;
+				if ( init_func != null ) {
+					if ( plugs instanceof Array ) plugs.forEach( (p)=>init_func(p) );
+					else if ( init_func != null ) init_func(plugs);
+				}
+				return plugs;
+			}
 
 		} catch (err ){
 			console.log(err);
@@ -68,15 +71,39 @@ function findAndLoad( dir ) {
 
 }
 
-function loadPlugDesc( descPath ) {
+function loadPlugDesc( dir, descFile ) {
 
-	let data = fs.readFileSync(descPath);
+	let data = fs.readFileSync(descFile);
 	let desc = JSON.parse( data );
 
-	if ( !desc.hasOwnProperty( 'plugin')) return null;
-	if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
+	let plug;
 
-	return desc;
+	if ( desc instanceof Array ) {
+
+		let a = desc;
+		let plugs = [];
+		for( let i = a.length-1; i >= 0; i-- ) {
+
+			desc = a[i];
+			if ( desc.hasOwnProperty('plugin')) {
+				if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
+				plug = loadPlugin( dir, desc );
+				if ( plug ) plugs.push(plug);
+
+			}
+
+		}
+
+		if ( plugs.length > 0 ) return plugs;
+
+	} else {
+
+		if ( !desc.hasOwnProperty( 'plugin')) return null;
+		if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
+		return loadPlugin( dir, desc );
+
+	}
+
 
 }
 
