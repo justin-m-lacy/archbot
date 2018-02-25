@@ -3,17 +3,24 @@ class Quoter {
 
 	constructor( context ) {
 
-		this.quotes = [];
+		this.quotes = null;
 		this._context = context;
 
 		this.loadQuotes();
 
 	}
 
-	cmdQuote( m ) {
+	async cmdQuote( m ) {
+
+		if ( this.quotes == null ) {
+			await this.loadQuotes();
+		}
 
 		let len = this.quotes.length;
-		if ( len == 0 ) m.channel.send( 'There are no quotes for this server.');
+		if ( len == 0 ) {
+			m.channel.send( 'There are no quotes for this server.');
+			return;
+		}
 
 		let str = this.quotes[ Math.floor( Math.random()*len ) ];
 		m.channel.send( str );
@@ -23,7 +30,7 @@ class Quoter {
 	cmdNewQuote( m, ...args ) {
 
 		let q = args.join(' ');
-		if ( q == null || q == '') {
+		if ( q == null || q === '') {
 			m.channel.send( "That isn't a quote, stupid.");
 			return;
 		}
@@ -35,10 +42,15 @@ class Quoter {
 
 	async loadQuotes() {
 
-		let q = await this._context.fetchKeyData( 'quoter/quotes' );
-		if ( q != null ) {
-			this.quotes = this.quotes.concat(q);
-		}
+		try {
+			let q = await this._context.fetchKeyData( 'quoter/quotes' );
+			console.log( 'quotes loaded: ' + q );
+			if ( q != null ) {
+				this.quotes = this.quotes.concat(q);
+			} else {
+				this.quotes = [];
+			}
+		} catch (e) { console.log(e); }
 
 	}
 

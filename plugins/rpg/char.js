@@ -3,7 +3,7 @@ const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
 const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
 
 const Actor = require( './actor.js');
-const dice = require( '../../node_modules/archdice' );
+const dice = require( './dice.js' );
 
 class Char extends Actor {
 
@@ -11,6 +11,9 @@ class Char extends Actor {
 	set charClass( c ) { this._charClass = c; }
 
 	get owner() { return this._owner; }
+
+	get exp() { return this._exp; }
+	set exp( v ) { this._exp = v; }
 
 	toJSON() {
 	
@@ -54,7 +57,7 @@ class Char extends Actor {
 	}
 
 	constructor( owner=null) {
-
+		super();
 		this._owner = owner;
 
 	}
@@ -67,6 +70,7 @@ class Char extends Actor {
 		this._level = 1;
 
 		this._hp = 0;
+		this._exp = 0;
 
 		this._info = {};
 		this._stats = {};
@@ -96,23 +100,21 @@ class Char extends Actor {
 
 	}
 
-	applyRace() {
+	applyClass() {
 
-		let mods = this._race.statMods;
-		let stats = this._stats;
-		for( let k in mods ) {
-
-			if ( stats.hasOwnProperty(k)) {
-				stats[k] += mods[k];
-				if ( stats[k] < 3 ) {
-					stats[k] = 3;
-				}
-			}
-			else this._stats[k] = mods[k];
-
-		}
+		if ( this._charClass == null ) return;
+		super.applyMods( this._charClass.statMods );
 
 	}
+
+	applyRace() {
+
+		if ( this._race == null ) return;
+		super.applyMods( this._race.statMods );
+
+	}
+
+	
 
 	getLongDesc() {
 

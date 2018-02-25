@@ -45,10 +45,11 @@ var nameParts = {
 			ends:[ 'bo', 'do', 'doc', 'er', 'in', 'go', 'pin', 'ry', 's', 'wise']
 		},
 		'f':{
-			roots:[ 'am', 'ala', 'das', 'peg', 'pol', 'rose', 'san' ],
+			roots:[ 'am', 'ala', 'dar', 'das', 'fal', 'may', 'nan', 'peg', 'pol', 'rose',
+				'san', 'wen' ],
 			parts:[ 'ana', 'ba', 'bea', 'bell', 'bella', 'di', 'els', 'emm', 'fea', 'fli',
 			'jen', 'mary', 'pip', 'winn'],
-			ends:[ 'a', 'an', 'anne', 'donna', 'ie', 'ly', 'lyn', 's', 'sie', 'y', 'wine']
+			ends:[ 'a', 'an', 'anne', 'donna', 'ie', 'ly', 'lyn', 'ny', 's', 'sie', 'y', 'wine']
 		}
 
 	},
@@ -60,16 +61,16 @@ var nameParts = {
 				'jas', 'jus', 'joh', 'ke', 'lan', 'lar', 'leo', 'luk', 'mat', 'mic', 'nat',
 				'nath', 'pet', 'phi', 'ron', 'sam', 'ti', 'vin', 'wil', 'wal', 'war'],
 			parts:[ 'ada', 'bern', 'char', 'dor', 'e', 'of', 'or', 'jor', 'li', 'mard', 'mir', 'ath', 'per', 'tal'],
-			ends:[ 'ad', 'an', 'ar', 'ard', 'd', 'do', 'el', 'ew', 'iam', 'ian', 'id', 'in', 'ip', 'on', 'osh', 'ry' ]
+			ends:[ 'ad', 'an', 'ar', 'ard', 'd', 'do', 'el', 'ew', 'iam', 'ian', 'ick', 'id', 'in', 'ip', 'on', 'osh', 'ry' ]
 		},
 		'f':{
 			roots:[ 'ana', 'be', 'cam', 'cas', 'cel', 'cind', 'cla', 'cle', 'da', 'di', 'des', 'em', 'es', 'han',
 			'hel', 'jen', 'kel', 'kim', 'li', 'lis',
 				'may', 'pam', 'pri', 're', 'san', 'shan', 'ter', 'ti', 'vi', 'wan', 'winn', 'ze'],
-			parts:[ 'a', 'an', 'el', 'en', 'es', 'la', 'li', 'nal', 'th', 'tra', 'zel'],
-			ends:[ 'a', 'ana', 'anne', 'bell', 'beth', 'ca', 'da', 'dy', 'ea', 'este',
-			'ia', 'ie', 'ina', 'ine', 'ippy', 'ix',
-				'le', 'lein', 'len', 'ly', 'lyn', 'ma', 'my', 'ny', 'onna', 'oppy', 're', 's', 'sa', 'sy', 'y', 'wyn']
+			parts:[ 'a', 'an', 'el', 'en', 'es', 'la', 'li', 'nal', 'th', 'tri', 'zel'],
+			ends:[ 'a', 'ana', 'anne', 'bell', 'beth', 'ca', 'da', 'dy', 'ea', 'este', 'ette',
+			'ia', 'ie', 'ina', 'ine', 'ippy', 'ith', 'ix',
+				'le', 'lein', 'len', 'ly', 'lyn', 'ma', 'my', 'ny', 'onna', 'oppy', 're', 's', 'sa', 'sy', 'stra', 'y', 'wyn']
 		}
 
 	},
@@ -78,11 +79,11 @@ var nameParts = {
 
 		'm':{
 			roots:[ 'bli', 'faz', 'gip', 'gar', 'kil', 'nak', 'pik', 'qui', 'zap', 'zaph'],
-			parts:[ 'aik', 'az', 'faz', 'fla', 'it', 'iz', 'nak', 'pip', 'plik', 'quib'],
+			parts:[ 'aik', 'az', 'faz', 'flab', 'it', 'iz', 'nak', 'pip', 'plik', 'quib'],
 			ends:[ 'bilg', 'bit', 'bolg', 'ilg', 'it', 'ix', 'olg', 'plik', 'zip', 'zit']
 		},
 		'f':{
-			roots:[ 'bel', 'das', 'fal', 'nim', 'nin', 'ik', 'ra', 'zan', 'zin'],
+			roots:[ 'bel', 'das', 'eki', 'fal', 'nim', 'nin', 'ik', 'ra', 'zan', 'zin'],
 			parts:[ 'ain', 'bli', 'faz', 'flis', 'it', 'nik', 'nin', 'piks', 'sip', 'zel'],
 			ends:[ 'en', 'in', 'is', 'izzy', 'ning', 'vex', 'vix', 'y', 'zeel', 'zel', 'zing']
 		}
@@ -96,9 +97,25 @@ var nameParts = {
 			ends:[]
 		},
 		'f':{
-			roots:[],
-			parts:[ 'bar', 'bilg', 'dee', 'felga', 'glup', 'glik', 'har', 'lek', 'neg', 'ter', 'thig', 'olg', 'zend'],
+			roots:[ 'bar', 'dee', 'felga', 'gul', 'har', 'jub', 'lu', 'na', 'pol', 'um', 'vir', 'wom', 'yil', 'zue'],
+			parts:[ 'bar', 'bilg', 'dee', 'felga', 'gar', 'glup', 'glik', 'har', 'lek', 'neg', 'ter', 'thig', 'olg', 'zend'],
 			ends:[]
+		}
+
+	},
+
+	'demon':{
+
+		'm':{
+			roots:[ 'az', 'ba', 'bar', 'bal', 'cthu', 'dia', 'dor', 'dur', 'fest', 'gol', 'j\'ku', 'kil', 'kthu',
+			'ra', 'raz', 'thra', 'mar', 'meph', 'viz' ],
+			parts:[  'af', 'ar', 'az', 'b', 'bar', 'bez', 'el', 'fel', 'fzor', 'gok', 'ist', 'or', 'phel', 'ze', 'zur'],
+			ends:[ 'bub', 'es', 'ize', 'lo', 'lu', 'moth', 'o', 'pest', 'to', 'vex', 'zar', 'zel', 'ziel']
+		},
+		'f':{
+			roots:[ 'az', 'bar', 'bal', 'cthu', 'dor', 'fest', 'gol', 'j\'ku', 'kil', 'mar', 'vize' ],
+			parts:[ 'arb', 'bar', 'el', 'fzor', 'gok', 'af', 'or', 'ze', 'zur'],
+			ends:[ 'bub', 'lu', 'moth', 'pest', 'vex', 'zar', 'zel']
 		}
 
 	},
@@ -152,7 +169,7 @@ function buildName( roots, parts, ends ) {
 	if ( roots == null || roots.length == 0 ) roots = parts;
 	if ( ends == null || ends.length == 0 ) ends = parts;
 
-	if ( Math.random() < 0.4 ) roots = parts;
+	if ( Math.random() < 0.2 ) roots = parts;
 
 	let name = roots[ Math.floor( roots.length*Math.random() ) ];
 
