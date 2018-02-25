@@ -40,7 +40,7 @@ var RPG = exports.ContextClass = class {
 	
 		try {
 	
-			let char = await this.tryLoadChar( msg.channel, msg.author, charname );
+			let char = await this.tryLoadChar( msg.author, charname );
 			if ( char == null ) {
 				msg.channel.send( charname + ' not found on server. D:' );
 				return;
@@ -80,7 +80,7 @@ var RPG = exports.ContextClass = class {
 
 			console.log( 'new character');
 
-			let char = new Char();
+			let char = new Char( msg.author.id );
 			char.rollNew(  charname, race, charclass );
 
 			console.log( 'char rolled: ' + char.name );

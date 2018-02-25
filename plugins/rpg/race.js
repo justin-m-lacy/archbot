@@ -7,6 +7,7 @@ class Race {
 		r._hitdice = hitdice;
 		r._statMods = statMods;
 		return r;
+
 	}
 
 	static FromJSON( json ) {

@@ -155,7 +155,7 @@ exports.init = function( bot ) {
 
 	bot.addContextClass( GuildReactions );
 	bot.addContextCmd( 'react', '!react <\"search trigger\"> <\"response string\">',
-		GuildReactions.prototype.cmdAddReaction, GuildReactions, { minArgs:2, maxArgs:2} );
+		GuildReactions.prototype.cmdAddReaction, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
 	bot.addContextCmd( 'rmreact', '!rmreact <\"react trigger\">', GuildReactions.prototype.cmdRmReact, GuildReactions,
 		{ maxArgs:1 } );
 
