@@ -151,6 +151,10 @@ const Context = class {
 
 	}
 
+	async deleteKeyData( key ) {
+		await this._cache.delete(key);
+	}
+
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
 

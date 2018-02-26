@@ -1,5 +1,14 @@
 const fs = require( 'fs');
 
+exports.deleteFile = ( path ) => new Promise( (res,rej)=> {
+
+	fs.unlink( path, (err)=>{
+		if ( err ) { console.log(err); rej(err); }
+		else res(true);
+	});
+
+});
+
 exports.exists = ( path ) => new Promise( (res,rej)=>{
 	fs.access( path,
 		(err)=>{

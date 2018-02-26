@@ -8,6 +8,8 @@ const USERS_DIR = 'users/';
 
 exports.readData = readData;
 exports.writeData = writeData;
+exports.deleteData = deleteData;
+
 exports.userPath = getUserPath;
 exports.memberPath = getMemberPath;
 
@@ -61,6 +63,10 @@ exports.channelPath = ( chan, subs ) => {
 	}
 
 	return thepath;
+}
+
+async function deleteData( relPath ) {
+	return await afs.deleteFile( BASE_DIR + '/' + relPath + '.json');
 }
 
 async function readData( relPath ) {

@@ -1,6 +1,6 @@
 const infoProps = [ 'sex', 'age', 'height', 'weight' ];
-const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'chr'];
-const saveProps = [ 'name', 'level', 'hp', 'owner', 'stats' ];
+const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
+const saveProps = [ 'name', 'level', 'exp', 'gold', 'owner', 'info', 'baseStats' ];
 
 const Actor = require( './actor.js');
 const dice = require( './dice.js' );
@@ -18,15 +18,17 @@ class Char extends Actor {
 	toJSON() {
 	
 		let json = {};
-		let p;
 		for( let i = saveProps.length-1; i>=0; i-- ) {
 
-			p = saveProps[i];
+			var p = saveProps[i];
 			json[p] = this[p];
 
 		}
 		json.race = this._race.name;
+		json.raceVer = this._race.ver;
+
 		json.charClass = this._charClass.name;
+		json.classVer = this._charClass.ver;
 
 		return json;
 	}
@@ -52,6 +54,10 @@ class Char extends Actor {
 		char._race = racesObj[ json.race ];
 		char._charClass = classesObj[ json.charClass ];
 
+		char.computeHp();
+		char.applyRace();
+		char.applyClass();
+
 		return char;
 
 	}
@@ -62,7 +68,24 @@ class Char extends Actor {
 
 	}
 
-	rollNew( name, race, charclass, info ){
+	/**
+	 * reroll hp.
+	*/
+	rollHp() {
+
+		let hd = this._charClass.hitdice;
+		let hp = Math.floor( ( this._race.hitdice + hd)/2 );
+
+		for( let i = this._level-1; i > 0; i-- ) {
+			hp += Dice.roll( 1, hd );
+		}
+
+		this._baseStats.hp = hp;
+		this.computeHp();
+
+	}
+
+	makeNew( name, race, charclass, info ){
 
 		this._name = name;
 		this._race = race;
@@ -73,44 +96,26 @@ class Char extends Actor {
 		this._exp = 0;
 
 		this._info = {};
-		this._stats = {};
 
 		console.log( 'new: ' + race.name + ' ' + charclass.name );
 
-		this.readinfo( info );
-
-		this.rollStats();
 		this.applyRace();
 		this.computeHp();
 
 	}
 
-	rollStats() {
+	setBaseStats( base ) {
 
-		let numDice = 3;
-		let sides = 6;
-
-		let len = statTypes.length;
-		for( let i = 0; i < len; i++) {
-
-			let stat = statTypes[i];
-			this._stats[ stat ] = dice.roll( numDice, sides );
-
-		}
+		super.setBaseStats( base );
+		this.applyClass();
 
 	}
+
 
 	applyClass() {
 
 		if ( this._charClass == null ) return;
 		super.applyMods( this._charClass.statMods );
-
-	}
-
-	applyRace() {
-
-		if ( this._race == null ) return;
-		super.applyMods( this._race.statMods );
 
 	}
 
@@ -150,21 +155,9 @@ class Char extends Actor {
 
 	}
 
-	computeHp() {
-		this._hp = Math.floor( (this._race.HD + this._charClass.HD)/2) + this.getModifier('con');
-		if ( this._hp < 1 ) this._hp = 1;
-	}
-
-	getModifier( stat ) {
-
-		if ( !this._stats.hasOwnProperty(stat) ) return 0;
-		return Math.floor( ( this._stats[stat] - 10)/2 );
-
-	}
-
 	readinfo( info ) {
 
-		if (info ==null) return;
+		if (info == null) return;
 
 		let local = this._info;
 		let prop;

@@ -1,7 +1,8 @@
-const u = require('../../jsutils.js');
+const util = require('../../jsutils.js');
 const Char = exports.Char = require( './char.js');
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
+const CharGen = require( './chargen.js' );
 
 var initialized = false;
 
@@ -28,7 +29,33 @@ var RPG = exports.ContextClass = class {
 	async cmdListChars( msg, uname=null ) {
 	}
 	
-	async cmdDeleteChar( msg, charname ) {
+	async cmdRmChar( msg, charname=null ) {
+
+		// must init to load char for owner check.
+		if ( !initialized ) initData();
+
+		if ( charname == null ) charname = msg.author.username;
+		try {
+
+			let char = await this.tryLoadChar( msg.author, charname );
+			if ( char == null ) {
+				msg.channel.send( charname + ' not found on server.');
+
+			} else if ( char.owner == null || char.owner == msg.author.id ) {
+
+				// delete
+				let key = this.getCharKey( charname );
+				delete this.loadedChars[ key ];
+				this._context.deleteKeyData( key );
+				msg.channel.send( charname + ' deleted.' );
+
+			} else {
+
+				msg.channel.send( 'You do not have permission to delete ' + charname );
+			}
+
+
+		} catch ( e ) { console.log(e); }
 	
 	}
 
@@ -55,38 +82,36 @@ var RPG = exports.ContextClass = class {
 	async cmdRollChar( msg, charname=null, racename=null, classname=null ) {
 	
 		if ( !initialized ) initData();
-	
-		console.log( "INSTANCE ROLLCHAR" );
 
 		try {
-
-			let charclass, race;
 			
-			if ( racename != null )racename = racename.toLowerCase();
-			if ( racename != null && raceByName.hasOwnProperty(racename)) race = raceByName[racename];
-			else race = u.randElm( races );
-			
-			if ( classname != null ) classname = classname.toLowerCase();
-			if ( classname != null && classByName.hasOwnProperty(classname)) charclass = classByName[classname];
-			else charclass = u.randElm( classes );
-		
-			if ( charname == null ) charname = msg.author.username;
-
-			let exists = await this.charExists(charname);
-			if ( exists ) {
-				msg.channel.send( 'Character ' + charname + ' already exists.' );
+			let race = getRace( racename );
+			if ( race == null ) {
+				msg.channel.send( 'Race ' + racename + ' not found.' );
+				return;
+			}
+			let charclass = getClass( classname );
+			if ( charclass == null ) {
+				msg.channel.send( 'Class ' + classname + ' not found.' );
 				return;
 			}
 
-			console.log( 'new character');
+			let sex;
+			if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
-			let char = new Char( msg.author.id );
-			char.rollNew(  charname, race, charclass );
+			if ( charname != null ) {
+				let exists = await this.charExists(charname);
+				if ( exists ) {
+					msg.channel.send( 'Character ' + charname + ' already exists.' );
+					return;
+				}
+			} else charname = await uniqueName( racename, sex );
 
+			let char = CharGen.genChar( msg.author.id, race, charClass, charname, null );
 			console.log( 'char rolled: ' + char.name );
 
 			this.echoChar( msg.channel, char );
-			await this.trySaveChar( msg.author, char );
+			await this.trySaveChar( msg.author, char );	// await for catch.
 
 		} catch ( e ){ console.log(e); }
 
@@ -129,7 +154,11 @@ var RPG = exports.ContextClass = class {
 
 		try {
 
-			let data = await this._context.fetchKeyData( key );
+
+			let data = this.loadedChars[key];
+			if ( data ) return data;
+
+			data = await this._context.fetchKeyData( key );
 			if ( data instanceof Char ) {
 				console.log('already char.');
 				return data;
@@ -150,6 +179,22 @@ var RPG = exports.ContextClass = class {
 		return this._context.getDataKey( 'rpg', charname );
 	}
 
+	async uniqueName( race, sex ) {
+
+		let namegen = require( './namegen.js');
+		var name;
+		var taken;
+		do {
+
+			name = namegen.genName( race, sex );
+			taken = await this.charExists( name );
+
+		} while ( taken )
+
+		return name;
+
+	}
+
 } // class
 
 exports.init = function( bot ){
@@ -157,9 +202,10 @@ exports.init = function( bot ){
 	console.log( 'rpg INIT' );
 
 	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]',
-		RPG.prototype.cmdRollChar, RPG, { type:'instance', maxArgs:3} );
+		RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
 	bot.addContextCmd( 'loadchar', '!loadchar <charname>',
-		RPG.prototype.cmdLoadChar, RPG, {type:'instance', maxArgs:1}  );
+		RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
 
 }
 
@@ -184,8 +230,8 @@ function initRaces() {
 
 		let a = require( './data/races.json');
 
-		races = [];
-		raceByName = {};
+		exports.Races = races = [];
+		exports.RaceByName = raceByName = {};
 
 		let raceObj, race;
 		for( let i = a.length-1; i>= 0; i-- ) {
@@ -204,6 +250,16 @@ function initRaces() {
 
 }
 
+function getRace( racename ) {
+	if ( racename == null || !raceByName.hasOwnProperty(racename) ) return util.randElm(races);
+	return raceByName[racename.toLowerCase()];
+}
+
+function getClass( classname ) {
+	if ( classname == null || !classByName.hasOwnProperty(classname) ) return util.randElm(classes);
+	return classByName[classname.toLowerCase()];
+}
+
 function initClasses() {
 
 	if ( classes != null ) return;
@@ -212,8 +268,8 @@ function initClasses() {
 
 		let a = require( './data/classes.json');
 
-		classes = [];
-		classByName = {};
+		exports.Classes = classes = [];
+		exports.ClassByName = classByName = {};
 
 		let classObj, charclass;
 		for( let i = a.length-1; i>= 0; i-- ) {

@@ -5,17 +5,30 @@ let CharClass = module.exports = class {
 
 	static FromJSON( json ) {
 
-		let r = new CharClass();
+		let o = new CharClass();
+
+		o._ver = json.ver != null ? json.ver : 1;
+
 		if ( json.hasOwnProperty('name')) {
-			r._name = json.name;
+			o._name = json.name;
 		}
 		if ( json.hasOwnProperty('hitdice')) {
-			r._hitdice = json.hitdice;
+			o._hitdice = json.hitdice;
 		}
-		return r;
+		if ( json.hasOwnProperty('statMods')){
+			o._statMods = json.statMods;
+		}
+
+		if ( json.hasOwnProperty('create')) {
+			o._createMods = json.create;
+		}
+		return o;
 
 	}
 
+	
+	get createMods() { return this._createMods; }
+	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
 

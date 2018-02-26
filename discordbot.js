@@ -21,6 +21,11 @@ class DiscordBot {
 	get contextClasses() { return this._contextClasses; }
 	get cmdPrefix() { return this._cmdPrefix; }
 
+	/**
+	 * 
+	 * @param {Discord.Client} client 
+	 * @param {*} cmdPrefix 
+	 */
 	constructor( client, cmdPrefix='!' ) {
 
 		// map target discord obj to processing context.
@@ -30,7 +35,10 @@ class DiscordBot {
 		this._contextClasses = [];
 
 		this._client = client;
-		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists );
+		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
+
+		client.setInterval( this._cache.cleanup, 60*1000*5, 60*1000*5 );
+		client.setInterval( this._cache.backup, 40*1000*5, 40*1000*5 );
 
 		this._cmdPrefix = cmdPrefix;
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
