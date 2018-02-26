@@ -4,6 +4,8 @@ exports.init = function( bot ) {
 
 }
 
+exports.genName = getName;
+
 var nameParts = {
 
 	'dwarf':{
@@ -107,15 +109,15 @@ var nameParts = {
 	'demon':{
 
 		'm':{
-			roots:[ 'az', 'ba', 'bar', 'bal', 'cthu', 'dia', 'dor', 'dur', 'fest', 'gol', 'j\'ku', 'kil', 'kthu',
+			roots:[ 'az', 'ba', 'bag', 'bar', 'bal', 'cthu', 'dia', 'dor', 'dur', 'fest', 'gol', 'j\'ku', 'kil', 'kthu',
 			'ra', 'raz', 'thra', 'mar', 'meph', 'viz' ],
 			parts:[  'af', 'ar', 'az', 'b', 'bar', 'bez', 'el', 'fel', 'fzor', 'gok', 'ist', 'or', 'phel', 'ze', 'zur'],
-			ends:[ 'bub', 'es', 'ize', 'lo', 'lu', 'moth', 'o', 'pest', 'to', 'vex', 'zar', 'zel', 'ziel']
+			ends:[ 'bub', 'es', 'ize', 'lo', 'lu', 'mog', 'moth', 'o', 'pest', 's', 'to', 'vex', 'zar', 'zel', 'ziel']
 		},
 		'f':{
-			roots:[ 'az', 'bar', 'bal', 'cthu', 'dor', 'fest', 'gol', 'j\'ku', 'kil', 'mar', 'vize' ],
-			parts:[ 'arb', 'bar', 'el', 'fzor', 'gok', 'af', 'or', 'ze', 'zur'],
-			ends:[ 'bub', 'lu', 'moth', 'pest', 'vex', 'zar', 'zel']
+			roots:[ 'an', 'az', 'bas', 'bel', 'cas', 'cin', 'des', 'fest', 'gon', 'hes', 'ist', 'jez', 'kil', 'mir', 'vize' ],
+			parts:[ 'al','arb', 'bar', 'de', 'el', 'for', 'gin', 'or', 'ze', 'zar'],
+			ends:[ 'a', 'bib', 'kes', 'la', 'lu','mona', 'mith', 'pest', 'rel', 's', 'vex','vix', 'zin', 'zel']
 		}
 
 	},
@@ -139,12 +141,11 @@ var nameParts = {
 
 nameParts['hobbit'] = nameParts['halfling'];
 
-function cmdRollName( m, race, gender ) {
+function cmdRollName( m, race, sex ) {
 
-	if ( gender == null ) gender = Math.random() < 0.5 ? 'm' : 'f';
-	if ( race == null ) race = 'human';
+	if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
-	m.channel.send( getName( race, gender ));
+	m.channel.send( getName( race, sex ));
 
 }
 
@@ -152,15 +153,37 @@ function cmdRollName( m, race, gender ) {
  * 
  * @param {string} race 
  */
-function getName( race, gender='m' ) {
+function getName( race, sex='m' ) {
+
+	let ind = race.indexOf( 'half' );
+	if ( ind >= 0 ) {
+
+		ind += 4;
+		if ( race.length > ind && race.charAt(ind) === '-') ind++;
+		return getMixRace( race.slice(ind), sex );
+
+	}
+
+	if ( race == null ) race = 'human';
 
 	if ( !nameParts.hasOwnProperty(race)) {
 		race = 'human';
 	}
-	let lists = nameParts[ race ][gender];
+	let lists = nameParts[ race ][sex];
 
 
 	return buildName( lists.roots, lists.parts, lists.ends );
+
+}
+
+function getMixRace( race, gender ) {
+
+	let hLists = nameParts['human'][gender];
+
+	if ( race == null ) return buildName( hLists.roots, hLists.parts, hLists.ends );
+
+	let lists = nameParts[race][gender];
+	return buildName( hLists.roots.concat( lists.roots ), hLists.parts.concat( lists.parts ), hLists.ends.concat( lists.ends ) );
 
 }
 

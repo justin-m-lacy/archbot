@@ -1,15 +1,15 @@
 [
-{ "name":"wizard", "hitdice":6 },
-{ "name":"sorcerer", "hitdice":6 },
-{ "name":"witch", "hitdice":6 },
-{ "name":"fighter", "hitdice":10 },
-{ "name":"ranger", "hitdice":8 },
-{ "name":"rogue", "hitdice":6 },
-{ "name":"druid", "hitdice":8 },
-{ "name":"paladin", "hitdice":8 },
-{ "name":"barbarian", "hitdice":12 },
-{ "name":"priest", "hitdice":6 },
-{ "name":"bard", "hitdice":6 },
-{ "name":"monk", "hitdice":8 }
+{ "name":"wizard", "ver":1, "hitdice":6, "create":{ "gold":"2d4" } },
+{ "name":"sorcerer", "ver":1, "hitdice":6, "create":{ "gold":"3d4" }  },
+{ "name":"witch", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
+{ "name":"fighter", "ver":1, "hitdice":10, "create":{ "gold":"2d4" }  },
+{ "name":"ranger", "ver":1, "hitdice":8, "create":{ "gold":"2d4" }  },
+{ "name":"rogue", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
+{ "name":"druid", "ver":1, "hitdice":8, "create":{ "gold":"1d4" }  },
+{ "name":"paladin", "ver":1, "hitdice":8, "create":{ "gold":"2d4" }  },
+{ "name":"barbarian", "ver":1, "hitdice":12, "create":{ "gold":"1d4" }  },
+{ "name":"priest", "ver":1, "hitdice":6, "create":{ "gold":"1d4+1" }  },
+{ "name":"bard", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
+{ "name":"monk", "ver":1, "hitdice":8, "create":{ "gold":"1d4" }  }
 
 ]
