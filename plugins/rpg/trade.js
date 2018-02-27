@@ -1,5 +1,5 @@
 
-exports.transfer = function transfer( src, dest, ...args ) {
+exports.transfer = function transfer( src, dest, args ) {
 
 	if ( args.length == 2 ) {
 
@@ -8,11 +8,13 @@ exports.transfer = function transfer( src, dest, ...args ) {
 		}
 
 	}
+	return "Not sure what you want to transfer.";
 
 }
 
 function xferGold( src, dest, count ) {
 
+	if ( typeof(count) === 'string ') count = parseInt( count );
 	if ( isNaN(count)) return 'Amount not a number.';
 
 	let gold = src.gold;

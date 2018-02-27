@@ -97,7 +97,7 @@ exports.Cache = class {
 	async store( key, value ) {
 
 		console.log('writing key: ' + key );
-		let item = new Item(value);
+		let item = new Item(key, value);
 		this._dict[key] = item;
 
 		if ( this.saver ) {
@@ -122,7 +122,7 @@ exports.Cache = class {
 	cache( key, value ) {
 
 		console.log('writing key: ' + key );
-		this._dict[key] = new Item(value);
+		this._dict[key] = new Item( key, value);
 
 	}
 

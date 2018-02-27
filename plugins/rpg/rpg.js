@@ -109,10 +109,8 @@ var RPG = exports.ContextClass = class {
 			let char = await this.tryLoadChar( charname );
 			if ( char == null ) {
 				msg.channel.send( charname + ' not found on server. D:' );
-				return;
-			}
-	
-			this.echoChar( msg.channel, char );
+
+			} else this.echoChar( msg.channel, char );
 	
 		} catch(e) {console.log(e);}
 
@@ -213,7 +211,7 @@ var RPG = exports.ContextClass = class {
 
 		let key = this.getCharKey( char.name );
 
-		console.log( 'char save key: ' + key );
+		console.log( 'char SAVE: ' + key );
 		try {
 			await this._context.storeKeyData( key, char, forceSave );
 		} catch (err) {
@@ -230,11 +228,11 @@ var RPG = exports.ContextClass = class {
 
 			let data = await this._context.fetchKeyData( key );
 			if ( data instanceof Char ) {
-				console.log('already char.');
+				console.log('Char Found: ' + data.name );
 				return data;
 			}
 
-			console.log('parsing json char' );
+			console.log('parsing JSON char: ' + charname );
 			let char = Char.FromJSON( data, raceByName, classByName );
 			return char;
 
