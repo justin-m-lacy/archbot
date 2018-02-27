@@ -50,7 +50,7 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 	if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
 	if ( name == null ) {
 		const namegen = require( './namegen.js' );
-		char.name = namegen.genName( race, sex );
+		char.name = namegen.genName( race.name, sex );
 	} else char.name = name;
 
 	return char;

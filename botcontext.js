@@ -158,15 +158,17 @@ const Context = class {
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
 
-		let data = await this._cache.get(key);
+		return await this._cache.get(key);
 		//if ( data ) data.key = key;
-		return data;
 	
 	}
 	
 	// associate data with key.
-	async storeKeyData( key, data ) {
-		await this._cache.cache( key, data );
+	async storeKeyData( key, data, forceSave=false ) {
+
+		if ( forceSave ) this._cache.store( key, data );
+		else this._cache.cache( key, data );
+
 	}
 
 }

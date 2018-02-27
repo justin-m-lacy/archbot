@@ -35,6 +35,8 @@ class Char extends Actor {
 
 	static FromJSON( json, racesObj, classesObj ) {
 
+		if ( json == null ) return null;
+
 		let char = new Char();
 
 		let p;
@@ -45,8 +47,6 @@ class Char extends Actor {
 			priv = '_' + p;
 			if ( json.hasOwnProperty(p)) {
 				char[priv] = json[p];
-			} else if ( json.hasOwnProperty(priv)) {
-				char[priv] = json[priv];
 			}
 
 		}
@@ -54,9 +54,7 @@ class Char extends Actor {
 		char._race = racesObj[ json.race ];
 		char._charClass = classesObj[ json.charClass ];
 
-		char.applyRace();
-		char.applyClass();
-		char.computeHp();
+		char.setBaseStats( char._baseStats );
 
 		return char;
 

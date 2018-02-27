@@ -77,7 +77,7 @@ exports.Cache = class {
 			console.log( 'fetching from file.');
 			let val = await this.loader( this._cacheKey + key );
 			if ( val != null ) {
-				this._dict[key] = new Item(val, false );
+				this._dict[key] = new Item(key, val, false );
 			}
 			return val;
 
