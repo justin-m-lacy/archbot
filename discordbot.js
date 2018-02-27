@@ -37,8 +37,10 @@ class DiscordBot {
 		this._client = client;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 
-		client.setInterval( this._cache.cleanup, 60*1000*5, 60*1000*5 );
-		client.setInterval( this._cache.backup, 40*1000*5, 40*1000*5 );
+		client.setInterval(
+			()=>{ this._cache.cleanup(60*1000*5); }, 60*1000*5 );
+		client.setInterval(
+			()=>{this._cache.backup(40*1000*5); }, 40*1000*5 );
 
 		this._cmdPrefix = cmdPrefix;
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
@@ -235,7 +237,7 @@ class DiscordBot {
 
 	// associate data with key.
 	async storeKeyData( key, data ){
-		await this._cache.store( key, data );
+		await this._cache.cache( key, data );
 	}
 
 	// get a key to associate with the
@@ -275,7 +277,7 @@ class DiscordBot {
 		} else {
 			objPath = fsys.getUserDir( uObject );
 		}
-		await this._cache.store( objPath, data );
+		await this._cache.cache( objPath, data );
 
 	}
 

@@ -6,15 +6,11 @@ class Quoter {
 		this.quotes = null;
 		this._context = context;
 
-		this.loadQuotes();
-
 	}
 
 	async cmdQuote( m ) {
 
-		if ( this.quotes == null ) {
-			await this.loadQuotes();
-		}
+		if ( this.quotes == null ) await this.loadQuotes();
 
 		let len = this.quotes.length;
 		if ( len == 0 ) {
@@ -27,7 +23,9 @@ class Quoter {
 
 	}
 
-	cmdNewQuote( m, ...args ) {
+	async cmdNewQuote( m, ...args ) {
+
+		if ( this.quotes == null ) await this.loadQuotes();
 
 		let q = args.join(' ');
 		if ( q == null || q === '') {
@@ -46,11 +44,12 @@ class Quoter {
 			let q = await this._context.fetchKeyData( 'quoter/quotes' );
 			console.log( 'quotes loaded: ' + q );
 			if ( q != null ) {
-				this.quotes = this.quotes.concat(q);
+				if ( this.quotes == null ) this.quotes = q;
+				else this.quotes = this.quotes.concat(q);
 			} else {
 				this.quotes = [];
 			}
-		} catch (e) { console.log(e); }
+		} catch (e) { console.log(e); this.quotes = []; }
 
 	}
 

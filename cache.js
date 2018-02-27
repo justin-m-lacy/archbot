@@ -35,8 +35,8 @@ exports.Cache = class {
 		this._cacheKey = cacheKey;
 
 		this.loader = loader;
-		this.checker = checker;
 		this.saver = saver;
+		this.checker = checker;
 		this.deleter = deleter;
 
 		this._dict = {};
@@ -196,12 +196,14 @@ exports.Cache = class {
 
 			} else if ( now - item.lastAccess > time ) {
 
-				try {
-					
-					await this.saver( this._cacheKey + item.key, item.data );
-					delete dict[k];
-					
-				} catch ( e ) { console.log(e);}
+				if ( item.dirty ) {
+
+					try {						
+						await this.saver( this._cacheKey + item.key, item.data );
+						delete dict[k];
+					} catch ( e ) { console.log(e);}
+
+				} else delete dict[k];
 
 			}
 

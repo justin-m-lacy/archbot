@@ -1,6 +1,6 @@
 const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'level', 'exp', 'gold', 'owner', 'info', 'baseStats' ];
+const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats' ];
 
 const Actor = require( './actor.js');
 const dice = require( './dice.js' );
@@ -54,16 +54,16 @@ class Char extends Actor {
 		char._race = racesObj[ json.race ];
 		char._charClass = classesObj[ json.charClass ];
 
-		char.computeHp();
 		char.applyRace();
 		char.applyClass();
+		char.computeHp();
 
 		return char;
 
 	}
 
-	constructor( owner=null) {
-		super();
+	constructor( owner=null, level=1) {
+		super( level );
 		this._owner = owner;
 
 	}
@@ -71,36 +71,16 @@ class Char extends Actor {
 	/**
 	 * reroll hp.
 	*/
-	rollHp() {
+	rollBaseHp() {
 
-		let hd = this._charClass.hitdice;
-		let hp = Math.floor( ( this._race.hitdice + hd)/2 );
+		let hd = this._charClass.HD;
+		let hp = Math.floor( ( this._race.HD + hd)/2 );
 
-		for( let i = this._level-1; i > 0; i-- ) {
+		for( let i = this._baseStats.level-1; i > 0; i-- ) {
 			hp += Dice.roll( 1, hd );
 		}
 
 		this._baseStats.hp = hp;
-		this.computeHp();
-
-	}
-
-	makeNew( name, race, charclass, info ){
-
-		this._name = name;
-		this._race = race;
-		this._charClass = charclass;
-		this._level = 1;
-
-		this._hp = 0;
-		this._exp = 0;
-
-		this._info = {};
-
-		console.log( 'new: ' + race.name + ' ' + charclass.name );
-
-		this.applyRace();
-		this.computeHp();
 
 	}
 
@@ -108,6 +88,7 @@ class Char extends Actor {
 
 		super.setBaseStats( base );
 		this.applyClass();
+		this.computeHp();
 
 	}
 
@@ -119,12 +100,11 @@ class Char extends Actor {
 
 	}
 
-	
-
 	getLongDesc() {
 
-		let desc = 'level ' + this._level + ' ' + this._race.name + ' ' + this._charClass.name;
-		desc += '\nhp: ' + this._hp;
+		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name;
+		desc += '\nage: ' + this.age + ' sex: ' + this.sex + ' gold: ' + this.gold;
+		desc += '\nhp: ' + this.hp;
 		desc += '\n' + this.getStatString();
 
 		return desc;
@@ -143,31 +123,15 @@ class Char extends Actor {
 		if ( len == 0 ) return '';
 
 		let stat = statTypes[0];
-		str += stat + ': ' + this._stats[stat];
+		str += stat + ': ' + this._curStats[stat];
 
 		for( let i = 1; i < len; i++) {
 
 			stat = statTypes[i];
-			str += '\n' + stat + ': ' + this._stats[stat];
+			str += '\n' + stat + ': ' + this._curStats[stat];
 
 		}
 		return str;
-
-	}
-
-	readinfo( info ) {
-
-		if (info == null) return;
-
-		let local = this._info;
-		let prop;
-		for( let i = infoProps.length-1; i>= 0; i--){
-
-			prop = infoProps[i];
-			if ( info.hasOwnProperty(prop)) {
-				local[prop] = info[prop];
-			}
-		}
 
 	}
 

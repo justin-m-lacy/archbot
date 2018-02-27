@@ -166,7 +166,7 @@ const Context = class {
 	
 	// associate data with key.
 	async storeKeyData( key, data ) {
-		await this._cache.store( key, data );
+		await this._cache.cache( key, data );
 	}
 
 }

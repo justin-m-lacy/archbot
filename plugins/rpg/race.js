@@ -27,13 +27,13 @@ class Race {
 
 		// mod stats added to base. recomputed on load
 		// to allow for changes.
-		if ( json.hasOwnProperty('statMods')){
-			o._statMods = json.statMods;
+		if ( json.hasOwnProperty('baseMods')){
+			o._baseMods = json.baseMods;
 		}
 
 		// absolute stats set once. gold, age, height, etc.
-		if ( json.hasOwnProperty('create')) {
-			o._createMods = json.create;
+		if ( json.hasOwnProperty('infoMods')) {
+			o._infoMods = json.infoMods;
 		}
 		return o;
 
@@ -42,11 +42,11 @@ class Race {
 	constructor() {
 	}
 
-	get createMods() { return this._createMods; }
+	get infoMods() { return this._infoMods; }
 	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
-	get statMods() { return this._statMods; }
+	get baseMods() { return this._baseMods; }
 
 }
 module.exports = Race;

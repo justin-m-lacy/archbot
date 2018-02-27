@@ -15,19 +15,19 @@ let CharClass = module.exports = class {
 		if ( json.hasOwnProperty('hitdice')) {
 			o._hitdice = json.hitdice;
 		}
-		if ( json.hasOwnProperty('statMods')){
-			o._statMods = json.statMods;
+		if ( json.hasOwnProperty('baseMods')){
+			o._baseMods = json.baseMods;
 		}
 
-		if ( json.hasOwnProperty('create')) {
-			o._createMods = json.create;
+		if ( json.hasOwnProperty('infoMods')) {
+			o._infoMods = json.infoMods;
 		}
 		return o;
 
 	}
 
-	
-	get createMods() { return this._createMods; }
+	get baseMods() { return this._baseMods; }
+	get infoMods() { return this._infoMods; }
 	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
