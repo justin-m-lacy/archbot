@@ -105,9 +105,11 @@ var RPG = exports.ContextClass = class {
 					msg.channel.send( 'Character ' + charname + ' already exists.' );
 					return;
 				}
-			} else charname = await uniqueName( racename, sex );
+			} else charname = await this.uniqueName( racename, sex );
 
-			let char = CharGen.genChar( msg.author.id, race, charClass, charname, null );
+			console.log( 'trying name: ' + charname );
+
+			let char = CharGen.genChar( msg.author.id, race, charclass, charname, null );
 			console.log( 'char rolled: ' + char.name );
 
 			this.echoChar( msg.channel, char );

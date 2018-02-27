@@ -1,15 +1,15 @@
 [
-{ "name":"wizard", "ver":1, "hitdice":6, "create":{ "gold":"2d4" } },
-{ "name":"sorcerer", "ver":1, "hitdice":6, "create":{ "gold":"3d4" }  },
-{ "name":"witch", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
-{ "name":"fighter", "ver":1, "hitdice":10, "create":{ "gold":"2d4" }  },
-{ "name":"ranger", "ver":1, "hitdice":8, "create":{ "gold":"2d4" }  },
-{ "name":"rogue", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
-{ "name":"druid", "ver":1, "hitdice":8, "create":{ "gold":"1d4" }  },
-{ "name":"paladin", "ver":1, "hitdice":8, "create":{ "gold":"2d4" }  },
-{ "name":"barbarian", "ver":1, "hitdice":12, "create":{ "gold":"1d4" }  },
-{ "name":"priest", "ver":1, "hitdice":6, "create":{ "gold":"1d4+1" }  },
-{ "name":"bard", "ver":1, "hitdice":6, "create":{ "gold":"2d4" }  },
-{ "name":"monk", "ver":1, "hitdice":8, "create":{ "gold":"1d4" }  }
+{ "name":"wizard", "ver":1, "hitdice":6, "infoMods":{ "gold":"2d4" } },
+{ "name":"sorcerer", "ver":1, "hitdice":6, "infoMods":{ "gold":"3d4" }  },
+{ "name":"witch", "ver":1, "hitdice":6, "infoMods":{ "gold":"2d4" }  },
+{ "name":"fighter", "ver":1, "hitdice":10, "infoMods":{ "gold":"2d4" }  },
+{ "name":"ranger", "ver":1, "hitdice":8, "infoMods":{ "gold":"2d4" }  },
+{ "name":"rogue", "ver":1, "hitdice":6, "infoMods":{ "gold":"2d4" }  },
+{ "name":"druid", "ver":1, "hitdice":8, "infoMods":{ "gold":"1d4" }  },
+{ "name":"paladin", "ver":1, "hitdice":8, "infoMods":{ "gold":"2d4" }  },
+{ "name":"barbarian", "ver":1, "hitdice":12, "infoMods":{ "gold":"1d4" }  },
+{ "name":"priest", "ver":1, "hitdice":6, "infoMods":{ "gold":"1d4+1" }  },
+{ "name":"bard", "ver":1, "hitdice":6, "infoMods":{ "gold":"2d4" }  },
+{ "name":"monk", "ver":1, "hitdice":8, "infoMods":{ "gold":"1d4" }  }
 
 ]
