@@ -3,7 +3,7 @@ const Char = exports.Char = require( './char.js');
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
 const CharGen = require( './chargen.js' );
-
+const Trade = require ( './trade.js' );
 var initialized = false;
 
 var races;
@@ -24,11 +24,50 @@ var RPG = exports.ContextClass = class {
 
 		this.loadedChars = {};
 
+		// active chars by user id.
+		this.activeChars = {};
+
 	}
 
 	async cmdListChars( msg, uname=null ) {
 	}
-	
+
+	async cmdGive( msg, destname, ...args ) {
+
+		if ( !initialized) initData();
+
+		let src = this.activeChars[ msg.author.id ];
+		if ( src == null ) {
+			msg.channel.send( 'No active character for: ' + msg.author.username );
+			return;
+		}
+
+		try {
+
+			let dest = await this.tryLoadChar( destname );
+			if ( dest == null ) {
+				msg.channel.send( '\'' + destname + '\' not found on server.' );
+			} else {
+
+				let err = Trade.transfer( src, dest, args );
+				if ( err === null ) {
+
+					msg.channel.send( 'Can\'t transfer from ' + src.name + ' to ' + dest.name + ' ' + err );
+
+				} else {
+
+					await this.trySaveChar( src, true );
+					await this.trySaveChar( dest, true  );
+					msg.channel.send( 'Transfer complete.');
+
+				}
+
+			}
+
+		} catch ( e ) { console.log(e); }
+
+	}
+
 	async cmdRmChar( msg, charname=null ) {
 
 		// must init to load char for owner check.
@@ -37,7 +76,7 @@ var RPG = exports.ContextClass = class {
 		if ( charname == null ) charname = msg.author.username;
 		try {
 
-			let char = await this.tryLoadChar( msg.author, charname );
+			let char = await this.tryLoadChar( charname );
 			if ( char == null ) {
 				msg.channel.send( charname + ' not found on server.');
 
@@ -59,6 +98,26 @@ var RPG = exports.ContextClass = class {
 	
 	}
 
+	async cmdViewChar( msg, charname=null ) {
+
+		if ( !initialized ) initData();
+
+		if ( charname == null ) charname = msg.author.username;
+	
+		try {
+	
+			let char = await this.tryLoadChar( charname );
+			if ( char == null ) {
+				msg.channel.send( charname + ' not found on server. D:' );
+				return;
+			}
+	
+			this.echoChar( msg.channel, char );
+	
+		} catch(e) {console.log(e);}
+
+	}
+
 	async cmdLoadChar( msg, charname=null ) {
 
 		if ( !initialized ) initData();
@@ -67,14 +126,22 @@ var RPG = exports.ContextClass = class {
 	
 		try {
 	
-			let char = await this.tryLoadChar( msg.author, charname );
+			let char = await this.tryLoadChar( charname );
 			if ( char == null ) {
 				msg.channel.send( charname + ' not found on server. D:' );
 				return;
+			} else if ( char.owner !== msg.author.id ) {
+
+
+				msg.channel.send( 'This is not your character.');
+			} else {
+				
+				this.setActiveChar( msg.author, char );
+				msg.channel.send( 'Active character set.');
 			}
 	
 			this.echoChar( msg.channel, char );
-	
+
 		} catch(e) {console.log(e);}
 	
 	}
@@ -105,15 +172,16 @@ var RPG = exports.ContextClass = class {
 					msg.channel.send( 'Character ' + charname + ' already exists.' );
 					return;
 				}
-			} else charname = await this.uniqueName( racename, sex );
+			} else charname = await this.uniqueName( race, sex );
 
 			console.log( 'trying name: ' + charname );
 
 			let char = CharGen.genChar( msg.author.id, race, charclass, charname, null );
 			console.log( 'char rolled: ' + char.name );
 
+			this.setActiveChar( msg.author, char );
 			this.echoChar( msg.channel, char );
-			await this.trySaveChar( msg.author, char );	// await for catch.
+			await this.trySaveChar( char, true );	// await for catch.
 
 		} catch ( e ){ console.log(e); }
 
@@ -137,30 +205,30 @@ var RPG = exports.ContextClass = class {
 	
 	}
 	
-	async trySaveChar( user, char ) {
+	setActiveChar( user, char ) {
+		this.activeChars[user.id] = char;
+	}
+
+	async trySaveChar( char, forceSave=false ) {
 
 		let key = this.getCharKey( char.name );
 
 		console.log( 'char save key: ' + key );
 		try {
-			await this._context.storeKeyData( key, char );
+			await this._context.storeKeyData( key, char, forceSave );
 		} catch (err) {
 			console.log(err);
 		}
 
 	}
 
-	async tryLoadChar( user, charname) {
+	async tryLoadChar( charname ) {
 
 		let key = this.getCharKey( charname );
 
 		try {
 
-
-			let data = this.loadedChars[key];
-			if ( data ) return data;
-
-			data = await this._context.fetchKeyData( key );
+			let data = await this._context.fetchKeyData( key );
 			if ( data instanceof Char ) {
 				console.log('already char.');
 				return data;
@@ -188,7 +256,7 @@ var RPG = exports.ContextClass = class {
 		var taken;
 		do {
 
-			name = namegen.genName( race, sex );
+			name = namegen.genName( race.name, sex );
 			taken = await this.charExists( name );
 
 		} while ( taken )
@@ -205,9 +273,14 @@ exports.init = function( bot ){
 
 	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]',
 		RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
+
 	bot.addContextCmd( 'loadchar', '!loadchar <charname>',
 		RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'viewchar', '!viewchar <charname>',
+		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
+
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2} );
 
 }
 

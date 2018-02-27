@@ -67,6 +67,10 @@ module.exports = class Actor {
 
 	}
 
+	addGold( amt ) {
+		this._info.gold += amt;
+	}
+
 	getModifier( stat ) {
 		if ( !this._curStats.hasOwnProperty(stat) ) return 0;
 		return Math.floor( ( this._curStats[stat] - 10)/2 );
