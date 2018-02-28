@@ -55,15 +55,15 @@ module.exports = class Actor {
 	get curMods() { return this._curMods; }
 	set curMods(v) { this._curMods = v; }
 
-	constructor( level=1 ) {
+	constructor( race ) {
 
 		this._baseStats = new StatBlock();
 		this._curStats = new StatBlock();
 		this._info = {};
 
-		this._curMods = [];
+		this._race = race;
 
-		this.level = level;
+		this._curMods = [];
 
 	}
 

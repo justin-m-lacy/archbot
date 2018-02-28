@@ -1,9 +1,11 @@
 const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats' ];
+const saveProps = [ 'name', 'exp', 'owner', 'info', "inv", 'baseStats' ];
 
+const Inv = require( './inventory.js');
 const Actor = require( './actor.js');
 const dice = require( './dice.js' );
+const Equip = require( '../equip.js');
 
 class Char extends Actor {
 
@@ -14,6 +16,12 @@ class Char extends Actor {
 
 	get exp() { return this._exp; }
 	set exp( v ) { this._exp = v; }
+
+	get inv() { return this._inv; }
+	set inv( v ) { this._inv = v; }
+
+	get equip() { return this._equip; }
+	set equip(v) { this._equip= v;}
 
 	toJSON() {
 	
@@ -37,7 +45,7 @@ class Char extends Actor {
 
 		if ( json == null ) return null;
 
-		let char = new Char();
+		let char = new Char( null, racesObj[ json.race ], classesObj[ json.charClass ] );
 
 		let p;
 		let priv;
@@ -51,19 +59,47 @@ class Char extends Actor {
 
 		}
 
-		char._race = racesObj[ json.race ];
-		char._charClass = classesObj[ json.charClass ];
-
 		char.setBaseStats( char._baseStats );
 
 		return char;
 
 	}
 
-	constructor( owner=null, level=1) {
-		super( level );
+	constructor( owner=null, race, charclass ) {
+
+		super( race );
+
+		this._charClass = charclass;
+
+		this._inv = new Inv();
+		this._equip = new Equip();
+
 		this._owner = owner;
 
+	}
+
+	equip( it ) {
+
+		let prev = this._equip.equip(it);
+
+		return prev;
+
+	}
+
+	unequip( it ) {
+
+		this._equip.remove(it);
+	}
+
+	addItem( it ) {
+
+		this._inv.add( it );
+
+	}
+
+	removeItem( it ) {
+
+		this._inv.remove(it);
 	}
 
 	/**
@@ -118,7 +154,7 @@ class Char extends Actor {
 		let str = '';
 		let len = statTypes.length;
 
-		if ( len == 0 ) return '';
+		if ( len === 0 ) return '';
 
 		let stat = statTypes[0];
 		str += stat + ': ' + this._curStats[stat];

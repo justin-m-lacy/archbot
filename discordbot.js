@@ -38,7 +38,7 @@ class DiscordBot {
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 
 		client.setInterval(
-			()=>{ this._cache.cleanup(60*1000*5); }, 60*1000*5 );
+			()=>{ this._cache.cleanup(60*1000*15); }, 60*1000*15 );
 		client.setInterval(
 			()=>{this._cache.backup(40*1000*5); }, 40*1000*5 );
 

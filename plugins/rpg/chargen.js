@@ -3,6 +3,7 @@ const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
 const Dice = require( './dice.js');
 const rpg = require( './rpg.js');
+const ItemGen = require( './items/itemgen.js' );
 
 // base generation rolls.
 var stat_rolls = {
@@ -23,22 +24,16 @@ var stat_rolls = {
 exports.boundStats = boundStats;
 exports.genChar = function( owner, race, charClass, name, sex ) {
 
-	try {
 	console.log( 'generating character...');
 
-	let char = new Char( owner );
+	let char = new Char( owner, race, charClass );
 
-	char.race = race;
-	char.charClass = charClass;
-
-	let info = {};
-	rollStats( stat_rolls.info, info );
+	let info = rollStats( stat_rolls.info, {} );
 	modStats( race.infoMods, info );
 	modStats( charClass.infoMods, info );
 	char.info = info;
 
-	let base = {};
-	rollStats( stat_rolls.base, base );
+	let base = rollStats( stat_rolls.base, {} );
 
 	console.log( 'hit: ' + race.HD + '  class: ' + charClass.HD );
 	base.hp = ( race.HD + charClass.HD )/2;
@@ -47,15 +42,9 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 
 	boundStats(char);
 
-	if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
-	if ( name == null ) {
-		const namegen = require( './namegen.js' );
-		char.name = namegen.genName( race.name, sex );
-	} else char.name = name;
+	initItems();
 
 	return char;
-
-	} catch (e) { console.log(e); }
 
 }
 
@@ -68,6 +57,7 @@ function modStats( statMods, destObj ) {
 
 		if ( typeof(statMods[stat]) === 'string' ) {
 			mod = Dice.parseRoll( statMods[stat]);
+
 		} else {
 			mod = statMods[stat];
 		}
@@ -160,6 +150,16 @@ function boundStats( char ) {
 
 		}
 
+	}
+
+}
+
+function initItems( char ) {
+
+	let count = Math.floor( 1+ 3*Math.random() );
+
+	for( count; count >= 0; count-- ) {
+		char.addItem( ItemGen.randItem() );
 	}
 
 }
