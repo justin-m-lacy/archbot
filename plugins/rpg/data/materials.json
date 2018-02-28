@@ -1,0 +1,13 @@
+[
+    { "name":"silk", "weight":0, "priceMod":5 },
+    { "name":"stone", "weight":3},
+    { "name":"leather", "weight":1, "priceMod":1 },
+    { "name":"wood", "adj":"wooden", "priceMod":1 },
+    { "name":"bronze", "weight":2, "priceMod":5 },
+    { "name":"iron", "weight":2, "priceMod":10 },
+    { "name":"steel", "weight":2, "priceMod":20 },
+    { "name":"mithril", "weight":1, "priceMod":100},
+    { "name":"ebonwood", "weight":1, "priceMod":100},
+    { "name":"adamant", "adj":"adamantine", "priceMod":1000 }
+
+]

@@ -32,15 +32,38 @@ var RPG = exports.ContextClass = class {
 	async cmdListChars( msg, uname=null ) {
 	}
 
+	cmdCraft( msg, itemName, desc ) {
+
+		if ( !initialized) initData();
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( itemName == null ) msg.channel.send( 'Crafted item must have name.');
+		else if ( desc == null ) msg.channl.send( 'Crafted item must have a description.' );
+		else {
+
+		} //
+
+	}
+
+	cmdInv( msg ) {
+
+		if ( !initialized) initData();
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		msg.channel.send( char.name + 'Inventory: ' + char.inv.getList() );
+
+	}
+
 	async cmdGive( msg, destname, ...args ) {
 
 		if ( !initialized) initData();
 
-		let src = this.activeChars[ msg.author.id ];
-		if ( src == null ) {
-			msg.channel.send( 'No active character for: ' + msg.author.username );
-			return;
-		}
+		let src = this.activeCharOrErr( msg.channel, msg.author );
+		if ( src == null ) return;
 
 		try {
 
@@ -203,6 +226,14 @@ var RPG = exports.ContextClass = class {
 	
 	}
 	
+	activeCharOrErr( chan, user ) {
+
+		let char = this.activeChars[user.id];
+		if ( char == null ) chan.send( 'No active character for: ' + user.username );
+		return char;
+
+	}
+
 	setActiveChar( user, char ) {
 		this.activeChars[user.id] = char;
 	}
@@ -276,8 +307,10 @@ exports.init = function( bot ){
 		RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'viewchar', '!viewchar <charname>',
 		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
-
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
+
+	bot.addContextCmd( 'inv', '!inv', RPG.prototype.cmdInv, RPG, {maxArgs:0});
+	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:3, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2} );
 
 }

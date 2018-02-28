@@ -1,0 +1,15 @@
+[
+    { "name":"leather gloves", "armor":2, "slot":"hands", "cost":2 },
+    { "name":"leather boots", "armor":2, "slot":"feet", "cost":2 },
+    { "name":"leather jerkin", "armor":4, "slot":"feet", "cost":10 },
+    { "name":"leather cap", "armor":1, "slot":"head", "cost":1 },
+    { "name":"leather helm", "armor":3, "slot":"head", "cost":3 },
+
+    { "name":"chainmail", "armor":8, "slot":"chest", "cost":20 },
+    
+    { "name":"conical helm", "armor":4, "slot":"head", "cost":4 },
+
+    { "name":"plate mail", "armor":12, "slot":"chest", "cost":30 },
+    { "name":"iron greaves", "armor":2, "slot":"shins", "cost":3 }
+
+]
