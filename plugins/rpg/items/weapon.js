@@ -1,22 +1,13 @@
 const Item = require( './item.js');
-const dice = require ( '../dice.js');
-
-//weap templates.
-var templates;
-var byName;
+const DamageSrc = require( '../damage.js').DamageSrc;
 
 module.exports = class Weapon extends Item {
-
-	static LoadTemplates() {
-
-		templates = require( '../data/weapons.json' );
-
-	}
 
 	toJSON() {
 
 		let json = super.toJSON();
 		json.material = this._material;
+		json.dmg = this.damage;
 
 		return json;
 
@@ -24,7 +15,38 @@ module.exports = class Weapon extends Item {
 
 	static FromJSON( json ) {
 
-		let w = new Weapon( null, json.material );
+		let w = new Weapon();
+
+		if ( json.dmg ) {
+			w.damage = DamageSrc.FromJSON( json.dmg );
+			delete json.dmg;
+		} else w.damage = new DamageSrc();
+
+		return Object.assign( w, json );
+
+	}
+
+	/**
+	 * Create a new weapon from a base weapon object.
+	 * @param {Object} tmp 
+	 * @param {Material} mat 
+	 */
+	static FromData( tmp, mat ) {
+
+		if ( tmp == null ) return null;
+
+		let name = mat.name + ' ' + tmp.name;
+		let w = new Weapon( name );
+
+		w.mat = mat.name;
+		w.cost = mat.priceMod ? tmp.cost*mat.priceMod : tmp.cost;
+
+		if ( tmp.hands ) w.hands = tmp.hands;
+
+		w.damage = DamageSrc.FromString( tmp.dmg );
+		w.damage.type = tmp.type;
+
+		if ( mat.bonus ) w.damage.bonus += mat.bonus;
 
 		return w;
 
@@ -34,39 +56,20 @@ module.exports = class Weapon extends Item {
 	get material() { return this._material; }
 
 
-	constructor( template, material ) {
+	constructor( name, desc ) {
 
-		super();
+		super( name, desc, 'weapon' );
 
-		if ( template != null ) {
+	}
 
-			if ( template.dmg != null ) {
-
-				this.damage = dice.Roller.FromString( template.dmg);
-				delete template.dmg;
-
-			} else this.damage = new dice.Roller();
-	
-
-			for( k in template ) {
-				this[k] = template[k];
-			}
-
-		}
-
-		this._material = material;
-
+	getDetails() {
+		return this._name + '\t base damage: ' + this.damage + '\t price: ' + this.cost + '\n' + super.getDetails();
 	}
 
 	/**
 	 * roll weapon damage.
 	*/
 	roll() { return this.damage.roll(); }
-}
 
-class WTemplate {
-
-	constructor() {
-	}
 
 }

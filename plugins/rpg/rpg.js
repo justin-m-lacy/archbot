@@ -35,6 +35,108 @@ var RPG = exports.ContextClass = class {
 
 	}
 
+	/**
+	 * Roll damage test with current weapon.
+	 * @param {*} msg 
+	 */
+	cmdRollDmg( msg ) {
+
+		if ( !initialized) initData();
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		msg.channel.send( 'Working on it.');
+
+	}
+
+		/**
+	 * Roll a new armor for testing.
+	 * @param {*} msg 
+	 */
+	cmdRollWeap( msg ) {
+
+		if ( !initialized) initData();
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		try {
+
+			let gen = require( './items/itemgen.js' );
+			let it = gen.genWeapon();
+
+			msg.channel.send( char.name + ' rolled a shiny new ' + it.name );
+			char.addItem(it);
+			this.trySaveChar( char, true );
+
+		} catch ( e) { msg.channel.send( 'Massive unknown error!!!'); console.log(e);}
+
+	}
+
+	/**
+	 * Roll a new armor for testing.
+	 * @param {Message} msg 
+	 */
+	cmdRollArmor( msg ) {
+
+		if ( !initialized) initData();
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		try {
+
+			let gen = require( './items/itemgen.js' );
+			let it = gen.genArmor();
+
+			msg.channel.send( char.name + ' rolled a shiny new ' + it.name );
+			char.addItem(it);
+			this.trySaveChar( char, true );
+
+		} catch ( e) { msg.channel.send( 'Massive unknown error!!!'); console.log(e);}
+
+	}
+
+	cmdUnequip( msg, slot ) {
+
+		if ( !initialized) initData();
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( slot == null ){
+			msg.channel.send( 'You must specify an equip slot to remove.');
+		} else {
+
+			if ( char.unequip(slot) ) {
+				msg.channel.send( 'Removed.')
+			} else{
+				msg.channel.send( 'Cannot unequip from ' + slot );
+			}
+
+		}
+
+	}
+
+	cmdEquip( msg, what ) {
+
+		if ( !initialized) initData();
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( what === null ) {
+
+			msg.channel.send('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+
+		} else {
+
+			if ( char.equip( what ) ) {
+				msg.channel.send( char.name + ' equips ' + what );
+			} else {
+				msg.channel.send( char.name + ' does not have ' + what );
+			}
+
+		}
+
+	}
+
 	cmdInscribe( msg, whichItem, inscrip ) {
 
 		if ( !initialized) initData();
@@ -69,11 +171,11 @@ var RPG = exports.ContextClass = class {
 		if ( whichItem == null ) msg.channel.send( 'Which inventory item do you want to obliterate?');
 		else {
 
-			let item = char.remove( whichItem );
+			let item = char.takeItem( whichItem );
 			if ( item == null ) msg.channel.send( 'Item ' + whichItem + ' not in inventory.');
 			else {
 
-				msg.channel.send( item.getDesc() + ' is gone forever.' );
+				msg.channel.send( item.name + ' is gone forever.' );
 
 			}
 
@@ -130,7 +232,7 @@ var RPG = exports.ContextClass = class {
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
-		msg.channel.send( char.name + '\nInventory:\n' + char.inv.getList() );
+		msg.channel.send( '```' + char.name + ' Inventory:\n' + char.inv.getList() + '```' );
 
 	}
 
@@ -244,20 +346,21 @@ var RPG = exports.ContextClass = class {
 		try {
 	
 			let char = await this.tryLoadChar( charname );
+			let prefix;
 			if ( char == null ) {
 				msg.channel.send( charname + ' not found on server. D:' );
 				return;
 			} else if ( char.owner !== msg.author.id ) {
 
 
-				msg.channel.send( 'This is not your character.');
+				prefix = 'This is not your character.\n';
 			} else {
 				
 				this.setActiveChar( msg.author, char );
-				msg.channel.send( 'Active character set.');
+				prefix = 'Active character set.\n';
 			}
 	
-			this.echoChar( msg.channel, char );
+			this.echoChar( msg.channel, char, prefix );
 
 		} catch(e) {console.log(e);}
 	
@@ -314,11 +417,11 @@ var RPG = exports.ContextClass = class {
 
 	}
 
-	echoChar( chan, char ) {
+	echoChar( chan, char, prefix = '' ) {
 	
 		let namestr = char.name + ' is a';
 		let desc = char.getLongDesc();
-		chan.send( namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc );
+		chan.send( prefix + '```' + namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc + '```' );
 	
 	}
 	
@@ -409,6 +512,11 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
 			RPG, {maxArgs:0} );
 
+	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
+			RPG.prototype.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
+				RPG.prototype.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
+
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
 	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
@@ -416,6 +524,10 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'inv', '!inv', RPG.prototype.cmdInv, RPG, {maxArgs:0});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
+
+	bot.addContextCmd( 'rolldmg', '!rolldmg', RPG.prototype.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollweap', '!rollweap', RPG.prototype.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollarmor', '!rollarmor', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:0});
 
 }
 

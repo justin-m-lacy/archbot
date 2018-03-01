@@ -34,6 +34,7 @@ class Char extends Actor {
 		}
 
 		json.inv = this._inv;
+		json.equip = this._equip;
 
 		json.race = this._race.name;
 		json.raceVer = this._race.ver;
@@ -63,6 +64,7 @@ class Char extends Actor {
 		}
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
+		if ( json.equip) char._equip = Equip.FromJSON( json.equip );
 
 		char.setBaseStats( char._baseStats );
 
@@ -83,15 +85,34 @@ class Char extends Actor {
 
 	}
 
-	equip( it ) {
+	listEquip() {
+		return this._equip.getList();
+	}
 
-		let prev = this._equip.equip(it);
+	unequip( slot ) {
 
-		return prev;
+		let item = this._equip.removeSlot( slot );
+		if ( item == null ) return false;
+		this._inv.add( item );
+
+		return true;
 
 	}
 
-	unequip( it ) {
+	equip( what ) {
+
+		let item = this._inv.remove( what );
+
+		if ( item == null ) return false;
+
+		let removed = this._equip.equip(item);
+		if ( removed != null ) this._inv.add(removed);
+
+		return true;
+
+	}
+
+	unequipItem( it ) {
 
 		let res = this._equip.remove(it);
 		// TODO. temp code. temp error feedback.
@@ -109,7 +130,7 @@ class Char extends Actor {
 		this._inv.add( it );
 	}
 
-	remove( which ) {
+	takeItem( which ) {
 		return this._inv.remove(which);
 	}
 

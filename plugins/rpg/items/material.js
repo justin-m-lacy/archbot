@@ -1,6 +1,9 @@
 var materials;
 var byName;
 
+// arrays of materials by type, e.g. cloth, metal, etc.
+//var byType;
+
 module.exports = class Material {
 
 	static Random() {

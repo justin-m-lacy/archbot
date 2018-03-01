@@ -9,8 +9,10 @@ const UNKNOWN = 'unknown';
 module.exports = class Item {
 
 	get name() { return this._name; }
+	set name(v) { this._name = v; }
+
 	get type() { return this._type; }
-	get subtype() { return this._subtype; }
+	set type(v) { this._type = v;}
 
 	get cost() { return this._cost; }
 	set cost(v) { this._cost = v;}
@@ -20,49 +22,6 @@ module.exports = class Item {
 
 	get inscription() { return this._inscript; }
 	set inscription(v) { this._inscript = v; }
-
-	static ItemMenu( a, start=1) {
-
-		let len = a.length;
-		if ( len == 0 ) return 'nothing';
-		else if ( len == 1 ) return (start) + ') ' + a[0].getDesc();
-
-		let res = (start++) + ') ' + a[0].getDesc();
-		for( let i = 1; i < len; i++ ) {
-			res += '\n' + (start++) + ') ' + a[i].getDesc();
-		}
-
-		return res;
-
-	}
-
-	/**
-	 * 
-	 * @param {Array[Item]} a 
-	 */
-	static ItemList( a ) {
-
-		let len = a.length;
-		if ( len == 0 ) return 'nothing';
-		else if ( len == 1 ) return a[0].getDesc();
-
-		let res = a[0].getDesc();
-		for( let i = 1; i < len; i++ ) {
-			res += ', ' + a[i].getDesc();
-		}
-
-		return res;
-
-	}
-
-	static FromJSON( json ) {
-		// check type.
-		let it = new Item( json.name, json.desc, json.type );
-		if ( json.inscript ) it._inscript = json.inscript;
-
-		return it;
-
-	}
 
 	toJSON() {
 
@@ -87,15 +46,45 @@ module.exports = class Item {
 
 	}
 
+	/**
+	 * @returns detailed string description of item.
+	*/
 	getDetails() { 
 		return this._inscript ? this._desc + ' { ' + this._inscript + ' }' : this._desc;
 	}
 
+	static ItemMenu( a, start=1) {
+
+		let len = a.length;
+		if ( len == 0 ) return 'nothing';
+		else if ( len == 1 ) return (start) + ') ' + a[0]._name;
+
+		let res = (start++) + ') ' + a[0]._name;
+		for( let i = 1; i < len; i++ ) {
+			res += '\n' + (start++) + ') ' + a[i]._name;
+		}
+
+		return res;
+
+	}
+
 	/**
-	 * String description of item.
-	*/
-	getDesc() {
-		return this.name;
+	 * 
+	 * @param {Array[Item]} a 
+	 */
+	static ItemList( a ) {
+
+		let len = a.length;
+		if ( len == 0 ) return 'nothing';
+		else if ( len == 1 ) return a[0]._name;
+
+		let res = a[0]._name;
+		for( let i = 1; i < len; i++ ) {
+			res += ', ' + a[i]._name;
+		}
+
+		return res;
+
 	}
 
 }

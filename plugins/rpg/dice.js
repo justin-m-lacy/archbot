@@ -3,17 +3,19 @@ exports.Roller = class Roller {
 
 	static FromString( str ) {
 
+		let num, sides, bonus;
+
 		if ( str == null ) return new Roller();
 
 		let ind = str.indexOf( '+' );
 		if ( ind >= 0 ) {
 
-			let bonus = parseInt( str.slice(ind+1) );
-			if ( !isNaN(bonus)) bonus = 0;
+			bonus = parseInt( str.slice(ind+1) );
+			if ( Number.isNaN(bonus)) bonus = 0;
 			str = str.slice(0, ind);
 		}
 
-		let num, sides;
+
 		ind = str.indexOf( 'd' );
 		if ( ind < 0 ) {
 
@@ -23,37 +25,37 @@ exports.Roller = class Roller {
 		} else {
 
 			num = parseInt( str.slice(0,ind) );
-			if ( isNaN(num)) num = 1;
+			if ( Number.isNaN(num)) num = 1;
 			sides = parseInt( str.slice( ind+1 ) );
 
 		}
 
-		if ( isNaN(sides)) sides = 6;
+		if ( Number.isNaN(sides)) sides = 6;
 		return new Roller( num, sides, bonus );
 
 	}
 
 	static FromJSON( json ) {
-		return new Roller( json.count, json.sides, json.bonus );
-	}
-
-	toJSON() {
-		return { sides:this._sides, count:this._count, bonus:this._bonus };
+		return Object.assign( new Roller(), json );
 	}
 
 	constructor( count=1, sides=6, bonus=0 ) {
 
-		this._sides = sides;
-		this._count = count;
-		this._bonus = bonus;
+		this.sides = sides;
+		this.count = count;
+		this.bonus = bonus;
 
+	}
+
+	toString() {
+		return this.bonus ? this.count + 'd' + this.sides + '+' + this.bonus : this.count + 'd' + this.sides;
 	}
 
 	roll() {
 
 		let total = 0;
-		let s = this._sides;
-		for( let i = this._count; i > 0; i-- ) {
+		let s = this.sides;
+		for( let i = this.count; i > 0; i-- ) {
 			total += Math.floor( s*Math.random() + 1 );
 		}
 		return total;
@@ -74,7 +76,7 @@ exports.parseRoll = function( str ) {
 	if ( ind >= 0 ) {
 
 		let bonus = parseInt( str.slice(ind+1) );
-		if ( !isNaN(bonus)) total = bonus;
+		if ( !Number.isNaN(bonus)) total = bonus;
 		str = str.slice(0, ind);
 	}
 
@@ -88,12 +90,12 @@ exports.parseRoll = function( str ) {
 	} else {
 
 		num = parseInt( str.slice(0,ind) );
-		if ( isNaN(num)) num = 1;
+		if ( Number.isNaN(num)) num = 1;
 		sides = parseInt( str.slice( ind+1 ) );
 
 	}
 
-	if ( isNaN(sides)) sides = 6;
+	if ( Number.isNaN(sides)) sides = 6;
 
 	while ( num-- > 0 ) {
 		total += Math.floor( sides*Math.random() ) + 1;
