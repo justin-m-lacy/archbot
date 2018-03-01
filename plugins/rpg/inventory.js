@@ -1,6 +1,5 @@
 const Item = require( './items/item.js');
-const Weapon = require( './items/weapon.js');
-const Armor = require( './items/armor.js' );
+const ItemGen = require( './items/itemgen.js');
 
 module.exports = class Inventory {
 
@@ -17,7 +16,8 @@ module.exports = class Inventory {
 
 		for( let i = 0; i < len; i++ ) {
 
-			items.push( Item.FromJSON( arr[i] ) );
+			var it = ItemGen.fromJSON( arr[i]);
+			if ( it != null ) items.push( ItemGen.fromJSON( it ) );
 
 		}
 
@@ -45,13 +45,18 @@ module.exports = class Inventory {
 		if ( len === 0 ) return "Nothing in inventory.";
 
 		for( let i = 0; i < len; i++ ) {
-			list += (i+1) + ') ' + this._items[i].getDesc() + '\n';
+			list += (i+1) + ') ' + this._items[i].name + '\n';
 		}
 
 		return list;
 
 	}
 
+	/**
+	 * Retrieves an item by name or index.
+	 * @param {<string>|<number>} whichItem
+	 * @returns Item found, or null on failure.
+	 */
 	get( whichItem ) {
 
 		let num = parseInt( whichItem );
@@ -72,7 +77,7 @@ module.exports = class Inventory {
 
 	/**
 	 * Attempts to remove an item by name or index.
-	 * @param {number|string} which
+	 * @param {number|string|Item} which
 	 * @returns The item removed, or null if none found. 
 	 */
 	remove( which ) {
@@ -80,11 +85,8 @@ module.exports = class Inventory {
 		if ( which instanceof Item ) {
 
 			let ind = this._items.indexOf( it );
-			if ( ind >= 0 ) {
-				this._items.splice( ind, 1 );
-				return true;
-			}
-			return false;
+			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
+			return null;
 
 		}
 
@@ -120,7 +122,9 @@ module.exports = class Inventory {
 	 * @param {Item} it 
 	 */
 	add( it ) {
-		this._items.push(it);
+
+		if ( it instanceof Array ) this._items = this._items.concat( it );
+		else this._items.push(it);
 	}
 
 }

@@ -8,9 +8,27 @@ module.exports = class Armor extends Item {
 	get slot() { return this._slot; }
 	set slot(v) { this._slot = v; }
 
-	FromJSON( json) {
+	//name only
+	get material() { return this._material; }
+	set material(m) { this._material = m; }
 
-		return new Armor();
+	static FromData( base, material ) {
+
+		let name = material.name + ' ' + base.name;
+		let armor = new Armor( name );
+
+		armor.material = material.name;
+		armor.cost = material.priceMod ? base.cost*material.priceMod : base.cost;
+
+		armor.armor = material.bonus ? base.armor + material.bonus : base.armor;
+		armor.slot = base.slot;		
+
+		return armor;
+	}
+
+	static FromJSON( json) {
+
+		return Object.assign( new Armor(), json );
 
 	}
 
@@ -20,16 +38,22 @@ module.exports = class Armor extends Item {
 
 		json.armor = this._armor;
 		json.slot = this._slot;
+		json.material = this._material;
 
 		return json;
 
 	}
 
-	constructor() {
+	constructor( name, desc ) {
 
-		super();
+		super( name, desc, 'armor' );
 		this._armor = 0;
 
 	}
+
+	getDetails() {
+		return this._name + '\t armor: ' + this.armor + '\t price: ' + this.cost + '\n' + super.getDetails();
+	}
+
 
 }
