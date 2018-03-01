@@ -3,6 +3,8 @@ var initialized = false;
 // includes after init.
 var util, Char, Race, CharClass, CharGen, Item, Trade;
 
+const RPG_DIR = 'rpg';
+
 var races, raceByName;
 var classes, classByName;
 
@@ -21,7 +23,16 @@ var RPG = exports.ContextClass = class {
 
 	}
 
-	async cmdListChars( msg, uname=null ) {
+	async cmdAllChars( msg, uname=null ) {
+
+		try {
+			let list = await this._context.getDataList(RPG_DIR );
+			if ( list == null ) msg.channel.send( 'An unknown error has occurred. Oopsie.');
+			else {
+				msg.channel.send( list.join(', ') );
+			}
+		} catch(e) { console.log(e);}
+
 	}
 
 	cmdInscribe( msg, whichItem, inscrip ) {
@@ -48,6 +59,28 @@ var RPG = exports.ContextClass = class {
 
 	}
 
+	cmdDestroy( msg, whichItem ) {
+
+		if ( !initialized) initData();
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( whichItem == null ) msg.channel.send( 'Which inventory item do you want to obliterate?');
+		else {
+
+			let item = char.remove( whichItem );
+			if ( item == null ) msg.channel.send( 'Item ' + whichItem + ' not in inventory.');
+			else {
+
+				msg.channel.send( item.getDesc() + ' is gone forever.' );
+
+			}
+
+		} //
+
+	}
+
 	cmdInspect( msg, whichItem ) {
 
 		if ( !initialized) initData();
@@ -55,7 +88,7 @@ var RPG = exports.ContextClass = class {
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.channel.send( 'Which item in inventory do you want to inspect?');
+		if ( whichItem == null ) msg.channel.send( 'Which inventory item do you want to inspect?');
 		else {
 
 			let item = char.getItem( whichItem );
@@ -146,11 +179,21 @@ var RPG = exports.ContextClass = class {
 		if ( charname == null ) charname = msg.author.username;
 		try {
 
-			let char = await this.tryLoadChar( charname );
-			if ( char == null ) {
-				msg.channel.send( charname + ' not found on server.');
+			let char;
 
-			} else if ( char.owner == null || char.owner == msg.author.id ) {
+			if ( charname == null ) {
+				char = this.activeCharOrErr( msg.channel, msg.author );
+				if ( char == null) return;
+			} else {
+
+				char = await this.tryLoadChar( charname );
+				if ( char == null ) {
+					msg.channel.send( charname + ' not found on server.');
+					return;
+				} 
+			}
+
+			if ( char.owner == null || char.owner == msg.author.id ) {
 
 				// delete
 				let key = this.getCharKey( charname );
@@ -171,16 +214,22 @@ var RPG = exports.ContextClass = class {
 	async cmdViewChar( msg, charname=null ) {
 
 		if ( !initialized ) initData();
-
-		if ( charname == null ) charname = msg.author.username;
 	
 		try {
 	
-			let char = await this.tryLoadChar( charname );
-			if ( char == null ) {
-				msg.channel.send( charname + ' not found on server. D:' );
+			let char;
 
-			} else this.echoChar( msg.channel, char );
+			if ( charname == null ) {
+				char = this.activeCharOrErr( msg.channel, msg.author );
+				if ( char == null) return;
+			} else {
+				char = await this.tryLoadChar( charname );
+				if ( char == null ) {
+					msg.channel.send( charname + ' not found on server. D:' );
+					return;
+				}
+			}
+			this.echoChar( msg.channel, char );
 	
 		} catch(e) {console.log(e);}
 
@@ -302,27 +351,28 @@ var RPG = exports.ContextClass = class {
 
 		let key = this.getCharKey( charname );
 
-		try {
-
-			let data = await this._context.fetchKeyData( key );
-			if ( data instanceof Char ) {
-				console.log('Char Found: ' + data.name );
-				return data;
-			}
-
-			console.log('parsing JSON char: ' + charname );
-			let char = Char.FromJSON( data, raceByName, classByName );
-			return char;
-
-		} catch ( err ){
-			console.log(err );
+		let data = this._context.getKeyData(key);
+		if ( data == null ) {
+			data = await this._context.fetchKeyData( key );
+			if ( data == null ) return null;
 		}
-		return null;
+
+		if ( data instanceof Char ) {
+			console.log('Char Found: ' + data.name );
+			return data;
+		}
+
+		console.log('parsing JSON char: ' + charname );
+		let char = Char.FromJSON( data, raceByName, classByName );
+		//restore char so Char is returned next, not json.
+		this._context.storeKeyData( key, char );
+
+		return char;
 
 	}
 
 	getCharKey( charname ) {
-		return this._context.getDataKey( 'rpg', charname );
+		return this._context.getDataKey( RPG_DIR, charname );
 	}
 
 	async uniqueName( race, sex ) {
@@ -356,10 +406,15 @@ exports.init = function( bot ){
 		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
 
+	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
+			RPG, {maxArgs:0} );
+
+	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
+					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
 	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
-	bot.addContextCmd( 'inscribe', '!inscribe {<item_number|item_name>} <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2});
+	bot.addContextCmd( 'inscribe', '!inscribe {<item_number|item_name>} <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 	bot.addContextCmd( 'inv', '!inv', RPG.prototype.cmdInv, RPG, {maxArgs:0});
-	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:3, group:"right"} );
+	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 
 }

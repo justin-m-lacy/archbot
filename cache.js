@@ -59,10 +59,11 @@ exports.Cache = class {
 	}
 
 	/**
-	 * 
+	 * Asynchronous operation. Attempts to find value in local cache,
+	 * then tries to load from backing store if not found.
 	 * @param {string} key 
 	 */
-	async get( key ) {
+	async fetch( key ) {
 
 		if ( this._dict.hasOwnProperty(key)){
 			//console.log( 'cached found: ' + key );
@@ -114,6 +115,20 @@ exports.Cache = class {
 	}
 
 	/**
+	 * Attempts to retrieve a value from the cache
+	 * without checking backing store.
+	 * @param {*} key 
+	 */
+	get( key ) {
+		let it = this._dict[key];
+		if ( it ) {
+			it.lastAccess = Date.now();
+			return it.data;
+		}
+		return null;
+	}
+
+	/**
 	 * Cache a value without saving to backing store.
 	 * Useful when doing interval backups.
 	 * @param {string} key 
@@ -134,9 +149,11 @@ exports.Cache = class {
 	async delete( key ) {
 
 		delete this._dict[key];
-		try{
-			if ( this.deleter != null ) await this.deleter( this._cacheKey + key );
-		} catch(e) {console.log(e);}
+		if ( this.deleter != null ) {
+			try {
+				 await this.deleter( this._cacheKey + key );
+			} catch(e) {console.log(e);}
+		}
 	
 	}
 

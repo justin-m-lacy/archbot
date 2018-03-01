@@ -229,7 +229,7 @@ class DiscordBot {
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
 
-		let data = await this._cache.get(key);
+		let data = await this._cache.fetch(key);
 		//if ( data ) data.key = key;
 		return data;
 
@@ -262,7 +262,7 @@ class DiscordBot {
 		} else {
 			objPath = fsys.getUserDir( uObject );
 		}
-		let data = await this._cache.get( objPath );
+		let data = await this._cache.fetch( objPath );
 		// save key for recaching.
 		if ( data ) data.key = objPath;
 		return data;

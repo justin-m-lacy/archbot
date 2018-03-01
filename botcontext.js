@@ -66,7 +66,17 @@ const Context = class {
 	 * @param {string} path 
 	 */
 	async getDataList( path ) {
-		return await afs.readdir( this._cache.cacheKey + path );
+
+		let files = await afs.readfiles( fsys.BASE_DIR + this._cache.cacheKey + path );
+		for( let i = files.length-1; i >= 0; i-- ) {
+
+			var f = files[i].replace( /.[^/.]+$/, '' );
+			files[i] = f;
+
+		}
+
+		return files;
+
 	}
 
 	/**
@@ -155,12 +165,27 @@ const Context = class {
 		await this._cache.delete(key);
 	}
 
+	/**
+	 * Caches data without writing to disk.
+	 * @param {string} key 
+	 * @param {*} data 
+	 */
+	cacheKeyData( key, data ) {
+		this._cache.cache(key, data );
+	}
+
+	/**
+	 * Attempts to retrieve data from cache without
+	 * checking backing store.
+	 * @param {*} key 
+	 */
+	getKeyData( key ) {
+		return this._cache.get(key);
+	}
+
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
-
-		return await this._cache.get(key);
-		//if ( data ) data.key = key;
-	
+		return await this._cache.fetch(key);
 	}
 	
 	// associate data with key.
