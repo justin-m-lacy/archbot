@@ -1,27 +1,25 @@
 
-exports.transfer = function transfer( src, dest, args ) {
+var isGold = /^(\d+)\s*g(?:old)?$/i;
 
-	let len = args.length;
-	if ( len === 1 ) {
+exports.transfer = function transfer( src, dest, what ) {
 
-		let arg = args[0];
-		let ind = arg.indexOf( 'g');
-		if ( ind == arg.length-1 ) {
+	let res = isGold.exec( what );
+	if ( res !== null ) {
 
-			// give t xg
-			let g = parseInt( arg.slice(0, ind) );
-			if ( !isNaN(g)) return xferGold( src, dest, g );
+		console.log( 'attempging gold transfer: ' + res[1] );
+		return xferGold( src, dest, res[1] );
 
+	} else {
+
+		console.log( 'attempting item transfer: ' + what );
+		let it = src.remove(what);
+		if ( it != null ) {
+			dest.addItem(it);
+			return true;
 		}
-
-	} else if ( len == 2 ) {
-
-		if ( args[1] === 'gold') {
-			return xferGold( src, dest, args[0] );
-		}
-
 	}
-	return "Not sure what you want to transfer.";
+
+	return "No item called \'" + what + "\' found.";
 
 }
 
@@ -30,7 +28,7 @@ function xferGold( src, dest, count ) {
 	if ( typeof(count) === 'string') {
 		count = parseInt( count );
 	}
-	if ( isNaN(count)) return 'Amount not a number.';
+	if ( Number.isNaN(count)) return 'Amount not a number.';
 
 	let gold = src.gold;
 

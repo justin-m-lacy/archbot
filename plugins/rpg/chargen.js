@@ -26,7 +26,8 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 
 	console.log( 'generating character...');
 
-	let char = new Char( owner, race, charClass );
+	let char = new Char( race, charClass, owner );
+	char.name = name;
 
 	let info = rollStats( stat_rolls.info, {} );
 	modStats( race.infoMods, info );
@@ -42,7 +43,7 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 
 	boundStats(char);
 
-	initItems();
+	initItems( char );
 
 	return char;
 

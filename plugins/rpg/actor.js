@@ -14,6 +14,9 @@ module.exports = class Actor {
 	get level() { return this._curStats._level; }
 	set level( n ) { this._curStats._level = n; }
 
+	get baseLevel() { return this._baseStats._level; }
+	set baseLevel( v ) {  this._baseStats._level = v; }
+
 	get gold() { return this._info.gold; }
 	set gold( g ) { this._info.gold = g; }
 
@@ -222,6 +225,7 @@ class StatBlock {
 	}
 
 	constructor() {
+		this._level = 1;
 	}
 
 }
