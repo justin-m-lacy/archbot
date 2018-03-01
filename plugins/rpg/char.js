@@ -113,10 +113,6 @@ class Char extends Actor {
 		return this._inv.remove(which);
 	}
 
-	removeItem( it ) {
-		this._inv.removeItem(it);
-	}
-
 	/**
 	 * reroll hp.
 	*/

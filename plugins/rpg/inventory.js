@@ -70,13 +70,30 @@ module.exports = class Inventory {
 
 	}
 
+	/**
+	 * Attempts to remove an item by name or index.
+	 * @param {number|string} which
+	 * @returns The item removed, or null if none found. 
+	 */
 	remove( which ) {
+
+		if ( which instanceof Item ) {
+
+			let ind = this._items.indexOf( it );
+			if ( ind >= 0 ) {
+				this._items.splice( ind, 1 );
+				return true;
+			}
+			return false;
+
+		}
 
 		let num = parseInt( which );
 		if ( Number.isNaN(num) ) {
 
+			which = which.toLowerCase();
 			for( let i = this._items.length-1; i>= 0; i-- ) {
-				if ( this._items[i].name === name ) return this._items.splice( i, 1 )[0];
+				if ( this._items[i].name.toLowerCase() === name ) return this._items.splice( i, 1 )[0];
 			}
 	
 		} else {
@@ -91,8 +108,9 @@ module.exports = class Inventory {
 
 	findItem( name ) {
 
+		name = name.toLowerCase();
 		for( let i = this._items.length-1; i>= 0; i-- ) {
-			if ( this._items[i].name === name ) return this._items[i];
+			if ( this._items[i].name.toLowerCase() === name ) return this._items[i];
 		}
 		return null;
 	}
@@ -103,21 +121,6 @@ module.exports = class Inventory {
 	 */
 	add( it ) {
 		this._items.push(it);
-	}
-
-	/**
-	 * 
-	 * @param {Item} it 
-	 */
-	removeItem( it ) {
-
-		let ind = this._items.indexOf( it );
-		if ( ind >= 0 ) {
-			this._items.splice( ind, 1 );
-			return true;
-		}
-		return false;
-
 	}
 
 }

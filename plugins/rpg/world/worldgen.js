@@ -16,7 +16,7 @@ module.exports = class {
 
 		let key = getKey(x,y);
 
-		let loc = await this._fcache.get( key );
+		let loc = await this._fcache.fetch( key );
 		if ( loc == null ) {
 			loc = genLoc( x, y );
 			this._fcache.store( key, loc );

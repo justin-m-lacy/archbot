@@ -6,6 +6,7 @@ const GUILDS_DIR = 'guilds/';
 const CHANNELS_DIR = 'channels/'
 const USERS_DIR = 'users/';
 
+exports.BASE_DIR = BASE_DIR;
 exports.readData = readData;
 exports.writeData = writeData;
 exports.deleteData = deleteData;
