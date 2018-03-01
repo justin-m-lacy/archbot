@@ -1,18 +1,10 @@
-const util = require('../../jsutils.js');
-const Char = exports.Char = require( './char.js');
-const Race = exports.Race = require( './race.js');
-const CharClass = exports.CharClass = require( './charclass.js' );
-const CharGen = require( './chargen.js' );
-const Trade = require ( './trade.js' );
 var initialized = false;
 
-var races;
-var raceByName;
+// includes after init.
+var util, Char, Race, CharClass, CharGen, Item, Trade;
 
-var classes;
-var classByName;
-
-var bot;
+var races, raceByName;
+var classes, classByName;
 
 // created for each discord context.
 var RPG = exports.ContextClass = class {
@@ -32,6 +24,52 @@ var RPG = exports.ContextClass = class {
 	async cmdListChars( msg, uname=null ) {
 	}
 
+	cmdInscribe( msg, whichItem, inscrip ) {
+
+		if ( !initialized) initData();
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( whichItem == null ) msg.channel.send( 'Which item in inventory do you want to inspect?');
+		else {
+
+			let item = char.getItem( whichItem );
+			if ( item == null ) msg.channel.send( 'Item not found.');
+			else {
+
+				item.inscription = inscrip;
+				msg.channel.send( 'Item inscribed.');
+				this.trySaveChar( char );
+
+			}
+
+		} //
+
+	}
+
+	cmdInspect( msg, whichItem ) {
+
+		if ( !initialized) initData();
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( whichItem == null ) msg.channel.send( 'Which item in inventory do you want to inspect?');
+		else {
+
+			let item = char.getItem( whichItem );
+			if ( item == null ) msg.channel.send( 'Item not found.');
+			else {
+
+				msg.channel.send( item.getDetails() );
+
+			}
+
+		} //
+
+	}
+
 	cmdCraft( msg, itemName, desc ) {
 
 		if ( !initialized) initData();
@@ -42,6 +80,11 @@ var RPG = exports.ContextClass = class {
 		if ( itemName == null ) msg.channel.send( 'Crafted item must have name.');
 		else if ( desc == null ) msg.channl.send( 'Crafted item must have a description.' );
 		else {
+
+			let item = new Item( itemName, desc );
+			char.addItem( item );
+
+			this.trySaveChar( char );
 
 		} //
 
@@ -54,11 +97,11 @@ var RPG = exports.ContextClass = class {
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
-		msg.channel.send( char.name + 'Inventory: ' + char.inv.getList() );
+		msg.channel.send( char.name + '\nInventory:\n' + char.inv.getList() );
 
 	}
 
-	async cmdGive( msg, destname, ...args ) {
+	async cmdGive( msg, destname, expr ) {
 
 		if ( !initialized) initData();
 
@@ -72,10 +115,14 @@ var RPG = exports.ContextClass = class {
 				msg.channel.send( '\'' + destname + '\' not found on server.' );
 			} else {
 
-				let err = Trade.transfer( src, dest, args );
+				let err = Trade.transfer( src, dest, expr );
 				if ( err === null ) {
 
 					msg.channel.send( 'Can\'t transfer from ' + src.name + ' to ' + dest.name + ' ' + err );
+
+				} else if ( typeof(err) === 'string ' ) {
+			
+					msg.channel.send( err );
 
 				} else {
 
@@ -309,9 +356,11 @@ exports.init = function( bot ){
 		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
 
+	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'inscribe', '!inscribe {<item_number|item_name>} <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2});
 	bot.addContextCmd( 'inv', '!inv', RPG.prototype.cmdInv, RPG, {maxArgs:0});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:3, group:"right"} );
-	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2} );
+	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 
 }
 
@@ -322,6 +371,14 @@ function isVowel( lt ) {
 function initData() {
 
 	initialized = true;
+
+	util = require('../../jsutils.js');
+	Char = exports.Char = require( './char.js');
+	Race = exports.Race = require( './race.js');
+	CharClass = exports.CharClass = require( './charclass.js' );	
+	CharGen = require( './chargen.js' );
+	Item = require( './items/item.js' );
+	Trade = require ( './trade.js' );
 
 	initRaces();
 	initClasses();

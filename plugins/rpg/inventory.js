@@ -1,19 +1,18 @@
 const Item = require( './items/item.js');
 const Weapon = require( './items/weapon.js');
-const Armor = require( './items/armor.json' );
+const Armor = require( './items/armor.js' );
 
 module.exports = class Inventory {
 
 	get items() { return this._items; }
 	set items(v) { this._items = v;}
 
-	FromJSON( json ) {
-
-		let inv = new Inventory();
+	static FromJSON( json ) {
 
 		let arr = json.items;
 		let len = arr.length;
 
+		let inv = new Inventory();
 		let items = inv.items;
 
 		for( let i = 0; i < len; i++ ) {
@@ -46,11 +45,56 @@ module.exports = class Inventory {
 		if ( len === 0 ) return "Nothing in inventory.";
 
 		for( let i = 0; i < len; i++ ) {
-			list += i + ') ' + this._items[i].getDesc() + '\n';
+			list += (i+1) + ') ' + this._items[i].getDesc() + '\n';
 		}
 
 		return list;
 
+	}
+
+	get( whichItem ) {
+
+		let num = parseInt( whichItem );
+		if ( Number.isNaN(num) ) {
+
+			let it = this.findItem( whichItem );
+			if ( it != null ) return it;
+	
+		} else {
+
+			num--;
+			if ( num >= 0 && num < this._items.length ) return this._items[num];
+
+		}
+		return null;
+
+	}
+
+	remove( which ) {
+
+		let num = parseInt( which );
+		if ( Number.isNaN(num) ) {
+
+			for( let i = this._items.length-1; i>= 0; i-- ) {
+				if ( this._items[i].name === name ) return this._items.splice( i, 1 )[0];
+			}
+	
+		} else {
+
+			num--
+			if ( num >= 0 && num < this._items.length ) return this._items.splice( num, 1 )[0];
+
+		}
+		return null;
+
+	}
+
+	findItem( name ) {
+
+		for( let i = this._items.length-1; i>= 0; i-- ) {
+			if ( this._items[i].name === name ) return this._items[i];
+		}
+		return null;
 	}
 
 	/**
@@ -65,7 +109,7 @@ module.exports = class Inventory {
 	 * 
 	 * @param {Item} it 
 	 */
-	remove( it ) {
+	removeItem( it ) {
 
 		let ind = this._items.indexOf( it );
 		if ( ind >= 0 ) {

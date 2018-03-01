@@ -18,6 +18,9 @@ module.exports = class Item {
 	get desc() { return this._desc; }
 	set desc( v) { this._desc = v; }
 
+	get inscription() { return this._inscript; }
+	set inscription(v) { this._inscript = v; }
+
 	static ItemMenu( a, start=1) {
 
 		let len = a.length;
@@ -52,20 +55,31 @@ module.exports = class Item {
 
 	}
 
-	FromJSON( json ) {
+	static FromJSON( json ) {
 		// check type.
-		return new Item();
+		let it = new Item( json.name, json.desc, json.type );
+		if ( json.inscript ) it._inscript = json.inscript;
+
+		return it;
+
 	}
 
 	toJSON() {
-		return {
+
+		let json = {
 			name:this._name,
+			desc:this._desc,
 			type:this._type,
 			cost:this._cost
 		}
+
+		if ( this._inscript ) json.inscrip = this._inscript;
+
+		return json;
+
 	}
 
-	constructor( name, type, desc ) {
+	constructor( name, desc, type ) {
 
 		this._name = name;
 		this._type = type || UNKNOWN;
@@ -74,7 +88,7 @@ module.exports = class Item {
 	}
 
 	getDetails() { 
-		return this._desc;
+		return this._inscript ? this._desc + ' { ' + this._inscript + ' }' : this._desc;
 	}
 
 	/**

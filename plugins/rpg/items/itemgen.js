@@ -14,8 +14,8 @@ var baseArmors;
 function init() {
 
 	Material.LoadMaterials();
-	baseWeapons = require( './data/weapons.json');
-	baseArmors = require( './data/armors.json');
+	baseWeapons = require( '../data/weapons.json');
+	baseArmors = require( '../data/armors.json');
 
 }
 
@@ -37,7 +37,7 @@ function genArmor() {
 
 }
 
-function getItem() {
+function genItem() {
 }
 
 function randItem() {
@@ -46,7 +46,7 @@ function randItem() {
 
 	let it = items[ Math.floor( items.length*Math.random() )];
 
-	let item = new Item( it.name, null, it.desc );
+	let item = new Item( it.name, it.desc );
 
 	return item;
 
