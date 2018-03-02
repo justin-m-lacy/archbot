@@ -76,6 +76,28 @@ module.exports = class Equip {
 
 	}
 
+	get( slot ) {
+
+		if ( !this.slots.hasOwnProperty(slot)) return slot + ' is not a valid equipment slot.';
+		return this.slots[slot];
+
+	}
+
+	getWeapons() {
+
+		let right = this.slots.right;
+		let left = this.slots.left;
+
+		if ( right === null ) return left.type === 'weapon' ? left : null;
+		if ( left === null ) return right.type === 'weapon' ? right : null;
+
+		if ( right.type !== 'weapon') return left.type === 'weapon' ? left : null;
+		if ( left.type !== 'weapon') return right.type === 'weapon' ? right : null;
+
+		return [left,right];
+
+	}
+
 	remove( it ) {
 
 		if ( it.type === 'weapon') return this.removeWeap(it);
@@ -88,7 +110,7 @@ module.exports = class Equip {
 
 	removeSlot( slot ) {
 
-		if( !this.slots.hasOwnProperty(slot)) return null;
+		if( slot == null || !this.slots.hasOwnProperty(slot)) return null;
 
 		let it = this.slots[slot];
 		this.slots[slot] = null;
@@ -174,7 +196,7 @@ module.exports = class Equip {
 		if ( it.type === 'weapon' ) return this.equipWeap(it);
 
 		let slot = it.slot;
-		if( !this.slots.hasOwnProperty(slot)) return "No such slot.";
+		if( slot == null || !this.slots.hasOwnProperty(slot)) return it.name + ' cannot be equipped.';
 
 		let cur = this.slots[slot];
 		if ( cur instanceof Array ) {

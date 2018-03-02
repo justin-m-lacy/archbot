@@ -1,0 +1,1 @@
+exports.blockText = (s)=> '```' + s + '```';

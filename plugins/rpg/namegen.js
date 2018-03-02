@@ -11,9 +11,9 @@ var nameParts = {
 	'dwarf':{
 
 		'm':{
-			roots:[ 'bom', 'dor', 'dur', 'dwa', 'fi', 'gim', 'glo', 'ki', 'nor', 'od', 'ori', 'tho', 'thra' ],
-			parts:[ 'boro', 'bur', 'fith', 'r', 'rin', 'th', 'thur' ],
-			ends:[ 'bur', 'in', 'li', 'lin', 'ly', 'mir', 'ne', 'thor', 'urn' ]
+			roots:[ 'bom', 'dor', 'dur', 'dwa', 'fi', 'gim', 'glo', 'ki', 'nor', 'od', 'ori', 'tho', 'thra', 'torb' ],
+			parts:[ 'boro', 'bur', 'fith', 'or', 'r', 'rin', 'th', 'thur' ],
+			ends:[ 'bur', 'eor','eorn', 'in', 'li', 'lin', 'ly', 'mir', 'ne','svard', 'svarg', 'thor', 'urn' ]
 		},
 		'f':{
 			roots:[ 'bre', 'brum', 'dop', 'elg', 'folg', 'frey', 'gil', 'gin', 'gold', 'helg', 'lus', 'nan',
@@ -206,3 +206,5 @@ function buildName( roots, parts, ends ) {
 	return name;
 
 }
+
+

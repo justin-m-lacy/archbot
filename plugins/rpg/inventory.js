@@ -84,7 +84,7 @@ module.exports = class Inventory {
 
 		if ( which instanceof Item ) {
 
-			let ind = this._items.indexOf( it );
+			let ind = this._items.indexOf( which );
 			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
 			return null;
 
@@ -95,7 +95,9 @@ module.exports = class Inventory {
 
 			which = which.toLowerCase();
 			for( let i = this._items.length-1; i>= 0; i-- ) {
-				if ( this._items[i].name.toLowerCase() === name ) return this._items.splice( i, 1 )[0];
+				var item = this._items[i];
+				if ( item == null ) continue;
+				if ( item.name.toLowerCase() === name ) return this._items.splice( i, 1 )[0];
 			}
 	
 		} else {

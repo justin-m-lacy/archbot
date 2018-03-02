@@ -1,9 +1,15 @@
 const Dice = require( './dice.js');
+const Loc = require( './world/loc.js');
 
-module.exports = class Actor {
+exports.Actor = class Actor {
 
-	get hp() { return this._curStats._hp; }
-	set hp( v) { this._curStats._hp = v; }
+	get hp() { return this._curStats._curHp; }
+	set hp( v) { this._curStats._curHp = v; }
+
+	get curHp() { return this._curStats._curHp; }
+
+	get maxHp() { return this._curStats._maxHp; }
+	set maxHp(v ) { this._curStats.maxHp = v; }
 
 	get name() { return this._name;}
 	set name( v ) { this._name = v; }
@@ -58,6 +64,9 @@ module.exports = class Actor {
 	get curMods() { return this._curMods; }
 	set curMods(v) { this._curMods = v; }
 
+	get loc() { return this._loc; }
+	set loc(v) { this._loc = v; }
+
 	constructor( race ) {
 
 		this._baseStats = new StatBlock();
@@ -65,6 +74,8 @@ module.exports = class Actor {
 		this._info = {};
 
 		this._race = race;
+
+		this._loc = new Loc.Coord( 0,0);
 
 		this._curMods = [];
 
@@ -85,7 +96,7 @@ module.exports = class Actor {
 	computeHp() {
 
 		let level = this._curStats.level;
-		let hp = this._baseStats.hp + level*this.getModifier('con');
+		let hp = this._baseStats.maxHp + level*this.getModifier('con');
 
 		// temp levels.
 		for( let i = level - this._baseStats.level; i > 0; i-- ) {
@@ -118,13 +129,13 @@ module.exports = class Actor {
 	rollBaseHp() {
 
 		let hd = this._race.hitdice;
-		let hp = Math.floor( (hd)/2 );
+		let maxHp = Math.floor( (hd)/2 );
 
 		for( let i = this._baseStats.level-1; i > 0; i-- ) {
-			hp += Dice.roll( 1, hd );
+			maxHp += Dice.roll( 1, hd );
 		}
 
-		this._baseStats.hp = hp;
+		this._baseStats.maxHp = maxHp;
 
 	}
 
@@ -167,11 +178,21 @@ module.exports = class Actor {
 
 } //cls
 
-const saveProps = [ 'name', 'level', 'info', 'baseStats' ];
+
 class StatBlock {
 
-	get hp() { return this._hp; }
-	set hp( v) { this._hp = v; }
+	set hp(v) {
+		this._maxHp = this._curHp = v;
+	}
+
+	get maxHp() { return this._maxHp; }
+	set maxHp( v) {
+		this._maxHp = v;
+		if ( this._curHp > v ) this._curHp = v;
+	}
+
+	get curHp() { return this._curHp; }
+	set curHp( v) { this._curHp = v; }
 
 	get level() { return this._level; }
 	set level( n ) { this._level = n; }
@@ -189,10 +210,6 @@ class StatBlock {
 	get cha() { return this._cha; }
 	set cha(v) { this._cha = v; }
 
-	/**
-	 * Isn't this just object.assign()?
-	 * @param {Object} json 
-	 */
 	static FromJSON( json ) {
 
 		let stats = new StatBlock();
@@ -203,6 +220,10 @@ class StatBlock {
 			if ( stats.hasOwnProperty(k)) stats[k] = json[k];
 		}
 
+		// LEGACY
+		if ( json.hp ) stats._maxHp = json.hp;
+		if ( !json.curHp ) stats._curHp = stats._maxHp;
+
 		return stats;
 
 	}
@@ -210,7 +231,9 @@ class StatBlock {
 	toJSON() {
 	
 		return {
-			hp:this._hp,
+
+			maxHp:this._maxHp,
+			curHp:this._curHp,
 			level:this._level,
 
 			str:this._str,
@@ -229,3 +252,4 @@ class StatBlock {
 	}
 
 }
+exports.StatBlock = StatBlock;

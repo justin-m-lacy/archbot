@@ -1,0 +1,28 @@
+
+{
+    "plains":{
+        "labels":["Plains", "Wastes", "Meadow", "Grasslands", "Fields", "Valley", "Prairie",
+            "Pastures", "Gardens", "Lowlands", "Steppes"]
+    },
+
+    "hills":{
+        "labels":["Ravine", "Hills", "Stomping Grounds", "Wilds", "Highlands", "Mound", "Uplands", "Ridge", "Plateau",
+        "Hillock", "Knoll", "Knob", "Foothills", "Hummock"]
+    },
+
+    
+    "mountains":{
+        "labels":["Heights", "Cliffs", "Mountains", "Peak", "Slopes", "Bluffs", "Dome", "Vista", "Range", "Pass"]
+    },
+    
+    "swamp":{
+        "labels":["Swamp", "Bog", "Fen", "Moor", "Marsh", "Quagmire"]
+    },
+
+    "adjectives":["High", "Low", "Hidden", "Arid", "Mystic", "Dismal", "Black", "White", "Red", "Blue",
+        "Green", "Murky", "Sheltered", "Wild", "Enchanted","Giant","Humble",
+   "Nebulous", "Sacred", "Forbidden", "Homely", "Endless", "Baffling", "Wonderful",
+	"Level", "Terrible", "Grand", "Great", "Feared", "Mournful", "Whistling", "Stormy",
+    "Lost", "Deep", "Undying", "Immortal", "Dead", "Whispering", "Furtive" ]
+    
+}

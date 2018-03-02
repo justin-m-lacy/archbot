@@ -1,7 +1,7 @@
 var initialized = false;
 
 // includes after init.
-var util, Char, Race, CharClass, CharGen, Item, Trade;
+var util, Char, Race, CharClass, CharGen, Item, Trade, World;
 
 const RPG_DIR = 'rpg';
 
@@ -45,7 +45,7 @@ var RPG = exports.ContextClass = class {
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
-		msg.channel.send( 'Working on it.');
+		msg.channel.send( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
 
 	}
 
@@ -127,13 +127,41 @@ var RPG = exports.ContextClass = class {
 
 		} else {
 
-			if ( char.equip( what ) ) {
+			let res = char.equip(what);
+			if ( res === true ){
 				msg.channel.send( char.name + ' equips ' + what );
+			} else if ( typeof(res) === 'string') {
+				msg.channel.send( res );
 			} else {
 				msg.channel.send( char.name + ' does not have ' + what );
 			}
 
 		}
+
+	}
+
+	cmdWorn( msg, slot ) {
+
+		if ( !initialized) initData(); 
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( slot == null ) msg.channel.send('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+		else {
+
+			let item = char.getEquip( slot );
+			if ( item == null ) {
+
+				msg.channel.send( 'Nothing equipped in ' + slot + ' slot.');
+			} else if ( typeof(item) === 'string' ) {
+				msg.channel.send( item );
+
+			} else {
+				msg.channel.send( item.getDetails() );
+			}
+
+		} //
 
 	}
 
@@ -185,7 +213,7 @@ var RPG = exports.ContextClass = class {
 
 	cmdInspect( msg, whichItem ) {
 
-		if ( !initialized) initData();
+		if ( !initialized) initData(); 
 
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
@@ -516,6 +544,7 @@ exports.init = function( bot ){
 			RPG.prototype.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
 	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
 				RPG.prototype.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', RPG.prototype.cmdWorn, RPG, {maxArgs:1});
 
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
@@ -546,6 +575,7 @@ function initData() {
 	CharGen = require( './chargen.js' );
 	Item = require( './items/item.js' );
 	Trade = require ( './trade.js' );
+	World = require( './world/world.js');
 
 	initRaces();
 	initClasses();
