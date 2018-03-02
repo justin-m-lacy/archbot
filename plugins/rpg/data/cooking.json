@@ -1,0 +1,9 @@
+{
+    "adjectives":["crispy", "fried", "stewed", "boiled", "roasted", "toasted", "baked", "seasoned", "spiced", "salted", "glazed",
+          "scrambled", "steamed", "cream of", "scalloped", "minced", "deviled", "chopped", "grilled", "honeyed", "pickled" ],
+    "response":["Yum", "Not bad", "Yech", "Creamy", "Just like mom used to make", "I can't believe it's not delivery", "You've had better",
+            "Delicious", "You think you feel sick", "Is there any more?", "Slimey, but satisfying", "Nutritious", "Needs butter", "Needs salt",
+            "So good it MUST be fattening", "Yummy in your tummy", "Burp", "Mmmmm", "Om nom nom" ],
+    "foods":[],
+    "drinks":[]
+}

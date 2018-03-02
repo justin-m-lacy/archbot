@@ -1,7 +1,7 @@
 const Item = require( './item.js');
 const DamageSrc = require( '../damage.js').DamageSrc;
 
-module.exports = class Weapon extends Item {
+module.exports = class Weapon extends Item.Item {
 
 	toJSON() {
 
@@ -55,6 +55,8 @@ module.exports = class Weapon extends Item {
 	set material(m) { this._material = m;}
 	get material() { return this._material; }
 
+	get bonus() { return this.damage.bonus; }
+	set bonus( v ) { if ( v < 0 )v = 0; this.damage.bonus = v;}
 
 	constructor( name, desc ) {
 

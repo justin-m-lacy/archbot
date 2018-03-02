@@ -1,9 +1,9 @@
 const Item = require( './item.js');
 
-module.exports = class Armor extends Item {
+module.exports = class Armor extends Item.Item {
 
 	get armor() {return this._armor; }
-	set armor(v) { this._armor = v; }
+	set armor(v) { if ( v < 0 ) v = 0; this._armor = v; }
 
 	get slot() { return this._slot; }
 	set slot(v) { this._slot = v; }

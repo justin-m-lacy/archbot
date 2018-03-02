@@ -194,6 +194,26 @@ var RPG = exports.ContextClass = class {
 
 	}
 
+	cmdEat( msg, what ) {
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		let resp =  char.eat( what );
+		msg.channel.send( resp );
+
+	}
+
+	cmdCook( msg, what ) {
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		let resp = char.cook( what );
+		msg.channel.send( resp );
+
+	}
+
 	cmdInscribe( msg, whichItem, inscrip ) {
 
 		let char = this.activeCharOrErr( msg.channel, msg.author )
@@ -265,7 +285,7 @@ var RPG = exports.ContextClass = class {
 		else if ( desc == null ) msg.channl.send( 'Crafted item must have a description.' );
 		else {
 
-			let item = new Item( itemName, desc );
+			let item = new Item.Item( itemName, desc );
 			char.addItem( item );
 
 			this.trySaveChar( char );
@@ -564,7 +584,9 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 
+	// FOOD
 	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', RPG.prototype.cmdEat, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', RPG.prototype.cmdCook, RPG, {minArgs:1, maxArgs:1} );
 
 	//
 	bot.addContextCmd( 'rolldmg', '!rolldmg', RPG.prototype.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
