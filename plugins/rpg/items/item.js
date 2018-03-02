@@ -1,10 +1,12 @@
-const WEAPON = 'weapon';
-const ARMOR = 'armor';
-const POTION = 'potion';
-const SCROLL = 'scroll';
-const UNIQUE = 'unique';
-const SPECIAL = 'special';
-const UNKNOWN = 'unknown';
+exports.WEAPON = "weapon";
+exports.ARMOR = "armor";
+exports.POTION = "potion";
+exports.FOOD = 'food';
+exports.DRINK = 'drink';
+exports.SCROLL = 'scroll';
+exports.UNIQUE = 'unique';
+
+exports.UNKNOWN = UNKNOWN;
 
 module.exports = class Item {
 
@@ -42,7 +44,7 @@ module.exports = class Item {
 
 		this._name = name;
 		this._type = type || UNKNOWN;
-		this._desc = desc || "Nothing special.";
+		this._desc = desc || '';
 
 	}
 

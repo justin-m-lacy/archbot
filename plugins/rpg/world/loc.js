@@ -77,6 +77,14 @@ exports.Loc = class {
 	}
 
 	/**
+	 * 
+	 * @param {string} dir 
+	 */
+	getExit( dir ) {
+		return this._exits[dir];
+	}
+
+	/**
 	 * Returns everything seen when 'look'
 	 * is used at this location.
 	*/

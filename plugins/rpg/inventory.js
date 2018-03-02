@@ -129,4 +129,7 @@ module.exports = class Inventory {
 		else this._items.push(it);
 	}
 
+	cook( it ) {
+	}
+
 }
