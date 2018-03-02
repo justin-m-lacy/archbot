@@ -5,6 +5,7 @@ const Inv = require( './inventory.js');
 const Actor = require( './actor.js');
 const dice = require( './dice.js' );
 const Equip = require( './equip.js');
+const Item = require( './items/item.js');
 
 class Char extends Actor.Actor {
 
@@ -105,6 +106,39 @@ class Char extends Actor.Actor {
 
 	}
 
+	eat( what ) {
+
+		let item = this._inv.get( what );
+		if ( item == null ) return 'Item not found.';
+
+		if ( item.type != Item.FOOD ) return item.name + ' isn\'t food!';
+
+		this._inv.remove( item );
+
+		let cook = require( './data/cooking.json');
+		let resp = cook.response[ Math.floor( cook.response.length*Math.random() )];
+
+		return 'You eat the ' + item.name + '. ' + resp + '.';
+
+	}
+
+	cook( what ) {
+
+		let item = this._inv.get( what );
+		if ( item == null ) return 'Item not found.';
+
+		if ( item.type == Item.FOOD) return item.name + ' is already food.';
+
+		let oldname = item.name;
+		this._inv.cook(item);
+		return oldname + ' has been cooked.';
+
+	}
+
+	/**
+	 * 
+	 * @param {number|string|Item} what
+	 */
 	equip( what ) {
 
 		let item = this._inv.get( what );

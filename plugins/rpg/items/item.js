@@ -6,9 +6,9 @@ exports.DRINK = 'drink';
 exports.SCROLL = 'scroll';
 exports.UNIQUE = 'unique';
 
-exports.UNKNOWN = UNKNOWN;
+var UNKNOWN = exports.UNKNOWN = "unknown";
 
-module.exports = class Item {
+exports.Item = class Item {
 
 	get name() { return this._name; }
 	set name(v) { this._name = v; }

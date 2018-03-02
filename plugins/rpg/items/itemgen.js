@@ -35,7 +35,7 @@ function fromJSON( json ) {
 
 		default:
 		// check type.
-		let it = new Item( json.name, json.desc, json.type );
+		let it = new Item.Item( json.name, json.desc, json.type );
 		if ( json.inscript ) it._inscript = json.inscript;
 		return it;
 
@@ -82,7 +82,7 @@ function randItem() {
 
 	let it = items[ Math.floor( items.length*Math.random() )];
 
-	let item = new Item( it.name, it.desc );
+	let item = new Item.Item( it.name, it.desc );
 
 	return item;
 

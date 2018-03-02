@@ -59,6 +59,7 @@ exports.DamageSrc = class DamageSrc {
 		for( let i = this.count; i > 0; i-- ) {
 			total += Math.floor( s*Math.random() + 1 );
 		}
+		if ( total < 0) total = 0;
 		return total;
 
 	}

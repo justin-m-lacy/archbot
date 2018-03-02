@@ -59,6 +59,8 @@ module.exports = class Inventory {
 	 */
 	get( whichItem ) {
 
+		if ( whichItem == null) return null;
+
 		let num = parseInt( whichItem );
 		if ( Number.isNaN(num) ) {
 
@@ -82,7 +84,8 @@ module.exports = class Inventory {
 	 */
 	remove( which ) {
 
-		if ( which instanceof Item ) {
+		if ( which == null ) return null;
+		if ( which instanceof Item.Item ) {
 
 			let ind = this._items.indexOf( which );
 			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
@@ -130,6 +133,21 @@ module.exports = class Inventory {
 	}
 
 	cook( it ) {
+
+		let cooking = require( './data/cooking.json' );
+		let adjs = cooking.adjectives;
+
+		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
+
+		if ( it.type == Item.ARMOR ) {
+			it.armor -= 10;
+		} else if ( it.type == Item.WEAPON ) {
+			it.bonus -= 10;
+		}
+		it.type = Item.FOOD;
+
+		it.name = adj + ' ' + it.name;
+
 	}
 
 }
