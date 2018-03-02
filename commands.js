@@ -51,13 +51,27 @@ exports.Dispatch = class CmdDispatch {
 	} //
 
 	dispatch( cmd, leadArgs ) {
-		cmd.func.apply( null, leadArgs.concat( this.cmdLine.args ) );
+
+		if ( cmd.args ) cmd.func.apply( null, leadArgs.concat( this.cmdLine.args, cmd.args ) );
+		else cmd.func.apply( null, leadArgs.concat( this.cmdLine.args ) );
+
 	}
 
 	routeCmd( context, cmd, leadArgs ) {
+		if ( cmd.args ) return context.routeCommand( cmd, leadArgs.concat( this.cmdLine.args, cmd.args ) );
 		return context.routeCommand( cmd, leadArgs.concat( this.cmdLine.args ) );
 	}
 
+	/**
+	 * 
+	 * @param {string} name - Name of command.
+	 * @param {string} usage - Command Usage details.
+	 * @param {function} func - Function to call.
+	 * @param {Class} cmdClass - Class which owns the function.
+	 * @param {Object} opts - Command options.
+	 * @param {number} [opts.minArgs] @param {number} [opts.maxArgs] @param {bool}[opts.hidden] @param {string}[opts.group]
+	 * @param {*[]} [opts.args] - Arguments to pass after all other arguments to command.
+	 */
 	addContextCmd( name, usage, func, cmdClass, opts=null ) {
 
 		let cmd = new Command( name, usage, func, cmdClass );

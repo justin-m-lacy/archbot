@@ -8,7 +8,14 @@ module.exports = class {
 	constructor() {
 	}
 
-	genLoc( x, y, from ) {
+	/**
+	 * Generates a map location.
+	 * @param {*} x - x-coordinate of location.
+	 * @param {*} y - y-coordinate of location.
+	 * @param {Loc} from - Location arriving from.
+	 * @param {Array of Loc} adj - Adjacent locations.
+	 */
+	genLoc( x, y, from, adj ) {
 
 		let biomeName = randBiome( from.biome || Loc.PLAINS );
 

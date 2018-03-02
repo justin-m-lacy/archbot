@@ -8,18 +8,42 @@ const RPG_DIR = 'rpg';
 var races, raceByName;
 var classes, classByName;
 
+function initData() {
+
+	initialized = true;
+
+	util = require('../../jsutils.js');
+	Char = exports.Char = require( './char.js');
+	Race = exports.Race = require( './race.js');
+	CharClass = exports.CharClass = require( './charclass.js' );	
+	CharGen = require( './chargen.js' );
+	Item = require( './items/item.js' );
+	Trade = require ( './trade.js' );
+	World = require( './world/world.js');
+
+	initRaces();
+	initClasses();
+
+}
+
 // created for each discord context.
 var RPG = exports.ContextClass = class {
 
+	/**
+	 * 
+	 * @param {botcontext.Context} context 
+	 */
 	constructor( context ) {
 
 		this._context = context;
 		console.log( "Creating RPG instance.");
 
-		this.loadedChars = {};
+		if ( !initialized) initData();
 
 		// active chars by user id.
 		this.activeChars = {};
+
+		this.world = new World( this._context.cache );
 
 	}
 
@@ -35,13 +59,24 @@ var RPG = exports.ContextClass = class {
 
 	}
 
+	cmdMove( msg, dir ) {
+
+		let char = this.activeCharOrErr( msg.channel, msg.author )
+		if ( char == null ) return;
+
+		if ( dir == null ) {
+			msg.channel.send( 'Must specify movement direction for ' + char.name + '.' );
+		} else {
+		}
+
+	}
+
 	/**
 	 * Roll damage test with current weapon.
 	 * @param {*} msg 
 	 */
 	cmdRollDmg( msg ) {
 
-		if ( !initialized) initData();
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -55,7 +90,6 @@ var RPG = exports.ContextClass = class {
 	 */
 	cmdRollWeap( msg ) {
 
-		if ( !initialized) initData();
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -78,7 +112,6 @@ var RPG = exports.ContextClass = class {
 	 */
 	cmdRollArmor( msg ) {
 
-		if ( !initialized) initData();
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -97,7 +130,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdUnequip( msg, slot ) {
 
-		if ( !initialized) initData();
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -117,7 +149,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdEquip( msg, what ) {
 
-		if ( !initialized) initData();
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -142,8 +173,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdWorn( msg, slot ) {
 
-		if ( !initialized) initData(); 
-
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -167,8 +196,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdInscribe( msg, whichItem, inscrip ) {
 
-		if ( !initialized) initData();
-
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -191,8 +218,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdDestroy( msg, whichItem ) {
 
-		if ( !initialized) initData();
-
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -212,8 +237,6 @@ var RPG = exports.ContextClass = class {
 	}
 
 	cmdInspect( msg, whichItem ) {
-
-		if ( !initialized) initData(); 
 
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
@@ -235,8 +258,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdCraft( msg, itemName, desc ) {
 
-		if ( !initialized) initData();
-
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -255,8 +276,6 @@ var RPG = exports.ContextClass = class {
 
 	cmdInv( msg ) {
 
-		if ( !initialized) initData();
-
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
@@ -265,8 +284,6 @@ var RPG = exports.ContextClass = class {
 	}
 
 	async cmdGive( msg, destname, expr ) {
-
-		if ( !initialized) initData();
 
 		let src = this.activeCharOrErr( msg.channel, msg.author );
 		if ( src == null ) return;
@@ -303,9 +320,6 @@ var RPG = exports.ContextClass = class {
 
 	async cmdRmChar( msg, charname=null ) {
 
-		// must init to load char for owner check.
-		if ( !initialized ) initData();
-
 		if ( charname == null ) charname = msg.author.username;
 		try {
 
@@ -327,7 +341,6 @@ var RPG = exports.ContextClass = class {
 
 				// delete
 				let key = this.getCharKey( charname );
-				delete this.loadedChars[ key ];
 				this._context.deleteKeyData( key );
 				msg.channel.send( charname + ' deleted.' );
 
@@ -343,8 +356,6 @@ var RPG = exports.ContextClass = class {
 
 	async cmdViewChar( msg, charname=null ) {
 
-		if ( !initialized ) initData();
-	
 		try {
 	
 			let char;
@@ -366,8 +377,6 @@ var RPG = exports.ContextClass = class {
 	}
 
 	async cmdLoadChar( msg, charname=null ) {
-
-		if ( !initialized ) initData();
 
 		if ( charname == null ) charname = msg.author.username;
 	
@@ -395,8 +404,6 @@ var RPG = exports.ContextClass = class {
 	}
 	
 	async cmdRollChar( msg, charname=null, racename=null, classname=null ) {
-	
-		if ( !initialized ) initData();
 
 		try {
 			
@@ -528,6 +535,7 @@ exports.init = function( bot ){
 
 	console.log( 'rpg INIT' );
 
+	// CHAR MANAGEMENT
 	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]',
 		RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
 
@@ -540,12 +548,14 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
 			RPG, {maxArgs:0} );
 
+	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
 			RPG.prototype.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
 	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
 				RPG.prototype.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', RPG.prototype.cmdWorn, RPG, {maxArgs:1});
 
+	// ITEMS
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
 	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
@@ -554,9 +564,19 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 
+	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', RPG.prototype.cmdEat, RPG, {minArgs:1, maxArgs:1});
+
+	//
 	bot.addContextCmd( 'rolldmg', '!rolldmg', RPG.prototype.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollweap', '!rollweap', RPG.prototype.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollarmor', '!rollarmor', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:0});
+
+	// MOVEMENT
+	bot.addContextCmd( 'move', '!move <direction>', RPG.prototype.cmdMove, RPG, {maxArgs:1});
+	bot.addContextCmd( 'north', '!north', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['north'] } );
+	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );
+	bot.addContextCmd( 'east', '!east', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['east'] } );
+	bot.addContextCmd( 'west', '!west', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['west'] } );
 
 }
 
@@ -564,27 +584,7 @@ function isVowel( lt ) {
 	return lt === 'a' || lt === 'e' || lt === 'i' || lt === 'o' || lt === 'u';
 }
 
-function initData() {
-
-	initialized = true;
-
-	util = require('../../jsutils.js');
-	Char = exports.Char = require( './char.js');
-	Race = exports.Race = require( './race.js');
-	CharClass = exports.CharClass = require( './charclass.js' );	
-	CharGen = require( './chargen.js' );
-	Item = require( './items/item.js' );
-	Trade = require ( './trade.js' );
-	World = require( './world/world.js');
-
-	initRaces();
-	initClasses();
-
-}
-
 function initRaces() {
-
-	if ( races != null ) return;
 
 	try {
 
@@ -621,8 +621,6 @@ function getClass( classname ) {
 }
 
 function initClasses() {
-
-	if ( classes != null ) return;
 
 	try {
 
