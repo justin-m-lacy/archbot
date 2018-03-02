@@ -1,0 +1,71 @@
+{
+    
+    "town":{
+
+        "trans":{"town":200, "plains":75, "forest":40, "hills":20,"mountains":10, "swamp":5 },
+
+        "descs":["Another crummy street in another crummy town.",
+        "One of the classier areas of town.",
+        "A lonesome cobbled street.",
+        "A narrow town alleyway.",
+        "A broad town avenue."]
+
+    },
+
+    "plains":{
+
+        "trans":{ "town":20, "plains":200, "forest":55, "hills":20,"mountains":5, "swamp":10 },
+
+        "descs":["Grassy plains as far as the eye can see.",
+        "More grasslands. They pretty much all look the same.",
+        "A quiet, grassy knoll.",
+        "The wide meadows remind you of cows.",
+        "Wind sweeps across the waving plains."]
+
+    },
+
+    "forest":{
+
+        "trans":{ "town":10, "plains":25, "forest":200, "hills":30,"mountains":10, "swamp":15 },
+        "descs":["The forest here is deep and dark.",
+        "Here the sky breaks through the canopy of trees.",
+        "Trees, trees, and more trees.",
+        "A large tree stands in a small forest clearing.",
+        "So many trees, so little treasure."]
+
+    },
+
+    "hills":{
+
+        "trans":{ "town":5, "plains":25, "forest":50, "hills":100,"mountains":50, "swamp":2 },
+        "descs":["The lumpy hills remind you of dumplings.",
+        "Nothing here but hills.",
+        "A rolling landscape fades into the distance.",
+        "Up and down, up and down, that's what it's like to walk over these hills.",
+        "At least it's not the mountains."]
+
+    },
+
+    "mountains":{
+
+        "trans":{ "town":5, "plains":2, "forest":20, "hills":75,"mountains":100, "swamp":1 },
+        "descs":["The mountain paths here are high but the roads are wide.",
+        "Don't look down from here.",
+        "The paths here are steep and dangerous.",
+        "The mountains are freezing cold.",
+        "Look at that view!"]
+
+    },
+
+    "swamps":{
+
+        "trans":{ "town":5, "plains":50, "forest":75, "hills":10,"mountains":5, "swamp":150 },
+        "descs":["A fetid swamp. Hopefully no alligators around here.",
+        "The stench of the swamp is icky.",
+        "The ground is so wet here, it's hard to keep your feet dry.",
+        "Wading through the swamp makes you feel dirty.",
+        "The ground is firmer here."]
+
+    }
+
+}

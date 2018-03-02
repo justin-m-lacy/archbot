@@ -1,57 +1,82 @@
 const Loc = require( './loc.js');
 
+const biomes = require( '../data/world/biomes.json');
+
+
 module.exports = class {
 
-	constructor( filecache ) {
-
-		this._fcache = filecache;
-
+	constructor() {
 	}
 
-	getKey( x,y ) {
-		return 'rpg/locs/' + x + ',' + y;
-	}
+	genLoc( x, y, from ) {
 
-	async getLoc( x, y ) {
+		let biomeName = randBiome( from.biome || Loc.PLAINS );
 
-		let key = getKey(x,y);
+		let tmpl = biomes[biomeName];
 
-		let loc = await this._fcache.fetch( key );
-		if ( loc == null ) {
-			loc = genLoc( x, y );
-			this._fcache.store( key, loc );
-		}
-		return loc;
+		let loc = new Loc.Loc( new Loc.Coord(x,y), biomeName );
 
-	}
-
-	genLoc( x, y ) {
-	}
-
-	makeTown() {
-
-		let loc = new Loc.Loc( coord, '');
-
-		let descs = ['Ah! The peaceful ambiance of town life.',
-					'Never a dull moment here.',
-					'A lonesome town street.'];
-
+		let descs = tmpl.descs;
 		loc.desc = descs[ Math.floor(Math.random()*descs.length)];
 
 		return loc;
 
 	}
 
-	makeHills() {
+	genExits( blocked ) {
+
+		let exits = [];
+		if ( !blocked.west && Math.random() < 0.5 ) {
+			exits.push( new Loc.Exit('west') );
+		}
+		if ( !blocked.east && Math.random() < 0.5 ) {
+			exits.push( new Loc.Exit('east') );
+		}
+		if ( !blocked.north && Math.random() < 0.5 ) {
+			exits.push( new Loc.Exit('north') );
+		}
+		if ( !blocked.south && Math.random() < 0.5 ) {
+			exits.push( new Loc.Exit('south') );
+		}
+
 	}
 
-	makeForest() {
+}
+
+function randBiome( srcBiome ) {
+	
+	let biome = biomes[ from.biome ];
+	if ( biome == null ) {
+		console.log( 'error: unknown biome: ' + srcBiome );
+		return Loc.TOWN;
 	}
 
-	makeSwamp() {
+	let trans = biome.trans;
+	let w = Math.random()*getTransMax( trans );
+
+	let tot = 0;
+	for( k in trans ) {
+
+		tot += trans[k];
+		if ( w <= tot ) {
+			return k;
+		}
 	}
 
-	makePlains() {
+}
+
+/**
+* Returns and caches total weights in transitions object.
+* @param {*} trans 
+*/
+function getTransMax( trans ) {
+
+	if ( trans.max ) return trans.max;
+	let max = 0;
+	for( k in trans ) {
+		max += trans[k];
 	}
+	trans.max = max;
+	return max;
 
 }

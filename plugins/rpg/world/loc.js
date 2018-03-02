@@ -11,16 +11,39 @@ var in_prefix = { [FOREST]:' in a ', [TOWN]:' in a ', [SWAMP]:' in a ', [PLAINS]
 
 exports.Biomes = [ FOREST, TOWN, SWAMP, PLAINS, HILLS, MOUNTAIN, UNDER ];
 
-const Item = require( './item.js');
+exports.FOREST = FOREST;
+exports.TOWN = TOWN;
+exports.SWAMP = SWAMP;
+exports.PLAINS = PLAINS;
+exports.HILLS = HILLS;
+exports.MOUTANIN = MOUNTAIN;
+exports.UNDER = UNDER;
+
+const Item = require( '../items/item.js');
+
+exports.Coord = class {
+
+	constructor( x,y ) {
+		this.x = x;
+		this.y = y;
+	}
+
+	toString() {
+		return this.x + ',' + this.y;
+	}
+
+}
 
 exports.Loc = class {
 
 	get name() { return this._name; }
 	set name(v) { this._name = v;}
-	get specialName() { return this._specName; }
-	set specialName(v) { this._specName = v; }
+
+	get areaName() { return this._areaName; }
+	set areaName(v) { this._areaName = v; }
 
 	get biome() { return this._biome; }
+	set biome(v) { this._biome = v;}
 
 	get desc() { return this._desc; }
 	set desc(v) { this._desc = v; }
@@ -30,19 +53,24 @@ exports.Loc = class {
 	get npcs() { return this._npcs; }
 
 	get coord() { return this._coord; }
-	get x() { return this._coord.slice(0, this._coord.indexOf(','));}
-	get y() { return this._coord.slice( this._coord.indexOf(',')+1 ); }
+	set coord(v) { this._coord = v; this._key = v.toString(); }
 
-	constructor( coord, biome ) {
+	get key() { return this._key; }
 
-		this._coord = coord;
-		this._biome = biome;
+	get x() { return this._coord.x; }
+	get y() { return this._coord.y; }
+
+	constructor( coord, biomeName ) {
+
+		this.coord = coord;
+		this._biome = biomeName;
 
 		this._name = '';
-		this._specName = '';
+		this._areaName = '';
 
 		this._desc = '';
 		this._npcs = [];
+		this._features =[];
 		this._items = [];
 		this._exits = {};
 

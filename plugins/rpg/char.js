@@ -1,4 +1,3 @@
-const infoProps = [ 'sex', 'age', 'height', 'weight' ];
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats' ];
 
@@ -7,12 +6,13 @@ const Actor = require( './actor.js');
 const dice = require( './dice.js' );
 const Equip = require( './equip.js');
 
-class Char extends Actor {
+class Char extends Actor.Actor {
 
 	get charClass() { return this._charClass; }
 	set charClass( c ) { this._charClass = c; }
 
 	get owner() { return this._owner; }
+	set owner( v ) { this._owner = v;}
 
 	get exp() { return this._exp; }
 	set exp( v ) { this._exp = v; }
@@ -51,17 +51,13 @@ class Char extends Actor {
 
 		let char = new Char( racesObj[ json.race ], classesObj[ json.charClass ] );
 
-		let p;
-		let priv;
-		for( let i = saveProps.length-1; i>=0; i-- ) {
+		char.name = json.name;
+		char.exp = json.exp;
+		char.owner = json.owner;
 
-			p = saveProps[i];
-			priv = '_' + p;
-			if ( json.hasOwnProperty(p)) {
-				char[priv] = json[p];
-			}
+		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
+		if ( json.info ) Object.assign( char._info, json.info );
 
-		}
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
 		if ( json.equip) char._equip = Equip.FromJSON( json.equip );
@@ -99,16 +95,32 @@ class Char extends Actor {
 
 	}
 
+	/**
+	 * Returns the item in the given equipment slot.
+	 * @param {*} slot 
+	 */
+	getEquip( slot ) {
+
+		return this._equip.get(slot);
+
+	}
+
 	equip( what ) {
 
-		let item = this._inv.remove( what );
+		let item = this._inv.get( what );
 
-		if ( item == null ) return false;
+		if ( item == null ) return 'No such item.';
 
 		let removed = this._equip.equip(item);
-		if ( removed != null ) this._inv.add(removed);
+		if ( typeof(removed) !== 'string') {
 
-		return true;
+			this._inv.remove( item );
+			if ( removed ) this._inv.add(removed);
+
+			return true;
+	
+		}
+		return removed;
 
 	}
 
@@ -140,13 +152,13 @@ class Char extends Actor {
 	rollBaseHp() {
 
 		let hd = this._charClass.HD;
-		let hp = Math.floor( ( this._race.HD + hd)/2 );
+		let maxHp = Math.floor( ( this._race.HD + hd)/2 );
 
 		for( let i = this._baseStats.level-1; i > 0; i-- ) {
-			hp += Dice.roll( 1, hd );
+			maxHp += Dice.roll( 1, hd );
 		}
 
-		this._baseStats.hp = hp;
+		this._baseStats.maxHp = maxHp;
 
 	}
 
@@ -166,19 +178,33 @@ class Char extends Actor {
 
 	}
 
+	testDmg() {
+
+		let weaps = this._equip.getWeapons();
+		if ( weaps === null ) return 'No weapons equipped.';
+		else if ( weaps instanceof Array ) {
+
+			let res = '';
+			for( let i = weaps.length-1; i >= 0; i-- ) {
+				res += weaps[i].name + ' rolled: ' + weaps[i].roll() + '\n';
+			}
+			return res;
+
+		} else {
+			return weaps.name + ' rolled: ' + weaps.roll();
+		}
+
+	}
+
 	getLongDesc() {
 
 		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name;
-		desc += '\nage: ' + this.age + ' sex: ' + this.sex + ' gold: ' + this.gold;
-		desc += '\nhp: ' + this.hp;
+		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold;
+		desc += '\nhp: ' + this.curHp + '/' + this.maxHp;
 		desc += '\n' + this.getStatString();
 
 		return desc;
 
-	}
-
-	isVowel( lt ) {
-		return lt === 'a' || lt === 'e' || lt === 'i' || lt === 'o' || lt === 'u';
 	}
 
 	getStatString() {

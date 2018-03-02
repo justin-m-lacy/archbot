@@ -12,7 +12,7 @@ exports.transfer = function transfer( src, dest, what ) {
 	} else {
 
 		console.log( 'attempting item transfer: ' + what );
-		let it = src.remove(what);
+		let it = src.takeItem(what);
 		if ( it != null ) {
 			dest.addItem(it);
 			return true;
