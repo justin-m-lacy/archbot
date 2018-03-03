@@ -66,8 +66,9 @@ let Room = exports.ContextClass = class {
 
 	async cmdNewGame( m, oppName, firstMove=null ) {
 
+		try {
 		if ( oppName == null ) {
-			m.channel.send( 'Must specify an opponent.');
+			m.reply( 'Must specify an opponent.');
 			return;
 		}
 		let opp = this._context.userOrShowErr( m.channel, oppName );
@@ -87,12 +88,15 @@ let Room = exports.ContextClass = class {
 
 			game = this.startGame( this.getGameId(m.author, opp), m.author, opp );
 			if ( !game.tryMove( firstMove ) ) {
-				m.channel.send( firstMove + ' is not a legal move.');
+				m.reply( firstMove + ' is not a legal move.');
 			}
 
 		}
 
 		Display.showBoard( m.channel, game );
+	} catch( e) { console.log(e);}
+
+		
 
 	}
 
@@ -290,8 +294,6 @@ let Room = exports.ContextClass = class {
 
 exports.init = async function( bot ){
 
-	try {
-
 	console.log( 'Chess INIT' );
 
 	await Display.loadImages();
@@ -308,7 +310,5 @@ exports.init = async function( bot ){
 		Room.prototype.cmdResign, Room, { maxArgs:1} );
 
 	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:2} );
-
-	} catch ( e ) { console.log(e); }
 
 } // init()
