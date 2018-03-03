@@ -8,7 +8,7 @@ class GuildReactions {
 		this.reactions = {};
 
 		this._context = context;
-		this._context.onEvent( 'message', (m)=>{
+		this._context.onMsg( (m)=>{
 
 			try {
 				let resp = this.react(m.content);

@@ -37,6 +37,10 @@ class DiscordBot {
 		this._client = client;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 
+		try {
+			this._spamblock = require( './spamconfig.json' );
+		} catch ( e) { this._spamblock = {}; }
+
 		client.setInterval(
 			()=>{ this._cache.cleanup(60*1000*15); }, 60*1000*15 );
 		client.setInterval(
@@ -127,6 +131,7 @@ class DiscordBot {
 	onMessage( m ) {
 
 		if ( m.author.id == this._client.user.id ) return;
+		if ( this.spamcheck(m) ) return;
 
 		let command = this._dispatch.getCommand( m.content );
 
@@ -147,6 +152,16 @@ class DiscordBot {
 			if ( error ) m.channel.send( error );
 
 		}
+
+	}
+
+	spamcheck(m) {
+
+		if ( m.guild == null) return false;
+		let allow = this._spamblock[m.guild.id];
+		if ( allow == null) return false;
+		if ( allow[m.channel.id]) return false;
+		return true;
 
 	}
 

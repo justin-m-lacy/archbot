@@ -35,15 +35,17 @@ const Context = class {
 	}
 
 	/**
-	 * Register an event with the underlying Discord client.
+	 * Register message event with Discord client.
 	 * @param {string} evtName 
 	 * @param {function} func 
 	 */
-	onEvent( evtName, func ) {
-		this._bot.client.on( evtName, (m)=>{
+	onMsg( func ) {
+
+		this._bot.client.on( 'message', (m)=>{
 
 			if ( m.author.id === m.client.user.id ) return;
 			if ( m.content.charAt(0) == this._bot.cmdPrefix) return;
+			if ( this._bot.spamcheck(m)) return;
 
 			let t = this.type;
 			if ( t == 'guild' ){
