@@ -19,6 +19,7 @@ exports.HILLS = HILLS;
 exports.MOUTANIN = MOUNTAIN;
 exports.UNDER = UNDER;
 
+const Inv = require( '../inventory.js');
 const Item = require( '../items/item.js');
 
 var reverses = { north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
@@ -54,8 +55,6 @@ exports.Loc = class Loc {
 	get desc() { return this._desc; }
 	set desc(v) { this._desc = v; }
 
-	get items() { return this._items;}
-
 	get npcs() { return this._npcs; }
 
 	get coord() { return this._coord; }
@@ -73,8 +72,26 @@ exports.Loc = class Loc {
 
 		let loc = new Loc( new Coord(json.coord.x, json.coord.y), json.biome );
 
-		if ( json.exits ) Object.assign( loc._exits, json.exits );
-		if ( json.items ) Object.assign( loc.items, json.items )
+		let exits = json.exits;
+		if ( exits ) {
+
+			let e;
+			for( let k in exits ) {
+				e = exits[k];
+				loc.addExit(
+					new Exit( e.dir, new Coord(e.coord.x, e.coord.y) )
+				);
+
+			}
+
+		}
+
+		if ( json.inv ) {
+			Object.assign( loc._inv, json.inv );
+		} else if ( json.items ) {
+			// legacy
+			Object.assign( loc._inv.items, json.items );
+		}
 
 		loc.name = json.name;
 		loc.desc = json.desc;
@@ -88,7 +105,7 @@ exports.Loc = class Loc {
 		return {
 			coord:this._coord,
 			exits:this._exits,
-			items:this._items,
+			inv:this._inv,
 			desc:this._desc,
 			areaName:this._areaName,
 			name:this._name,
@@ -112,7 +129,7 @@ exports.Loc = class Loc {
 		this._desc = '';
 		this._npcs = [];
 		this._features =[];
-		this._items = [];
+		this._inv = new Inv();
 		this._exits = {};
 
 	}
@@ -126,7 +143,7 @@ exports.Loc = class Loc {
 	 * @param {Exit} exit 
 	 */
 	addExit( exit ) {
-		console.log( 'adding exit ' + exit);
+		//console.log( 'adding exit ' + exit);
 		this._exits[exit.dir] = exit;
 	}
 
@@ -174,14 +191,7 @@ exports.Loc = class Loc {
 		r += '\nCoord: ' + this._coord.toString() + '\n';
 		r += this._desc + '\n';
 
-		let len = this._items.length;
-		if ( len > 0 ) {
-			r += 'On the ground you see:';
-			for( let i = 0; i < len; i++ ) {
-				r += '\n' + this._items[i].name;
-			}
-
-		}
+		r += 'On the ground you see: ' + this._inv.getList();
 
 		r += '\nExits:'
 		for( let k in this._exits ) {
@@ -195,17 +205,7 @@ exports.Loc = class Loc {
 
 	lookItems() {
 
-		let len = this._items.length;
-		if ( len > 0 ) {
-			let r = 'On the ground you see:';
-			for( let i = 0; i < len; i++ ) {
-				r += '\n' + this._items[i].name;
-			}
-			return r;
-
-		} else {
-			return 'There are no items here.';
-		}
+		return 'On the ground you see: ' + this._inv.getList();
 
 	}
 
@@ -214,14 +214,15 @@ exports.Loc = class Loc {
 	 * @param {Item} item 
 	 */
 	drop( item ) {
-		this._items.push( item );
+		this._inv.add( item );
 	}
 
 	/**
 	 * 
-	 * @param {string} thing 
+	 * @param {string} what 
 	 */
-	pickup( thing ) {
+	take( what ) {
+		return this._inv.remove( what );
 	}
 
 }
@@ -230,20 +231,6 @@ class Exit {
 
 	static Reverse( dir ) {
 		return reverses[dir];
-	}
-
-	/**
-	 * When moving from the source coordinate in then given direction,
-	 * creates an exit moving TO the source coordinate, in the
-	 * opposite direction.
-	 * @param {*} srcCoord 
-	 * @param {*} dir 
-	 */
-	static MakeReverse( srcCoord, dir ) {
-
-		let rev = reverses[ dir ] || 'unknown';
-		return new Exit( rev, srcCoord );
-
 	}
 
 	constructor( dir, toCoord ) {

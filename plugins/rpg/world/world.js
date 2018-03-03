@@ -11,15 +11,47 @@ module.exports = class World {
 	}
 
 	async initWorld() {
+		let start = await this.getOrGen( new Loc.Coord(0,0));
+	}
 
-		let start = await this.getLoc( 0, 0 );
-		if ( start != null ) return;
+	/**
+	 * Attempt to take an item from cur location.
+	 * @param {Char} char 
+	 * @param {string|number|Item} what 
+	 */
+	async take( char, what ) {
 
-		try {
-			start = Gen.genNew( new Loc.Coord(0,0));
-			await this.cache.store( this.coordKey(start.coord), start );
-		} catch(e) { console.log(e); }
+		let loc = await this.getOrGen( char.loc );
+		let it = loc.take( what );
+		if ( it == null ) return 'You do not see any ' + what + ' here.';
 
+		char.addItem( it );
+
+		this.forceSave( loc );
+
+		return char.name + ' took ' + it.name;
+	}
+
+	/**
+	 * Attempt to drop an item at cur location.
+	 * @param {*} char 
+	 * @param {*} what 
+	 */
+	async drop( char, what) {
+
+		let it = char.takeItem( what );
+		if ( it == null) return 'No such item.';
+
+		let loc = await this.getOrGen( char.loc );
+		loc.drop( it );
+		this.forceSave( loc );
+
+		return char.name + ' dropped ' + it.name;
+
+	}
+
+	async forceSave( loc ) {
+		await this.cache.store( this.coordKey(loc.coord), loc )
 	}
 
 	/**
@@ -41,8 +73,6 @@ module.exports = class World {
 
 		if ( exit == null ) return 'You cannot move in that direction.';
 
-		try {
-
 		let destCoord = exit.coord;
 		let x = destCoord.x;
 		let y = destCoord.y;
@@ -57,9 +87,6 @@ module.exports = class World {
 
 		}
 		return dest;
-	 	} catch ( e) { console.log(e);}
-
-
 
 	}
 
@@ -105,7 +132,7 @@ module.exports = class World {
 		loc = Loc.Loc.FromJSON( loc );
 
 		// store instance in cache.
-		this.cache.store( key, loc );
+		await this.cache.store( key, loc );
 
 		return loc;
 
@@ -115,18 +142,6 @@ module.exports = class World {
 
 	getKey( x,y ) {
 		return 'rpg/locs/' + x + ',' + y;
-	}
-
-	/**
-	 * All existing locations adjacent to x,y.
-	 * @param {number} x 
-	 * @param {number} y 
-	 */
-	async getNear( x,y ) {
-
-		return [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
-			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ].filter( v => v!=null );
-
 	}
 
 	/**
@@ -150,15 +165,27 @@ module.exports = class World {
 	 * @returns {Loc.Exit|null}
 	 */
 	async getExitTo( dest, fromDir ) {
-		let loc = await this.cache.fetch( this.coordKey(dest) );
+		let loc = await this.getLoc( dest.x, dest.y);
 		if ( loc ) {
 			let e = loc.reverseExit( fromDir );
 			if ( e ) return new Loc.Exit( fromDir, dest );
 			// no exits lead from existing location in this direction.
 			return null;
 		}
-		else if (Math.random() < 0.5) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
+		else if (Math.random() < 0.8) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
 		return null;
+	}
+
+	/**
+	* All existing locations adjacent to x,y.
+	* @param {number} x 
+	* @param {number} y 
+	*/
+	async getNear( x,y ) {
+
+		return [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
+			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ].filter( v => v!=null );
+
 	}
 
 	/**

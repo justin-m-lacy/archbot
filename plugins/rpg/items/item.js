@@ -72,7 +72,7 @@ exports.Item = class Item {
 
 	/**
 	 * 
-	 * @param {Array[Item]} a 
+	 * @param {Item[]} a 
 	 */
 	static ItemList( a ) {
 
@@ -86,6 +86,24 @@ exports.Item = class Item {
 		}
 
 		return res;
+
+	}
+
+	/**
+	 * Returns a menu for selecting an item.
+	 * @param {Item[]} a 
+	 */
+	static ItemMenu( a ) {
+
+		let list = '';
+		let len = a.length;
+		if ( len === 0 ) return '';
+
+		for( let i = 0; i < len; i++ ) {
+			list += (i+1) + ') ' + a[i].name + '\n';
+		}
+
+		return list;
 
 	}
 

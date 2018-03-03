@@ -3,6 +3,7 @@ var initialized = false;
 // includes after init.
 var util, Char, Race, CharClass, CharGen, Item, Trade, World, Loc;
 
+const display = require( './display');
 const RPG_DIR = 'rpg';
 
 var races, raceByName;
@@ -60,21 +61,49 @@ var RPG = exports.ContextClass = class {
 
 	}
 
+	async cmdTake( msg, what ){
+
+		try {
+
+			let char = this.activeCharOrErr( msg.channel, msg.author )
+			if ( char == null ) return;
+
+			let resp = await this.world.take( char, what );
+			msg.channel.send( resp);
+
+		} catch ( e) { console.log(e); }
+	}
+
+	async cmdDrop( msg, what ) {
+
+		try {
+			let char = this.activeCharOrErr( msg.channel, msg.author )
+			if ( char == null ) return;
+
+			let resp = await this.world.drop( char, what );
+			msg.channel.send( resp);
+
+		} catch ( e) { console.log(e); }
+
+	}
+
 	async cmdLook( msg ) {
 
 		try {
-		let char = this.activeCharOrErr( msg.channel, msg.author )
-		if ( char == null ) return;
 
-		let loc = char.loc;
-		if ( loc == null ) {
-			console.log('error: char loc coord is null');
-			loc = new Loc.Coord(0,0);
-		}
-		loc = await this.world.getOrGen( loc );
+			let char = this.activeCharOrErr( msg.channel, msg.author )
+			if ( char == null ) return;
 
-		msg.channel.send( loc.look() );
-	}catch(e) { console.log(e);}
+			let loc = char.loc;
+			if ( loc == null ) {
+				console.log('error: char loc coord is null');
+				loc = new Loc.Coord(0,0);
+			}
+			loc = await this.world.getOrGen( loc );
+
+			display.sendBlock( msg, loc.look() );
+
+		} catch(e) { console.log(e);}
 	}
 
 	async cmdMove( msg, dir ) {
@@ -100,7 +129,7 @@ var RPG = exports.ContextClass = class {
 				} else {
 
 					char.loc = loc.coord;
-					msg.channel.send( loc.look());
+					display.sendBlock( msg, loc.look() );
 				}
 
 			}
@@ -337,7 +366,7 @@ var RPG = exports.ContextClass = class {
 		let char = this.activeCharOrErr( msg.channel, msg.author );
 		if ( char == null ) return;
 
-		msg.channel.send( '```' + char.name + ' Inventory:\n' + char.inv.getList() + '```' );
+		msg.channel.send( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
 
 	}
 
@@ -633,6 +662,9 @@ exports.init = function( bot ){
 
 	// LOCATION
 	bot.addContextCmd( 'look', '!look', RPG.prototype.cmdLook, RPG, { maxArgs:0 } );
+	bot.addContextCmd( 'drop', '!drop <what>', RPG.prototype.cmdDrop, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'take', '!take <what>', RPG.prototype.cmdTake, RPG, {minArgs:1, maxArgs:1});
+
 	bot.addContextCmd( 'move', '!move <direction>', RPG.prototype.cmdMove, RPG, {maxArgs:1});
 	bot.addContextCmd( 'north', '!north', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['north'] } );
 	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );
