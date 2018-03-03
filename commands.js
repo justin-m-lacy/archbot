@@ -149,11 +149,8 @@ class CmdLine {
 		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
 		if ( this._cmd == null ) return;
 
-		try {
+		this.readArgs( str.slice( ind ), this._cmd.opts );
 
-			this.readArgs( str.slice( ind ), this._cmd.opts );
-
-		} catch ( e ) { console.log(e);}
 
 		return this._cmd;
 

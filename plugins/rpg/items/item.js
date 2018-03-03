@@ -52,7 +52,7 @@ exports.Item = class Item {
 	 * @returns detailed string description of item.
 	*/
 	getDetails() { 
-		return this._inscript ? this._desc + ' { ' + this._inscript + ' }' : this._desc;
+		return this._name + ': ' + (this._inscript ? this._desc + ' { ' + this._inscript + ' }' : this._desc);
 	}
 
 	static ItemMenu( a, start=1) {

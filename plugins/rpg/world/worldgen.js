@@ -28,7 +28,7 @@ module.exports = class {
 	 */
 	static genLoc( coord, from, exits ) {
 
-		let biomeName = from ? randBiome( from.biome || Loc.PLAINS ) : Loc.TOWN;
+		let biomeName = from ? randBiome( from.biome ) : Loc.TOWN;
 		let loc = this.makeBiomeLoc( coord, biomeName );
 
 		for( let i = exits.length-1; i>= 0; i-- ) {
@@ -54,6 +54,7 @@ module.exports = class {
 
 	static makeBiomeLoc( coord, biomeName ) {
 
+		if ( biomeName == null) biomeName == Loc.PLAINS;
 		let tmpl = biomes[biomeName];
 		let loc = new Loc.Loc( coord, biomeName );
 

@@ -87,10 +87,10 @@ exports.Loc = class Loc {
 		}
 
 		if ( json.inv ) {
-			Object.assign( loc._inv, json.inv );
+			loc._inv = Inv.FromJSON( json.inv );
 		} else if ( json.items ) {
 			// legacy
-			Object.assign( loc._inv.items, json.items );
+			loc._inv = Inv.FromJSON( {"items":json.items});
 		}
 
 		loc.name = json.name;
@@ -187,15 +187,14 @@ exports.Loc = class Loc {
 	*/
 	look() {
 
-		let r = 'You are' + in_prefix[this._biome] + this._biome + '.';
-		r += '\nCoord: ' + this._coord.toString() + '\n';
+		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')\n';
 		r += this._desc + '\n';
 
-		r += 'On the ground you see: ' + this._inv.getList();
+		r += 'On the ground you see ' + this._inv.getList();
 
-		r += '\nExits:'
+		r += '\nPaths:'
 		for( let k in this._exits ) {
-			r += ' \t' + k;
+			r += '\t' + k;
 		}
 
 		

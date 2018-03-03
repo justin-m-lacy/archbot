@@ -53,9 +53,9 @@ var RPG = exports.ContextClass = class {
 
 		try {
 			let list = await this._context.getDataList(RPG_DIR );
-			if ( list == null ) msg.channel.send( 'An unknown error has occurred. Oopsie.');
+			if ( list == null ) msg.reply( 'An unknown error has occurred. Oopsie.');
 			else {
-				msg.channel.send( list.join(', ') );
+				msg.reply( list.join(', ') );
 			}
 		} catch(e) { console.log(e);}
 
@@ -65,7 +65,7 @@ var RPG = exports.ContextClass = class {
 
 		try {
 
-			let char = this.activeCharOrErr( msg.channel, msg.author )
+			let char = this.activeCharOrErr( msg, msg.author )
 			if ( char == null ) return;
 
 			let resp = await this.world.take( char, what );
@@ -77,7 +77,7 @@ var RPG = exports.ContextClass = class {
 	async cmdDrop( msg, what ) {
 
 		try {
-			let char = this.activeCharOrErr( msg.channel, msg.author )
+			let char = this.activeCharOrErr( msg, msg.author )
 			if ( char == null ) return;
 
 			let resp = await this.world.drop( char, what );
@@ -89,32 +89,29 @@ var RPG = exports.ContextClass = class {
 
 	async cmdLook( msg ) {
 
-		try {
+		let char = this.activeCharOrErr( msg, msg.author )
+		if ( char == null ) return;
 
-			let char = this.activeCharOrErr( msg.channel, msg.author )
-			if ( char == null ) return;
+		let loc = char.loc;
+		if ( loc == null ) {
+			console.log('error: char loc coord is null');
+			loc = new Loc.Coord(0,0);
+		}
+		loc = await this.world.getOrGen( loc );
 
-			let loc = char.loc;
-			if ( loc == null ) {
-				console.log('error: char loc coord is null');
-				loc = new Loc.Coord(0,0);
-			}
-			loc = await this.world.getOrGen( loc );
+		display.sendBlock( msg, char.name + ' is' + loc.look() );
 
-			display.sendBlock( msg, loc.look() );
-
-		} catch(e) { console.log(e);}
 	}
 
 	async cmdMove( msg, dir ) {
 
 		try {
 
-			let char = this.activeCharOrErr( msg.channel, msg.author )
+			let char = this.activeCharOrErr( msg, msg.author )
 			if ( char == null ) return;
 
 			if ( dir == null ) {
-				msg.channel.send( 'Must specify movement direction for ' + char.name + '.' );
+				msg.reply( 'Must specify movement direction.' );
 			} else {
 
 				let loc = char.loc;
@@ -125,11 +122,11 @@ var RPG = exports.ContextClass = class {
 
 				loc = await this.world.getMoveLoc( loc, dir );
 				if ( typeof(loc) === 'string') {
-					msg.channel.send( loc );
+					msg.reply( loc );
 				} else {
 
 					char.loc = loc.coord;
-					display.sendBlock( msg, loc.look() );
+					display.sendBlock( msg, char.name + ' is' + loc.look() );
 				}
 
 			}
@@ -144,10 +141,10 @@ var RPG = exports.ContextClass = class {
 	 */
 	cmdRollDmg( msg ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		msg.channel.send( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
+		msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
 
 	}
 
@@ -157,7 +154,7 @@ var RPG = exports.ContextClass = class {
 	 */
 	cmdRollWeap( msg ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		try {
@@ -165,11 +162,11 @@ var RPG = exports.ContextClass = class {
 			let gen = require( './items/itemgen.js' );
 			let it = gen.genWeapon();
 
-			msg.channel.send( char.name + ' rolled a shiny new ' + it.name );
+			msg.reply( char.name + ' rolled a shiny new ' + it.name );
 			char.addItem(it);
 			this.trySaveChar( char, true );
 
-		} catch ( e) { msg.channel.send( 'Massive unknown error!!!'); console.log(e);}
+		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}
 
@@ -179,7 +176,7 @@ var RPG = exports.ContextClass = class {
 	 */
 	cmdRollArmor( msg ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		try {
@@ -187,27 +184,27 @@ var RPG = exports.ContextClass = class {
 			let gen = require( './items/itemgen.js' );
 			let it = gen.genArmor();
 
-			msg.channel.send( char.name + ' rolled a shiny new ' + it.name );
+			msg.reply( char.name + ' rolled a shiny new ' + it.name );
 			char.addItem(it);
 			this.trySaveChar( char, true );
 
-		} catch ( e) { msg.channel.send( 'Massive unknown error!!!'); console.log(e);}
+		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}
 
 	cmdUnequip( msg, slot ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		if ( slot == null ){
-			msg.channel.send( 'You must specify an equip slot to remove.');
+			msg.reply( 'You must specify an equip slot to remove.');
 		} else {
 
 			if ( char.unequip(slot) ) {
-				msg.channel.send( 'Removed.')
+				msg.reply( 'Removed.')
 			} else{
-				msg.channel.send( 'Cannot unequip from ' + slot );
+				msg.reply( 'Cannot unequip from ' + slot );
 			}
 
 		}
@@ -216,22 +213,22 @@ var RPG = exports.ContextClass = class {
 
 	cmdEquip( msg, what ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		if ( what === null ) {
 
-			msg.channel.send('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+			msg.reply('```' + char.name + ' equip:\n' + char.listEquip() + '```');
 
 		} else {
 
 			let res = char.equip(what);
 			if ( res === true ){
-				msg.channel.send( char.name + ' equips ' + what );
+				msg.reply( char.name + ' equips ' + what );
 			} else if ( typeof(res) === 'string') {
-				msg.channel.send( res );
+				msg.reply( res );
 			} else {
-				msg.channel.send( char.name + ' does not have ' + what );
+				msg.reply( char.name + ' does not have ' + what );
 			}
 
 		}
@@ -240,21 +237,21 @@ var RPG = exports.ContextClass = class {
 
 	cmdWorn( msg, slot ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( slot == null ) msg.channel.send('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+		if ( slot == null ) display.sendBlock( msg, char.name + ' equip:\n' + char.listEquip() );
 		else {
 
 			let item = char.getEquip( slot );
 			if ( item == null ) {
 
-				msg.channel.send( 'Nothing equipped in ' + slot + ' slot.');
+				msg.reply( 'Nothing equipped in ' + slot + ' slot.');
 			} else if ( typeof(item) === 'string' ) {
-				msg.channel.send( item );
+				msg.reply( item );
 
 			} else {
-				msg.channel.send( item.getDetails() );
+				msg.reply( item.getDetails() );
 			}
 
 		} //
@@ -263,38 +260,38 @@ var RPG = exports.ContextClass = class {
 
 	cmdEat( msg, what ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		let resp =  char.eat( what );
-		msg.channel.send( resp );
+		msg.reply( resp );
 
 	}
 
 	cmdCook( msg, what ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
 		let resp = char.cook( what );
-		msg.channel.send( resp );
+		msg.reply( resp );
 
 	}
 
 	cmdInscribe( msg, whichItem, inscrip ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.channel.send( 'Which item in inventory do you want to inspect?');
+		if ( whichItem == null ) msg.reply( 'Which item in inventory do you want to inspect?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( item == null ) msg.channel.send( 'Item not found.');
+			if ( item == null ) msg.reply( 'Item not found.');
 			else {
 
 				item.inscription = inscrip;
-				msg.channel.send( 'Item inscribed.');
+				msg.reply( 'Item inscribed.');
 				this.trySaveChar( char );
 
 			}
@@ -305,17 +302,17 @@ var RPG = exports.ContextClass = class {
 
 	cmdDestroy( msg, whichItem ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.channel.send( 'Which inventory item do you want to obliterate?');
+		if ( whichItem == null ) msg.reply( 'Which inventory item do you want to obliterate?');
 		else {
 
 			let item = char.takeItem( whichItem );
-			if ( item == null ) msg.channel.send( 'Item ' + whichItem + ' not in inventory.');
+			if ( item == null ) msg.reply( 'Item ' + whichItem + ' not in inventory.');
 			else {
 
-				msg.channel.send( item.name + ' is gone forever.' );
+				msg.reply( item.name + ' is gone forever.' );
 
 			}
 
@@ -325,17 +322,17 @@ var RPG = exports.ContextClass = class {
 
 	cmdInspect( msg, whichItem ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.channel.send( 'Which inventory item do you want to inspect?');
+		if ( whichItem == null ) msg.reply( 'Which inventory item do you want to inspect?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( item == null ) msg.channel.send( 'Item not found.');
+			if ( item == null ) msg.reply( 'Item not found.');
 			else {
 
-				msg.channel.send( item.getDetails() );
+				msg.reply( item.getDetails() );
 
 			}
 
@@ -345,11 +342,11 @@ var RPG = exports.ContextClass = class {
 
 	cmdCraft( msg, itemName, desc ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( itemName == null ) msg.channel.send( 'Crafted item must have name.');
-		else if ( desc == null ) msg.channl.send( 'Crafted item must have a description.' );
+		if ( itemName == null ) msg.reply( 'Crafted item must have name.');
+		else if ( desc == null ) msg.reply( 'Crafted item must have a description.' );
 		else {
 
 			let item = new Item.Item( itemName, desc );
@@ -363,39 +360,39 @@ var RPG = exports.ContextClass = class {
 
 	cmdInv( msg ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author );
+		let char = this.activeCharOrErr( msg, msg.author );
 		if ( char == null ) return;
 
-		msg.channel.send( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
+		msg.reply( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
 
 	}
 
 	async cmdGive( msg, destname, expr ) {
 
-		let src = this.activeCharOrErr( msg.channel, msg.author );
+		let src = this.activeCharOrErr( msg, msg.author );
 		if ( src == null ) return;
 
 		try {
 
 			let dest = await this.tryLoadChar( destname );
 			if ( dest == null ) {
-				msg.channel.send( '\'' + destname + '\' not found on server.' );
+				msg.reply( '\'' + destname + '\' not found on server.' );
 			} else {
 
 				let err = Trade.transfer( src, dest, expr );
 				if ( err === null ) {
 
-					msg.channel.send( 'Can\'t transfer from ' + src.name + ' to ' + dest.name + ' ' + err );
+					msg.reply( 'Can\'t transfer from ' + src.name + ' to ' + dest.name + ' ' + err );
 
 				} else if ( typeof(err) === 'string ' ) {
 			
-					msg.channel.send( err );
+					msg.reply( err );
 
 				} else {
 
 					await this.trySaveChar( src, true );
 					await this.trySaveChar( dest, true  );
-					msg.channel.send( 'Transfer complete.');
+					msg.reply( 'Transfer complete.');
 
 				}
 
@@ -413,13 +410,13 @@ var RPG = exports.ContextClass = class {
 			let char;
 
 			if ( charname == null ) {
-				char = this.activeCharOrErr( msg.channel, msg.author );
+				char = this.activeCharOrErr( msg, msg.author );
 				if ( char == null) return;
 			} else {
 
 				char = await this.tryLoadChar( charname );
 				if ( char == null ) {
-					msg.channel.send( charname + ' not found on server.');
+					msg.reply( charname + ' not found on server.');
 					return;
 				} 
 			}
@@ -429,11 +426,11 @@ var RPG = exports.ContextClass = class {
 				// delete
 				let key = this.getCharKey( charname );
 				this._context.deleteKeyData( key );
-				msg.channel.send( charname + ' deleted.' );
+				msg.reply( charname + ' deleted.' );
 
 			} else {
 
-				msg.channel.send( 'You do not have permission to delete ' + charname );
+				msg.reply( 'You do not have permission to delete ' + charname );
 			}
 
 
@@ -448,12 +445,12 @@ var RPG = exports.ContextClass = class {
 			let char;
 
 			if ( charname == null ) {
-				char = this.activeCharOrErr( msg.channel, msg.author );
+				char = this.activeCharOrErr( msg, msg.author );
 				if ( char == null) return;
 			} else {
 				char = await this.tryLoadChar( charname );
 				if ( char == null ) {
-					msg.channel.send( charname + ' not found on server. D:' );
+					msg.reply( charname + ' not found on server. D:' );
 					return;
 				}
 			}
@@ -472,7 +469,7 @@ var RPG = exports.ContextClass = class {
 			let char = await this.tryLoadChar( charname );
 			let prefix;
 			if ( char == null ) {
-				msg.channel.send( charname + ' not found on server. D:' );
+				msg.reply( charname + ' not found on server. D:' );
 				return;
 			} else if ( char.owner !== msg.author.id ) {
 
@@ -496,12 +493,12 @@ var RPG = exports.ContextClass = class {
 			
 			let race = getRace( racename );
 			if ( race == null ) {
-				msg.channel.send( 'Race ' + racename + ' not found.' );
+				msg.reply( 'Race ' + racename + ' not found.' );
 				return;
 			}
 			let charclass = getClass( classname );
 			if ( charclass == null ) {
-				msg.channel.send( 'Class ' + classname + ' not found.' );
+				msg.reply( 'Class ' + classname + ' not found.' );
 				return;
 			}
 
@@ -511,7 +508,7 @@ var RPG = exports.ContextClass = class {
 			if ( charname != null ) {
 				let exists = await this.charExists(charname);
 				if ( exists ) {
-					msg.channel.send( 'Character ' + charname + ' already exists.' );
+					msg.reply( 'Character ' + charname + ' already exists.' );
 					return;
 				}
 			} else charname = await this.uniqueName( race, sex );
@@ -547,10 +544,10 @@ var RPG = exports.ContextClass = class {
 	
 	}
 	
-	activeCharOrErr( chan, user ) {
+	activeCharOrErr( m, user ) {
 
 		let char = this.activeChars[user.id];
-		if ( char == null ) chan.send( 'No active character for: ' + user.username );
+		if ( char == null ) m.reply( 'No active character for: ' + user.username );
 		return char;
 
 	}
@@ -564,11 +561,7 @@ var RPG = exports.ContextClass = class {
 		let key = this.getCharKey( char.name );
 
 		console.log( 'char SAVE: ' + key );
-		try {
-			await this._context.storeKeyData( key, char, forceSave );
-		} catch (err) {
-			console.log(err);
-		}
+		await this._context.storeKeyData( key, char, forceSave );
 
 	}
 
