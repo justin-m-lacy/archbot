@@ -1,4 +1,4 @@
-const Item = require( './items/item.js');
+const itemjs = require( './items/item.js');
 const ItemGen = require( './items/itemgen.js');
 const Weapon = require('./items/weapon.js');
 
@@ -64,7 +64,7 @@ module.exports = class Equip {
 				list += 'nothing'
 			} else if ( cur instanceof Array ) {
 
-				list += Item.ItemList( cur );
+				list += itemjs.Item.ItemList( cur );
 
 			} else {
 				list += cur.name;

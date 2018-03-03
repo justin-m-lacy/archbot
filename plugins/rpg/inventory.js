@@ -1,4 +1,4 @@
-const Item = require( './items/item.js');
+const itemjs = require( './items/item.js');
 const ItemGen = require( './items/itemgen.js');
 
 module.exports = class Inventory {
@@ -26,23 +26,25 @@ module.exports = class Inventory {
 	}
 
 	constructor() {
-
 		this._items = [];
-
 	}
 
 	toJSON() {
 		return { items:this._items };
 	}
 
+	getList() {
+		return itemjs.Item.ItemList( this._items );
+	}
+
 	/**
 	 * @returns string list of all items in inventory.
 	*/
-	getList() {
+	getMenu() {
 
 		let list = '';
 		let len = this._items.length;
-		if ( len === 0 ) return "Nothing in inventory.";
+		if ( len === 0 ) return '';
 
 		for( let i = 0; i < len; i++ ) {
 			list += (i+1) + ') ' + this._items[i].name + '\n';
@@ -85,7 +87,7 @@ module.exports = class Inventory {
 	remove( which ) {
 
 		if ( which == null ) return null;
-		if ( which instanceof Item.Item ) {
+		if ( which instanceof itemjs.Item ) {
 
 			let ind = this._items.indexOf( which );
 			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
@@ -139,12 +141,12 @@ module.exports = class Inventory {
 
 		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
 
-		if ( it.type == Item.ARMOR ) {
+		if ( it.type == itemjs.ARMOR ) {
 			it.armor -= 10;
-		} else if ( it.type == Item.WEAPON ) {
+		} else if ( it.type == itemjs.WEAPON ) {
 			it.bonus -= 10;
 		}
-		it.type = Item.FOOD;
+		it.type = itemjs.FOOD;
 
 		it.name = adj + ' ' + it.name;
 

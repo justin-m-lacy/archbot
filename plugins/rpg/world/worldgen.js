@@ -31,7 +31,6 @@ module.exports = class {
 		let biomeName = from ? randBiome( from.biome || Loc.PLAINS ) : Loc.TOWN;
 		let loc = this.makeBiomeLoc( coord, biomeName );
 
-		console.log('exits len: ' + exits.length );
 		for( let i = exits.length-1; i>= 0; i-- ) {
 			loc.addExit( exits[i]);
 		}
