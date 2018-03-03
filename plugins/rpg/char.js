@@ -1,5 +1,5 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats' ];
+const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats', 'loc' ];
 
 const Inv = require( './inventory.js');
 const Actor = require( './actor.js');
@@ -58,6 +58,7 @@ class Char extends Actor.Actor {
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
 		if ( json.info ) Object.assign( char._info, json.info );
+		if ( json.loc ) Object.assign( char._loc, json.loc );
 
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );

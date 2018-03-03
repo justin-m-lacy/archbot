@@ -1,7 +1,7 @@
 var initialized = false;
 
 // includes after init.
-var util, Char, Race, CharClass, CharGen, Item, Trade, World;
+var util, Char, Race, CharClass, CharGen, Item, Trade, World, Loc;
 
 const RPG_DIR = 'rpg';
 
@@ -20,6 +20,7 @@ function initData() {
 	Item = require( './items/item.js' );
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
+	Loc = require( './world/loc.js');
 
 	initRaces();
 	initClasses();
@@ -59,15 +60,52 @@ var RPG = exports.ContextClass = class {
 
 	}
 
-	cmdMove( msg, dir ) {
+	async cmdLook( msg ) {
 
+		try {
 		let char = this.activeCharOrErr( msg.channel, msg.author )
 		if ( char == null ) return;
 
-		if ( dir == null ) {
-			msg.channel.send( 'Must specify movement direction for ' + char.name + '.' );
-		} else {
+		let loc = char.loc;
+		if ( loc == null ) {
+			console.log('error: char loc coord is null');
+			loc = new Loc.Coord(0,0);
 		}
+		loc = await this.world.getOrGen( loc );
+
+		msg.channel.send( loc.look() );
+	}catch(e) { console.log(e);}
+	}
+
+	async cmdMove( msg, dir ) {
+
+		try {
+
+			let char = this.activeCharOrErr( msg.channel, msg.author )
+			if ( char == null ) return;
+
+			if ( dir == null ) {
+				msg.channel.send( 'Must specify movement direction for ' + char.name + '.' );
+			} else {
+
+				let loc = char.loc;
+				if ( loc == null ) {
+					console.log('error: char loc is null');
+					loc = new Loc.Coord(0,0);
+				}
+
+				loc = await this.world.getMoveLoc( loc, dir );
+				if ( typeof(loc) === 'string') {
+					msg.channel.send( loc );
+				} else {
+
+					char.loc = loc.coord;
+					msg.channel.send( loc.look());
+				}
+
+			}
+
+		} catch ( e) { console.log(e);}
 
 	}
 
@@ -296,7 +334,7 @@ var RPG = exports.ContextClass = class {
 
 	cmdInv( msg ) {
 
-		let char = this.activeCharOrErr( msg.channel, msg.author )
+		let char = this.activeCharOrErr( msg.channel, msg.author );
 		if ( char == null ) return;
 
 		msg.channel.send( '```' + char.name + ' Inventory:\n' + char.inv.getList() + '```' );
@@ -593,7 +631,8 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'rollweap', '!rollweap', RPG.prototype.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollarmor', '!rollarmor', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:0});
 
-	// MOVEMENT
+	// LOCATION
+	bot.addContextCmd( 'look', '!look', RPG.prototype.cmdLook, RPG, { maxArgs:0 } );
 	bot.addContextCmd( 'move', '!move <direction>', RPG.prototype.cmdMove, RPG, {maxArgs:1});
 	bot.addContextCmd( 'north', '!north', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['north'] } );
 	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );
