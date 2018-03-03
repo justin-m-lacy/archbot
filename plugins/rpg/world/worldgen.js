@@ -9,19 +9,54 @@ module.exports = class {
 	}
 
 	/**
-	 * Generates a map location.
-	 * @param {*} x - x-coordinate of location.
-	 * @param {*} y - y-coordinate of location.
-	 * @param {Loc} from - Location arriving from.
-	 * @param {Array of Loc} adj - Adjacent locations.
-	 */
-	genLoc( x, y, from, adj ) {
+	 * Generate a new location without any starting information.
+	*/
+	static genNew( coord ){
 
-		let biomeName = randBiome( from.biome || Loc.PLAINS );
+		let loc = this.makeBiomeLoc( coord, Loc.TOWN );
+		loc.exits = this.genExits( coord.x, coord.y );
+
+		return loc;
+
+	}
+
+	/**
+	 * 
+	 * @param {Loc.Coord} coord 
+	 * @param {Loc.Loc} from - location arriving from.
+	 * @param {Loc.Exit[]} adj - all allowed exits.
+	 */
+	static genLoc( coord, from, exits ) {
+
+		let biomeName = from ? randBiome( from.biome || Loc.PLAINS ) : Loc.TOWN;
+		let loc = this.makeBiomeLoc( coord, biomeName );
+
+		console.log('exits len: ' + exits.length );
+		for( let i = exits.length-1; i>= 0; i-- ) {
+			loc.addExit( exits[i]);
+		}
+
+		return loc;
+
+	}
+
+
+	/**
+	 * Generate starting exits.
+	 */
+	static genExits( x,y ) {
+
+		return { west:new Loc.Exit('west', new Loc.Coord(x-1,y) ),
+		east:new Loc.Exit('east', new Loc.Coord(x+1,y) ),
+		north:new Loc.Exit('north', new Loc.Coord(x,y+1) ),
+		south:new Loc.Exit('south', new Loc.Coord(x,y-1) ) };
+
+	}
+
+	static makeBiomeLoc( coord, biomeName ) {
 
 		let tmpl = biomes[biomeName];
-
-		let loc = new Loc.Loc( new Loc.Coord(x,y), biomeName );
+		let loc = new Loc.Loc( coord, biomeName );
 
 		let descs = tmpl.descs;
 		loc.desc = descs[ Math.floor(Math.random()*descs.length)];
@@ -30,31 +65,17 @@ module.exports = class {
 
 	}
 
-	genExits( blocked ) {
-
-		let exits = [];
-		if ( !blocked.west && Math.random() < 0.5 ) {
-			exits.push( new Loc.Exit('west') );
-		}
-		if ( !blocked.east && Math.random() < 0.5 ) {
-			exits.push( new Loc.Exit('east') );
-		}
-		if ( !blocked.north && Math.random() < 0.5 ) {
-			exits.push( new Loc.Exit('north') );
-		}
-		if ( !blocked.south && Math.random() < 0.5 ) {
-			exits.push( new Loc.Exit('south') );
-		}
-
-	}
-
 }
 
-function randBiome( srcBiome ) {
+/**
+ * 
+ * @param {string} prevBiome - name of previous biome.
+ */
+function randBiome( prevBiome ) {
 	
-	let biome = biomes[ from.biome ];
+	let biome = biomes[ prevBiome ];
 	if ( biome == null ) {
-		console.log( 'error: unknown biome: ' + srcBiome );
+		console.log( 'error: unknown biome: ' + prevBiome );
 		return Loc.TOWN;
 	}
 

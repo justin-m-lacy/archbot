@@ -299,7 +299,7 @@ exports.init = async function( bot ){
 	bot.addContextCmd( 'chess', '!chess <opponentName> [firstMove]',
 		Room.prototype.cmdNewGame, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'move', '!move [opponentName] <moveString>',
+	bot.addContextCmd( 'chessmove', '!chessmove [opponentName] <moveString>',
 		Room.prototype.cmdDoMove, Room, {maxArgs:2} );
 	bot.addContextCmd( 'viewboard', '!viewboard [opponentName]',
 		Room.prototype.cmdViewBoard, Room, {maxArgs:2} );

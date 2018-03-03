@@ -25,6 +25,8 @@ const Command = exports.Command = class {
 	// hidden commands not displayed in help list.
 	get hidden() { return this._opts? this._opts.hidden : false; }
 
+	get args() { return this._opts? this._opts.args : null; }
+
 	get maxArgs() { return this._opts ? this._opts.maxArgs : null; }
 
 	constructor( name, usage, func, instClass=null ) {
@@ -52,14 +54,21 @@ exports.Dispatch = class CmdDispatch {
 
 	dispatch( cmd, leadArgs ) {
 
-		if ( cmd.args ) cmd.func.apply( null, leadArgs.concat( this.cmdLine.args, cmd.args ) );
-		else cmd.func.apply( null, leadArgs.concat( this.cmdLine.args ) );
+		let lineArgs = this.cmdLine.args;
+		if ( lineArgs ) leadArgs = leadArgs.concat( lineArgs );
+
+		if ( cmd.args ) cmd.func.apply( null, leadArgs.concat( cmd.args ) );
+		else cmd.func.apply( null, leadArgs );
 
 	}
 
 	routeCmd( context, cmd, leadArgs ) {
-		if ( cmd.args ) return context.routeCommand( cmd, leadArgs.concat( this.cmdLine.args, cmd.args ) );
-		return context.routeCommand( cmd, leadArgs.concat( this.cmdLine.args ) );
+
+		let lineArgs = this.cmdLine.args;
+		if ( lineArgs ) leadArgs = leadArgs.concat( lineArgs );
+
+		if ( cmd.args ) return context.routeCommand( cmd, leadArgs.concat( cmd.args ) );
+		return context.routeCommand( cmd, leadArgs );
 	}
 
 	/**

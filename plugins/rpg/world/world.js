@@ -6,70 +6,107 @@ module.exports = class World {
 	constructor( fcache ) {
 
 		this.cache = fcache;
+		this.initWorld();
+
+	}
+
+	async initWorld() {
+
+		let start = await this.getLoc( 0, 0 );
+		if ( start != null ) return;
+
+		try {
+			start = Gen.genNew( new Loc.Coord(0,0));
+			await this.cache.store( this.coordKey(start.coord), start );
+		} catch(e) { console.log(e); }
 
 	}
 
 	/**
 	 * Return the new location after moving from the given coordinate.
-	 * @param {Loc.Coord} coord 
-	 * @param {string} dir
+	 * @param {Loc.Coord} coord - current coordinate.
+	 * @param {string} dir - move direction.
 	 * @returns New Loc or error string.
 	 */
 	async getMoveLoc( coord, dir ) {
 
-		let loc = await this.getLoc( coord.x, coord.y );
-		let exit = loc.getExit( dir );
+		let from = await this.getLoc( coord.x, coord.y );
+		if ( from === null ){
+			console.log( 'error: starting loc null.');
+			return 'Error: Not in a starting location.'
+		} 
+
+		dir = dir.toLowerCase();
+		let exit = from.getExit( dir );
 
 		if ( exit == null ) return 'You cannot move in that direction.';
 
-		let x,y;
+		try {
 
-		switch ( dir ) {
+		let destCoord = exit.coord;
+		let x = destCoord.x;
+		let y = destCoord.y;
 
-			case 'north':
-				x = coord.x;
-				y = coord.y +1;
-				break;
-			case 'south':
-				x = coord.x;
-				y = coord.y-1;
-				break;
-			case 'east':
-				x = coord.x+1;
-				y = coord.y;
-				break;
-			case 'west':
-				x = coord.x -1;
-				y = coord.y;
-				break;
-			default:
-				return 'Invalid direction.';
+		let dest = await this.getLoc( x, y );
+
+		if ( !dest ) {
+
+			let exits = await this.getRandExits(x,y);
+			dest = Gen.genLoc( destCoord, from, exits );
+			this.cache.store( this.coordKey(destCoord), dest );
+
 		}
+		return dest;
+	 	} catch ( e) { console.log(e);}
 
 
 
 	}
 
-	/**
-	 * Retrieves the location at x,y and generates
-	 * one if it does not already exist.
-	 * @param {*} x 
-	 * @param {*} y 
-	 */
-	async getLoc( x, y ) {
+	async getOrGen( coord ) {
 
-		let key = getKey(x,y);
-
+		let key = this.coordKey(coord );
 		let loc = await this.cache.fetch( key );
+
 		if ( loc == null ) {
 
-			let adj = await this.getNear(x,y);
+			console.log( coord + ' NOT FOUND. GENERATING NEW');
+			loc = Gen.genNew( coord );
+			this.cache.store( key, loc );
 
-			loc = genLoc( x, y, null, adj );
 
+		} else if ( loc instanceof Loc.Loc ) return loc;
+		else {
+
+			// instantiate json object.
+			loc = Loc.Loc.FromJSON( loc );
+			// store instance in cache.
 			this.cache.store( key, loc );
 
 		}
+
+		return loc;
+
+	}
+
+	/**
+	 * Retrieves the location at x,y.
+	 * @param {number} x - x-coord of location.
+	 * @param {number} y - y-coord of location.
+	 */
+	async getLoc( x, y ) {
+
+		let key = this.getKey(x,y);
+		let loc = await this.cache.fetch( key );
+		if ( loc == null ) return null;
+		if ( loc instanceof Loc.Loc ) return loc;
+
+		// instantiate json object.
+		loc = Loc.Loc.FromJSON( loc );
+
+		// store instance in cache.
+		this.cache.store( key, loc );
+
 		return loc;
 
 	}
@@ -81,55 +118,51 @@ module.exports = class World {
 	}
 
 	/**
-	 * Return all directions whose access should be blocked from x,y.
-	 * @param {number} x 
-	 * @param {number} y 
-	 */
-	async getBlocked(x,y) {
-
-		let a = [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
-			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ];
-
-		let exit, blocked = {};
-
-		exit = a[0] != null ? a[0].east : null;
-		if ( !exit || exit.locked ) blocked.west = true;
-
-		exit = a[1] != null ? a[1].west : null;
-		if ( !exit || exit.locked ) blocked.east = true;
-
-		exit = a[2] != null ? a[2].north : null;
-		if ( !exit || exit.locked ) blocked.south = true;
-
-		exit = a[3] != null ? a[3].south : null;
-		if ( !exit || exit.locked ) blocked.north = true;
-
-		return blocked;
-
-	}
-
-	/**
 	 * All existing locations adjacent to x,y.
 	 * @param {number} x 
 	 * @param {number} y 
 	 */
 	async getNear( x,y ) {
 
-		let a = [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
-			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ];
-
-		let b = [];
-		// remove empty.
-		for( let i = a.length-1; i>=0;i-- ) {
-			if ( a[i]) b.push( a[i]);
-		}
-
-		return b;
+		return [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
+			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ].filter( v => v!=null );
 
 	}
 
-		/**
-	 * Attempt to retrieve a location, but do not generate
+	/**
+	 * 
+	 * @param {*} x 
+	 * @param {*} y
+	 * @returns {Loc.Exit[]} - all exits allowed from this location.
+	 */
+	async getRandExits(x,y) {
+		return [ await this.getExitTo( new Loc.Coord(x-1, y), 'west'),
+				await this.getExitTo( new Loc.Coord(x+1,y), 'east'),
+				await this.getExitTo( new Loc.Coord(x,y-1), 'south'),
+				await this.getExitTo( new Loc.Coord(x,y+1), 'north') ].filter( v => v!=null );
+	}
+
+	/**
+	 * Returns an exit to the given dest coordinate when arriving
+	 * from the given direction.
+	 * @param {Loc.Coord} dest - destination coordinate.
+	 * @param {string} fromDir - arriving from direction.
+	 * @returns {Loc.Exit|null}
+	 */
+	async getExitTo( dest, fromDir ) {
+		let loc = await this.cache.fetch( this.coordKey(dest) );
+		if ( loc ) {
+			let e = loc.reverseExit( fromDir );
+			if ( e ) return new Loc.Exit( fromDir, dest );
+			// no exits lead from existing location in this direction.
+			return null;
+		}
+		else if (Math.random() < 0.5) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
+		return null;
+	}
+
+	/**
+	 * Attempts to retrieve a location, but does not generate
 	 * if it does not already exist.
 	 * @param {number} x 
 	 * @param {number} y
