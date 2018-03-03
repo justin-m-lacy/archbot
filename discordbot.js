@@ -128,29 +128,25 @@ class DiscordBot {
 
 		if ( m.author.id == this._client.user.id ) return;
 
-		try {
+		let command = this._dispatch.getCommand( m.content );
 
-			let command = this._dispatch.getCommand( m.content );
+		if ( command == null ) return;
 
-			if ( command == null ) return;
+		if ( command.isDirect ) {
 
-			if ( command.isDirect ) {
-
-				this._dispatch.dispatch( command, [m] );
+			this._dispatch.dispatch( command, [m] );
 
 
-			} else {
+		} else {
 
-				// context command.
-				// get Context for cmd routing.
+			// context command.
+			// get Context for cmd routing.
 
-				let context = this.getMsgContext( m );
-				let error = this._dispatch.routeCmd( context, command, [m] );
-				if ( error ) m.channel.send( error );
+			let context = this.getMsgContext( m );
+			let error = this._dispatch.routeCmd( context, command, [m] );
+			if ( error ) m.channel.send( error );
 
-			}
-
-		} catch ( e ){console.log(e); }
+		}
 
 	}
 
@@ -160,17 +156,16 @@ class DiscordBot {
 		let type = m.channel.type;
 		let idobj;
 
-		try {
 		if ( type == 'text' || type == 'voice ') idobj = m.guild;
 		else if ( type == 'group' ) idobj = m.channel;
 		else idobj = m.channel.recipient;
 
 		let id = idobj.id;
 		let context = this._contexts[id];
+
 		if ( context != null ) return context;
 		return this.makeContext( idobj, type );
 
-		} catch ( e) {console.log(e);}
 		return;
 	}
 

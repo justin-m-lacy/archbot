@@ -498,7 +498,7 @@ function presenceChanged( oldMember, newMember ) {
 
 		/// statuses: 'offline', 'online', 'idle', 'dnd'
 		logHistory( oldMember, [oldStatus, newStatus] );
-		console.log( newMember.displayName + ' status changed: ' + newStatus );
+		//console.log( newMember.displayName + ' status changed: ' + newStatus );
 
 	}
 
@@ -539,7 +539,7 @@ function logHistory( guildMember, statuses ) {
 	let now = Date.now();
 	let history = {};
 	for( var i = statuses.length-1; i >= 0; i-- ) {
-		console.log( 'logging status: ' + statuses[i]);
+		//console.log( 'logging status: ' + statuses[i]);
 		history[ statuses[i] ] = now;
 	}
 
@@ -551,25 +551,12 @@ function logHistory( guildMember, statuses ) {
 // uobject could be a GuildMember or a User.
 async function mergeMember( uObject, newData ){
 
-	try {
-
-		let data = await bot.fetchUserData( uObject );
-		if ( data != null ) {
-			jsutils.recurMerge( newData, data );
-			newData = data;
-		}
-
-	} catch ( err ){
-
-		console.log( err );
-		console.log( 'No data for ' + uObject.displayName );
-
-	} finally {
-
-		try {
-			await bot.storeUserData( uObject, newData );
-		} catch(err){}
-
+	let data = await bot.fetchUserData( uObject );
+	if ( data != null ) {
+		jsutils.recurMerge( newData, data );
+		newData = data;
 	}
+
+	await bot.storeUserData( uObject, newData );
 
 }

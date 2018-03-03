@@ -73,19 +73,12 @@ exports.Cache = class {
 		}
 		if ( !this.loader ) return null;
 
-		try {
-
-			console.log( 'fetching from file.');
-			let val = await this.loader( this._cacheKey + key );
-			if ( val != null ) {
-				this._dict[key] = new Item(key, val, false );
-			}
-			return val;
-
-		} catch ( err ){
-			console.log(err);
-			return null;
+		//console.log( 'fetching from file: ' + key );
+		let val = await this.loader( this._cacheKey + key );
+		if ( val != null ) {
+			this._dict[key] = new Item(key, val, false );
 		}
+		return val;
 
 	}
 
@@ -97,19 +90,14 @@ exports.Cache = class {
 	 */
 	async store( key, value ) {
 
-		console.log('writing key: ' + key );
+		//console.log('writing key: ' + key );
 		let item = new Item(key, value);
 		this._dict[key] = item;
 
 		if ( this.saver ) {
-			try {
-
-				await this.saver( this._cacheKey + key, value );
-				item.markSaved();
+			await this.saver( this._cacheKey + key, value );
+			item.markSaved();
 			
-			} catch ( err ) {
-				console.log(err);
-			}
 		}
 
 	}
@@ -136,7 +124,7 @@ exports.Cache = class {
 	 */
 	cache( key, value ) {
 
-		console.log('writing key: ' + key );
+		//console.log('writing key: ' + key );
 		this._dict[key] = new Item( key, value);
 
 	}

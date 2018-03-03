@@ -1,6 +1,6 @@
 exports.blockText = (s)=> '```' + s + '```';
 
-exports.sendBlock = (m,s)=> m.channel.send( '```' + s + '```');
+exports.sendBlock = (m,s)=> m.reply( '```' + s + '```');
 /**
  * Checks if the character is a vowel.
  * @param {character} c 
