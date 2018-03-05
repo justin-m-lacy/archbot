@@ -1,42 +1,46 @@
 const Chess = require( 'chess-rules');
 const Display = require( './display.js');
 const Export = require( './export.js');
+const Game = require( '../../game.js');
 
 const ID_SEPARATOR = '-';
 
-module.exports = class Game {
-	
+const OPEN = 'OPEN';
+const BLACKWON = 'BLACKWON';
+const WHITEWON = 'WHITEWON';
+const DRAW = 'PAT';
+const CHECKMATE = '#';
+const CHECK = '+';
+
+const id_tmpl = "^(?:U\\" + ID_SEPARATOR + "\\w+|\\w+\\" + ID_SEPARATOR + "U)(?:\\" + ID_SEPARATOR + "(\\d+))?";
+
+module.exports = class ChessGame extends Game {
+
 	/**
-	 * Id for a game still in progress. Once a game is over
-	 * the timestamp is appended to the id.
-	 * @param {*} user1 
-	 * @param {*} user2 
+	 * Creates a regex that matches any game id for
+	 * the given user.
+	 * @param {*} uid 
 	 */
-	static getActiveId( user1, user2 ) {
-
-		let id1 = user1.id;
-		let id2 = user2.id;
-
-		return ( id1 <= id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
-
+	static UserRegex( uid ){
+		return new RegExp( id_tmpl.replace( 'U', uid ) );
 	}
 
 	get history() { return this._history; }
 	set history( h ) { this._history = h; }
 
 	get turn() { return this._turn; }
-	get whiteID() { return this.w_id; }
-	get blackID() { return this.b_id; }
+	get whiteID() { return this.p1; }
+	get blackID() { return this.p2; }
 
 	get status() { return this._status; }
 	get gameState() { return this._gameState; }
 
 	get lastMove() { return this._lastMove; }
 
-	get timestamp() { return this._timestamp; }
-
 	get tags() { return this._tags; }
 	set tags( t ) { this._tags = t; }
+
+
 
 	/**
 	 * 
@@ -47,15 +51,13 @@ module.exports = class Game {
 	 */
 	constructor( w, b, createTime, state ) {
 
-		if ( state == null ) state = Chess.getInitialPosition();
+		super( w, b, createTime );
 
-		this._timestamp = createTime;
+		if ( state == null ) state = Chess.getInitialPosition();
 
 		this._gameState = state;
 
-		this._turn = state.turn == 'W' ? w : b;
-		this.w_id = w;
-		this.b_id = b;
+		this._turn = state.turn === 'W' ? w : b;
 
 		this._tags = {};
 
@@ -67,22 +69,8 @@ module.exports = class Game {
 
 	}
 
-	/**
-	 * id for a game that will be archived.
-	*/
-	getArchiveId() {
-		return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp ) :
-		( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp );
-	}
-
-	getSaveId() {
-
-		if ( this.status === 'OPEN') return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id ) :
-		( this.w_id + ID_SEPARATOR + this.b_id );
-
-		return ( this.w_id<= this.b_id) ? ( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp ) :
-		( this.w_id + ID_SEPARATOR + this.b_id + ID_SEPARATOR + this._timestamp );
-
+	isOpen() {
+		return this._status === OPEN;
 	}
 
 	/**
@@ -105,12 +93,12 @@ module.exports = class Game {
 	 */
 	tryResign( uid ) {
 
-		if ( this._status != 'OPEN' ) return false;
+		if ( this._status != OPEN ) return false;
 
-		if ( uid == w_id ) {
-			this._status = 'BLACKWON';
-		} else if ( uid == b_id ) {
-			this._status = 'WHITEWON';
+		if ( uid === this.p1 ) {
+			this._status = BLACKWON;
+		} else if ( uid === this.p2 ) {
+			this._status = WHITEWON;
 		} else return false;
 
 		return true;
@@ -128,7 +116,7 @@ module.exports = class Game {
 
 		if ( newState.check ) {
 			// append check or mate symbols to move if necessary.
-			if ( this._status != 'OPEN') moveStr += '#';
+			if ( this._status != OPEN ) moveStr += '#';
 			else moveStr += '+';
 
 		}
@@ -139,30 +127,21 @@ module.exports = class Game {
 		this._lastMove = oldState.turn + ' ' + moveStr;
 	
 
-		this._turn = ( newState.turn === 'W') ? this.w_id : this.b_id;
+		this._turn = ( newState.turn === 'W') ? this.p1 : this.p2;
 
 		return true;
 
 	}
 
-	/**
-	 * Returns true if the player is playing this game.
-	 * false otherwise.
-	 * @param {number} uid - user id of player to check. 
-	 */
-	hasPlayer( uid ) {
-		return ( this.w_id === uid || this.b_id === uid );
-	}
-
 	getStatusString() {
 
-		let str = this._gameState.status;
+		let str = this._status;
 
-		if ( str == 'WHITEWON') {
+		if ( str === WHITEWON) {
 			return 'White has won the game.';
-		} else if ( str == 'BLACKWON') {
+		} else if ( str === BLACKWON) {
 			return 'Black has won the game.';
-		} else if ( str == 'PAT') {
+		} else if ( str === DRAW) {
 			return 'The game is a stalemate.';
 		}
 		return ( this._gameState.turn === 'W') ? 'White to move.' : 'Black to move.';
@@ -174,8 +153,8 @@ module.exports = class Game {
 		return {
 			pgn:Export.toPGN(this),
 			fen:Chess.positionToFen( this._state ),
-			wid:this.w_id,
-			bid:this.b_id,
+			wid:this.p1,
+			bid:this.p2,
 			time:this._timestamp
 		};
 

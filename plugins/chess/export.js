@@ -1,5 +1,5 @@
 let Chess = require( 'chess-rules' );
-let Game = require( './game.js' );
+let Game = require( './chessgame.js' );
 
 exports.toPGN = toPGN;
 

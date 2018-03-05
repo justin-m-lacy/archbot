@@ -23,10 +23,11 @@ class DiscordBot {
 
 	/**
 	 * 
-	 * @param {Discord.Client} client 
+	 * @param {Discord.Client} client
+	 * @param {string} masterid - id of master user.
 	 * @param {*} cmdPrefix 
 	 */
-	constructor( client, cmdPrefix='!' ) {
+	constructor( client, masterid, cmdPrefix='!' ) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
@@ -36,6 +37,8 @@ class DiscordBot {
 
 		this._client = client;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
+
+		this._master = masterid;
 
 		try {
 			this._spamblock = require( './spamconfig.json' );
@@ -50,6 +53,8 @@ class DiscordBot {
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
 
 		this.initClient();
+
+		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
 
 	}
 
@@ -77,12 +82,12 @@ class DiscordBot {
 	 */
 	addContextClass( cls ) {
 
-		console.log( 'adding context class');
 		this._contextClasses.push(cls);
 
 		if ( this.client != null ) {
 			this.client.guilds.forEach( (g, id) => {
 				let c = this.getContext( g );
+				console.log('adding class: ' + cls.name )
 				c.addClass( cls );
 			});
 		}
@@ -151,6 +156,17 @@ class DiscordBot {
 			let error = this._dispatch.routeCmd( context, command, [m] );
 			if ( error ) m.channel.send( error );
 
+		}
+
+	}
+
+	cmdLeaveGuild( m ) {
+
+		if ( m.author.id === this._master && m.guild != null ) {
+
+				m.guild.leave();
+				console.log('leaving guild...');
+			
 		}
 
 	}

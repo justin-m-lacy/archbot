@@ -62,9 +62,9 @@ const Context = class {
 	}
 
 	/**
-	 * Returns a list of all files stored at the given
-	 * data path.
+	 * Returns a list of all files stored at the given data path.
 	 * ( path is relative to this context's save directory. )
+	 * File extensions are removed before returning.
 	 * @param {string} path 
 	 */
 	async getDataList( path ) {
@@ -85,20 +85,30 @@ const Context = class {
 	 * Displays standard user not found message to the given
 	 * channel.
 	 * @param {Discord.Channel} chan 
-	 * @param {string|number} user 
+	 * @param {string} user 
 	 */
 	showUserNotFound( chan, user ) {
 		chan.send( 'User \'' + user + '\' not found.');
 	}
 
-	userOrShowErr( chan, name ) {
+	/**
+	 * Attempts to find a user in the given Context. If a user
+	 * is not found, an error message is displayed.
+	 * @param {Discord.Channel|Discord.Message} resp 
+	 * @param {string} name 
+	 */
+	userOrShowErr( resp, name ) {
 
-		if ( name == null || name === '') {
-			chan.send( 'User name expected.');
+		if ( name == null ) {
+			( resp instanceof Discord.Channel ) ? resp.send( 'User name expected.') : resp.reply( 'User name expected.' );
 			return null;
 		}
 		let member = this.findUser( name );
-		if ( member == null ) chan.send( 'User \'' + name + '\' not found.' );
+		if ( member == null ) {
+			( resp instanceof Discord.Channel ) ? resp.send( 'User \'' + name + '\' not found.' ) :
+			resp.reply( 'User \'' + name + '\' not found.' )
+		}
+
 		return member;
 
 	}
@@ -124,7 +134,12 @@ const Context = class {
 	 */
 	addClass( cls ) {
 
-		if ( this._instances[cls.name] != null ) return;
+		console.log( 'adding class: ' + cls.name );
+
+		if ( this._instances[cls.name] != null ) {
+			console.log('class exists');
+			return this._instances[cls.name];
+		}
 
 		let inst = new cls( this );
 		this._instances[ cls.name ] = inst;
@@ -142,6 +157,8 @@ const Context = class {
 		let target = this._instances[ cmd.instClass.name ];
 		if ( target == null ) target = this.addClass( cmd.instClass );
 	
+		if ( target == null ) console.log( 'ERROR:Null Target' );
+
 		cmd.func.apply( target, args );
 
 	}
