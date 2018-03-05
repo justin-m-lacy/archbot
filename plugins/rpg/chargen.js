@@ -4,7 +4,6 @@ const Actor = require( './actor.js');
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
 const Dice = require( './dice.js');
-const rpg = require( './rpg.js');
 const ItemGen = require( './items/itemgen.js' );
 
 // base generation rolls.

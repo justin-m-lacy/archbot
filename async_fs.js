@@ -3,7 +3,7 @@ const fs = require( 'fs');
 exports.deleteFile = ( path ) => new Promise( (res,rej)=> {
 
 	fs.unlink( path, (err)=>{
-		if ( err ) { console.log(err); rej(err); }
+		if ( err ) { console.log(err); res(false); }
 		else res(true);
 	});
 
@@ -42,7 +42,7 @@ exports.readfiles = (path, options=null) => new Promise( (res,rej)=>{
 
 	fs.readdir( path, options, (err,files)=>{
 
-		if ( err )rej(err);
+		if ( err )res(found);
 		else {
 
 			count = files.length;
@@ -97,7 +97,7 @@ exports.readJSON = path => new Promise( (res,rej)=>{
 	fs.readFile( path, (err,data)=>{
 
 		if ( err )
-			rej(err);
+			res(null);
 		else {
 			let json = JSON.parse( data );
 			res( json );

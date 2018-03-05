@@ -29,7 +29,7 @@ function initData() {
 }
 
 // created for each discord context.
-var RPG = exports.ContextClass = class {
+class RPG {
 
 	/**
 	 * 

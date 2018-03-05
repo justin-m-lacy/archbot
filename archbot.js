@@ -18,7 +18,7 @@ var client = new Discord.Client(
 
 console.log( 'client created.');
 
-var bot = DiscordBot.InitBot( client, CmdPrefix );
+var bot = DiscordBot.InitBot( client, auth.master, CmdPrefix );
 console.log( 'bot created.');
 
 var dispatch = bot.dispatch;

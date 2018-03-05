@@ -143,9 +143,12 @@ nameParts['hobbit'] = nameParts['halfling'];
 
 function cmdRollName( m, race, sex ) {
 
-	if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
+	try {
+		if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
-	m.channel.send( getName( race, sex ));
+		m.channel.send( getName( race, sex ));
+
+	}catch(e) {console.log(e);}
 
 }
 
@@ -153,7 +156,7 @@ function cmdRollName( m, race, sex ) {
  * 
  * @param {string} race 
  */
-function getName( race, sex='m' ) {
+function getName( race="human", sex='m' ) {
 
 	let ind = race.indexOf( 'half' );
 	if ( ind >= 0 ) {
