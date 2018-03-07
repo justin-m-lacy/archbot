@@ -12,24 +12,32 @@ class Room {
 
 	constructor( context ) {
 
+		try {
 		this._context = context;
 		this.activeGames = {};
 
-		this.games = new GameCache( context, game_dir );
+		this.gcache = new GameCache( context, game_dir, ChessGame.FromJSON );
+
+		} catch ( e) { console.log(e);}
 
 	}
 
-	async cmdShowGames( m, player ) {
+	async cmdShowGames( m, p1, p2 ) {
 
 		try {
 
-			if ( player == null ) player = m.author;
+			if ( p1 == null ) p1 = m.author;
 			else {
-				player = this._context.userOrShowErr( m.channel, player );
-				if ( player == null) return;
+				p1 = this._context.userOrShowErr( m, p1 );
+				if ( p1 == null) return;
 			}
 
-			this.games.printGames( m, player );
+			if ( p2 != null ) {
+				p2 = this._context.userOrShowErr( m, p2 );
+				if ( p2 == null ) return;
+			}
+
+			this.gcache.printGames( m, p1, p2 );
 
 		} catch ( e ) { console.log(e);}
 
@@ -42,33 +50,50 @@ class Room {
 			let opp = this._context.userOrShowErr( m.channel, oppName );
 			if ( !opp ) return;
 
-			let game = await this.getGame( m.author, opp );
+			let game = await this.gcache.getGame( m.author, opp );
 			if ( game != null && game.isOpen() ) {
-				return this.moveOrShowErr( m, game, firstMove );
+
+				console.log( 'playing existing game.');
+				return await this.moveOrShowErr( m, game, firstMove );
 			}
 
-			if ( firstMove == null ){
+			if ( firstMove == null ) game = await this.startGame( opp, m.author );
+			else {
 
-				game = this.startGame( ChessGame.ActiveGameID(m.author, opp), opp, m.author );
-
-			} else {
-
-				game = this.startGame( ChessGame.ActiveGameID(m.author, opp), m.author, opp );
-				this.moveOrShowErr( m, game, firstMove );
+				game = await this.startGame( m.author, opp );
+				if ( !game.tryMove( firstMove) ) {
+					m.reply( firstMove + ' is not a legal move.');
+				}
 
 			}
 
 			Display.showBoard( m.channel, game );
+
 		} catch( e) { console.log(e);}
 
 	}
 
-	async cmdPGN( m, opp1, opp2 ) {
+	async cmdLoadGame( m, opp, gnum ) {
+
+		opp = this._context.userOrShowErr( m, opp )
+		if ( opp == null) return;
+
+		let game = this.gcache.getGame( m.author.id, opp.id, gnum );
+		if ( game == null ) {
+			m.reply( 'Game not found.');
+		} else {
+			m.reply( 'Game loaded.');
+		}
+
+
+	}
+
+	async cmdPGN( m, opp1, opp2, gnum ) {
 
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = await this.gameOrShowErr( m, opp1, opp2 );
+		let game = await this.gameOrShowErr( m, opp1, opp2, gnum );
 		if ( game == null ) return;
 
 		try {
@@ -137,7 +162,7 @@ class Room {
 		
 	}
 
-	moveOrShowErr( m, game, moveStr ) {
+	async moveOrShowErr( m, game, moveStr ) {
 
 		if ( !game.isOpen() ) {
 
@@ -151,7 +176,7 @@ class Room {
 
 				/// check game ended this turn.
 				if ( !game.isOpen() ) {
-					this.games.saveGame( game );
+					await this.gcache.saveGame( game );
 				}
 
 			} else {
@@ -173,9 +198,11 @@ class Room {
 		chan.send( game.getStatusString() );
 	}
 
-	startGame( gid, w_user, b_user ) {
+	async startGame( w_user, b_user ) {
 
-		let game = this.activeGames[gid] = new ChessGame( w_user.id, b_user.id, Date.now() );
+		let game = new ChessGame( w_user.id, b_user.id, Date.now() );
+
+		await this.gcache.saveGame( game );
 		//console.log('creating game: ' + gid );
 		return game;
 
@@ -202,7 +229,7 @@ class Room {
 
 		if ( p2 == null ) {
 
-			return this.getActive( m, p1 );
+			return this.gcache.activeOrErr( m, p1 );
 
 
 		} else {
@@ -213,7 +240,7 @@ class Room {
 				return;
 			};
 
-			let game = await this.getGame( p1, p2 );
+			let game = await this.gcache.getGame( p1, p2 );
 
 			if ( !game ) {
 				m.reply( 'No game between ' + this._context.userString(p1) +
@@ -228,74 +255,6 @@ class Room {
 
 	}
 
-	/**
-	 * Attempts to retrieve the active game of user,
-	 * and reports an error if no game is found,
-	 * or if multiple games are found.
-	 * @param {Discord.Message} m 
-	 * @param {Discord.User} user 
-	 */
-	async getActive( m, user ) {
-
-		//console.log( 'p1 not null. p2 null');
-		let games = await this.activeUserGames( user );
-
-		if ( games.length === 0 ) {
-			m.reply( 'No active games found.');
-		} else if ( games.length > 1 ) {
-			m.reply( 'Multiple games for ' + this._context.userString(user) +
-					' found.  Specify opponent in command.' );
-		} else return games[0];
-
-	}
-
-	async getGame( user1, user2 ) {
-
-		try {
-
-			let gid = ChessGame.ActiveGameID( user1, user2 );
-			let game = this.activeGames[ gid ];
-
-			if ( game ) return game;
-			return await this.loadActiveGame(gid);
-
-		} catch ( e ) { console.log(e); }
-
-	}
-
-	/**
-	 * Attempt to find an in-progress game in cache or disk.
-	 * @param {} gid 
-	 */
-	async loadActiveGame( gid ) {
-
-		let data = await this._context.fetchKeyData( game_dir + gid );
-		if ( data ) {
-			let game = Export.fromJSON( data );
-			this._context.storeKeyData( game_dir + gid, game ); //replace json data.
-		}
-
-	}
-
-	// find all active boards played by user.
-	async activeUserGames( user ) {
-
-		let games = [];
-		let id = user.id;
-		let game;
-
-		//console.log('searching games for: ' + id );
-		for( let gid in this.activeGames ) {
-
-			game = this.activeGames[gid];
-			if ( game.hasPlayer(id) ) games.push(game);
-
-		}
-
-		return games;
-
-	}
-
 
 } // class
 
@@ -305,7 +264,10 @@ exports.init = async function( bot ) {
 
 	await Display.loadImages();
 
-	bot.addContextCmd( 'chessgames', '!chessgames [player]', Room.prototype.cmdShowGames, Room, {maxArgs:1} );
+	bot.addContextCmd( 'chessgames', '!chessgames [player1] [player2]', Room.prototype.cmdShowGames, Room, {maxArgs:2} );
+
+	bot.addContextCmd( 'loadchess', '!loadchess [opp] [game num]\nLoad a game to be your currently played game.',
+		Room.prototype.cmdLoadGame, Room, {maxArgs:2} );
 
 	bot.addContextCmd( 'chess', '!chess <opponentName> [firstMove]',
 		Room.prototype.cmdNewGame, Room, {maxArgs:2} );
@@ -315,7 +277,7 @@ exports.init = async function( bot ) {
 	bot.addContextCmd( 'chessboard', '!chessboard [opponentName]',
 		Room.prototype.cmdViewBoard, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'resign', '!resign [opponentName]',
+	bot.addContextCmd( 'resign', '!resign [opponentName] [game number]',
 		Room.prototype.cmdResign, Room, { maxArgs:1} );
 
 	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:2} );

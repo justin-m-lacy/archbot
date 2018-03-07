@@ -1,7 +1,8 @@
-let Chess = require( 'chess-rules' );
-let Game = require( './chessgame.js' );
+var Chess = require( 'chess-rules' );
+var ChessGame = require( './chessgame.js' );
 
 exports.toPGN = toPGN;
+exports.readPGN = readPGN;
 
 function toPGN( game ) {
 
@@ -48,26 +49,6 @@ function toPGN( game ) {
 function getTagsStr( game ) {
 }
 
-function fromJSON( data ) {
-
-	if ( data.wid == null ) {
-		return "White player not known.";
-	}
-	if ( data.bid == null ) {
-		return "Black player not known.";
-	}
-	if ( data.fen == null ) {
-		return "Game state not found."
-	}
-
-	let state = Chess.fenToPosition( data.fen );
-
-	let game = new Game( data.wid, data.bid, data.time, state );
-
-	return game;
-
-}
-
 /**
  * Parses pgn history and tags and
  * sets the appropriate data in a game.
@@ -75,8 +56,10 @@ function fromJSON( data ) {
  */
 function readPGN( pgn, game ) {
 
+	if ( pgn == null) return;
+
 	// parsing tags.
-	let regex = /\[(\w+)\s\"((?[\w\d\s]|\\")+)"\]/g;
+	let regex = /\[(\w+)\s\"([\w\d\s\\\/,\.\-]+)\"\]/g;
 	var results;
 	var len;
 
@@ -86,6 +69,7 @@ function readPGN( pgn, game ) {
 
 		if ( results.length == 3 ) {
 			tags[ results[1] ] = results[2];
+			console.log('tag found: ' + results[0]);
 		} else if ( results.length == 2 ) {
 			// should never happen.
 			tags[results[1]] = '';
@@ -106,6 +90,10 @@ function readPGN( pgn, game ) {
 			history.push( results[1]);
 			history.push( results[2]);
 		}
+	}
+
+	for( let k = 0; k < history.length; k++ ) {
+		console.log( 'history: ' + history[k]);
 	}
 
 	game.history = history;

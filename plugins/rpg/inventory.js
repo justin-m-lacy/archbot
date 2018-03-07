@@ -102,7 +102,7 @@ module.exports = class Inventory {
 			for( let i = this._items.length-1; i>= 0; i-- ) {
 				var item = this._items[i];
 				if ( item == null ) continue;
-				if ( item.name.toLowerCase() === name ) return this._items.splice( i, 1 )[0];
+				if ( item.name.toLowerCase() === which ) return this._items.splice( i, 1 )[0];
 			}
 	
 		} else {
