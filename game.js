@@ -10,14 +10,20 @@ const allUserTmpl = "^(?:U\\" + ID_SEPARATOR + "\\w+|\\w+\\" + ID_SEPARATOR + "U
 module.exports = class Game {
 
 	/**
-	 * Creates a regex that matches any game for
+	 * Creates a regex that matches any game id for
 	 * the given user.
-	 * @param {*} uid 
+	 * @param {string} uid 
 	*/
 	static UserRegex( uid ){
 		return new RegExp( allUserTmpl.replace( 'U', uid ) );
 	}
 
+	/**
+	 * Creates a regex that matches all game ids for games between
+	 * the given users.
+	 * @param {string} p1 
+	 * @param {string} p2 
+	 */
 	static VsRegex( p1, p2 ) {
 		return new RegExp( vsTmpl.replace( 'U', p1).replace('V',p2) );
 	}
@@ -48,6 +54,16 @@ module.exports = class Game {
 	get shortID() { return this._gid; }
 	get timestamp() { return this._time; }
 
+	toJSON() {
+
+		return {
+			time:this._time,
+			p1:this.p1,
+			p2:this.p2
+		};
+
+	}
+
 	constructor( id1, id2, time ) {
 
 		this.p1 = id1;
@@ -76,7 +92,7 @@ module.exports = class Game {
 	*/
 	getSaveId() {
 
-		return ( this.p1 <= this.this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time ) :
+		return ( this.p1 <= this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time ) :
 				( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time );
 
 	}

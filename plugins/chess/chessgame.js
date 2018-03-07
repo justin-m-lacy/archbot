@@ -12,18 +12,7 @@ const DRAW = 'PAT';
 const CHECKMATE = '#';
 const CHECK = '+';
 
-const id_tmpl = "^(?:U\\" + ID_SEPARATOR + "\\w+|\\w+\\" + ID_SEPARATOR + "U)(?:\\" + ID_SEPARATOR + "(\\d+))?";
-
 module.exports = class ChessGame extends Game {
-
-	/**
-	 * Creates a regex that matches any game id for
-	 * the given user.
-	 * @param {*} uid 
-	 */
-	static UserRegex( uid ){
-		return new RegExp( id_tmpl.replace( 'U', uid ) );
-	}
 
 	get history() { return this._history; }
 	set history( h ) { this._history = h; }
@@ -40,7 +29,29 @@ module.exports = class ChessGame extends Game {
 	get tags() { return this._tags; }
 	set tags( t ) { this._tags = t; }
 
+	static FromJSON( data ) {
 
+		if ( data.p1 == null ) {
+			return "White player not known.";
+		}
+		if ( data.p2 == null ) {
+			return "Black player not known.";
+		}
+		if ( data.fen == null ) {
+			return "Game state not found."
+		}
+		
+		console.log( 'fen: ' + data.fen );
+
+		let state = Chess.fenToPosition( data.fen );
+	
+		let game = new ChessGame( data.p1, data.p2, data.time, state );
+
+		Export.readPGN( data.pgn, game );
+
+		return game;
+	
+	}
 
 	/**
 	 * 
@@ -150,13 +161,11 @@ module.exports = class ChessGame extends Game {
 
 	toJSON(){
 
-		return {
-			pgn:Export.toPGN(this),
-			fen:Chess.positionToFen( this._state ),
-			wid:this.p1,
-			bid:this.p2,
-			time:this._timestamp
-		};
+		let json = super.toJSON();
+		json.pgn = Export.toPGN(this);
+		json.fen = Chess.positionToFen( this._gameState );
+
+		return json;
 
 	}
 }

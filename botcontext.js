@@ -84,11 +84,16 @@ const Context = class {
 	/**
 	 * Displays standard user not found message to the given
 	 * channel.
-	 * @param {Discord.Channel} chan 
+	 * @param {Discord.Channel|Discord.Message} obj 
 	 * @param {string} user 
 	 */
-	showUserNotFound( chan, user ) {
-		chan.send( 'User \'' + user + '\' not found.');
+	showUserNotFound( obj, user ) {
+
+		if ( obj instanceof Discord.Message ) {
+			obj.reply( 'User \'' + user + '\' not found.');
+		} else {
+			obj.send( 'User \'' + user + '\' not found.');
+		}
 	}
 
 	/**
