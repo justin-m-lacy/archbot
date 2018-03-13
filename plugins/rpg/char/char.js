@@ -1,19 +1,22 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats', 'loc' ];
 
-const Inv = require( './inventory.js');
-const Actor = require( './actor.js');
-const dice = require( './dice.js' );
+const Inv = require( '../inventory.js');
+const actor = require( './actor.js');
+const dice = require( '../dice.js' );
 const Equip = require( './equip.js');
-const Item = require( './items/item.js');
+const Item = require( '../items/item.js');
 
-class Char extends Actor.Actor {
+class Char extends actor.Actor {
 
 	get charClass() { return this._charClass; }
 	set charClass( c ) { this._charClass = c; }
 
 	get owner() { return this._owner; }
 	set owner( v ) { this._owner = v;}
+
+	get id() { return this._id; }
+	set id(v) { this._id = v; }
 
 	get exp() { return this._exp; }
 	set exp( v ) { this._exp = v; }
@@ -24,6 +27,9 @@ class Char extends Actor.Actor {
 	get equip() { return this._equip; }
 	set equip(v) { this._equip= v;}
 
+	get home() { return this._home;}
+	set home(v) { this._home = v;}
+
 	toJSON() {
 	
 		let json = {};
@@ -33,6 +39,8 @@ class Char extends Actor.Actor {
 			json[p] = this[p];
 
 		}
+
+		if ( this._home ) json.home = this._home;
 
 		json.inv = this._inv;
 		json.equip = this._equip;
@@ -55,6 +63,8 @@ class Char extends Actor.Actor {
 		char.name = json.name;
 		char.exp = json.exp;
 		char.owner = json.owner;
+
+		if ( json.home) char._home = json.home;
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
 		if ( json.info ) Object.assign( char._info, json.info );
@@ -97,9 +107,13 @@ class Char extends Actor.Actor {
 
 	}
 
+	addExp( amt ) {
+		this._baseStats.exp += amt;
+	}
+
 	/**
 	 * Returns the item in the given equipment slot.
-	 * @param {*} slot 
+	 * @param {Item} slot 
 	 */
 	getEquip( slot ) {
 
@@ -107,6 +121,10 @@ class Char extends Actor.Actor {
 
 	}
 
+	/**
+	 * Eat an item from inventory.
+	 * @param {number|string|Item} what 
+	 */
 	eat( what ) {
 
 		let item = this._inv.get( what );
@@ -116,7 +134,7 @@ class Char extends Actor.Actor {
 
 		this._inv.remove( item );
 
-		let cook = require( './data/cooking.json');
+		let cook = require( '../data/cooking.json');
 		let resp = cook.response[ Math.floor( cook.response.length*Math.random() )];
 
 		return 'You eat the ' + item.name + '. ' + resp + '.';
@@ -139,6 +157,7 @@ class Char extends Actor.Actor {
 	/**
 	 * 
 	 * @param {number|string|Item} what
+	 * @returns {bool|string} Error message or true.
 	 */
 	equip( what ) {
 
@@ -169,14 +188,27 @@ class Char extends Actor.Actor {
 
 	}
 
+	/**
+	 * Get an item from inventory without removing it.
+	 * @param {number|string|Item} whichItem 
+	 */
 	getItem( whichItem ) {
 		return this._inv.get( whichItem);
 	}
 
+	/**
+	 * Add an item to inventory.
+	 * @param {Item} it 
+	 */
 	addItem( it ) {
 		this._inv.add( it );
 	}
 
+	/**
+	 * Remove an item from inventory and return it.
+	 * @param {number|string|Item} which
+	 * @returns {Item} Item removed or null. 
+	 */
 	takeItem( which ) {
 		return this._inv.remove(which);
 	}

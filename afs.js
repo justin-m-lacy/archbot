@@ -75,8 +75,9 @@ exports.readdir = (path, options=null) => new Promise( (res,rej)=>{
 exports.readJSONSync = path => {
 
 	let data = fs.readFileSync( path );
-	return JSON.parse( data );
-
+	try {
+		return JSON.parse( data );
+	} catch(e){ return null; }
 };
 
 exports.mkdir = path => new Promise( (res,rej)=> {
@@ -96,12 +97,15 @@ exports.readJSON = path => new Promise( (res,rej)=>{
 
 	fs.readFile( path, (err,data)=>{
 
-		if ( err )
-			res(null);
+		if ( err ) res(null);
 		else {
-			let json = JSON.parse( data );
-			res( json );
+
+			try {
+				res( JSON.parse( data ) );
+			} catch (e) { res(null); }
+			
 		 }
+
 	});
 
 });

@@ -1,6 +1,6 @@
-const itemjs = require( './items/item.js');
-const ItemGen = require( './items/itemgen.js');
-const Weapon = require('./items/weapon.js');
+const itemjs = require( '../items/item.js');
+const ItemGen = require( '../items/itemgen.js');
+const Weapon = require('../items/weapon.js');
 
 var MaxSlots = {
 	"amulet":3,

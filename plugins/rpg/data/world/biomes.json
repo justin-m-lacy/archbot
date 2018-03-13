@@ -57,7 +57,7 @@
 
     },
 
-    "swamps":{
+    "swamp":{
 
         "trans":{ "town":5, "plains":50, "forest":75, "hills":10,"mountains":5, "swamp":150 },
         "descs":["A fetid swamp. Hopefully no alligators around here.",

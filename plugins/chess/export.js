@@ -36,7 +36,7 @@ function toPGN( game ) {
 
 	let pgnStr = fullMoves.join( ' ' );
 
-	console.log( pgnStr );
+	//console.log( pgnStr );
 
 	return pgnStr;
 

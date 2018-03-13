@@ -22,7 +22,7 @@ module.exports = class Weapon extends Item.Item {
 			delete json.dmg;
 		} else w.damage = new DamageSrc();
 
-		return Object.assign( w, json );
+		return Item.Item.FromJSON( json, w );
 
 	}
 
