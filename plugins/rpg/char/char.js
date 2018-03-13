@@ -6,6 +6,8 @@ const actor = require( './actor.js');
 const dice = require( '../dice.js' );
 const Equip = require( './equip.js');
 const Item = require( '../items/item.js');
+const Race = require( '../race.js');
+const Class = require( '../charclass.js');
 
 class Char extends actor.Actor {
 
@@ -54,11 +56,11 @@ class Char extends actor.Actor {
 		return json;
 	}
 
-	static FromJSON( json, racesObj, classesObj ) {
+	static FromJSON( json ) {
 
 		if ( json == null ) return null;
 
-		let char = new Char( racesObj[ json.race ], classesObj[ json.charClass ] );
+		let char = new Char( Race.GetRace(json.race), Class.GetClass( json.charClass ) );
 
 		char.name = json.name;
 		char.exp = json.exp;
