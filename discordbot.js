@@ -54,6 +54,8 @@ class DiscordBot {
 
 		this.initClient();
 
+		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
+	
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
 
 	}
@@ -157,6 +159,15 @@ class DiscordBot {
 			let error = this._dispatch.routeCmd( context, command, [m] );
 			if ( error ) m.channel.send( error );
 
+		}
+
+	}
+
+	async cmdBackup( m ) {
+
+		if ( m.author.id === this._master ) {
+			await this._cache.backup();
+			await m.reply( 'backup complete.');
 		}
 
 	}

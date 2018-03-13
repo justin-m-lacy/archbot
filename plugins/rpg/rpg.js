@@ -91,7 +91,7 @@ class RPG {
 		let char = await this.activeCharOrErr( m, m.author );
 		if ( char == null ) return;
 
-		let resp = await this.world.setDesc( char, desc );
+		let resp = await this.world.setDesc( char, desc, m.attachments.first() );
 		if ( resp ) m.reply( resp );
 
 	}
@@ -129,6 +129,18 @@ class RPG {
 
 		let res = await this.world.explored(char);
 		display.sendBlock( m, res );
+
+	}
+
+	async cmdViewLoc( msg, what ) {
+
+		let char = await this.activeCharOrErr( msg, msg.author )
+		if ( char == null ) return;
+
+		let info = await this.world.view( char, what );
+
+		if ( typeof(info) === 'string') display.sendBlock( msg, info );
+		else display.sendEmbed( msg, info[0], info[1] );
 
 	}
 
@@ -220,11 +232,8 @@ class RPG {
 			msg.reply( 'You must specify an equip slot to remove.');
 		} else {
 
-			if ( char.unequip(slot) ) {
-				msg.reply( 'Removed.')
-			} else{
-				msg.reply( 'Cannot unequip from ' + slot );
-			}
+			if ( char.unequip(slot) ) await msg.reply( 'Removed.');
+			else await msg.reply( 'Cannot unequip from ' + slot );
 
 		}
 
@@ -254,23 +263,18 @@ class RPG {
 
 	}
 
-	async cmdWorn( msg, slot ) {
+	async cmdWorn( m, slot ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if ( char == null ) return;
-
-		if ( slot == null ) display.sendBlock( msg, char.name + ' equip:\n' + char.listEquip() );
+		if ( slot == null ) display.sendBlock( m, char.name + ' equip:\n' + char.listEquip() );
 		else {
 
 			let item = char.getEquip( slot );
-			if ( item == null ) {
-
-				msg.reply( 'Nothing equipped in ' + slot + ' slot.');
-			} else if ( typeof(item) === 'string' ) {
-				msg.reply( item );
-
-			} else {
-				msg.reply( item.getDetails() );
+			if ( item == null ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
+			else if ( typeof(item) === 'string' ) await m.reply( item );
+			else {
+				m.reply( item.getDetails() );
 			}
 
 		} //
@@ -293,7 +297,7 @@ class RPG {
 		if ( char == null ) return;
 
 		let resp = char.cook( what );
-		msg.reply( resp );
+		await msg.reply( resp );
 
 	}
 
@@ -302,7 +306,7 @@ class RPG {
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.reply( 'Which item in inventory do you want to inspect?');
+		if ( whichItem == null ) msg.reply( 'Which item in inventory do you want to inscribe?');
 		else {
 
 			let item = char.getItem( whichItem );
@@ -310,8 +314,8 @@ class RPG {
 			else {
 
 				item.inscription = inscrip;
-				msg.reply( 'Item inscribed.');
-				this.saveChar( char );
+				await msg.reply( 'Item inscribed.');
+				await this.saveChar( char );
 
 			}
 
@@ -339,21 +343,38 @@ class RPG {
 
 	}
 
+	async cmdView( msg, which ) {
+
+		let char = await this.activeCharOrErr( msg, msg.author )
+		if ( char == null ) return;
+
+		if ( which == null ) msg.reply( 'Which inventory item do you want to view?');
+		else {
+
+			let item = char.getItem( which );
+			if ( item == null ) msg.reply( 'Item not found.');
+			else {
+
+				let view = item.getView();
+				if ( view[1] ) await msg.reply( view[0], { embed:{ image:{url:view[1]}} } );
+				else await msg.reply( view[0] );
+			}
+
+		} //
+
+	}
+
 	async cmdInspect( msg, whichItem ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if ( char == null ) return;
 
-		if ( whichItem == null ) msg.reply( 'Which inventory item do you want to inspect?');
+		if ( whichItem == null ) await msg.reply( 'Which inventory item do you want to inspect?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( item == null ) msg.reply( 'Item not found.');
-			else {
-
-				msg.reply( item.getDetails() );
-
-			}
+			if ( item == null ) await msg.reply( 'Item not found.');
+			else await msg.reply( item.getDetails() );
 
 		} //
 
@@ -368,7 +389,13 @@ class RPG {
 		else if ( desc == null ) msg.reply( 'Crafted item must have a description.' );
 		else {
 
-			item.Craft( char, itemName, desc );
+			let a = msg.attachments.first();
+			if ( a ) {
+				item.Craft( char, itemName, desc, a.proxyURL );
+
+			} else item.Craft( char, itemName, desc );
+
+			
 			this.saveChar( char );
 
 		} //
@@ -491,6 +518,16 @@ class RPG {
 
 	}
 
+	async cmdSaveChar( m ) {
+
+		let char = await this.activeCharOrErr( m, m.author );
+		if ( char == null ) return;
+
+		await this.saveChar( char, true );
+		await m.reply( char.name + ' saved.');
+
+	}
+
 	async cmdLoadChar( msg, charname=null ) {
 
 		if ( charname == null ) charname = msg.author.username;
@@ -500,11 +537,8 @@ class RPG {
 			let char = await this.tryLoadChar( charname );
 			let prefix;
 			if ( char == null ) {
-				msg.reply( charname + ' not found on server. D:' );
-				return;
+				return await msg.reply( charname + ' not found on server. D:' );
 			} else if ( char.owner !== msg.author.id ) {
-
-
 				prefix = 'This is not your character.\n';
 			} else {
 				
@@ -518,27 +552,20 @@ class RPG {
 	
 	}
 	
-	async cmdRollChar( msg, charname=null, racename=null, classname=null ) {
+	async cmdRollChar( msg, charname=null, racename=null, classname=null, sex=null ) {
 
 		try {
 			
 			let race = getRace( racename );
-			if ( race == null ) {
-				msg.reply( 'Race ' + racename + ' not found.' );
-				return;
-			}
-			let charclass = getClass( classname );
-			if ( charclass == null ) {
-				msg.reply( 'Class ' + classname + ' not found.' );
-				return;
-			}
+			if ( race == null ) return await msg.reply( 'Race ' + racename + ' not found.' );
 
-			let sex;
+			let charclass = getClass( classname );
+			if ( charclass == null ) return await msg.reply( 'Class ' + classname + ' not found.' );
+
 			if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
 			if ( charname != null ) {
-				let exists = await this.charExists(charname);
-				if ( exists ) {
+				if ( await this.charExists(charname) ) {
 					msg.reply( 'Character ' + charname + ' already exists.' );
 					return;
 				}
@@ -549,7 +576,7 @@ class RPG {
 
 			await this.setActiveChar( msg.author, char );
 			this.echoChar( msg.channel, char );
-			await this.saveChar( char, true );	// await for catch.
+			await this.saveChar( char, true );
 
 		} catch ( e ){ console.log(e); }
 
@@ -614,6 +641,10 @@ class RPG {
 
 	async setActiveChar( user, char ) {
 
+		let lastChar = this.activeChars[user.id];
+		// save previous.
+		if ( lastChar ) await this.saveChar( lastChar, true );
+
 		if ( this.lastChars == null ) await this.loadLastChars();
 
 		this.activeChars[user.id] = char;
@@ -630,8 +661,6 @@ class RPG {
 	async saveChar( char, forceSave=false ) {
 
 		let key = this.getCharKey( char.name );
-
-		console.log( 'char SAVE: ' + key );
 		await this._context.storeKeyData( key, char, forceSave );
 
 	}
@@ -668,13 +697,10 @@ class RPG {
 
 		let namegen = require( './namegen.js');
 		var name;
-		var taken;
+
 		do {
-
 			name = namegen.genName( race.name, sex );
-			taken = await this.charExists( name );
-
-		} while ( taken )
+		} while ( await this.charExists(name) )
 
 		return name;
 
@@ -692,6 +718,8 @@ exports.init = function( bot ){
 
 	bot.addContextCmd( 'loadchar', '!loadchar <charname>',
 		RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'savechar', '!savechar', RPG.prototype.cmdSaveChar, RPG, {maxArgs:0});
+
 	bot.addContextCmd( 'viewchar', '!viewchar <charname>',
 		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
@@ -709,7 +737,8 @@ exports.init = function( bot ){
 	// ITEMS
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
-	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>}', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'view', '!view {<item_number|item_name> : View an item.}', RPG.prototype.cmdView, RPG, {maxArgs:1} );
 	bot.addContextCmd( 'inscribe', '!inscribe {<item_number|item_name>} <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 	bot.addContextCmd( 'inv', '!inv [player]', RPG.prototype.cmdInv, RPG, {maxArgs:1});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
@@ -726,6 +755,7 @@ exports.init = function( bot ){
 
 	// LOCATION
 	bot.addContextCmd( 'look', '!look [item on ground]', RPG.prototype.cmdLook, RPG, { maxArgs:1 } );
+	bot.addContextCmd( 'viewloc', '!viewloc {<item_number|item_name>}', RPG.prototype.cmdViewLoc, RPG );
 	bot.addContextCmd( 'drop', '!drop <what>', RPG.prototype.cmdDrop, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'take', '!take <what>', RPG.prototype.cmdTake, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'locdesc', '!locdesc <description>', RPG.prototype.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );

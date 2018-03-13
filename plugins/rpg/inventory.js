@@ -134,22 +134,4 @@ module.exports = class Inventory {
 		else this._items.push(it);
 	}
 
-	cook( it ) {
-
-		let cooking = require( './data/cooking.json' );
-		let adjs = cooking.adjectives;
-
-		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
-
-		if ( it.type == itemjs.ARMOR ) {
-			it.armor -= 10;
-		} else if ( it.type == itemjs.WEAPON ) {
-			it.bonus -= 10;
-		}
-		it.type = itemjs.FOOD;
-
-		it.name = adj + ' ' + it.name;
-
-	}
-
 }
