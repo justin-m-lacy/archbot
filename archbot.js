@@ -7,30 +7,20 @@ const jsutils = require( './jsutils.js' );
 const cmd = require( './commands.js');
 const DiscordBot = require( './discordbot.js');
 
-const PLUGINS_DIR = './plugins/';
-const CmdPrefix = '!';
-
 // init bot
 var client = new Discord.Client(
-	{
-	"messageCacheMaxSize":150,
+	{ "messageCacheMaxSize":150,
 	"messageCacheLifetime":100 } );
 
 console.log( 'client created.');
 
-var bot = DiscordBot.InitBot( client, auth.master, CmdPrefix );
+var bot = DiscordBot.InitBot( client, auth.master );
 console.log( 'bot created.');
 
 initCmds();
 
-var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
-bot.addPlugins( plugins );
-
 client.on( 'presenceUpdate', presenceChanged );
 client.on( 'error', doError );
-
-process.on( 'exit', onShutdown );
-process.on( 'SIGINT', onShutdown );
 
 console.log( 'logging in...');
 client.login( auth.token );
@@ -79,15 +69,6 @@ function initCmds(){
 function doError( err ) {
 	console.log( 'Connection error: ' + err.message );
 }
-
-function onShutdown() {
-	if ( client != null ) {
-		client.destroy();
-		client = null;
-	}
-	process.exit(1);
-}
-
 
 function cmdRanking( m ) {
 	m.channel.send( 'Last place: garnish.');

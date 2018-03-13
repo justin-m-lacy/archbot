@@ -97,8 +97,8 @@ exports.Item = class Item {
 	static ItemMenu( a, start=1) {
 
 		let len = a.length;
-		if ( len == 0 ) return 'nothing';
-		else if ( len == 1 ) return (start) + ') ' + a[0]._name;
+		if ( len === 0 ) return 'nothing';
+		else if ( len === 1 ) return (start) + ') ' + a[0]._name;
 
 		let res = (start++) + ') ' + a[0]._name;
 		for( let i = 1; i < len; i++ ) {
@@ -116,8 +116,8 @@ exports.Item = class Item {
 	static ItemList( a ) {
 
 		let len = a.length;
-		if ( len == 0 ) return 'nothing';
-		else if ( len == 1 ) return a[0]._name;
+		if ( len === 0 ) return 'nothing';
+		else if ( len === 1 ) return a[0]._name;
 
 		let res = a[0]._name;
 		for( let i = 1; i < len; i++ ) {
@@ -153,9 +153,9 @@ exports.Item = class Item {
 
 		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
 
-		if ( it.type == itemjs.ARMOR ) {
+		if ( it.type === itemjs.ARMOR ) {
 			it.armor -= 10;
-		} else if ( it.type == itemjs.WEAPON ) {
+		} else if ( it.type === itemjs.WEAPON ) {
 			it.bonus -= 10;
 		}
 		it.type = itemjs.FOOD;

@@ -44,16 +44,16 @@ const Context = class {
 		this._bot.client.on( 'message', (m)=>{
 
 			if ( m.author.id === m.client.user.id ) return;
-			if ( m.content.charAt(0) == this._bot.cmdPrefix) return;
+			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;
 			if ( this._bot.spamcheck(m)) return;
 
 			let t = this.type;
-			if ( t == 'guild' ){
-				if ( m.guild == null || m.guild.id != this._idobj.id) return;
-			} else if ( t == 'group' || t == 'channel') {
-				if ( m.channel.id != this._idobj.id) return;
-			} else if ( t == 'user' ) {
-				if ( m.author.id != this._idobj.id ) return;
+			if ( t === 'guild' ){
+				if ( !m.guild || m.guild.id !== this._idobj.id) return;
+			} else if ( t === 'group' || t === 'channel') {
+				if ( m.channel.id !== this._idobj.id) return;
+			} else if ( t === 'user' ) {
+				if ( m.author.id !== this._idobj.id ) return;
 			}
 
 			func(m);
@@ -104,12 +104,12 @@ const Context = class {
 	 */
 	userOrShowErr( resp, name ) {
 
-		if ( name == null ) {
+		if ( !name ) {
 			( resp instanceof Discord.Channel ) ? resp.send( 'User name expected.') : resp.reply( 'User name expected.' );
 			return null;
 		}
 		let member = this.findUser( name );
-		if ( member == null ) {
+		if ( !member ) {
 			( resp instanceof Discord.Channel ) ? resp.send( 'User \'' + name + '\' not found.' ) :
 			resp.reply( 'User \'' + name + '\' not found.' )
 		}
@@ -120,12 +120,12 @@ const Context = class {
 
 	async displayName( id ) {
 
-		if ( id == null ) return 'Invalid ID';
+		if ( !id ) return 'Invalid ID';
 
 		try {
 	
 			let u = await this._bot.client.fetchUser( id );
-			if ( u != null ) return u.username;
+			if ( u ) return u.username;
 		} catch ( e) {}
 
 		return 'Unknown User';
@@ -138,7 +138,7 @@ const Context = class {
 	 */
 	userString( o ) {
 
-		if ( typeof(o) == 'string') return o;
+		if ( typeof(o) === 'string') return o;
 		if ( o instanceof Discord.User ) return o.username;
 		if ( o instanceof Discord.GuildMember ) return o.displayName;
 		return o.id;
@@ -155,7 +155,7 @@ const Context = class {
 
 		console.log( 'adding class: ' + cls.name );
 
-		if ( this._instances[cls.name] != null ) {
+		if ( this._instances[cls.name] ) {
 			console.log('class exists');
 			return this._instances[cls.name];
 		}
@@ -174,9 +174,9 @@ const Context = class {
 	routeCommand( cmd, args ) {
 
 		let target = this._instances[ cmd.instClass.name ];
-		if ( target == null ) target = this.addClass( cmd.instClass );
+		if ( !target ) target = this.addClass( cmd.instClass );
 	
-		if ( target == null ) console.log( 'ERROR:Null Target' );
+		if ( !target ) console.log( 'ERROR:Null Target' );
 
 		cmd.func.apply( target, args );
 
@@ -191,7 +191,7 @@ const Context = class {
 		for( let i = 0; i < len; i++ ){
 	
 			pt = objs[i];
-			if ( typeof(pt) === 'string')keys.push(pt);
+			if ( typeof(pt) === 'string') keys.push(pt);
 			else keys.push(pt.id);
 
 		}
@@ -217,14 +217,10 @@ const Context = class {
 	 * checking backing store.
 	 * @param {*} key 
 	 */
-	getKeyData( key ) {
-		return this._cache.get(key);
-	}
+	getKeyData( key ) { return this._cache.get(key); }
 
 	// fetch data for abitrary key.
-	async fetchKeyData( key ) {
-		return await this._cache.fetch(key);
-	}
+	async fetchKeyData( key ) { return await this._cache.fetch(key); }
 	
 	// associate data with key.
 	async storeKeyData( key, data, forceSave=false ) {
@@ -243,7 +239,7 @@ exports.UserContext = class extends Context {
 
 	findUser( name ) {
 
-		if ( this._idobj.username.toLowerCase() == name.toLowerCase() ) {
+		if ( this._idobj.username.toLowerCase() === name.toLowerCase() ) {
 			return this._idobj;
 		}
 		return null;
@@ -259,7 +255,8 @@ exports.GroupContext = class extends Context {
 	get name() { return this._idobj.name; }
 
 	findUser( name ){
-		return this._idobj.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
+		name = name.toLowerCase();
+		return this._idobj.nicks.find( val => val.toLowerCase() === name );
 	}
 
 }
@@ -271,12 +268,12 @@ exports.GuildContext = class extends Context {
 	
 	async displayName( id ) {
 
-		if ( id == null ) return 'Invalid ID';
+		if ( !id ) return 'Invalid ID';
 
 		try {
 
 			let g = await this._idobj.fetchMember( id );
-			if ( g != null ) return g.displayName;
+			if ( g ) return g.displayName;
 
 		} catch( e ) {}
 
@@ -286,9 +283,8 @@ exports.GuildContext = class extends Context {
 
 	findUser( name ) {
 
-		return this._idobj.members.find(
-			gm => gm.displayName.toLowerCase() === name.toLowerCase()
-		);
+		name = name.toLowerCase();
+		return this._idobj.members.find( gm => gm.displayName.toLowerCase() === name );
 
 	}
 

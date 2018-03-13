@@ -1,4 +1,12 @@
+var races, raceByName;
+
+
 class Race {
+
+	static GetRace( racename ) {
+		if ( racename == null || !raceByName.hasOwnProperty(racename) ) return races[ Math.floor(races.length*Math.random())];
+		return raceByName[racename.toLowerCase()];
+	}
 
 	static Create( name, hitdice, statMods={} ){
 
@@ -49,4 +57,30 @@ class Race {
 	get baseMods() { return this._baseMods; }
 
 }
+initRaces();
+function initRaces() {
+
+	raceByName = {};
+	races = [];
+
+	try {
+
+		let a = require( './data/races.json');
+
+		let raceObj, race;
+		for( let i = a.length-1; i>= 0; i-- ) {
+
+			raceObj = a[i];
+			race = Race.FromJSON( raceObj );
+			raceByName[ race.name ] = race;
+			races.push( race );
+
+		}
+
+	} catch (e){
+		console.log(e);
+	}
+
+}
+
 module.exports = Race;

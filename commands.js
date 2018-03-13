@@ -130,7 +130,7 @@ class CmdLine {
 		str = str.trim();
 
 		// cmd prefix.
-		if ( str.slice( 0, this._prefixLen ) != this._prefix ) {
+		if ( str.slice( 0, this._prefixLen ) !== this._prefix ) {
 
 			this._cmd = null;
 			return;
@@ -147,7 +147,7 @@ class CmdLine {
 		}
 
 		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
-		if ( this._cmd == null ) return;
+		if ( !this._cmd ) return;
 
 		this.readArgs( str.slice( ind ), this._cmd.opts );
 
@@ -160,7 +160,7 @@ class CmdLine {
 		
 		argstr = argstr.replace( /“|”/g, '\"');
 
-		if ( opts == null || opts.maxArgs == null ) this._args = this.splitArgs( argstr );
+		if ( !opts || !opts.maxArgs ) this._args = this.splitArgs( argstr );
 		else {
 			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );
 			else this._args = this.groupLeft( argstr, opts.maxArgs );
@@ -179,7 +179,7 @@ class CmdLine {
 		while( true ) {
 
 			// skip spaces.
-			while ( start < len && str.charAt(start) == ' ' ) start++;
+			while ( start < len && str.charAt(start) === ' ' ) start++;
 			if ( start >= len ) break;
 
 			char = str.charAt( start );
@@ -188,12 +188,12 @@ class CmdLine {
 			if ( char == '\"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) != '\"') end++;
+				while ( end < len && str.charAt(end) !== '\"') end++;
 				args.push( str.slice( start+1, end ) );
 
 			} else {
 
-				while ( end < len && str.charAt(end) != ' ' ) end++;
+				while ( end < len && str.charAt(end) !== ' ' ) end++;
 				args.push( str.slice( start, end ) );
 			}
 
@@ -217,7 +217,7 @@ class CmdLine {
 		while( true ) {
 
 			// skip spaces.
-			while ( start < len && str.charAt(start) == ' ' ) start++;
+			while ( start < len && str.charAt(start) === ' ' ) start++;
 			if ( start >= len ) break;
 
 			argCount--;
@@ -229,15 +229,15 @@ class CmdLine {
 			char = str.charAt( start );
 			end = start + 1;
 
-			if ( char == '\"') {
+			if ( char === '\"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) != '\"') end++;
+				while ( end < len && str.charAt(end) !== '\"') end++;
 				args.push( str.slice( start+1, end ) );
 
 			} else {
 
-				while ( end < len && str.charAt(end) != ' ' ) end++;
+				while ( end < len && str.charAt(end) !== ' ' ) end++;
 				args.push( str.slice( start, end ) );
 			}
 
@@ -260,7 +260,7 @@ class CmdLine {
 		while( true ) {
 
 			// skip spaces.
-			while ( start >= 0 && str.charAt(start) == ' ' ) start--;
+			while ( start >= 0 && str.charAt(start) === ' ' ) start--;
 			if ( start <= 0 ) break;
 
 			argCount--;
@@ -272,15 +272,15 @@ class CmdLine {
 			char = str.charAt( start );
 			end = start - 1;
 
-			if ( char == '\"') {
+			if ( char === '\"') {
 
 				// quoted arg.
-				while ( end >= 0 && str.charAt(end) != '\"') end--;
+				while ( end >= 0 && str.charAt(end) !== '\"') end--;
 				args.unshift( str.slice( end+1, start ) );
 
 			} else {
 
-				while ( end >= 0 && str.charAt(end) != ' ' ) end--;
+				while ( end >= 0 && str.charAt(end) !== ' ' ) end--;
 				args.unshift( str.slice( end+1, start+1 ) );
 			}
 
@@ -319,20 +319,20 @@ class CmdLine {
 		while( true ) {
 
 			// skip spaces.
-			while ( start < len && str.charAt(start) == ' ' ) start++;
+			while ( start < len && str.charAt(start) === ' ' ) start++;
 			if ( start >= len ) return args;
 
 			char = str.charAt( start );
 			end = start+1;
-			if ( char == '\"') {
+			if ( char === '\"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) != '\"') end++;
+				while ( end < len && str.charAt(end) !== '\"') end++;
 				args.push( str.slice(start+1, end ) );
 
 			} else {
 
-				while ( end < len && str.charAt(end) != ' ' ) end++;
+				while ( end < len && str.charAt(end) !== ' ' ) end++;
 				args.push( str.slice( start, end ) );
 			}
 

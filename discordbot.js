@@ -6,10 +6,11 @@ const Discord = require ( 'discord.js');
 const Contexts = exports.Context = require( './botcontext.js');
 
 var Bot;
-exports.InitBot = ( client, cmdPrefix='!') => {
-	Bot = new DiscordBot( client, cmdPrefix );
+exports.InitBot = ( client, master ) => {
+	Bot = new DiscordBot( client, master );
 	return Bot;
 }
+
 exports.GetBot = () => Bot;
 
 class DiscordBot {
@@ -27,7 +28,7 @@ class DiscordBot {
 	 * @param {string} masterid - id of master user.
 	 * @param {*} cmdPrefix 
 	 */
-	constructor( client, masterid, cmdPrefix='!' ) {
+	constructor( client, masterid ) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
@@ -38,38 +39,71 @@ class DiscordBot {
 		this._client = client;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 
+		this.loadConfig();
+
+		this._dispatch = new cmd.Dispatch( this._cmdPrefix );
+
+		this.loadPlugins();
+
 		this._master = masterid;
 
-		try {
-			this._spamblock = require( './spamconfig.json' );
-		} catch ( e) { this._spamblock = {}; }
+		process.on( 'exit', ()=>this.onShutdown() );
+		process.on( 'SIGINT', ()=>this.onShutdown() );
 
 		client.setInterval(
 			()=>{ this._cache.cleanup(60*1000*30); }, 60*1000*30 );
 		client.setInterval(
 			()=>{this._cache.backup(60*1000*15); }, 60*1000*15 );
 
-		this._cmdPrefix = cmdPrefix;
-		this._dispatch = new cmd.Dispatch( cmdPrefix );
-
 		this.initClient();
 
 		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
-	
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
 
 	}
 
+	loadConfig() {
+
+		try {
+
+			let config = require( './archconfig.json');
+			this._spamblock = config.spamblock || {};
+			this._cmdPrefix = config.cmdprefix || '!';
+			this._plugsdir = config.pluginsdir;
+
+		} catch ( e) { this._spamblock = {}; }
+
+	}
+
+	loadPlugins(){
+
+		if ( !this._plugsdir) return;
+		try {
+
+			var plugins = require( './plugsupport.js' ).loadPlugins( this._plugsdir );
+			this.addPlugins( plugins );
+
+		} catch(e) { console.log(e);}
+	}
+
+	onShutdown() {
+		if ( this._client ) {
+			this._cache.backup();
+			this._client.destroy();
+			this._client = null;
+
+		}
+		process.exit(1);
+	}
+
 	addPlugins( plug_files ) {
 
-		let plug;
-		let init;
-		let contClass;
+		let plug, init, contClass;
 		for( let i = plug_files.length-1; i >= 0; i-- ) {
 
 			plug = plug_files[i];
 			init = plug.init;
-			if ( init != null && typeof(init) == 'function' ){
+			if ( init && typeof(init) === 'function' ){
 				plug.init( this );
 			}
 
@@ -86,7 +120,7 @@ class DiscordBot {
 
 		this._contextClasses.push(cls);
 
-		if ( this.client != null ) {
+		if ( this.client ) {
 			this.client.guilds.forEach( (g, id) => {
 				let c = this.getContext( g );
 				console.log('adding class: ' + cls.name )
@@ -99,12 +133,12 @@ class DiscordBot {
 	initClient() {
 
 		// NOTE: 'this' for events is always client.
-		this._client.on( 'ready', ()=>{this.initContexts();});
+		this._client.on( 'ready', ()=>this.initContexts());
 		this._client.on( 'guildUnavailable', onGuildUnavail )
 
 		this._client.on( 'resume', onResume );
 
-		this._client.on( 'message', (m)=>{ this.onMessage(m);} );
+		this._client.on( 'message', (m)=>this.onMessage(m) );
 
 		this._client.on( 'presenceUpdate', onPresence );
 
@@ -116,7 +150,7 @@ class DiscordBot {
 
 		try {
 			let classes = this._contextClasses;
-			if ( classes.length == 0 ) {
+			if ( classes.length === 0 ) {
 				console.log('no classes to instantiate.');
 				return;
 			}
@@ -139,12 +173,12 @@ class DiscordBot {
 
 	onMessage( m ) {
 
-		if ( m.author.id == this._client.user.id ) return;
+		if ( m.author.id === this._client.user.id ) return;
 		if ( this.spamcheck(m) ) return;
 
 		let command = this._dispatch.getCommand( m.content );
 
-		if ( command == null ) return;
+		if ( !command ) return;
 
 		if ( command.isDirect ) {
 
@@ -174,42 +208,38 @@ class DiscordBot {
 
 	cmdLeaveGuild( m ) {
 
-		if ( m.author.id === this._master && m.guild != null ) {
-
-				m.guild.leave();
-				console.log('leaving guild...');
-			
+		if ( m.author.id === this._master && m.guild ) {
+			m.guild.leave();
+			console.log('leaving guild: ' + m.guild.name );
 		}
 
 	}
 
 	spamcheck(m) {
 
-		if ( m.guild == null) return false;
+		if ( !m.guild) return false;
 		let allow = this._spamblock[m.guild.id];
-		if ( allow == null) return false;
+		if ( !allow ) return false;
 		if ( allow[m.channel.id]) return false;
 		return true;
 
 	}
 
-	// context for the given mesg.
+	/**
+	 * Return a Context associated with the message channel.
+	 * @param {Discord.Message} m 
+	 */
 	getMsgContext( m ) {
 
 		let type = m.channel.type;
 		let idobj;
 
-		if ( type == 'text' || type == 'voice ') idobj = m.guild;
-		else if ( type == 'group' ) idobj = m.channel;
+		if ( type === 'text' || type === 'voice ') idobj = m.guild;
+		else if ( type === 'group' ) idobj = m.channel;
 		else idobj = m.channel.recipient;
 
-		let id = idobj.id;
-		let context = this._contexts[id];
+		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
 
-		if ( context != null ) return context;
-		return this.makeContext( idobj, type );
-
-		return;
 	}
 
 	/**
@@ -232,9 +262,9 @@ class DiscordBot {
 		console.log( 'creating context for: ' + idobj.id );
 		let context;
 
-		if ( type == 'text' || type == null || type == 'voice' )
+		if ( type === 'text' || !type || type === 'voice' )
 			context = new Contexts.GuildContext( this, idobj, this._cache.makeSubCache( fsys.getGuildDir(idobj) ) );
-		else if ( type == 'group' )
+		else if ( type === 'group' )
 			context = new Contexts.GroupContext( this, idobj, this._cache.makeSubCache( fsys.getChannelDir(idobj) ) );
 		else  context = new Contexts.UserContext( this, idobj, this._cache.makeSubCache( fsys.getUserDir(idobj)) );
 
@@ -251,15 +281,14 @@ class DiscordBot {
 	displayName( uObject ){
 		if ( uObject instanceof Discord.GuildMember ){
 			return uObject.displayName;
-		} else {
-			return uObject.username;
 		}
+		return uObject.username;
 
 	}
 
 	getSender( msg ) {
 
-		if ( msg.member != null ) return msg.member;
+		if ( msg.member ) return msg.member;
 		return msg.author;
 
 	}
@@ -291,7 +320,7 @@ class DiscordBot {
 	async fetchUserData( uObject ){
 
 		let objPath;
-		if ( uObject instanceof Discord.GuildMember ){
+		if ( uObject instanceof Discord.GuildMember ) {
 			objPath = fsys.memberPath( uObject );
 		} else {
 			objPath = fsys.getUserDir( uObject );
@@ -325,36 +354,33 @@ class DiscordBot {
 	 */
 	userOrShowErr( channel, name ) {
 
-		if ( name == null || name === '') {
+		if ( !name ) {
 			channel.send( 'User name expected.');
 			return null;
 		}
 		let member = this.findUser( channel, name );
-		if ( member == null ) channel.send( 'User \'' + name + '\' not found.');
+		if ( !member ) channel.send( 'User \'' + name + '\' not found.');
 		return member;
 
 	}
 
 	findUser( channel, name ) {
 
-		if ( channel == null ) return null;
+		if ( !channel ) return null;
 
+		name = name.toLowerCase();
 		switch ( channel.type ) {
 
 			case 'text':
 			case 'voice':
 
-				let user = channel.guild.members.find(
-					gm=> gm.displayName.toLowerCase() === name.toLowerCase()
-				);
+				let user = channel.guild.members.find( gm => gm.displayName.toLowerCase() === name );
 				return user;
 			case 'dm':
-				name = name.toLowerCase();
 				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
 				return null;
 			case 'group':
-				return channel.nicks.find( val => val.toLowerCase() === name.toLowerCase() );
-
+				return channel.nicks.find( val => val.toLowerCase() === name );
 		}
 
 	}
@@ -362,11 +388,11 @@ class DiscordBot {
 	printCommand( chan, cmdname ) {
 
 		let cmds = this._dispatch.commands;
-		if ( cmds != null && cmds.hasOwnProperty( cmdname ) ) {
+		if ( cmds && cmds.hasOwnProperty( cmdname ) ) {
 
 			let cmdInfo = cmds[cmdname];
 			let usage = cmdInfo.usage;
-			if ( usage == null ) chan.send( 'No usage information found for command \'' + cmdname + '\'.');
+			if ( !usage ) chan.send( 'No usage information found for command \'' + cmdname + '\'.');
 			else chan.send( cmdname + ' usage: ' + cmdInfo.usage );
 
 
@@ -378,7 +404,7 @@ class DiscordBot {
 
 		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
 		let cmds = this._dispatch.commands;
-		if ( cmds != null ) {
+		if ( cmds ) {
 
 			let a = [];
 			//let info;
@@ -399,15 +425,15 @@ class DiscordBot {
 
 function onPresence( oldGM, newGM ) {
 
-	if ( newGM.id == Bot.client.user.id ) {
+	if ( newGM.id === Bot.client.user.id ) {
 		console.log( 'presence update for bot.');
-		if ( newGame.presence.status == 'online'){
+		if ( newGame.presence.status === 'online'){
 			console.log( 'bot now online in guild: ' + newGM.guild.name );
 		}
 	}
 }
 
-function onGuildUnavail( g ){
+function onGuildUnavail( g ) {
 	console.log( 'guild unavailable: ' + g.name );
 }
 

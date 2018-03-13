@@ -115,7 +115,6 @@ exports.Loc = class Loc {
 		if ( json.maker) loc._maker = json.maker;
 		if ( json.time ) loc._time = json.time;
 
-		console.log( 'loc coord: ' + loc.coord );
 		return loc;
 
 	}

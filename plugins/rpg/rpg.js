@@ -4,11 +4,8 @@ var initialized = false;
 var util, Char, Race, CharClass, CharGen, item, Trade, World, Loc;
 
 const display = require( './display');
-const RPG_DIR = 'rpg';
-const LAST_CHARS = RPG_DIR + '/`lastchars`';
-
-var races, raceByName;
-var classes, classByName;
+const RPG_DIR = 'rpg/';
+const LAST_CHARS = RPG_DIR + '`lastchars`';
 
 function initData() {
 
@@ -23,9 +20,6 @@ function initData() {
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
 	Loc = require( './world/loc.js');
-
-	initRaces();
-	initClasses();
 
 }
 
@@ -58,9 +52,9 @@ class RPG {
 
 		try {
 			let list = await this._context.getDataList(RPG_DIR );
-			if ( list == null ) msg.reply( 'An unknown error has occurred. Oopsie.');
+			if ( list == null ) await msg.reply( 'An unknown error has occurred. Oopsie.');
 			else {
-				msg.reply( list.join(', ') );
+				await msg.reply( list.join(', ') );
 			}
 		} catch(e) { console.log(e);}
 
@@ -69,9 +63,9 @@ class RPG {
 	async cmdSetHome( m ) {
 
 		let char = await this.activeCharOrErr( m, m.author );
-		if ( char == null ) return;
+		if (!char) return;
 
-		m.reply( this.world.setHome( char ) );
+		await m.reply( this.world.setHome( char ) );
 		this.cacheChar( char );
 
 	}
@@ -79,9 +73,9 @@ class RPG {
 	async cmdGoHome( m ) {
 
 		let char = await this.activeCharOrErr( m, m.author );
-		if ( char == null ) return;
+		if (!char) return;
 
-		m.reply( this.world.goHome( char ) );
+		await m.reply( this.world.goHome( char ) );
 		this.cacheChar( char );
 
 	}
@@ -89,10 +83,10 @@ class RPG {
 	async cmdLocDesc( m, desc ) {
 
 		let char = await this.activeCharOrErr( m, m.author );
-		if ( char == null ) return;
+		if (!char) return;
 
 		let resp = await this.world.setDesc( char, desc, m.attachments.first() );
-		if ( resp ) m.reply( resp );
+		if ( resp ) await m.reply( resp );
 
 	}
 
@@ -101,10 +95,10 @@ class RPG {
 		try {
 
 			let char = await this.activeCharOrErr( msg, msg.author )
-			if ( char == null ) return;
+			if (!char) return;
 
 			let resp = await this.world.take( char, what );
-			msg.channel.send( resp);
+			await msg.channel.send( resp);
 
 		} catch ( e) { console.log(e); }
 	}
@@ -113,10 +107,10 @@ class RPG {
 
 		try {
 			let char = await this.activeCharOrErr( msg, msg.author )
-			if ( char == null ) return;
+			if (!char) return;
 
 			let resp = await this.world.drop( char, what );
-			msg.channel.send( resp);
+			await msg.channel.send( resp);
 
 		} catch ( e) { console.log(e); }
 
@@ -125,7 +119,7 @@ class RPG {
 	async cmdExplored( m ) {
 		
 		let char = await this.activeCharOrErr( m, m.author );
-		if ( char == null ) return;
+		if (!char) return;
 
 		let res = await this.world.explored(char);
 		display.sendBlock( m, res );
@@ -135,7 +129,7 @@ class RPG {
 	async cmdViewLoc( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		let info = await this.world.view( char, what );
 
@@ -147,7 +141,7 @@ class RPG {
 	async cmdLook( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		display.sendBlock( msg, await this.world.look( char, what ) );
 
@@ -158,7 +152,7 @@ class RPG {
 		try {
 
 			let char = await this.activeCharOrErr( msg, msg.author )
-			if ( char == null ) return;
+			if (!char) return;
 
 			display.sendBlock( msg, await this.world.move(char,dir) );
 
@@ -173,9 +167,9 @@ class RPG {
 	async cmdRollDmg( msg ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
+		await msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
 
 	}
 
@@ -186,18 +180,18 @@ class RPG {
 	async cmdRollWeap( msg ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		try {
 
 			let gen = require( './items/itemgen.js' );
 			let it = gen.genWeapon();
 
-			msg.reply( char.name + ' rolled a shiny new ' + it.name );
+			await msg.reply( char.name + ' rolled a shiny new ' + it.name );
 			char.addItem(it);
-			this.saveChar( char, true );
+			await this.saveChar( char, true );
 
-		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
+		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}
 
@@ -208,16 +202,16 @@ class RPG {
 	async cmdRollArmor( msg ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		try {
 
 			let gen = require( './items/itemgen.js' );
 			let it = gen.genArmor();
 
-			msg.reply( char.name + ' rolled a shiny new ' + it.name );
+			await msg.reply( char.name + ' rolled a shiny new ' + it.name );
 			char.addItem(it);
-			this.saveChar( char, true );
+			await this.saveChar( char, true );
 
 		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
@@ -226,11 +220,10 @@ class RPG {
 	async cmdUnequip( msg, slot ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		if ( slot == null ){
-			msg.reply( 'You must specify an equip slot to remove.');
-		} else {
+		if ( !slot ) await msg.reply( 'You must specify an equip slot to remove.');
+		else {
 
 			if ( char.unequip(slot) ) await msg.reply( 'Removed.');
 			else await msg.reply( 'Cannot unequip from ' + slot );
@@ -242,21 +235,21 @@ class RPG {
 	async cmdEquip( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		if ( what === null ) {
+		if ( !what ) {
 
-			msg.reply('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+			await msg.reply('```' + char.name + ' equip:\n' + char.listEquip() + '```');
 
 		} else {
 
 			let res = char.equip(what);
 			if ( res === true ){
-				msg.reply( char.name + ' equips ' + what );
+				await msg.reply( char.name + ' equips ' + what );
 			} else if ( typeof(res) === 'string') {
-				msg.reply( res );
+				await msg.reply( res );
 			} else {
-				msg.reply( char.name + ' does not have ' + what );
+				await msg.reply( char.name + ' does not have ' + what );
 			}
 
 		}
@@ -266,15 +259,15 @@ class RPG {
 	async cmdWorn( m, slot ) {
 
 		let char = await this.activeCharOrErr( m, m.author )
-		if ( char == null ) return;
-		if ( slot == null ) display.sendBlock( m, char.name + ' equip:\n' + char.listEquip() );
+		if (!char) return;
+		if ( !slot ) display.sendBlock( m, char.name + ' equip:\n' + char.listEquip() );
 		else {
 
 			let item = char.getEquip( slot );
 			if ( item == null ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
 			else if ( typeof(item) === 'string' ) await m.reply( item );
 			else {
-				m.reply( item.getDetails() );
+				await m.reply( item.getDetails() );
 			}
 
 		} //
@@ -284,17 +277,17 @@ class RPG {
 	async cmdEat( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		let resp =  char.eat( what );
-		msg.reply( resp );
+		await msg.reply( resp );
 
 	}
 
 	async cmdCook( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
 		let resp = char.cook( what );
 		await msg.reply( resp );
@@ -304,13 +297,13 @@ class RPG {
 	async cmdInscribe( msg, whichItem, inscrip ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		if ( whichItem == null ) msg.reply( 'Which item in inventory do you want to inscribe?');
+		if ( !whichItem ) await msg.reply( 'Which item in inventory do you want to inscribe?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( item == null ) msg.reply( 'Item not found.');
+			if ( !item ) await msg.reply( 'Item not found.');
 			else {
 
 				item.inscription = inscrip;
@@ -326,16 +319,16 @@ class RPG {
 	async cmdDestroy( msg, whichItem ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		if ( whichItem == null ) msg.reply( 'Which inventory item do you want to obliterate?');
+		if ( !whichItem ) await msg.reply( 'Which inventory item do you want to obliterate?');
 		else {
 
 			let item = char.takeItem( whichItem );
-			if ( item == null ) msg.reply( 'Item ' + whichItem + ' not in inventory.');
+			if ( !item ) await msg.reply( 'Item ' + whichItem + ' not in inventory.');
 			else {
 
-				msg.reply( item.name + ' is gone forever.' );
+				await msg.reply( item.name + ' is gone forever.' );
 
 			}
 
@@ -346,13 +339,13 @@ class RPG {
 	async cmdView( msg, which ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if (!char) return;
 
-		if ( which == null ) msg.reply( 'Which inventory item do you want to view?');
+		if ( !which ) await msg.reply( 'Which inventory item do you want to view?');
 		else {
 
 			let item = char.getItem( which );
-			if ( item == null ) msg.reply( 'Item not found.');
+			if ( !item ) await msg.reply( 'Item not found.');
 			else {
 
 				let view = item.getView();
@@ -367,13 +360,13 @@ class RPG {
 	async cmdInspect( msg, whichItem ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if ( !char ) return;
 
-		if ( whichItem == null ) await msg.reply( 'Which inventory item do you want to inspect?');
+		if ( !whichItem ) await msg.reply( 'Which inventory item do you want to inspect?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( item == null ) await msg.reply( 'Item not found.');
+			if ( !item ) await msg.reply( 'Item not found.');
 			else await msg.reply( item.getDetails() );
 
 		} //
@@ -383,10 +376,10 @@ class RPG {
 	async cmdCraft( msg, itemName, desc ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
-		if ( char == null ) return;
+		if ( !char ) return;
 
-		if ( itemName == null ) msg.reply( 'Crafted item must have name.');
-		else if ( desc == null ) msg.reply( 'Crafted item must have a description.' );
+		if ( !itemName ) await msg.reply( 'Crafted item must have name.');
+		else if ( !desc ) await msg.reply( 'Crafted item must have a description.' );
 		else {
 
 			let a = msg.attachments.first();
@@ -395,8 +388,7 @@ class RPG {
 
 			} else item.Craft( char, itemName, desc );
 
-			
-			this.saveChar( char );
+			await this.saveChar( char );
 
 		} //
 
@@ -406,51 +398,46 @@ class RPG {
 
 		var char;
 
-		if ( who != null ) {
+		if ( who ) {
 
 			char = await this.tryLoadChar( who );
-			if ( char == null ) return;
+			if ( !char ) return;
 
 		} else {
 
 			char = await this.activeCharOrErr( msg, msg.author );
-			if ( char == null ) {
-				msg.reply( 'Character \'' + who + '\' not found.');
+			if ( !char ) {
+				await msg.reply( 'Character \'' + who + '\' not found.');
 				return;
 			}
 
 		}
 
-		msg.reply( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
+		await msg.reply( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
 
 	}
 
 	async cmdGive( msg, who, expr ) {
 
 		let src = await this.activeCharOrErr( msg, msg.author );
-		if ( src == null ) return;
+		if ( !src ) return;
 
 		try {
 
 			let dest = await this.tryLoadChar( who );
-			if ( dest == null ) {
-				msg.reply( '\'' + who + '\' not found on server.' );
-			} else {
+			if ( !dest ) await msg.reply( '\'' + who + '\' not found on server.' );
+			else {
 
 				let err = Trade.transfer( src, dest, expr );
-				if ( err === null ) {
-
-					msg.reply( 'Can\'t transfer from ' + src.name + ' to ' + dest.name + ' ' + err );
-
-				} else if ( typeof(err) === 'string ' ) {
+				if ( typeof(err) === 'string ' ) {
 			
-					msg.reply( err );
+					await msg.reply( err );
 
 				} else {
 
-					await this.saveChar( src, true );
-					await this.saveChar( dest, true  );
-					msg.reply( 'Transfer complete.');
+					this.cacheChar( src );
+					this.cacheChar( dest  );
+					await msg.reply( 'Transfer complete.');
 
 				}
 
@@ -460,59 +447,55 @@ class RPG {
 
 	}
 
-	async cmdRmChar( msg, charname=null ) {
+	async cmdRmChar( msg, charname ) {
 
-		if ( charname == null ) charname = msg.author.username;
+		if ( !charname ) {
+			msg.reply( 'Must specify a character to delete.');
+			return;
+		}
+
 		try {
 
-			let char;
+			let char = await this.tryLoadChar( charname );
+			if ( !char ) {
+				await msg.reply( charname + ' not found on server.');
+				return;
+			} 
 
-			if ( charname == null ) {
-				char = await this.activeCharOrErr( msg, msg.author );
-				if ( char == null) return;
-			} else {
-
-				char = await this.tryLoadChar( charname );
-				if ( char == null ) {
-					msg.reply( charname + ' not found on server.');
-					return;
-				} 
-			}
-
-			if ( char.owner == null || char.owner == msg.author.id ) {
+			if ( !char.owner || char.owner === msg.author.id ) {
 
 				// delete
 				let key = this.getCharKey( charname );
 				this._context.deleteKeyData( key );
+
+				let active = this.activeChars[char.owner];
+				if ( active && active.name === charname ) await this.clearActiveChar( char.owner );
+
 				msg.reply( charname + ' deleted.' );
 
-			} else {
-
-				msg.reply( 'You do not have permission to delete ' + charname );
-			}
-
+			} else msg.reply( 'You do not have permission to delete ' + charname );
 
 		} catch ( e ) { console.log(e); }
 	
 	}
 
-	async cmdViewChar( msg, charname=null ) {
+	async cmdViewChar( m, charname=null ) {
 
 		try {
 	
 			let char;
 
-			if ( charname == null ) {
-				char = await this.activeCharOrErr( msg, msg.author );
-				if ( char == null) return;
+			if ( !charname ) {
+				char = await this.activeCharOrErr( m, m.author );
+				if ( !char) return;
 			} else {
 				char = await this.tryLoadChar( charname );
-				if ( char == null ) {
-					msg.reply( charname + ' not found on server. D:' );
+				if (!char) {
+					m.reply( charname + ' not found on server. D:' );
 					return;
 				}
 			}
-			this.echoChar( msg.channel, char );
+			this.echoChar( m.channel, char );
 	
 		} catch(e) {console.log(e);}
 
@@ -521,22 +504,22 @@ class RPG {
 	async cmdSaveChar( m ) {
 
 		let char = await this.activeCharOrErr( m, m.author );
-		if ( char == null ) return;
+		if (!char) return;
 
 		await this.saveChar( char, true );
-		await m.reply( char.name + ' saved.');
+		m.reply( char.name + ' saved.');
 
 	}
 
 	async cmdLoadChar( msg, charname=null ) {
 
-		if ( charname == null ) charname = msg.author.username;
+		if ( !charname ) charname = msg.author.username;
 	
 		try {
 	
 			let char = await this.tryLoadChar( charname );
 			let prefix;
-			if ( char == null ) {
+			if (!char) {
 				return await msg.reply( charname + ' not found on server. D:' );
 			} else if ( char.owner !== msg.author.id ) {
 				prefix = 'This is not your character.\n';
@@ -552,30 +535,30 @@ class RPG {
 	
 	}
 	
-	async cmdRollChar( msg, charname=null, racename=null, classname=null, sex=null ) {
+	async cmdRollChar( m, charname=null, racename=null, classname=null, sex=null ) {
 
 		try {
 			
-			let race = getRace( racename );
-			if ( race == null ) return await msg.reply( 'Race ' + racename + ' not found.' );
+			let race = Race.GetRace( racename );
+			if ( !race ) return await m.reply( 'Race ' + racename + ' not found.' );
 
-			let charclass = getClass( classname );
-			if ( charclass == null ) return await msg.reply( 'Class ' + classname + ' not found.' );
+			let charclass = CharClass.GetClass( classname );
+			if ( !charclass ) return await m.reply( 'Class ' + classname + ' not found.' );
 
-			if ( sex == null ) sex = Math.random() < 0.5 ? 'm' : 'f';
+			if ( !sex ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
 			if ( charname != null ) {
 				if ( await this.charExists(charname) ) {
-					msg.reply( 'Character ' + charname + ' already exists.' );
+					m.reply( 'Character ' + charname + ' already exists.' );
 					return;
 				}
 			} else charname = await this.uniqueName( race, sex );
 
-			let char = CharGen.genChar( msg.author.id, race, charclass, charname, null );
+			let char = CharGen.genChar( m.author.id, race, charclass, charname, null );
 			console.log( 'char rolled: ' + char.name );
 
-			await this.setActiveChar( msg.author, char );
-			this.echoChar( msg.channel, char );
+			await this.setActiveChar( m.author, char );
+			this.echoChar( m.channel, char );
 			await this.saveChar( char, true );
 
 		} catch ( e ){ console.log(e); }
@@ -584,11 +567,8 @@ class RPG {
 	
 	async charExists( charname ) {
 
-		try {
-			let key = this.getCharKey( charname );
-			return await this._context.cache.exists( key );
-		} catch (e){console.log(e); }
-		return false;
+		let key = this.getCharKey( charname );
+		return await this._context.cache.exists( key );
 
 	}
 
@@ -596,30 +576,27 @@ class RPG {
 	
 		let namestr = char.name + ' is a';
 		let desc = char.getLongDesc();
-		chan.send( prefix + '```' + namestr + ( isVowel(desc.charAt(0) )?'n ':' ') + desc + '```' );
+		chan.send( prefix + '```' + namestr + ( display.isVowel(desc.charAt(0) )?'n ':' ') + desc + '```' );
 	
 	}
 	
 	async activeCharOrErr( m, user ) {
 
 		let char = this.activeChars[user.id];
-		if ( char != null ) return char;
+		if ( char ) return char;
 
-		if ( this.lastChars == null ) await this.loadLastChars();
+		if ( !this.lastChars ) await this.loadLastChars();
 
 		let charname = this.lastChars[user.id];
-		if ( charname == null ) {
-			m.reply( 'No active character for: ' + user.username );
-			return null;
-		}
+		if ( !charname ) return await m.reply( 'No active character for: ' + user.username );
 
 		char = await this.tryLoadChar( charname );
-		if ( char == null ) {
-			m.reply( 'Character \'' + charname + '\' no longer exists. Load new char.');
+		if ( !char ) {
+			await m.reply( 'Character \'' + charname + '\' no longer exists. Load new char.');
 			return;
 		}
 		if ( char.owner != user.id ) {
-			m.reply( 'Character \'' + charname + '\' is owned by someone else. Load a new character.');
+			await m.reply( 'Character \'' + charname + '\' is owned by someone else. Load a new character.');
 			return;
 		}
 
@@ -639,11 +616,18 @@ class RPG {
 
 	}
 
+	async clearActiveChar( uid ) {
+
+		delete this.activeChars[uid];
+		if ( this.lastChars == null ) await this.loadLastChars();
+		delete this.lastChars[uid];
+
+	}
+
 	async setActiveChar( user, char ) {
 
 		let lastChar = this.activeChars[user.id];
-		// save previous.
-		if ( lastChar ) await this.saveChar( lastChar, true );
+		if ( lastChar ) await this.saveChar( lastChar, true );		// save previous.
 
 		if ( this.lastChars == null ) await this.loadLastChars();
 
@@ -675,31 +659,26 @@ class RPG {
 			if ( data == null ) return null;
 		}
 
-		if ( data instanceof Char ) {
-			return data;
-		}
+		if ( data instanceof Char ) return data;
 
 		console.log('parsing JSON char: ' + charname );
 
-		let char = Char.FromJSON( data, raceByName, classByName );
-		//restore char so Char is returned next, not json.
+		let char = Char.FromJSON( data );
+		//restore char so Char is returned, not json.
 		this._context.storeKeyData( key, char );
 
 		return char;
 
 	}
 
-	getCharKey( charname ) {
-		return this._context.getDataKey( RPG_DIR, charname );
-	}
+	getCharKey( charname ) { return RPG_DIR + charname; }
 
 	async uniqueName( race, sex ) {
 
 		let namegen = require( './namegen.js');
-		var name;
 
 		do {
-			name = namegen.genName( race.name, sex );
+			var name = namegen.genName( race.name, sex );
 		} while ( await this.charExists(name) )
 
 		return name;
@@ -713,15 +692,12 @@ exports.init = function( bot ){
 	console.log( 'rpg INIT' );
 
 	// CHAR MANAGEMENT
-	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]',
-		RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
+	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]', RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
 
-	bot.addContextCmd( 'loadchar', '!loadchar <charname>',
-		RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'loadchar', '!loadchar <charname>', RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'savechar', '!savechar', RPG.prototype.cmdSaveChar, RPG, {maxArgs:0});
 
-	bot.addContextCmd( 'viewchar', '!viewchar <charname>',
-		RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'viewchar', '!viewchar <charname>', RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
 
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
@@ -768,71 +744,5 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );
 	bot.addContextCmd( 'east', '!east', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['east'] } );
 	bot.addContextCmd( 'west', '!west', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['west'] } );
-
-}
-
-function isVowel( lt ) {
-	return lt === 'a' || lt === 'e' || lt === 'i' || lt === 'o' || lt === 'u';
-}
-
-function initRaces() {
-
-	try {
-
-		let a = require( './data/races.json');
-
-		exports.Races = races = [];
-		exports.RaceByName = raceByName = {};
-
-		let raceObj, race;
-		for( let i = a.length-1; i>= 0; i-- ) {
-
-			raceObj = a[i];
-			race = Race.FromJSON( raceObj );
-			raceByName[ race.name ] = race;
-			races.push( race );
-
-		}
-
-
-	} catch (e){
-		console.log(e);
-	}
-
-}
-
-function getRace( racename ) {
-	if ( racename == null || !raceByName.hasOwnProperty(racename) ) return util.randElm(races);
-	return raceByName[racename.toLowerCase()];
-}
-
-function getClass( classname ) {
-	if ( classname == null || !classByName.hasOwnProperty(classname) ) return util.randElm(classes);
-	return classByName[classname.toLowerCase()];
-}
-
-function initClasses() {
-
-	try {
-
-		let a = require( './data/classes.json');
-
-		exports.Classes = classes = [];
-		exports.ClassByName = classByName = {};
-
-		let classObj, charclass;
-		for( let i = a.length-1; i>= 0; i-- ) {
-
-			classObj = a[i];
-			charclass = CharClass.FromJSON( classObj );
-			classByName[ charclass.name ] = charclass;
-			classes.push( charclass );
-
-		}
-
-
-	} catch (e){
-		console.log(e);
-	}
 
 }
