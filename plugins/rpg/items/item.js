@@ -78,11 +78,20 @@ exports.Item = class Item {
 
 	}
 
+	getView() {
+		return [ this.getDetails(), this._attach ];
+	}
+
 	/**
 	 * @returns detailed string description of item.
 	*/
-	getDetails() { 
-		return this._name + ': ' + (this._inscript ? this._desc + ' { ' + this._inscript + ' }' : this._desc);
+	getDetails() {
+
+		let s = this._name + ': ' + this._desc;
+		if ( this._inscript ) s += ' { ' + this._inscript + ' }';
+		if ( this._attach) s += ' [img]';
+
+		return s;
 	}
 
 	static ItemMenu( a, start=1) {
@@ -137,11 +146,35 @@ exports.Item = class Item {
 
 	}
 
+	static Cook( it ) {
+
+		let cooking = require( '../data/cooking.json' );
+		let adjs = cooking.adjectives;
+
+		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
+
+		if ( it.type == itemjs.ARMOR ) {
+			it.armor -= 10;
+		} else if ( it.type == itemjs.WEAPON ) {
+			it.bonus -= 10;
+		}
+		it.type = itemjs.FOOD;
+
+		it.name = adj + ' ' + it.name;
+
+		let desc = cooking.descs[ Math.floor( cooking.descs.length*Math.random())];
+		it.desc += ' ' + desc;
+
+	}
+
 }
 
-exports.Craft = function( char, name, desc ) {
+exports.Craft = function( char, name, desc, attach ) {
 
 	let item = new exports.Item( name, desc );
+
+	if ( attach) item._attach = attach;
+
 	char.addExp( 1 );
 	char.addItem( item );
 

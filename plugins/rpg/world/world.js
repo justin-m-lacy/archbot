@@ -19,13 +19,15 @@ module.exports = class World {
 	 * @param {*} char 
 	 * @param {*} desc 
 	 */
-	async setDesc( char, desc ) {
+	async setDesc( char, desc, attach ) {
 
 		let loc = await this.getOrGen( char.loc, char );
+		if ( attach ) loc.attach = attach.proxyURL;
+
 		let owner = loc.owner;
 		if ( owner && owner != char.name ) return 'You do not control this location.';
 
-		loc.desc = desc;
+		if ( desc ) loc.desc = desc;
 
 		this.quickSave( loc );
 
@@ -62,7 +64,7 @@ module.exports = class World {
 		loc = await this.getMoveLoc( loc, dir, char );
 		if ( typeof(loc) === 'string') return loc;
 
-		char.loc = loc;
+		char.loc = loc.coord;
 		return char.name + ' is' + loc.look()
 
 	}
@@ -84,16 +86,31 @@ module.exports = class World {
 
 	}
 
-	async look( char, what ) {
+	async view( char, what ) {
 
 		let loc = await this.getOrGen( char.loc );
 		if ( what ) {
 
 			let it = loc.get( what );
 			if ( it == null) return 'Item not found.';
+			return it.getView();
+
+		}
+		return [ char.name + ' is' + loc.look(), loc.attach ];
+
+	}
+
+	async look( char, what ) {
+
+		let loc = await this.getOrGen( char.loc );
+		console.log('looking at: ' + char.loc );
+		if ( what ) {
+
+			let it = loc.get( what );
+			if ( it == null) return 'Item not found.';
 			return it.getDetails();
 
-		} else return char.name + ' is ' + loc.look();
+		} else return char.name + ' is' + loc.look();
 
 	}
 

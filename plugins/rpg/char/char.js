@@ -68,7 +68,9 @@ class Char extends actor.Actor {
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
 		if ( json.info ) Object.assign( char._info, json.info );
-		if ( json.loc ) Object.assign( char._loc, json.loc );
+		if ( json.loc ) {
+			Object.assign( char._loc, json.loc );
+		}
 
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
@@ -92,7 +94,7 @@ class Char extends actor.Actor {
 		this._owner = owner;
 
 	}
-
+ 
 	listEquip() {
 		return this._equip.getList();
 	}
@@ -148,9 +150,8 @@ class Char extends actor.Actor {
 
 		if ( item.type == Item.FOOD) return item.name + ' is already food.';
 
-		let oldname = item.name;
-		this._inv.cook(item);
-		return oldname + ' has been cooked.';
+		Item.Item.Cook( item);
+		return this.name + ' cooks \'' + item.name + '\'';
 
 	}
 

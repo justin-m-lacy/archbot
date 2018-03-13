@@ -74,6 +74,9 @@ exports.Loc = class Loc {
 	get maker() { return this._maker; }
 	set maker(v) { this._maker = v; }
 
+	get attach() { return this._attach; }
+	set attach(v) { this._attach = v;}
+
 	get owner() { return this._owner; }
 	set owner(v) { this._owner = v; }
 
@@ -95,6 +98,8 @@ exports.Loc = class Loc {
 
 		}
 
+		if ( json.attach ) loc._attach = json.attach;
+
 		if ( json.inv ) {
 			loc._inv = Inv.FromJSON( json.inv );
 		} else if ( json.items ) {
@@ -110,6 +115,7 @@ exports.Loc = class Loc {
 		if ( json.maker) loc._maker = json.maker;
 		if ( json.time ) loc._time = json.time;
 
+		console.log( 'loc coord: ' + loc.coord );
 		return loc;
 
 	}
@@ -126,6 +132,7 @@ exports.Loc = class Loc {
 			biome:this._biome
 		};
 
+		if ( this._attach) o.attach = this._attach;
 		if ( this._maker ) o.maker = this._maker;
 		if ( this._time) o.time = this._time;
 		if ( this._owner ) o.owner = this._owner;
@@ -210,14 +217,17 @@ exports.Loc = class Loc {
 
 	}
 
+	view() { return [ this.look(), this._attach]; }
+
 	/**
 	 * Returns everything seen when 'look'
 	 * is used at this location.
 	*/
 	look() {
 
-		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')\n';
-		r += this._desc + '\n';
+		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')';
+		if ( this._attach ) r += ' [img]';
+		r += '\n' + this._desc + '\n';
 
 		r += 'On the ground you see ' + this._inv.getList();
 
