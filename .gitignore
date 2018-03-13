@@ -26,6 +26,8 @@ plugins/chess/images/outfile.png
 
 *.code-workspace
 
+archconfig.json
+config.json
 
 app.yaml
 .gcloudignore
