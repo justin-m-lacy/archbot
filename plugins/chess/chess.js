@@ -37,7 +37,7 @@ class Room {
 				if ( p2 == null ) return;
 			}
 
-			this.gcache.printGames( m, p1, p2 );
+			await this.gcache.printGames( m, p1, p2 );
 
 		} catch ( e ) { console.log(e);}
 
@@ -93,7 +93,7 @@ class Room {
 		if ( opp1 == null ) opp1 = m.author;
 		else if ( opp2 == null ) opp2 = m.author;
 
-		let game = await this.gameOrShowErr( m, opp1, opp2, gnum );
+		let game = await this.gcache.gameOrShowErr( m, opp1, opp2, gnum );
 		if ( game == null ) return;
 
 		try {
@@ -105,9 +105,9 @@ class Room {
 
 	}
 
-	async cmdResign( m, oppName ) {
+	async cmdResign( m, oppName, gnum ) {
 
-		let game = await this.gameOrShowErr( m, m.author, oppName );
+		let game = await this.gcache.gameOrShowErr( m, m.author, oppName, gnum);
 		if ( game == null ) return;
 
 		if ( !game.tryResign() ) {
@@ -118,19 +118,18 @@ class Room {
 
 	}
 
-	async cmdViewBoard( m, opp1, opp2 ) {
+	async cmdViewBoard( m, opp1, opp2, gnum ) {
 
 		if ( opp1 == null ) {
 			opp1 = m.author;
-		}
-		else if ( opp2 == null ) {
+		} else if ( opp2 == null ) {
 			opp2 = m.author;
 		}
 
-		let game = await this.gameOrShowErr( m, opp1, opp2 );
+		let game = await this.gcache.gameOrShowErr( m, opp1, opp2 );
 		if ( game != null ) {
 			Display.showBoard( m.channel, game );
-		}
+		} else console.log('GAME IS NULL');
 
 	}
 
@@ -145,12 +144,12 @@ class Room {
 
 		} else if ( len == 1 ) {
 
-			game = await this.gameOrShowErr( m, m.author, null );
+			game = await this.gcache.gameOrShowErr( m, m.author, null );
 			moveStr = args[0];
 
 		} else if ( len == 2 ) {
 			// !move opponent moveStr
-			game = await this.gameOrShowErr( m, m.author, args[0]);
+			game = await this.gcache.gameOrShowErr( m, m.author, args[0]);
 			moveStr = args[1];
 		} else {
 			m.reply( 'Unexpected move input.' );
@@ -176,7 +175,7 @@ class Room {
 
 				/// check game ended this turn.
 				if ( !game.isOpen() ) {
-					await this.gcache.saveGame( game );
+					await this.gcache.completeGame( game );
 				}
 
 			} else {
@@ -202,59 +201,11 @@ class Room {
 
 		let game = new ChessGame( w_user.id, b_user.id, Date.now() );
 
-		await this.gcache.saveGame( game );
+		await this.gcache.addNew( game );
 		//console.log('creating game: ' + gid );
 		return game;
 
 	}
-
-	/**
-	 * Attempts to find an active gamea between the given user
-	 * and the named player.
-	 * An error message is displayed to the channel on failure.
-	 * @param {Discord.Message} m 
-	 * @param {string|Discord.User} p1 
-	 * @param {string|Discord.User} p2
-	 * @returns {Game} The game being played.
-	 */
-	async gameOrShowErr( m, p1, p2 ) {
-
-		try {
-
-		if ( typeof(p1) === 'string' ) p1 = this._context.userOrShowErr( m, p1 );
-		if ( !p1 ) {
-			m.reply( 'Player not found.');
-			return;
-		}
-
-		if ( p2 == null ) {
-
-			return this.gcache.activeOrErr( m, p1 );
-
-
-		} else {
-
-			if ( typeof(p2) === 'string' ) p2 = this._context.userOrShowErr( m, p2 );
-			if ( !p2 ) {
-				m.reply( 'Second player not found.');
-				return;
-			};
-
-			let game = await this.gcache.getGame( p1, p2 );
-
-			if ( !game ) {
-				m.reply( 'No game between ' + this._context.userString(p1) +
-				' and ' + this._context.userString( p2 ) + ' found.' );
-			}
-
-		}
-
-		return game;
-
-		} catch ( e ) {console.log(e); }
-
-	}
-
 
 } // class
 

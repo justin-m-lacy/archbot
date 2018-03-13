@@ -1,4 +1,5 @@
 const Game = require( './game.js');
+const dates = require( './datedisplay.js');
 
 /**
  * Handles retrieval, store, and listings of user games.
@@ -14,8 +15,59 @@ module.exports = class GameCache {
 
 		this.reviver = revive;
 
-		this.activeGames = {};
-		this.games_list = null;
+		// userid -> active,completed games list.
+		this.userLists = {};
+
+	}
+
+	async getUserLists( uid ) {
+
+		let info = await this.context.fetchKeyData( this.dir + uid );
+		if ( info ) return info;
+		let o = { active:[], completed:[]};
+
+		this.userLists[ uid ] = o;
+		this.context.storeKeyData( this.dir + uid, o, true );
+
+		return o;
+
+	}
+
+	async allGames( u1, u2 ) {
+
+		let lists = await this.getUserLists( u1.id );
+		let all = lists.active.concat( lists.completed );
+
+		all = this.filterList( all, u2.id );
+		all.sort( this.cmpMatches );
+
+		return all;
+
+	}
+
+	/**
+	 * Returns an array of all active games for the user.
+	 * @param {Discord.User} user 
+	 */
+	async activeGames( u1, u2 ) {
+
+		let list = await this.getUserLists( u1.id );
+
+		if ( u2 ) return this.filterList( list.active, u2.id );
+
+		console.log('returning active count: ' + list.active.length );
+
+		return list.active;
+
+	}
+
+	async completedGames( u1, u2 ){
+
+		let list = await this.getUserLists( u1.id );
+
+		if (u2) return this.filterList( list.completed, u2.id );
+
+		return list.completed;
 
 	}
 
@@ -23,41 +75,81 @@ module.exports = class GameCache {
 	 * Attempts to retrieve a uniquely active user game.
 	 * Displays a message if multiple games are active.
 	 * @param {Discord.Message} m 
-	 * @param {Discord.User} user 
+	 * @param {Discord.User} u1 
 	 */
-	async activeOrErr( m, user ) {
+	async activeOrErr( m, u1, u2=null, gnum=null) {
 
 		//console.log( 'p1 not null. p2 null');
-		let games = await this.activeUserGames( user );
+		let games = await this.activeGames( u1 );
+
+		if ( u2 != null || gnum != null ) {
+			console.log( 'filtering active list.')
+			games = this.filterList( games, u2.id, gnum );
+		}
 
 		if ( games.length === 0 ) {
-
-			let game = this.getGame( user.id );
-			if ( game ) return game;
 
 			m.reply( 'No games found.');
 
 		} else if ( games.length > 1 ) {
-			m.reply( 'Multiple games for ' + this.context.userString(user) +
+			m.reply( 'Multiple games for ' + this.context.userString(u1) +
 					' found.  Specify opponent in command.' );
-		} else return games[0];
+		} else return await this.loadGame( games[0][0] );
 
 	}
 
-	async getGame( user1, user2, gnum=null ) {
+	async filterList( list, uid, gnum ) {
 
-		try {
+		let len = list.length;
+		var results;
+		var ginfo;
 
-			if ( user2 != null && gnum == null ) {
+		if ( uid != null ) {
 
-				let gid = Game.ActiveGameID( user1, user2 );
-				let game = this.activeGames[ gid ];
+			results = [];
+			for( let i = 0; i < len; i++ ) {
 
-				if ( game ) return game;
+				ginfo = list[i];
+				if ( ginfo[1] == uid || ginfo[2] == uid ) results.push( ginfo );
 
 			}
 
-			return await this.getGameNum( user1, user2, gnum );
+		} else results = list;
+
+		if ( gnum != null ) {
+
+			gnum--;
+			if ( gnum < 0 || gnum >= list.length ) return null;
+			return [ list[gnum] ];
+
+		}
+
+		return results;
+
+	}
+
+	async getGame( u1, u2, num=null ) {
+
+		try {
+
+			let gameList = await this.activeGames(u1,u2);
+			let gname;
+	
+			if ( num == null ) {
+	
+				// last active
+				if ( gameList.length === 0 ) return;
+				gname = gameList[ gameList.length-1 ][0];
+	
+			} else {
+	
+				num--;
+				if ( num < 0 || num >= gameList.length ) return null;
+				gname = gameList[num][0];
+	
+			}
+	
+			return await this.loadGame( gname );
 
 		} catch ( e ) { console.log(e); }
 
@@ -75,7 +167,7 @@ module.exports = class GameCache {
 
 		if ( p2 == null ) {
 
-			return this.activeOrErr( m, p1 );
+			return await this.activeOrErr( m, p1 );
 
 		} else {
 
@@ -92,123 +184,21 @@ module.exports = class GameCache {
 				' and ' + this.context.userString( p2 ) + ' found.' );
 			}
 
+			return game;
 		}
 
-		return game;
 
 		} catch ( e ) {console.log(e); }
 
 	}
 
-	/**
-	 * Gets the numbered game, from oldest to newest,
-	 * between two players or of a single player.
-	 * @param {} p1 
-	 * @param {} p2 
-	 * @param {number} num 
-	 */
-	async getGameNum( p1, p2=null, num=null ) {
-
-		let gameList = await this.userGameList(p1,p2);
-		let gname;
-
-		if ( num == null ) {
-
-			if ( gameList.length === 0 ) return;
-			gname = gameList[ gameList.length-1 ][0];
-
-		} else {
-
-			num--;
-			if ( num < 0 || num >= gameList.length ) return null;
-			let gname = gameList[num][0];
-
-		}
-
-		return await this.loadGame( gname );
-
-	}
-
-	/**
-	 * Find all stored user games.
-	 * @param {Discord.User} p1 
-	 * @param {Discord.User|null} p2
-	 */
-	async userGameList( p1, p2=null ) {
-
-		if ( this.games_list == null ) this.games_list = await this.fetchGamesList();
-
-		let regex = ( p2 == null ) ? Game.UserRegex( p1.id ) : Game.VsRegex( p1.id, p2.id );
-
-		console.log( 'regex test: ' + regex.toString() );
-
-		let matches = [];
-		let match;
-		for( let k in this.games_list ) {
-
-			match = k.match( regex );
-			if ( match ){
-				console.log( 'user game found: ' + match[0] + ( match.length==2? '  TIME: ' + match[1] : '') );
-				matches.push( match );
-			}
-
-		} //
-
-		matches.sort( this.cmpMatches );
-
-		console.log( 'total matches found: ' + matches.length );
-
-		return matches;
-
-	}
-
-	/**
-	 * Returns a list of all active games for the
-	 * given user.
-	 * @param {Discord.User} user 
-	 */
-	async activeUserGames( user ) {
-
-		let games = [];
-		let id = user.id;
-		let game;
-	
-		//console.log('searching games for: ' + id );
-		for( let gid in this.activeGames ) {
-	
-			game = this.activeGames[gid];
-			if ( game.hasPlayer(id) ) games.push(game);
-	
-		}
-	
-		return games;
-	
-	}
-
-	/**
-	 * 
-	 * @param {RegExpMatchArray} a 
-	 * @param {RegExpMatchArray} b 
-	 */
-	cmpMatches( a,b ) {
-		let at = a[1], bt = b[1];
-
-		if ( at === bt ) return 0;	// never happen;
-		if ( at > bt ) return 1;
-		return 1;
-	}
 
 	/**
 	 * 
 	 * @param {Game} game 
 	*/
 	async saveGame( game ) {
-
-		this.activeGames[game.shortID] = game;
-		let id = game.saveID;
-		this.games_list[id] = true;
-		await this.context.storeKeyData( this.dir + id, game );
-
+		await this.context.storeKeyData( this.dir + game.saveID, game, true );
 	}
 
 	/**
@@ -223,17 +213,15 @@ module.exports = class GameCache {
 			console.log('LOADED DATA ALREADY GAME');
 		}
 
-		if ( data != null && !(data instanceof Game ) && this.reviver ) {
+		if ( data != null && this.reviver ) {
 
-			data = this.reviver( data );	//replace json with revived obj.
+			let game = this.reviver( data );	//replace json with revived obj.
 
-			if ( data != null ) {
+			if ( game != null ) {
 
 				console.log('recaching parsed game.');
-				this.activeGames[data.shortID] = data;
-				this.games_list[saveid] = true;
-				this.context.cacheKeyData( this.dir + saveid, data );
-
+				this.context.cacheKeyData( this.dir + saveid, game );
+				return game;
 			}
 
 		}
@@ -242,48 +230,154 @@ module.exports = class GameCache {
 
 	}
 
-	/**
-	 * 
-	 * @param {Discord.Message} m 
-	 * @param {Discord.User} user 
-	 */
-	async printGames( m, p1, p2 ) {
+	async printGames( m, u1, u2 ) {
 
-		let games = await this.userGameList( p1, p2 );
+		let list = await this.activeGames( u1, u2 );
 
-		let res = '';
-		let len = games.length;
-
-		if ( len == 0 ) {
-			m.reply( 'No active games found.');
-			return;
-		}
-
-		let info;
-		for( let i = 0; i < len;) {
-
-			info = games[i++];
-			res += (i) + ') ' + info[0] + '\n';
-
-		}
-
-		m.reply('```' + res + '```');
+		m.reply( listToString(list ) );
 
 	}
 
-	async fetchGamesList() {
-	
-		if ( this.games_list == null) this.games_list = {};
+	/**
+	 * 
+	 * @param {*} ginfos [fullid, p1_id,p2_id,time]
+	*/
+	async listToString( ginfos ) {
 
-		let glist = await this.context.getDataList( this.dir );
-		for( let i = glist.length-1; i >= 0; i-- ){
+		let len = ginfos.length;
+		if ( len == 0 ) return 'No games found.';
 
-			console.log( 'game found: ' + glist[i] );
-			this.games_list[glist[i]] = true;
+		let res = '';
+
+		for( let i = 0; i < len;) {
+
+			var info = ginfos[i++];
+
+			res += i + ') ' + await this.context.displayName( info[1] ) + ' vs '
+				+ await this.context.displayName( info[2] ) + ': ' + new Date( parseInt(info[3])).toLocaleDateString() + '\n';
+
 		}
 
-		return this.games_list;
+		return res;
 
+	}
+
+	async addNew( game ) {
+
+		let [ list1, list2 ] = await Promise.all( [this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
+		
+		let info = Game.IdParts(game.saveID);
+
+		if ( game.isOpen() ) {
+
+			console.log('GAME IS OPEN');
+			this.insertGame( list1.active, info );
+			this.insertGame( list2.active, info );
+
+		} else {
+
+			console.log('GAME IS CLOSED');
+	
+			this.insertGame( list1.completed, info );
+			this.insertGame( list2.completed, info );
+
+		}
+
+		await this.saveGame( game );
+
+	}
+
+	async completeGame( game ) {
+
+		let [ list1, list2 ] = await Promise.all( [ this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
+		
+		let info = Game.IdParts(game.saveID);
+
+		this.removeGame( list1.active, info );
+		this.removeGame( list2.active, info );
+
+		this.insertGame( list1.completed, info );
+		this.insertGame( list2.completed, info );
+
+		await this.saveGame( game );
+
+	}
+
+	insertGame( list, ginfo ) {
+
+		let min=0, max = list.length;
+		let mid = Math.floor( (min + max)/2 );
+
+		let gtime = ginfo[3];
+		let id = ginfo[0];
+
+		let cur;
+		while ( min < max ) {
+
+			cur = list[mid];
+
+			if ( id === cur[0]) {
+				console.log( 'ITEM: ' + id + ' ALREADY IN LIST.');
+				return;		// already in list.
+			} else if ( gtime < cur[3]) {
+				max = mid;
+			} else {
+				min + mid+1;
+
+			}
+			mid = Math.floor( (min + max)/2 );
+
+		} //
+
+		console.log('ADDING ITEM AT: ' + mid );
+ 
+		list.splice( mid, 0, ginfo );
+
+	}
+
+	removeGame( list, ginfo ) {
+
+		let min=0, max = list.length;
+		let mid = Math.floor( (min + max)/2 );
+
+		let gtime = ginfo[3];
+		let id = ginfo[0];
+
+		let cur;
+		while ( min < max ) {
+
+			cur = list[mid];
+
+			if ( id === cur[0] ) {
+
+				console.log('REMOVING GAME: ' + id);
+				return list.splice(mid,1)[0];
+
+			} else if ( gtime < cur[3]) {
+				max = mid;
+			} else {
+				min + mid+1;
+
+			}
+			mid = Math.floor( (min + max)/2 );
+
+		} //
+
+		console.log( 'GAME: ' + id  +' NOT REMOVED.');
+
+	}
+
+	/**
+	 * 
+	 * @param {RegExpMatchArray} a 
+	 * @param {RegExpMatchArray} b 
+	*/
+	cmpMatches( a,b ) {
+		let at = a[3], bt = b[3];
+
+		if ( at === bt ) return ( a[0] > b[0]) ? 1 : -1;	// never happen;
+		if ( at > bt ) return 1;
+		return -1;
 	}
 
 } //

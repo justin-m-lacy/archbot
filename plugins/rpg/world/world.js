@@ -11,7 +11,24 @@ module.exports = class World {
 	}
 
 	async initWorld() {
-		let start = await this.getOrGen( new Loc.Coord(0,0));
+		await this.getOrGen( new Loc.Coord(0,0));
+	}
+
+	/**
+	 * Change location description.
+	 * @param {*} char 
+	 * @param {*} desc 
+	 */
+	async setDesc( char, desc ) {
+
+		let loc = await this.getOrGen( char.loc, char );
+		let owner = loc.owner;
+		if ( owner && owner != char.name ) return 'You do not control this location.';
+
+		loc.desc = desc;
+
+		this.quickSave( loc );
+
 	}
 
 	/**
@@ -21,15 +38,63 @@ module.exports = class World {
 	 */
 	async take( char, what ) {
 
-		let loc = await this.getOrGen( char.loc );
+		let loc = await this.getOrGen( char.loc, char );
 		let it = loc.take( what );
 		if ( it == null ) return 'You do not see any ' + what + ' here.';
 
 		char.addItem( it );
 
-		this.forceSave( loc );
+		this.quickSave( loc );
 
 		return char.name + ' took ' + it.name;
+	}
+
+	async move( char, dir ) {
+
+		if ( dir == null ) return 'Must specify movement direction.';
+
+		let loc = char.loc;
+		if ( loc == null ) {
+			console.log('error: char loc is null');
+			loc = new Loc.Coord(0,0);
+		}
+
+		loc = await this.getMoveLoc( loc, dir, char );
+		if ( typeof(loc) === 'string') return loc;
+
+		char.loc = loc;
+		return char.name + ' is' + loc.look()
+
+	}
+
+	/**
+	 * 
+	 * @param {Char} char
+	 * @returns {string} description of loc maker and time, or error message. 
+	 */
+	async explored( char ) {
+
+		let loc = await this.getOrGen( char.loc );
+
+		if ( loc.maker == null ) {
+			loc.setMaker( char.name );
+			return 'You are the first to explore ' + loc.coord;
+		}
+		return loc.explored();
+
+	}
+
+	async look( char, what ) {
+
+		let loc = await this.getOrGen( char.loc );
+		if ( what ) {
+
+			let it = loc.get( what );
+			if ( it == null) return 'Item not found.';
+			return it.getDetails();
+
+		} else return char.name + ' is ' + loc.look();
+
 	}
 
 	/**
@@ -42,12 +107,33 @@ module.exports = class World {
 		let it = char.takeItem( what );
 		if ( it == null) return 'No such item.';
 
-		let loc = await this.getOrGen( char.loc );
+		let loc = await this.getOrGen( char.loc, char );
 		loc.drop( it );
-		this.forceSave( loc );
+		this.quickSave( loc );
 
 		return char.name + ' dropped ' + it.name;
 
+	}
+
+	setHome( char ) {
+
+		char.home = char.loc;
+		return 'Home set.';
+
+	}
+
+	goHome( char ) {
+
+		let coord = char.home;
+		if ( coord == null ) return 'No home set.';
+
+		char.loc = coord;
+		return char.name + ' has travelled home.';
+
+	}
+
+	quickSave( loc ) {
+		this.cache.cache( this.coordKey(loc.coord), loc );
 	}
 
 	async forceSave( loc ) {
@@ -60,7 +146,7 @@ module.exports = class World {
 	 * @param {string} dir - move direction.
 	 * @returns New Loc or error string.
 	 */
-	async getMoveLoc( coord, dir ) {
+	async getMoveLoc( coord, dir, char ) {
 
 		let from = await this.getLoc( coord.x, coord.y );
 		if ( from === null ){
@@ -83,14 +169,18 @@ module.exports = class World {
 
 			let exits = await this.getRandExits(x,y);
 			dest = Gen.genLoc( destCoord, from, exits );
-			this.cache.store( this.coordKey(destCoord), dest );
+			dest.setMaker( char.name );
+
+			char.addExp( 1 );
+
+			this.cache.cache( this.coordKey(destCoord), dest );
 
 		}
 		return dest;
 
 	}
 
-	async getOrGen( coord ) {
+	async getOrGen( coord, char=null ) {
 
 		let key = this.coordKey(coord );
 		let loc = await this.cache.fetch( key );
@@ -99,7 +189,10 @@ module.exports = class World {
 
 			console.log( coord + ' NOT FOUND. GENERATING NEW');
 			loc = Gen.genNew( coord );
-			this.cache.store( key, loc );
+
+			if ( char ) loc.setMaker( char.name );
+
+			this.cache.cache( key, loc );
 
 
 		} else if ( loc instanceof Loc.Loc ) return loc;
@@ -108,7 +201,7 @@ module.exports = class World {
 			// instantiate json object.
 			loc = Loc.Loc.FromJSON( loc );
 			// store instance in cache.
-			this.cache.store( key, loc );
+			this.cache.cache( key, loc );
 
 		}
 

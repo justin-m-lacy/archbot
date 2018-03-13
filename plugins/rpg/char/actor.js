@@ -1,5 +1,5 @@
-const Dice = require( './dice.js');
-const Loc = require( './world/loc.js');
+const Dice = require( '../dice.js');
+const Loc = require( '../world/loc.js');
 
 exports.Actor = class Actor {
 
@@ -179,6 +179,51 @@ exports.Actor = class Actor {
 
 } //cls
 
+class StatMod {
+
+	// { stat->mod }
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v; }
+
+	get duration() { return this._duration; }
+	set duration(t) { this._duration = t;}
+
+	get startTime() { return this._start; }
+	set startTime(t) { this._start = t;}
+
+	constructor( mods=null ) {
+
+		if ( mods ) this._mods = mods;
+		else this._mods = {};
+
+	}
+
+	apply( stats ) {
+
+		for( let k in this._mods ) {
+
+			if ( stats.hasOwnProperty[k] ) {
+				stats[k] += this._mods[k];
+			}
+
+		}
+		if ( this._duration > 0 ) this._start = Date.now();
+
+	}
+
+	remove( stats ) {
+
+		for( let k in this._mods ) {
+
+			if ( stats.hasOwnProperty[k] ) {
+				stats[k] -= this._mods[k];
+			}
+
+		}
+
+	}
+
+}
 
 class StatBlock {
 

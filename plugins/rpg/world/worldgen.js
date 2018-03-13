@@ -54,8 +54,14 @@ module.exports = class {
 
 	static makeBiomeLoc( coord, biomeName ) {
 
-		if ( biomeName == null) biomeName == Loc.PLAINS;
+		if ( biomeName == null) {
+			 biomeName = Loc.PLAINS;
+			 console.log('ERR: ' + biomeName + ' is not a valid biome.');
+		}
 		let tmpl = biomes[biomeName];
+		if ( tmpl == null ) {
+			console.log( 'err: NO BIOME: ' + biomeName );
+		}
 		let loc = new Loc.Loc( coord, biomeName );
 
 		let descs = tmpl.descs;

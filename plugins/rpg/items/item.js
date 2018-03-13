@@ -25,6 +25,34 @@ exports.Item = class Item {
 	get inscription() { return this._inscript; }
 	set inscription(v) { this._inscript = v; }
 
+	get attach() { return this._attach; }
+	set attach(v) { this._attach = v;}
+
+	/**
+	 * @returns {string} discord id of crafter.
+	 */
+	get crafter() { return this._crafter; }
+	set crafter(s) { this._crafter = s; }
+
+	/**
+	 * Since Item should be subclassed, the sub item created
+	 * is passed as a param.
+	 * @param {*} json 
+	 * @param {*} it 
+	 */
+	static FromJSON( json, it=null ) {
+
+		if ( !it) it = new Item( json.name, json.desc, json.type );
+
+		if ( json.cost) it._cost = json.cost;
+		if ( json.attach ) it._attach = json.attach;
+		if ( json.maker ) this._crafter = json.maker;
+		if ( json.inscrip ) this._inscript = json.inscript;
+
+		return it;
+
+	}
+
 	toJSON() {
 
 		let json = {
@@ -34,6 +62,8 @@ exports.Item = class Item {
 			cost:this._cost
 		}
 
+		if ( this._attach ) json.attach = this._attach;
+		if ( this._crafter ) json.maker = this._crafter;
 		if ( this._inscript ) json.inscrip = this._inscript;
 
 		return json;
@@ -106,5 +136,13 @@ exports.Item = class Item {
 		return list;
 
 	}
+
+}
+
+exports.Craft = function( char, name, desc ) {
+
+	let item = new exports.Item( name, desc );
+	char.addExp( 1 );
+	char.addItem( item );
 
 }

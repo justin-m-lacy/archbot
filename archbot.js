@@ -12,8 +12,8 @@ const CmdPrefix = '!';
 
 // init bot
 var client = new Discord.Client(
-	{"disabledEvents":["TYPING_START"],
-	"messageCacheMaxSize":50,
+	{
+	"messageCacheMaxSize":150,
 	"messageCacheLifetime":100 } );
 
 console.log( 'client created.');
@@ -21,15 +21,24 @@ console.log( 'client created.');
 var bot = DiscordBot.InitBot( client, auth.master, CmdPrefix );
 console.log( 'bot created.');
 
-var dispatch = bot.dispatch;
-var cache = bot.cache;
-
 initCmds();
+
+var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
+bot.addPlugins( plugins );
+
+client.on( 'presenceUpdate', presenceChanged );
+client.on( 'error', doError );
+
+process.on( 'exit', onShutdown );
+process.on( 'SIGINT', onShutdown );
+
+console.log( 'logging in...');
+client.login( auth.token );
 
 
 function initCmds(){ 
 
-	let cmds = dispatch;
+	let cmds = bot.dispatch;
 
 	console.log( 'adding default commands.');
 
@@ -66,24 +75,6 @@ function initCmds(){
 	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1} );
 
 }
-
-var plugins = require( './plugsupport.js' ).loadPlugins( PLUGINS_DIR );
-bot.addPlugins( plugins );
-
-// for 'ready', 'this' is client.
-client.on( 'ready', function(evt) {
-    console.log('client ready: ' + this.user.username + ' - (' + this.user.id + ')');
-});
-
-client.on( 'presenceUpdate', presenceChanged );
-client.on( 'error', doError );
-
-process.on( 'exit', onShutdown );
-process.on( 'SIGINT', onShutdown );
-
-console.log( 'logging in...');
-client.login( auth.token );
-
 
 function doError( err ) {
 	console.log( 'Connection error: ' + err.message );
@@ -200,7 +191,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 	if ( !uObject ) return;
 
 	if ( uObject.presence.game != null && uObject.presence.game.name === gameName ) {
-		channel.send( displayName + ' is playing ' + gameName );
+		await channel.send( displayName + ' is playing ' + gameName );
 		return;
 	}
 
@@ -210,11 +201,11 @@ async function sendGameTime( channel, displayName, gameName ) {
 		let games = data.games;
 
 		let dateStr = DateFormat.dateString( games[gameName] );
-		channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
+		await channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
 		console.log(err);
-		channel.send( gameName + ': No record for ' + displayName + ' found.' );
+		await channel.send( gameName + ': No record for ' + displayName + ' found.' );
 	}
 
 }
@@ -226,7 +217,7 @@ async function cmdPlayTime( msg, name ){
 	if (!gMember) return;
 
 	if ( gMember.presence.game == null ) {
-		chan.send( name + ' is not playing a game.');
+		await chan.send( name + ' is not playing a game.');
 		return;
 	}
 
@@ -238,14 +229,14 @@ async function cmdPlayTime( msg, name ){
 		let data = await bot.fetchUserData( gMember );
 		if ( data.hasOwnProperty('games') && data.games.hasOwnProperty( gameName )) {
 			let lastTime = data.games[gameName];
-			chan.send( name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime) );
+			await chan.send( name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime) );
 			return;
 		}
 
 	} catch ( err ) {
 		console.log(err);
 	}
-	chan.send( 'I do not know when ' + name + '\'s game started.');
+	await chan.send( 'I do not know when ' + name + '\'s game started.');
 
 }
 
@@ -256,7 +247,7 @@ async function cmdIdleTime( msg, name ){
 	if ( !gMember ) return;
 
 	if ( !hasStatus( gMember, 'idle')){
-		chan.send( name + ' is not currently idle.');
+		await chan.send( name + ' is not currently idle.');
 		return;
 	}
 
@@ -268,7 +259,7 @@ async function cmdIdleTime( msg, name ){
 			let lastTime = latestStatus( history, ['offline','dnd','online'] );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been idle for ' + DateFormat.elapsed( lastTime ) );
+				await chan.send( name + ' has been idle for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -279,30 +270,31 @@ async function cmdIdleTime( msg, name ){
 		console.log( err );
 	}
 
-	chan.send( 'I do not know when ' + name + ' went idle.' );
+	await chan.send( 'I do not know when ' + name + ' went idle.' );
 
 }
 
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
+
 	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( hasStatus(gMember, 'offline') ) {
-		chan.send( name + ' is not online.' );
-		return;
+		return await chan.send( name + ' is not online.' );
 	}
 
 	try {
 
+		console.log('reading history');
 		let history = await readHistory(gMember);
 		if ( history != null ) {
 
 			let lastTime = latestStatus( history, 'offline' );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been online for ' + DateFormat.elapsed( lastTime ) );
+				await chan.send( name + ' has been online for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -313,7 +305,7 @@ async function cmdOnTime( msg, name ) {
 		console.log( err );
 	}
 
-	chan.send( 'I do not know when ' + name + ' came online.' );
+	await chan.send( 'I do not know when ' + name + ' came online.' );
 
 }
 
@@ -324,7 +316,7 @@ async function cmdOffTime( msg, name ) {
 	if ( !gMember ) return;
 
 	if ( !hasStatus(gMember, 'offline') ) {
-		chan.send( name + ' is not offline.' );
+		await chan.send( name + ' is not offline.' );
 		return;
 	}
 
@@ -336,7 +328,7 @@ async function cmdOffTime( msg, name ) {
 			let lastTime = latestStatus( history, 'offline' );
 
 			if ( lastTime != null ){
-				chan.send( name + ' has been offline for ' + DateFormat.elapsed( lastTime ) );
+				await chan.send( name + ' has been offline for ' + DateFormat.elapsed( lastTime ) );
 				return;
 			}
 
@@ -434,9 +426,9 @@ async function sendSchedule( channel, name, activity ) {
 
 	let sched = await readSchedule( gMember, activity );
 	if ( sched ) {
-		channel.send( name + ' ' + activity + ': ' + sched );
+		await channel.send( name + ' ' + activity + ': ' + sched );
 	} else {
-		channel.send( 'No ' + activity + ' schedule found for ' +  name + '.' );
+		await channel.send( 'No ' + activity + ' schedule found for ' +  name + '.' );
 	}
 
 }

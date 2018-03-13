@@ -1,5 +1,5 @@
-const Char = require( './char.js');
-const Actor = require( './actor.js');
+const Char = require( './char/char.js');
+const Actor = require( './char/actor.js');
 
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );

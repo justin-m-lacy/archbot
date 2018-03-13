@@ -2,12 +2,18 @@ const ID_SEPARATOR = '-';
 
 
 // regex template for user vs user.
-const vsTmpl = "^(?:U\\" + ID_SEPARATOR + "V|V\\" + ID_SEPARATOR + "U)(?:\\" + ID_SEPARATOR + "(\\d+))?";
+const vsTmpl = "^(?:(U)\\" + ID_SEPARATOR + "(V)|(V)\\" + ID_SEPARATOR + "(U))(?:\\" + ID_SEPARATOR + "(\\d+))?$";
 
 // regex template for all user's games.
-const allUserTmpl = "^(?:U\\" + ID_SEPARATOR + "\\w+|\\w+\\" + ID_SEPARATOR + "U)(?:\\" + ID_SEPARATOR + "(\\d+))?";
+const allUserTmpl = "^(?:(U)\\" + ID_SEPARATOR + "(\\w+)|(\\w+)\\" + ID_SEPARATOR + "(U))(?:\\" + ID_SEPARATOR + "(\\d+))?$";
 
 module.exports = class Game {
+
+	static IdParts( gid ) {
+		let a = gid.split( ID_SEPARATOR );
+		a.unshift(gid);
+		return a;
+	}
 
 	/**
 	 * Creates a regex that matches any game id for
@@ -15,7 +21,7 @@ module.exports = class Game {
 	 * @param {string} uid 
 	*/
 	static UserRegex( uid ){
-		return new RegExp( allUserTmpl.replace( 'U', uid ) );
+		return new RegExp( allUserTmpl.replace( /U/g, uid ) );
 	}
 
 	/**
@@ -25,7 +31,7 @@ module.exports = class Game {
 	 * @param {string} p2 
 	 */
 	static VsRegex( p1, p2 ) {
-		return new RegExp( vsTmpl.replace( 'U', p1).replace('V',p2) );
+		return new RegExp( vsTmpl.replace( /U/g, p1).replace(/V/g,p2) );
 	}
 
 	/**
@@ -49,6 +55,8 @@ module.exports = class Game {
 		( this.id1 + ID_SEPARATOR + this.id2 + ID_SEPARATOR + time );
 
 	}
+
+	get isOpen() { return true; }
 
 	get saveID() { return this._saveID; }
 	get shortID() { return this._gid; }

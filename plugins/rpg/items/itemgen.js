@@ -34,11 +34,7 @@ function fromJSON( json ) {
 		break;
 
 		default:
-		// check type.
-		let it = new Item.Item( json.name, json.desc, json.type );
-		if ( json.inscript ) it._inscript = json.inscript;
-		return it;
-
+			return Item.Item.FromJSON( json );
 	}
 
 	return null;

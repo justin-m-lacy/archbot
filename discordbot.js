@@ -45,9 +45,9 @@ class DiscordBot {
 		} catch ( e) { this._spamblock = {}; }
 
 		client.setInterval(
-			()=>{ this._cache.cleanup(60*1000*15); }, 60*1000*15 );
+			()=>{ this._cache.cleanup(60*1000*30); }, 60*1000*30 );
 		client.setInterval(
-			()=>{this._cache.backup(40*1000*5); }, 40*1000*5 );
+			()=>{this._cache.backup(60*1000*15); }, 60*1000*15 );
 
 		this._cmdPrefix = cmdPrefix;
 		this._dispatch = new cmd.Dispatch( cmdPrefix );
@@ -102,13 +102,15 @@ class DiscordBot {
 
 		this._client.on( 'resume', onResume );
 
-		this._client.on( 'message', (m)=>{this.onMessage(m);} );
+		this._client.on( 'message', (m)=>{ this.onMessage(m);} );
 
 		this._client.on( 'presenceUpdate', onPresence );
 
 	}
 
 	initContexts() {
+
+		console.log('client ready: ' + this._client.user.username + ' - (' + this._client.user.id + ')');
 
 		try {
 			let classes = this._contextClasses;
@@ -145,7 +147,6 @@ class DiscordBot {
 		if ( command.isDirect ) {
 
 			this._dispatch.dispatch( command, [m] );
-
 
 		} else {
 
@@ -254,11 +255,7 @@ class DiscordBot {
 
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
-
-		let data = await this._cache.fetch(key);
-		//if ( data ) data.key = key;
-		return data;
-
+		return await this._cache.fetch(key);
 	}
 
 	// associate data with key.
@@ -288,10 +285,8 @@ class DiscordBot {
 		} else {
 			objPath = fsys.getUserDir( uObject );
 		}
-		let data = await this._cache.fetch( objPath );
-		// save key for recaching.
-		if ( data ) data.key = objPath;
-		return data;
+		return await this._cache.fetch( objPath );
+
 	}
 
 	async storeUserData( uObject, data ){
@@ -324,7 +319,7 @@ class DiscordBot {
 			return null;
 		}
 		let member = this.findUser( channel, name );
-		if ( member == null ) channel.send( 'User \'' + user + '\' not found.');
+		if ( member == null ) channel.send( 'User \'' + name + '\' not found.');
 		return member;
 
 	}

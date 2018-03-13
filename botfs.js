@@ -1,5 +1,5 @@
 const path = require( 'path');
-const afs = require( './async_fs.js');
+const afs = require( './afs.js');
 
 const BASE_DIR = './savedata/';
 const GUILDS_DIR = 'guilds/';

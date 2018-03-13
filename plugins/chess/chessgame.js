@@ -41,7 +41,7 @@ module.exports = class ChessGame extends Game {
 			return "Game state not found."
 		}
 		
-		console.log( 'fen: ' + data.fen );
+		//console.log( 'fen: ' + data.fen );
 
 		let state = Chess.fenToPosition( data.fen );
 	

@@ -65,9 +65,8 @@ exports.Cache = class {
 	 */
 	async fetch( key ) {
 
-		if ( this._dict.hasOwnProperty(key)){
-			//console.log( 'cached found: ' + key );
-			let item = this._dict[key];
+		let item = this._dict[key];
+		if ( item ) {
 			item.lastAccess = Date.now();
 			return item.data;
 		}
@@ -83,8 +82,7 @@ exports.Cache = class {
 	}
 
 	/**
-	 * Caches and attempts to store value to
-	 * backing store.
+	 * Caches and attempts to store value to backing store.
 	 * @param {string} key 
 	 * @param {*} value 
 	 */

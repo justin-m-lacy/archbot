@@ -22,7 +22,7 @@ exports.UNDER = UNDER;
 const Inv = require( '../inventory.js');
 const Item = require( '../items/item.js');
 
-var reverses = { north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
+var reverses = { enter:'exit', exit:'enter', north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
 
 
 class Coord {
@@ -60,6 +60,9 @@ exports.Loc = class Loc {
 	get coord() { return this._coord; }
 	set coord(v) { this._coord = v; this._key = v.toString(); }
 
+	get time() { return this._time; }
+	set time(v) { this._time = v;}
+
 	get exits() { return this._exits;}
 	set exits(v) { this._exits = v;}
 
@@ -67,6 +70,12 @@ exports.Loc = class Loc {
 
 	get x() { return this._coord.x; }
 	get y() { return this._coord.y; }
+
+	get maker() { return this._maker; }
+	set maker(v) { this._maker = v; }
+
+	get owner() { return this._owner; }
+	set owner(v) { this._owner = v; }
 
 	static FromJSON( json ) {
 
@@ -97,12 +106,17 @@ exports.Loc = class Loc {
 		loc.desc = json.desc;
 		loc.areaName = json.areaName;
 
+		if ( json.owner ) loc._owner = json.owner;
+		if ( json.maker) loc._maker = json.maker;
+		if ( json.time ) loc._time = json.time;
+
 		return loc;
 
 	}
 
 	toJSON() {
-		return {
+
+		let o = {
 			coord:this._coord,
 			exits:this._exits,
 			inv:this._inv,
@@ -111,6 +125,12 @@ exports.Loc = class Loc {
 			name:this._name,
 			biome:this._biome
 		};
+
+		if ( this._maker ) o.maker = this._maker;
+		if ( this._time) o.time = this._time;
+		if ( this._owner ) o.owner = this._owner;
+
+		return o;
 	}
 
 	/**
@@ -123,14 +143,23 @@ exports.Loc = class Loc {
 		this.coord = coord;
 		this._biome = biomeName;
 
-		this._name = '';
-		this._areaName = '';
-
-		this._desc = '';
 		this._npcs = [];
 		this._features =[];
 		this._inv = new Inv();
 		this._exits = {};
+
+	}
+
+	setMaker( n ) {
+		this._maker = n;
+		this._time = Date.now();
+	}
+
+	explored() {
+
+		if (!this._maker) return 'Never explored.';
+		if ( this._time ) return this._maker + ' explored ' + this.coord + ' at ' + new Date( this._time ).toLocaleDateString();
+		return this._maker + ' explored ' + this.coord + ' first.';
 
 	}
 
@@ -206,6 +235,14 @@ exports.Loc = class Loc {
 
 		return 'On the ground you see: ' + this._inv.getList();
 
+	}
+
+	/**
+	 * Get item information without picking it up.
+	 * @param {*} item 
+	 */
+	get( item ) {
+		return this._inv.get(item);
 	}
 
 	/**

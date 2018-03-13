@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const fsys = require( './botfs.js');
-const afs = require( './async_fs');
+const afs = require( './afs');
 
 // base Context.
 const Context = class {
@@ -115,6 +115,20 @@ const Context = class {
 		}
 
 		return member;
+
+	}
+
+	async displayName( id ) {
+
+		if ( id == null ) return 'Invalid ID';
+
+		try {
+	
+			let u = await this._bot.client.fetchUser( id );
+			if ( u != null ) return u.username;
+		} catch ( e) {}
+
+		return 'Unknown User';
 
 	}
 
@@ -254,6 +268,21 @@ exports.GuildContext = class extends Context {
 
 	get type() { return 'guild'; }
 	get name() { return this._idobj.name; }
+	
+	async displayName( id ) {
+
+		if ( id == null ) return 'Invalid ID';
+
+		try {
+
+			let g = await this._idobj.fetchMember( id );
+			if ( g != null ) return g.displayName;
+
+		} catch( e ) {}
+
+		return 'Unknown User';
+
+	}
 
 	findUser( name ) {
 
