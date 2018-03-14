@@ -1,7 +1,22 @@
 const Dice = require( '../dice.js');
 const Loc = require( '../world/loc.js');
+const stats = require( './stats.js');
 
 exports.Actor = class Actor {
+
+	static FromJSON( json, act ) {
+
+		if ( json.statMods ) {
+			// apply last.
+			let mods = json.statMods;
+			let mod;
+			for( let i = mods.length-1; i >= 0; i-- ) {
+				let mod = StatMod.FromJSON( mods[i]);
+				if ( mod ) act.addMod( mod );
+			}
+		}
+
+	}
 
 	get hp() { return this._curStats._curHp; }
 	set hp( v) { this._curStats._curHp = v; }
@@ -55,6 +70,12 @@ exports.Actor = class Actor {
 	get baseStats() { return this._baseStats; }
 	set baseStats(v) { this._baseStats = v; }
 
+	/**
+	 * array of current stat mods.
+	 */
+	get statMods() { return this._statMods; }
+	set statMods(v) { this._statMods = v; }
+
 	get curStats() { return this._curStats; }
 	set curStats(v) { this._curStats = v; }
 	
@@ -70,8 +91,10 @@ exports.Actor = class Actor {
 
 	constructor( race ) {
 
-		this._baseStats = new StatBlock();
-		this._curStats = new StatBlock();
+		this._baseStats = new stats.StatBlock();
+		this._curStats = new stats.StatBlock();
+
+		this._statMods = [];
 		this._info = {};
 
 		this._race = race;
@@ -142,14 +165,36 @@ exports.Actor = class Actor {
 
 	applyRace() {
 
-		if ( this._race == null ) return;
-		this.applyMods( this._race.baseMods );
+		if ( !this._race ) return;
+		this.applyBaseMods( this._race.baseMods );
 
 	}
 
-	applyMods( mods ) {
+	/**
+	 * 
+	 * @param {stats.StatMod} mod 
+	 */
+	addMod( mod ) {
 
-		if ( mods == null ) return;
+		this._statMods.add( mod );
+		mod.apply( this._curStats );
+	}
+
+	/**
+	 * 
+	 * @param {stats.StatMod} mod 
+	 */
+	removeMod( mod ) {
+		let i = this._statMods.indexOf( mod );
+		if ( i >= 0 ) {
+			this._statMods.splice( i, 1 );
+			mod.remove( this._curStats );
+		}
+	}
+
+	applyBaseMods( mods ) {
+
+		if ( !mods ) return;
 		let stats = this._curStats;
 		let mod;
 		let val;
@@ -162,12 +207,10 @@ exports.Actor = class Actor {
 			}
 
 			val = stats[k];
-			if ( val != null ){
+			if ( val ){
 
 				val += mod;
-				if ( val < 3 ) {
-					val = 3;
-				}
+				if ( val < 3 ) val = 3;
 				stats[k] = val;
 
 			}
@@ -178,124 +221,3 @@ exports.Actor = class Actor {
 	}
 
 } //cls
-
-class StatMod {
-
-	// { stat->mod }
-	get mods() { return this._mods; }
-	set mods(v) { this._mods = v; }
-
-	get duration() { return this._duration; }
-	set duration(t) { this._duration = t;}
-
-	get startTime() { return this._start; }
-	set startTime(t) { this._start = t;}
-
-	constructor( mods=null ) {
-
-		if ( mods ) this._mods = mods;
-		else this._mods = {};
-
-	}
-
-	apply( stats ) {
-
-		for( let k in this._mods ) {
-
-			if ( stats.hasOwnProperty[k] ) {
-				stats[k] += this._mods[k];
-			}
-
-		}
-		if ( this._duration > 0 ) this._start = Date.now();
-
-	}
-
-	remove( stats ) {
-
-		for( let k in this._mods ) {
-
-			if ( stats.hasOwnProperty[k] ) {
-				stats[k] -= this._mods[k];
-			}
-
-		}
-
-	}
-
-}
-
-class StatBlock {
-
-	set hp(v) {
-		this._maxHp = this._curHp = v;
-	}
-
-	get maxHp() { return this._maxHp; }
-	set maxHp( v) {
-		this._maxHp = v;
-		if ( this._curHp > v ) this._curHp = v;
-	}
-
-	get curHp() { return this._curHp; }
-	set curHp( v) { this._curHp = v; }
-
-	get level() { return this._level; }
-	set level( n ) { this._level = n; }
-
-	get str() { return this._str; }
-	set str(v) { this._str = v; }
-	get con() { return this._con; }
-	set con(v) { this._con = v; }
-	get dex() { return this._dex; }
-	set dex(v) { this._dex = v; }
-	get int() { return this._int; }
-	set int(v) { this._int = v; }
-	get wis() { return this._wis; }
-	set wis(v) { this._wis = v; }
-	get cha() { return this._cha; }
-	set cha(v) { this._cha = v; }
-
-	static FromJSON( json ) {
-
-		let stats = new StatBlock();
-
-		let p;
-		let priv;
-		for( let k in json ) {
-			if ( stats.hasOwnProperty(k)) stats[k] = json[k];
-		}
-
-		// LEGACY
-		if ( json.hp ) stats._maxHp = json.hp;
-		if ( !json.curHp ) stats._curHp = stats._maxHp;
-
-		return stats;
-
-	}
-
-	toJSON() {
-	
-		return {
-
-			maxHp:this._maxHp,
-			curHp:this._curHp,
-			level:this._level,
-
-			str:this._str,
-			con:this._con,
-			dex:this._dex,
-			int:this._int,
-			wis:this._wis,
-			cha:this._cha
-
-		};
-
-	}
-
-	constructor() {
-		this._level = 1;
-	}
-
-}
-exports.StatBlock = StatBlock;

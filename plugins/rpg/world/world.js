@@ -25,7 +25,7 @@ module.exports = class World {
 		if ( attach ) loc.attach = attach.proxyURL;
 
 		let owner = loc.owner;
-		if ( owner && owner != char.name ) return 'You do not control this location.';
+		if ( owner && owner !== char.name ) return 'You do not control this location.';
 
 		if ( desc ) loc.desc = desc;
 
@@ -42,7 +42,7 @@ module.exports = class World {
 
 		let loc = await this.getOrGen( char.loc, char );
 		let it = loc.take( what );
-		if ( it == null ) return 'You do not see any ' + what + ' here.';
+		if ( !it ) return 'You do not see any ' + what + ' here.';
 
 		char.addItem( it );
 
@@ -53,10 +53,10 @@ module.exports = class World {
 
 	async move( char, dir ) {
 
-		if ( dir == null ) return 'Must specify movement direction.';
+		if ( !dir ) return 'Must specify movement direction.';
 
 		let loc = char.loc;
-		if ( loc == null ) {
+		if ( !loc ) {
 			console.log('error: char loc is null');
 			loc = new Loc.Coord(0,0);
 		}
@@ -78,7 +78,7 @@ module.exports = class World {
 
 		let loc = await this.getOrGen( char.loc );
 
-		if ( loc.maker == null ) {
+		if ( !loc.maker ) {
 			loc.setMaker( char.name );
 			return 'You are the first to explore ' + loc.coord;
 		}
@@ -92,7 +92,7 @@ module.exports = class World {
 		if ( what ) {
 
 			let it = loc.get( what );
-			if ( it == null) return 'Item not found.';
+			if ( !it) return 'Item not found.';
 			return it.getView();
 
 		}
@@ -103,11 +103,11 @@ module.exports = class World {
 	async look( char, what ) {
 
 		let loc = await this.getOrGen( char.loc );
-		console.log('looking at: ' + char.loc );
+		//console.log('looking at: ' + char.loc );
 		if ( what ) {
 
 			let it = loc.get( what );
-			if ( it == null) return 'Item not found.';
+			if ( !it ) return 'Item not found.';
 			return it.getDetails();
 
 		} else return char.name + ' is' + loc.look();
@@ -122,7 +122,7 @@ module.exports = class World {
 	async drop( char, what) {
 
 		let it = char.takeItem( what );
-		if ( it == null) return 'No such item.';
+		if ( !it ) return 'No such item.';
 
 		let loc = await this.getOrGen( char.loc, char );
 		loc.drop( it );
@@ -142,7 +142,7 @@ module.exports = class World {
 	goHome( char ) {
 
 		let coord = char.home;
-		if ( coord == null ) return 'No home set.';
+		if ( !coord ) return 'No home set.';
 
 		char.loc = coord;
 		return char.name + ' has travelled home.';
@@ -166,7 +166,7 @@ module.exports = class World {
 	async getMoveLoc( coord, dir, char ) {
 
 		let from = await this.getLoc( coord.x, coord.y );
-		if ( from === null ){
+		if ( !from ){
 			console.log( 'error: starting loc null.');
 			return 'Error: Not in a starting location.'
 		} 
@@ -174,7 +174,7 @@ module.exports = class World {
 		dir = dir.toLowerCase();
 		let exit = from.getExit( dir );
 
-		if ( exit == null ) return 'You cannot move in that direction.';
+		if ( !exit ) return 'You cannot move in that direction.';
 
 		let destCoord = exit.coord;
 		let x = destCoord.x;
@@ -202,7 +202,7 @@ module.exports = class World {
 		let key = this.coordKey(coord );
 		let loc = await this.cache.fetch( key );
 
-		if ( loc == null ) {
+		if ( !loc ) {
 
 			console.log( coord + ' NOT FOUND. GENERATING NEW');
 			loc = Gen.genNew( coord );
@@ -235,7 +235,7 @@ module.exports = class World {
 
 		let key = this.getKey(x,y);
 		let loc = await this.cache.fetch( key );
-		if ( loc == null ) return null;
+		if ( !loc ) return null;
 		if ( loc instanceof Loc.Loc ) return loc;
 
 		// instantiate json object.

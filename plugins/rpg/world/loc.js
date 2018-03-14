@@ -151,7 +151,9 @@ exports.Loc = class Loc {
 
 		this._npcs = [];
 		this._features =[];
+
 		this._inv = new Inv();
+	
 		this._exits = {};
 
 	}
@@ -216,16 +218,16 @@ exports.Loc = class Loc {
 
 	}
 
-	view() { return [ this.look(), this._attach]; }
+	view() { return [ this.look(true), this._attach]; }
 
 	/**
 	 * Returns everything seen when 'look'
 	 * is used at this location.
 	*/
-	look() {
+	look( imgTag=true ) {
 
 		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')';
-		if ( this._attach ) r += ' [img]';
+		if ( this._attach && imgTag ) r += ' [img]';
 		r += '\n' + this._desc + '\n';
 
 		r += 'On the ground you see ' + this._inv.getList();

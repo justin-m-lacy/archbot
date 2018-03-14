@@ -26,9 +26,6 @@ class Char extends actor.Actor {
 	get inv() { return this._inv; }
 	set inv( v ) { this._inv = v; }
 
-	get equip() { return this._equip; }
-	set equip(v) { this._equip= v;}
-
 	get home() { return this._home;}
 	set home(v) { this._home = v;}
 
@@ -63,7 +60,7 @@ class Char extends actor.Actor {
 		let char = new Char( Race.GetRace(json.race), Class.GetClass( json.charClass ) );
 
 		char.name = json.name;
-		char.exp = json.exp;
+		char.exp = json.exp || 0;
 		char.owner = json.owner;
 
 		if ( json.home) char._home = json.home;
@@ -93,36 +90,13 @@ class Char extends actor.Actor {
 		this._inv = new Inv();
 		this._equip = new Equip();
 
+		this._exp = 0;
 		this._owner = owner;
-
-	}
- 
-	listEquip() {
-		return this._equip.getList();
-	}
-
-	unequip( slot ) {
-
-		let item = this._equip.removeSlot( slot );
-		if ( item == null ) return false;
-		this._inv.add( item );
-
-		return true;
 
 	}
 
 	addExp( amt ) {
-		this._baseStats.exp += amt;
-	}
-
-	/**
-	 * Returns the item in the given equipment slot.
-	 * @param {Item} slot 
-	 */
-	getEquip( slot ) {
-
-		return this._equip.get(slot);
-
+		this.exp += amt;
 	}
 
 	/**
@@ -132,9 +106,9 @@ class Char extends actor.Actor {
 	eat( what ) {
 
 		let item = this._inv.get( what );
-		if ( item == null ) return 'Item not found.';
+		if ( !item ) return 'Item not found.';
 
-		if ( item.type != Item.FOOD ) return item.name + ' isn\'t food!';
+		if ( item.type !== Item.FOOD ) return item.name + ' isn\'t food!';
 
 		this._inv.remove( item );
 
@@ -148,9 +122,9 @@ class Char extends actor.Actor {
 	cook( what ) {
 
 		let item = this._inv.get( what );
-		if ( item == null ) return 'Item not found.';
+		if ( !item ) return 'Item not found.';
 
-		if ( item.type == Item.FOOD) return item.name + ' is already food.';
+		if ( item.type === Item.FOOD) return item.name + ' is already food.';
 
 		Item.Item.Cook( item);
 		return this.name + ' cooks \'' + item.name + '\'';
@@ -166,10 +140,15 @@ class Char extends actor.Actor {
 
 		let item = this._inv.get( what );
 
-		if ( item == null ) return 'No such item.';
+		if ( !item ) return 'No such item.';
 
 		let removed = this._equip.equip(item);
 		if ( typeof(removed) !== 'string') {
+
+			if ( item.mods ) {
+				item.mods.apply( this._curStats );
+			}
+			if ( item.armor ) this._curStats.armor += item.armor;
 
 			this._inv.remove( item );
 			if ( removed ) this._inv.add(removed);
@@ -181,14 +160,32 @@ class Char extends actor.Actor {
 
 	}
 
-	unequipItem( it ) {
+	unequip( slot ) {
 
-		let res = this._equip.remove(it);
-		// TODO. temp code. temp error feedback.
-		if ( res == it ) {
-			this._inv.add( it );
+		let item = this._equip.removeSlot( slot );
+		if ( !item ) return false;
+
+		if ( item.mods ) {
+			item.mods.remove( this._curStats );
 		}
+		if ( item.armor ) this._curStats.armor -= item.armor;
 
+		this._inv.add( item );
+
+		return true;
+
+	}
+
+	/**
+	 * Returns the item in the given equipment slot.
+	 * @param {Item} slot 
+	 */
+	getEquip( slot ) {
+		return this._equip.get(slot);
+	}
+
+	listEquip() {
+		return this._equip.getList();
 	}
 
 	/**
@@ -243,8 +240,8 @@ class Char extends actor.Actor {
 
 	applyClass() {
 
-		if ( this._charClass == null ) return;
-		super.applyMods( this._charClass.statMods );
+		if ( !this._charClass ) return;
+		super.applyBaseMods( this._charClass.statMods );
 
 	}
 
@@ -269,8 +266,8 @@ class Char extends actor.Actor {
 	getLongDesc() {
 
 		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name;
-		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold;
-		desc += '\nhp: ' + this.curHp + '/' + this.maxHp;
+		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold + '\t exp: ' + this._exp;
+		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this._armor;
 		desc += '\n' + this.getStatString();
 
 		return desc;

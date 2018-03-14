@@ -199,7 +199,7 @@ class RPG {
 	 * Roll a new armor for testing.
 	 * @param {Message} msg 
 	 */
-	async cmdRollArmor( msg ) {
+	async cmdRollArmor( msg, slot=null ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if (!char) return;
@@ -207,12 +207,14 @@ class RPG {
 		try {
 
 			let gen = require( './items/itemgen.js' );
-			let it = gen.genArmor();
+			let it = gen.genArmor( slot );
 
-			await msg.reply( char.name + ' rolled a shiny new ' + it.name );
-			char.addItem(it);
-			await this.saveChar( char, true );
-
+			if ( !it) msg.reply( 'Failed to create item.' );
+			else {
+				await msg.reply( char.name + ' rolled a shiny new ' + it.name );
+				char.addItem(it);
+				await this.saveChar( char, true );
+			}
 		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}
@@ -520,7 +522,8 @@ class RPG {
 			let char = await this.tryLoadChar( charname );
 			let prefix;
 			if (!char) {
-				return await msg.reply( charname + ' not found on server. D:' );
+				await msg.reply( charname + ' not found on server. D:' );
+				return;
 			} else if ( char.owner !== msg.author.id ) {
 				prefix = 'This is not your character.\n';
 			} else {
@@ -548,10 +551,16 @@ class RPG {
 			if ( !sex ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
 			if ( charname != null ) {
+
+				if ( this._context.illegalName(charname)) {
+					m.reply( charname + ' contains illegal characters.');
+					return;
+				}
 				if ( await this.charExists(charname) ) {
 					m.reply( 'Character ' + charname + ' already exists.' );
 					return;
 				}
+
 			} else charname = await this.uniqueName( race, sex );
 
 			let char = CharGen.genChar( m.author.id, race, charclass, charname, null );
@@ -588,7 +597,10 @@ class RPG {
 		if ( !this.lastChars ) await this.loadLastChars();
 
 		let charname = this.lastChars[user.id];
-		if ( !charname ) return await m.reply( 'No active character for: ' + user.username );
+		if ( !charname ) {
+			await m.reply( 'No active character for: ' + user.username );
+			return;
+		}
 
 		char = await this.tryLoadChar( charname );
 		if ( !char ) {
@@ -692,7 +704,7 @@ exports.init = function( bot ){
 	console.log( 'rpg INIT' );
 
 	// CHAR MANAGEMENT
-	bot.addContextCmd( 'rollchar', '!rollchar [<charname>] [ <racename> <classname> ]', RPG.prototype.cmdRollChar, RPG, { maxArgs:3} );
+	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]', RPG.prototype.cmdRollChar, RPG, { maxArgs:4} );
 
 	bot.addContextCmd( 'loadchar', '!loadchar <charname>', RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'savechar', '!savechar', RPG.prototype.cmdSaveChar, RPG, {maxArgs:0});
@@ -713,9 +725,9 @@ exports.init = function( bot ){
 	// ITEMS
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
-	bot.addContextCmd( 'inspect', '!inspect {<item_number|item_name>}', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
-	bot.addContextCmd( 'view', '!view {<item_number|item_name> : View an item.}', RPG.prototype.cmdView, RPG, {maxArgs:1} );
-	bot.addContextCmd( 'inscribe', '!inscribe {<item_number|item_name>} <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
+	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'view', '!view <item_number|item_name> : View an item.', RPG.prototype.cmdView, RPG, {maxArgs:1} );
+	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 	bot.addContextCmd( 'inv', '!inv [player]', RPG.prototype.cmdInv, RPG, {maxArgs:1});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
@@ -727,11 +739,11 @@ exports.init = function( bot ){
 	// TESTING
 	bot.addContextCmd( 'rolldmg', '!rolldmg', RPG.prototype.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollweap', '!rollweap', RPG.prototype.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
-	bot.addContextCmd( 'rollarmor', '!rollarmor', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:0});
+	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
 
 	// LOCATION
 	bot.addContextCmd( 'look', '!look [item on ground]', RPG.prototype.cmdLook, RPG, { maxArgs:1 } );
-	bot.addContextCmd( 'viewloc', '!viewloc {<item_number|item_name>}', RPG.prototype.cmdViewLoc, RPG );
+	bot.addContextCmd( 'viewloc', '!viewloc <item_number|item_name>', RPG.prototype.cmdViewLoc, RPG );
 	bot.addContextCmd( 'drop', '!drop <what>', RPG.prototype.cmdDrop, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'take', '!take <what>', RPG.prototype.cmdTake, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'locdesc', '!locdesc <description>', RPG.prototype.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );

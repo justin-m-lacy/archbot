@@ -18,6 +18,7 @@ exports.getUserDir = getUserDir;
 exports.getGuildDir = getGuildDir;
 exports.getChannelDir = getChannelDir;
 
+exports.illegalChars = [ '/', '\\', ':', '*', '?', '"', '|', '<', '>'];
 
 exports.fileExists = async (filePath) => {
 	return await( afs.exists( BASE_DIR + filePath + '.json') );

@@ -1,5 +1,5 @@
 const Char = require( './char/char.js');
-const Actor = require( './char/actor.js');
+const stats = require( './char/stats.js');
 
 const Race = exports.Race = require( './race.js');
 const CharClass = exports.CharClass = require( './charclass.js' );
@@ -35,7 +35,7 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 	modStats( charClass.infoMods, info );
 	char.info = info;
 
-	let base = rollStats( stat_rolls.base, new Actor.StatBlock() );
+	let base = rollStats( stat_rolls.base, new stats.StatBlock() );
 
 	console.log( 'hit: ' + race.HD + '  class: ' + charClass.HD );
 	base.hp = Math.floor( ( race.HD + charClass.HD )/2 );

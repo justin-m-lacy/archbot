@@ -34,6 +34,16 @@ const Context = class {
 
 	}
 
+	illegalName( s) {
+
+		let a = fsys.illegalChars;
+		for( let i = a.length-1; i>=0; i--) {
+			if ( s.indexOf( a[i]) >= 0) return true;
+		}
+		return false;
+
+	}
+
 	/**
 	 * Register message event with Discord client.
 	 * @param {string} evtName 

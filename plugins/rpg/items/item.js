@@ -79,17 +79,17 @@ exports.Item = class Item {
 	}
 
 	getView() {
-		return [ this.getDetails(), this._attach ];
+		return [ this.getDetails(false), this._attach ];
 	}
 
 	/**
 	 * @returns detailed string description of item.
 	*/
-	getDetails() {
+	getDetails( imgTag=true ) {
 
 		let s = this._name + ': ' + this._desc;
 		if ( this._inscript ) s += ' { ' + this._inscript + ' }';
-		if ( this._attach) s += ' [img]';
+		if ( this._attach && imgTag ) s += ' [img]';
 
 		return s;
 	}
