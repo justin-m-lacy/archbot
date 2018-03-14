@@ -6,12 +6,12 @@ exports.transfer = function transfer( src, dest, what ) {
 	let res = isGold.exec( what );
 	if ( res !== null ) {
 
-		console.log( 'attempging gold transfer: ' + res[1] );
+		console.log( 'gold transfer: ' + res[1] );
 		return xferGold( src, dest, res[1] );
 
 	} else {
 
-		console.log( 'attempting item transfer: ' + what );
+		console.log( 'item transfer: ' + what );
 		let it = src.takeItem(what);
 		if ( it != null ) {
 			dest.addItem(it);
@@ -25,10 +25,8 @@ exports.transfer = function transfer( src, dest, what ) {
 
 function xferGold( src, dest, count ) {
 
-	if ( typeof(count) === 'string') {
-		count = parseInt( count );
-	}
-	if ( Number.isNaN(count)) return 'Amount not a number.';
+	if ( typeof(count) === 'string') count = parseInt( count );
+	if ( Number.isNaN(count)) return 'Amount is not a number.';
 
 	let gold = src.gold;
 

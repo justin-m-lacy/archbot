@@ -61,7 +61,7 @@ module.exports = class Inventory {
 	 */
 	get( whichItem ) {
 
-		if ( whichItem == null) return null;
+		if ( !whichItem ) return null;
 
 		let num = parseInt( whichItem );
 		if ( Number.isNaN(num) ) {
@@ -119,7 +119,10 @@ module.exports = class Inventory {
 
 		name = name.toLowerCase();
 		for( let i = this._items.length-1; i>= 0; i-- ) {
-			if ( this._items[i].name.toLowerCase() === name ) return this._items[i];
+
+			var it = this._items[i];
+			if ( it && it.name && it.name.toLowerCase() === name ) return this._items[i];
+
 		}
 		return null;
 	}

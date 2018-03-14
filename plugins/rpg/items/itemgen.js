@@ -9,20 +9,40 @@ exports.genArmor = genArmor;
 exports.genItem = genItem;
 exports.randItem = randItem;
 
-var baseWeapons;
-var baseArmors;
+var baseWeapons = require( '../data/weapons.json');
+var baseArmors = require( '../data/armors.json');
+var armorBySlot;
+var weaponByType;
+
+initArmors();
 
 Material.LoadMaterials();
-baseWeapons = require( '../data/weapons.json');
-baseArmors = require( '../data/armors.json');
 
+function initArmors() {
+
+	armorBySlot = {};
+
+	let armor, slot, list;
+	for( let k = baseArmors.length-1; k >= 0; k-- ) {
+
+		armor = baseArmors[k];
+		slot = armor.slot;
+
+		list = armorBySlot[slot];
+		if ( !list ) list = armorBySlot[slot] = [];
+
+		list.push( armor );
+
+	}
+
+}
 
 /**
  * revive an item from JSON
 */
 function fromJSON( json ) {
 
-	if ( json == null) return null;
+	if ( !json ) return null;
 
 	switch ( json.type ) {
 		case 'armor':
@@ -55,17 +75,25 @@ function genWeapon() {
 
 }
 
-function genArmor() {
+function genArmor( slot=null ) {
 
 	let mat = Material.Random();
 	if ( mat === null ) console.log( 'material is null');
 	console.log( 'armors len: ' + baseArmors.length );
 
-	let tmp = baseArmors[ Math.floor( baseArmors.length*Math.random() )];
+	let tmp = slot ? getRandSlot(slot) : baseArmors[ Math.floor( baseArmors.length*Math.random() )];
 
-	if ( tmp == null) console.log( 'armor template is null.');
+	if ( !tmp ) return;
 
 	return Armor.FromData( tmp, mat );
+
+}
+
+function getRandSlot( slot ) {
+
+	let list = armorBySlot[slot];
+	if ( !list ) return null;
+	return list[ Math.floor( list.length*Math.random() )];
 
 }
 

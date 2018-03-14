@@ -12,6 +12,9 @@ module.exports = class Armor extends Item.Item {
 	get material() { return this._material; }
 	set material(m) { this._material = m; }
 
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v;}
+
 	/**
 	 * From template data.
 	 * @param {*} base 
@@ -28,11 +31,21 @@ module.exports = class Armor extends Item.Item {
 		armor.armor = material.bonus ? base.armor + material.bonus : base.armor;
 		armor.slot = base.slot;		
 
+		if ( base.mods ) this.mods = Object.assign( {}, base.mods );
+
 		return armor;
 	}
 
 	static FromJSON( json) {
-		return Item.Item.FromJSON( new Armor(), json );
+
+		let a = new Armor( json.name, json.desc );
+		a.material = json.material;
+		a.slot = json.slot;
+		a.armor = json.armor;
+
+		if ( json.mods ) this.mods = json.mods;
+
+		return Item.Item.FromJSON( json, a );
 	}
 
 	toJSON() {
@@ -42,6 +55,7 @@ module.exports = class Armor extends Item.Item {
 		json.armor = this._armor;
 		json.slot = this._slot;
 		json.material = this._material;
+		if ( this._mods ) json.mods = this._mods;
 
 		return json;
 

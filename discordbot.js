@@ -59,7 +59,7 @@ class DiscordBot {
 
 		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
-
+		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
 	}
 
 	loadConfig() {
@@ -71,7 +71,10 @@ class DiscordBot {
 			this._cmdPrefix = config.cmdprefix || '!';
 			this._plugsdir = config.pluginsdir;
 
-		} catch ( e) { this._spamblock = {}; }
+		} catch ( e) {
+			this._cmdPrefix = '!';
+			this._spamblock = {};
+		}
 
 	}
 
@@ -206,6 +209,18 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Proxy the given context through the user's DM.
+	 * @param {*} m 
+	 */
+	cmdProxy( m ) {
+
+		let context = this.getMsgContext(m);
+		this.setProxy( m.author, context );
+		m.author.send( 'Proxy created.');
+
+	}
+
 	cmdLeaveGuild( m ) {
 
 		if ( m.author.id === this._master && m.guild ) {
@@ -240,6 +255,10 @@ class DiscordBot {
 
 		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
 
+	}
+
+	setProxy( user, context ) {
+		this._contexts[user.id] = context;
 	}
 
 	/**

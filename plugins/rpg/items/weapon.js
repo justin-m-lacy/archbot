@@ -8,6 +8,7 @@ module.exports = class Weapon extends Item.Item {
 		let json = super.toJSON();
 		json.material = this._material;
 		json.dmg = this.damage;
+		if ( this.mods ) json.mods = this.mods;
 
 		return json;
 
@@ -15,7 +16,11 @@ module.exports = class Weapon extends Item.Item {
 
 	static FromJSON( json ) {
 
-		let w = new Weapon();
+		let w = new Weapon( json.name, json.desc );
+
+		w.material = json.material;
+
+		if ( json.mods ) this.mods = json.mods;
 
 		if ( json.dmg ) {
 			w.damage = DamageSrc.FromJSON( json.dmg );
@@ -42,6 +47,8 @@ module.exports = class Weapon extends Item.Item {
 		w.cost = mat.priceMod ? tmp.cost*mat.priceMod : tmp.cost;
 
 		if ( tmp.hands ) w.hands = tmp.hands;
+		if ( tmp.mods ) this._mods = Object.assign( {}, tmp.mods );
+
 
 		w.damage = DamageSrc.FromString( tmp.dmg );
 		w.damage.type = tmp.type;
@@ -57,6 +64,9 @@ module.exports = class Weapon extends Item.Item {
 
 	get bonus() { return this.damage.bonus; }
 	set bonus( v ) { if ( v < 0 )v = 0; this.damage.bonus = v;}
+
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v;}
 
 	constructor( name, desc ) {
 
