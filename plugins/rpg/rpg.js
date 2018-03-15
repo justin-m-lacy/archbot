@@ -155,6 +155,7 @@ class RPG {
 			if (!char) return;
 
 			display.sendBlock( msg, await this.world.move(char,dir) );
+			this.checkLevel( msg, char );
 
 		} catch ( e) { console.log(e);}
 
@@ -390,6 +391,8 @@ class RPG {
 
 			} else item.Craft( char, itemName, desc );
 
+			this.checkLevel(msg,char);
+
 			await this.saveChar( char );
 
 		} //
@@ -447,6 +450,44 @@ class RPG {
 
 		} catch ( e ) { console.log(e); }
 
+	}
+
+	async cmdAttack( m, who ) {
+
+		let src = await this.activeCharOrErr( m, m.author );
+		if ( !src ) return;
+
+		let dest = await this.tryLoadChar( who );
+		if ( !dest ) {
+			m.reply( '\'' + who + '\' not found on server.' );
+			return;
+		}
+
+		if ( !(src.loc.equals(dest.loc)) ) {
+			m.reply( dest.name + ' is not in the same location as ' + src.name + '.' );
+			return;
+		}
+
+		let dmg = dest.rollDmg();
+		let res = dest.name + ' hits ' + src.name + ' for ' + dmg + ' damage.';
+
+		if ( src.hit(dmg) === 'died' ) {
+			console.log('src died');
+			this.world.goHome(src);
+			res += '\n' + src.name + ' has died.';
+		}
+
+		dmg = src.rollDmg();
+		res = ( src.name + ' hits ' + dest.name + ' for ' + dmg + ' damage.\n' ) + res;
+
+		if ( dest.hit( dmg ) === 'died' ) {
+			this.world.goHome(dest);
+			res += '\n' + dest.name + ' has died.';
+		}
+
+		this.cacheChar( src );
+		this.cacheChar(dest);
+		display.sendBlock( m, res );
 	}
 
 	async cmdRmChar( msg, charname ) {
@@ -650,6 +691,20 @@ class RPG {
 
 	}
 
+	checkLevel( m, char ) {
+		if ( char.levelFlag ){
+			m.reply( char.name + ' has leveled up.' );
+			char.levelFlag = false;
+		}
+	}
+
+	addExp( m, char, exp ) {
+		if ( char.addExp(exp)) {
+			m.reply( char.name + ' has leveled up.');
+			char.levelFlag = false;
+		}
+	}
+
 	cacheChar( char ) {
 		this._context.cacheKeyData( this.getCharKey( char.name ), char );
 	}
@@ -663,6 +718,8 @@ class RPG {
 
 	async tryLoadChar( charname ) {
 
+		try {
+	
 		let key = this.getCharKey( charname );
 
 		let data = this._context.getKeyData(key);
@@ -681,6 +738,7 @@ class RPG {
 
 		return char;
 
+	} catch(e) { console.log(e);}
 	}
 
 	getCharKey( charname ) { return RPG_DIR + charname; }
@@ -714,6 +772,9 @@ exports.init = function( bot ){
 
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
 			RPG, {maxArgs:0} );
+
+	// PVP TEST
+	bot.addContextCmd( 'attack', '!attack who', RPG.prototype.cmdAttack, RPG, {minArgs:1, maxArgs:1});
 
 	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',

@@ -35,6 +35,12 @@ exports.Item = class Item {
 	set crafter(s) { this._crafter = s; }
 
 	/**
+	 * timestamp of crafting.
+	 */
+	get time() { return this._time; }
+	set time(t) { this._time = t;}
+
+	/**
 	 * Since Item should be subclassed, the sub item created
 	 * is passed as a param.
 	 * @param {*} json 
@@ -153,12 +159,12 @@ exports.Item = class Item {
 
 		let adj = adjs[ Math.floor( adjs.length*Math.random() )];
 
-		if ( it.type === itemjs.ARMOR ) {
+		if ( it.type === exports.ARMOR ) {
 			it.armor -= 10;
-		} else if ( it.type === itemjs.WEAPON ) {
+		} else if ( it.type === exports.WEAPON ) {
 			it.bonus -= 10;
 		}
-		it.type = itemjs.FOOD;
+		it.type = exports.FOOD;
 
 		it.name = adj + ' ' + it.name;
 
@@ -175,6 +181,10 @@ exports.Craft = function( char, name, desc, attach ) {
 
 	if ( attach) item._attach = attach;
 
+	item.crafter = char.name;
+	item.time = Date.now();
+
+	char.addCrafted();
 	char.addExp( 1 );
 	char.addItem( item );
 

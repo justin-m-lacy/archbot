@@ -3,8 +3,13 @@ var classes, classByName;
 let CharClass = module.exports = class {
 
 	static GetClass( classname ) {
-		if ( classname == null || !classByName.hasOwnProperty(classname) ) return classes[ Math.floor(classes.length*Math.random()) ];
-		return classByName[classname.toLowerCase()];
+
+		if ( classname ) {
+			classname = classname.toLowerCase();
+			if ( classByName.hasOwnProperty(classname) ) return classByName[classname];
+		}
+		return classes[ Math.floor(classes.length*Math.random()) ];
+	
 	}
 
 	constructor() {
@@ -14,7 +19,7 @@ let CharClass = module.exports = class {
 
 		let o = new CharClass();
 
-		o._ver = json.ver != null ? json.ver : 1;
+		o._ver = json.ver || 1;
 
 		if ( json.hasOwnProperty('name')) {
 			o._name = json.name;
@@ -26,6 +31,8 @@ let CharClass = module.exports = class {
 			o._baseMods = json.baseMods;
 		}
 
+		if ( json.exp) o._expMod = json.exp;
+
 		if ( json.hasOwnProperty('infoMods')) {
 			o._infoMods = json.infoMods;
 		}
@@ -34,10 +41,12 @@ let CharClass = module.exports = class {
 	}
 
 	get baseMods() { return this._baseMods; }
-	get infoMods() { return this._infoMods; }
+	get infoMods() { return this._infoMods; } 
 	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
+	get expMod() { return this._expMod || 1; }
+
 
 }
 initClasses();

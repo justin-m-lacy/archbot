@@ -1,5 +1,6 @@
 const Gen = require( './worldgen.js');
 const Loc = require( './loc.js');
+//const game = require( '../game.js');
 
 module.exports = class World {
 
@@ -16,8 +17,8 @@ module.exports = class World {
 
 	/**
 	 * Change location description.
-	 * @param {*} char 
-	 * @param {*} desc 
+	 * @param {Char} char 
+	 * @param {string} desc 
 	 */
 	async setDesc( char, desc, attach ) {
 
@@ -100,6 +101,11 @@ module.exports = class World {
 
 	}
 
+	/**
+	 * 
+	 * @param {Char} char 
+	 * @param {string|number|Item} what 
+	 */
 	async look( char, what ) {
 
 		let loc = await this.getOrGen( char.loc );
@@ -116,8 +122,8 @@ module.exports = class World {
 
 	/**
 	 * Attempt to drop an item at cur location.
-	 * @param {*} char 
-	 * @param {*} what 
+	 * @param {Char} char 
+	 * @param {string|Item|number} what 
 	 */
 	async drop( char, what) {
 
@@ -132,6 +138,10 @@ module.exports = class World {
 
 	}
 
+	/**
+	 * 
+	 * @param {Char} char 
+	 */
 	setHome( char ) {
 
 		char.home = char.loc;
@@ -139,12 +149,16 @@ module.exports = class World {
 
 	}
 
+	/**
+	 * 
+	 * @param {Char} char 
+	 */
 	goHome( char ) {
 
 		let coord = char.home;
 		if ( !coord ) return 'No home set.';
 
-		char.loc = coord;
+		Object.assign( char.loc, coord );
 		return char.name + ' has travelled home.';
 
 	}
@@ -188,6 +202,7 @@ module.exports = class World {
 			dest = Gen.genLoc( destCoord, from, exits );
 			dest.setMaker( char.name );
 
+			char.addExplored();
 			char.addExp( 1 );
 
 			this.cache.cache( this.coordKey(destCoord), dest );
@@ -248,16 +263,25 @@ module.exports = class World {
 
 	}
 
+	/**
+	 * 
+	 * @param {Loc.Coord} coord 
+	 */
 	coordKey( coord ) { return 'rpg/locs/' + coord.x + ',' + coord.y }
 
+	/**
+	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 */
 	getKey( x,y ) {
 		return 'rpg/locs/' + x + ',' + y;
 	}
 
 	/**
 	 * 
-	 * @param {*} x 
-	 * @param {*} y
+	 * @param {number} x 
+	 * @param {number} y
 	 * @returns {Loc.Exit[]} - all exits allowed from this location.
 	 */
 	async getRandExits(x,y) {

@@ -1,5 +1,7 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats', 'loc' ];
+const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats', 'loc', 'history' ];
+
+const Level = require( './level.js');
 
 const Inv = require( '../inventory.js');
 const actor = require( './actor.js');
@@ -28,6 +30,26 @@ class Char extends actor.Actor {
 
 	get home() { return this._home;}
 	set home(v) { this._home = v;}
+
+	/**
+	 * number of locations explored.
+	 */
+	get explored() { return this._history.explored; }
+	set explored(v) { this._history.explored = v;}
+
+	get crafted() { return this._history.crafted;}
+	set crafted(v) { this._history.crafted = v; }
+
+	get history() { return this._history; }
+	set history(v) { this._history = v;}
+
+	
+	/**
+	 * Notification for level up.
+	 * TODO: replace with event system.
+	 */
+	get levelFlag() { return this._levelUp; }
+	set levelFlag(b) { this._levelUp = b;}
 
 	toJSON() {
 	
@@ -63,6 +85,7 @@ class Char extends actor.Actor {
 		char.exp = json.exp || 0;
 		char.owner = json.owner;
 
+		if (json.history ) Object.assign( char.history, json.history );
 		if ( json.home) char._home = json.home;
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
@@ -73,9 +96,10 @@ class Char extends actor.Actor {
 
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
-		if ( json.equip) char._equip = Equip.FromJSON( json.equip );
 
 		char.setBaseStats( char._baseStats );
+
+		if ( json.equip) char.setEquip( Equip.FromJSON( json.equip ) );
 
 		return char;
 
@@ -90,13 +114,23 @@ class Char extends actor.Actor {
 		this._inv = new Inv();
 		this._equip = new Equip();
 
+		this._history = { explored:0, crafted:0};
+
 		this._exp = 0;
 		this._owner = owner;
 
 	}
 
+	addCrafted() {
+		this._history.crafted++;
+	}
+	addExplored() {
+		this._history.explored++;
+	}
+
 	addExp( amt ) {
 		this.exp += amt;
+		return Level.tryLevel(this);
 	}
 
 	/**
@@ -145,11 +179,7 @@ class Char extends actor.Actor {
 		let removed = this._equip.equip(item);
 		if ( typeof(removed) !== 'string') {
 
-			if ( item.mods ) {
-				item.mods.apply( this._curStats );
-			}
-			if ( item.armor ) this._curStats.armor += item.armor;
-
+			this.applyEquip(item);
 			this._inv.remove( item );
 			if ( removed ) this._inv.add(removed);
 
@@ -165,15 +195,34 @@ class Char extends actor.Actor {
 		let item = this._equip.removeSlot( slot );
 		if ( !item ) return false;
 
-		if ( item.mods ) {
-			item.mods.remove( this._curStats );
-		}
-		if ( item.armor ) this._curStats.armor -= item.armor;
+		this.removeEquip(item);
 
 		this._inv.add( item );
 
 		return true;
 
+	}
+
+	setEquip( e ) {
+
+		this._equip = e;
+		for( let it in e.items ) {
+			this.applyEquip(it);
+		}
+
+	}
+
+	applyEquip(it) {
+		if ( it.mods ) {
+			it.mods.apply( this._curStats );
+		}
+		if ( it.armor ) this._curStats.armor += it.armor;
+	}
+	removeEquip(it) {
+		if ( it.mods ) {
+			it.mods.remove( this._curStats );
+		}
+		if ( it.armor ) this._curStats.armor -= it.armor;
 	}
 
 	/**
@@ -245,6 +294,21 @@ class Char extends actor.Actor {
 
 	}
 
+	rollDmg() {
+
+		let weaps = this._equip.getWeapons();
+		if ( weaps === null ) return dice.roll(1,2);
+		else if ( weaps instanceof Array ) {
+
+			return weaps[Math.floor(weaps.length*Math.random() )].roll();
+
+		} else {
+			return weaps.roll();
+		}
+
+	}
+
+
 	testDmg() {
 
 		let weaps = this._equip.getWeapons();
@@ -267,7 +331,7 @@ class Char extends actor.Actor {
 
 		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name;
 		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold + '\t exp: ' + this._exp;
-		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this._armor;
+		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this.armor;
 		desc += '\n' + this.getStatString();
 
 		return desc;

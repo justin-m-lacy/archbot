@@ -4,8 +4,12 @@ var races, raceByName;
 class Race {
 
 	static GetRace( racename ) {
-		if ( racename == null || !raceByName.hasOwnProperty(racename) ) return races[ Math.floor(races.length*Math.random())];
-		return raceByName[racename.toLowerCase()];
+
+		if ( racename ) {
+			racename = racename.toLowerCase();
+			if ( raceByName.hasOwnProperty(racename)) return raceByName[racename];
+		}
+		return races[ Math.floor(races.length*Math.random())];
 	}
 
 	static Create( name, hitdice, statMods={} ){
@@ -24,7 +28,7 @@ class Race {
 
 		let o = new Race();
 
-		o._ver = json.ver != null ? json.ver : 1;
+		o._ver = json.ver || 1;
 
 		if ( json.hasOwnProperty('name')){
 			o._name = json.name;
@@ -32,6 +36,8 @@ class Race {
 		if ( json.hasOwnProperty('hitdice')){
 			o._hitdice = json.hitdice;
 		}
+
+		if ( json.exp ) o._expMod = json.exp;
 
 		// mod stats added to base. recomputed on load
 		// to allow for changes.
@@ -55,6 +61,7 @@ class Race {
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
 	get baseMods() { return this._baseMods; }
+	get expMod() { return this._expMod || 1; }
 
 }
 initRaces();

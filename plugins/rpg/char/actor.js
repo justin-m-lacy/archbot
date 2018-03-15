@@ -22,6 +22,7 @@ exports.Actor = class Actor {
 	set hp( v) { this._curStats._curHp = v; }
 
 	get curHp() { return this._curStats._curHp; }
+	set curHp(v) { this._curStats._curHp = v; }
 
 	get maxHp() { return this._curStats._maxHp; }
 	set maxHp(v ) { this._curStats.maxHp = v; }
@@ -50,6 +51,7 @@ exports.Actor = class Actor {
 	get height() { return this._info.height; }
 	set height(s) { this._info.height = s; }
 
+	get armor() { return this._curStats._armor; }
 
 	get str() { return this._curStats._str; }
 	set str(v) { this._curStats._str = v; }
@@ -63,6 +65,8 @@ exports.Actor = class Actor {
 	set wis(v) { this._curStats._wis = v; }
 	get cha() { return this._curStats._cha; }
 	set cha(v) { this._curStats._cha = v; }
+
+	get HD() { return this._charClass ? Math.floor( (this._charClass.HD + this._race.HD)/2 ) : this._race.HD; }
 
 	/**
 	 * Base stats before race/class modifiers.
@@ -105,13 +109,34 @@ exports.Actor = class Actor {
 
 	}
 
+	levelUp() {
+
+		this._baseStats.level += 1;
+		let hpBonus = this.HD + this._baseStats.getModifier( 'con' );
+		this._baseStats.addHp( hpBonus );
+		this._curStats.addHp( hpBonus );
+
+		this._levelFlag = true;
+
+	}
+
 	addGold( amt ) {
 		this._info.gold += amt;
 	}
 
 	getModifier( stat ) {
-		if ( !this._curStats.hasOwnProperty(stat) ) return 0;
-		return Math.floor( ( this._curStats[stat] - 10)/2 );
+		return this._curStats.getModifier(stat);
+	}
+
+	/**
+	 * TODO: temp
+	 */
+	hit( amt ) {
+		this.curHp -= amt;
+		if ( this.curHp <= 0 ) {
+			this.curHp = this.maxHp;
+			return 'died';
+		}
 	}
 
 	/**
@@ -119,6 +144,7 @@ exports.Actor = class Actor {
 	*/
 	computeHp() {
 
+		let hd = this.HD;
 		let level = this._curStats.level;
 		let hp = this._baseStats.maxHp + level*this.getModifier('con');
 
@@ -136,11 +162,7 @@ exports.Actor = class Actor {
 
 		this._baseStats = base;
 
-		let cur = this._curStats;
-
-		for( let k in base ) {
-			cur[k] = base[k];
-		}
+		Object.assign( this._curStats, base );
 
 		this.applyRace();
 		this.computeHp();
@@ -152,8 +174,8 @@ exports.Actor = class Actor {
 	*/
 	rollBaseHp() {
 
-		let hd = this._race.hitdice;
-		let maxHp = Math.floor( (hd)/2 );
+		let hd = this.HD;
+		let maxHp = hd + this._baseStats.getModifier( 'con');
 
 		for( let i = this._baseStats.level-1; i > 0; i-- ) {
 			maxHp += Dice.roll( 1, hd );
