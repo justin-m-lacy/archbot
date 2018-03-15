@@ -51,7 +51,7 @@ class Room {
 			if ( !opp ) return;
 
 			let game = await this.gcache.getGame( m.author, opp );
-			if ( game != null && game.isOpen() ) {
+			if ( game && game.isOpen() ) {
 
 				console.log( 'playing existing game.');
 				return await this.moveOrShowErr( m, game, firstMove );
@@ -120,14 +120,16 @@ class Room {
 
 	async cmdViewBoard( m, opp1, opp2, gnum ) {
 
-		if ( opp1 == null ) {
+		if ( !opp1 ) {
+			//console.log('using author as opp1');
 			opp1 = m.author;
-		} else if ( opp2 == null ) {
+		} else if ( !opp2 ) {
+			//console.log('using author as opp2');
 			opp2 = m.author;
 		}
 
 		let game = await this.gcache.gameOrShowErr( m, opp1, opp2 );
-		if ( game != null ) {
+		if ( game ) {
 			Display.showBoard( m.channel, game );
 		} else console.log('GAME IS NULL');
 
@@ -142,12 +144,13 @@ class Room {
 			m.reply( 'Must specify a move.');
 			return;
 
-		} else if ( len == 1 ) {
+		} else if ( len === 1 ) {
 
+			// !move moveStr
 			game = await this.gcache.gameOrShowErr( m, m.author, null );
 			moveStr = args[0];
 
-		} else if ( len == 2 ) {
+		} else if ( len === 2 ) {
 			// !move opponent moveStr
 			game = await this.gcache.gameOrShowErr( m, m.author, args[0]);
 			moveStr = args[1];

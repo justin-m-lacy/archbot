@@ -39,6 +39,9 @@ class DiscordBot {
 		this._client = client;
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 
+		// maps id->context id.
+		this.restoreProxies();
+
 		this.loadConfig();
 
 		this._dispatch = new cmd.Dispatch( this._cmdPrefix );
@@ -123,6 +126,7 @@ class DiscordBot {
 
 		this._contextClasses.push(cls);
 
+		// ensure context for every guild.
 		if ( this.client ) {
 			this.client.guilds.forEach( (g, id) => {
 				let c = this.getContext( g );
@@ -209,18 +213,6 @@ class DiscordBot {
 
 	}
 
-	/**
-	 * Proxy the given context through the user's DM.
-	 * @param {*} m 
-	 */
-	cmdProxy( m ) {
-
-		let context = this.getMsgContext(m);
-		this.setProxy( m.author, context );
-		m.author.send( 'Proxy created.');
-
-	}
-
 	cmdLeaveGuild( m ) {
 
 		if ( m.author.id === this._master && m.guild ) {
@@ -241,39 +233,107 @@ class DiscordBot {
 	}
 
 	/**
+	 * Proxy the given context through the user's DM.
+	 * @param {Message} m 
+	 */
+	cmdProxy( m ) {
+
+		// get context of the guild/channel to be proxied to user.
+		let context = this.getMsgContext(m);
+	
+		this.setProxy( m.author, context );
+		m.author.send( 'Proxy created.');
+
+	}
+
+	setProxy( user, context ) {
+
+		this._contexts[user.id] = context;
+		this._proxies[ user.id ] = context.sourceID;
+		this.cacheKeyData( 'proxies', this._proxies );
+
+	}
+
+	async saveProxies() {
+		await this.storeKeyData( 'proxies', this._proxies );
+	}
+
+	async restoreProxies() {
+
+		this._proxies = {};
+		let loaded = await this.fetchKeyData( 'proxies' );
+		if ( loaded ) {
+			this._proxies = Object.assign( this._proxies, loaded );
+		} else {
+			console.log('proxies file not found.')
+		}
+		for( let k in this._proxies ) {
+			console.log('proxy found for: ' + k );
+		}
+
+	}
+
+	/**
 	 * Return a Context associated with the message channel.
 	 * @param {Discord.Message} m 
 	 */
 	getMsgContext( m ) {
 
-		let type = m.channel.type;
-		let idobj;
+		let type = m.channel.type, idobj;
 
 		if ( type === 'text' || type === 'voice ') idobj = m.guild;
-		else if ( type === 'group' ) idobj = m.channel;
-		else idobj = m.channel.recipient;
+		else if ( type === 'group' ) {
+
+			idobj = m.channel;
+			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
+
+		} else {
+	
+			idobj = m.author;
+			//check proxy
+			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
+	
+		}
 
 		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
 
 	}
-
-	setProxy( user, context ) {
-		this._contexts[user.id] = context;
-	}
-
+	
 	/**
 	 * 
 	 * @param {*} idobj 
-	 * @param {*} type 
 	 */
-	getContext( idobj, type=null ) {
+	getContext( idobj, type ) {
 
-		let id = idobj.id;
-		if ( this._contexts.hasOwnProperty(id) ) {
-			return this._contexts[id];
-		}
-		return this.makeContext( idobj, type );
+		let proxid = this._proxies[idobj.id];
+		if ( proxid ) return this.getProxy( idobj, proxid );
 
+		return this._contexts[idobj.id] || this.makeContext( idobj, type );
+
+	}
+
+	/**
+	 * Get a context from the source id, mapping messages
+	 * to the destobj.
+	 * @param {*} destobj 
+	 * @param {*} srcid 
+	 */
+	getProxy( destobj, srcid ) {
+
+		let con = this._contexts[srcid];
+		if ( con ) return con;
+
+		let proxob = this.findProxTarget( srcid );
+		if ( proxob) return this.makeContext( proxob );
+
+		// proxy not found.
+		console.log( 'ERROR: Proxy not found: ' + srcid );
+		return this._contexts[destobj.id] || this.makeContext( destobj );
+
+	}
+
+	findProxTarget( id ) {
+		return this._client.guilds.get(id) || this.client.channels.get(id);
 	}
 
 	makeContext( idobj, type ) {
@@ -334,6 +394,10 @@ class DiscordBot {
 			return fsys.guildPath( baseObj, subs );
 		}
 
+	}
+
+	cacheKeyData( key, data ) {
+		this._cache.cache( key, data );
 	}
 
 	async fetchUserData( uObject ){

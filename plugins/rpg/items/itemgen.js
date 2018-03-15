@@ -79,7 +79,6 @@ function genArmor( slot=null ) {
 
 	let mat = Material.Random();
 	if ( mat === null ) console.log( 'material is null');
-	console.log( 'armors len: ' + baseArmors.length );
 
 	let tmp = slot ? getRandSlot(slot) : baseArmors[ Math.floor( baseArmors.length*Math.random() )];
 

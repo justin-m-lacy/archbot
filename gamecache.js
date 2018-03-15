@@ -55,8 +55,6 @@ module.exports = class GameCache {
 
 		if ( u2 ) return this.filterList( list.active, u2.id );
 
-		console.log('returning active count: ' + list.active.length );
-
 		return list.active;
 
 	}
@@ -82,9 +80,11 @@ module.exports = class GameCache {
 		//console.log( 'p1 not null. p2 null');
 		let games = await this.activeGames( u1 );
 
-		if ( u2 != null || gnum != null ) {
+		if ( u2 ) {
 			console.log( 'filtering active list.')
 			games = this.filterList( games, u2.id, gnum );
+		} else if ( gnum ) {
+			games = this.filterList( games, null, gnum );
 		}
 
 		if ( games.length === 0 ) {
@@ -135,18 +135,20 @@ module.exports = class GameCache {
 			let gameList = await this.activeGames(u1,u2);
 			let gname;
 	
-			if ( num == null ) {
-	
-				// last active
-				if ( gameList.length === 0 ) return;
-				gname = gameList[ gameList.length-1 ][0];
-	
-			} else {
+			if ( num ) {
 	
 				num--;
 				if ( num < 0 || num >= gameList.length ) return null;
 				gname = gameList[num][0];
-	
+
+			} else {
+
+				console.log( 'num games: ' + gameList.length );
+				// last active
+				if ( gameList.length === 0 ) return;
+				gname = gameList[ gameList.length-1 ][0];
+				console.log('gname: ' + gname );
+			
 			}
 	
 			return await this.loadGame( gname );
@@ -165,7 +167,7 @@ module.exports = class GameCache {
 			return;
 		}
 
-		if ( p2 == null ) {
+		if ( !p2 ) {
 
 			return await this.activeOrErr( m, p1 );
 
@@ -211,9 +213,7 @@ module.exports = class GameCache {
 
 		if ( data instanceof Game ) {
 			console.log('LOADED DATA ALREADY GAME');
-		}
-
-		if ( data != null && this.reviver ) {
+		} else if ( data != null && this.reviver ) {
 
 			let game = this.reviver( data );	//replace json with revived obj.
 
