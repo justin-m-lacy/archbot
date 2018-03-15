@@ -10,6 +10,7 @@ const Context = class {
 
 	// discord obj with id that serves as context base.
 	get idObject() { return this._idobj; }
+	get sourceID() { return this._idobj.id; }
 
 	get bot() { return this._bot; }
 

@@ -56,8 +56,6 @@ module.exports = class Game {
 
 	}
 
-	get isOpen() { return true; }
-
 	get saveID() { return this._saveID; }
 	get shortID() { return this._gid; }
 	get timestamp() { return this._time; }
@@ -81,6 +79,11 @@ module.exports = class Game {
 		this._saveID = this.getSaveId();
 		this._gid = this.getActiveId();
 	}
+
+	/**
+	 * Override in subclasses.
+	*/
+	isOpen() { return true; }
 
 	/**
 	 * Returns true if the player with the given id is playing this game.

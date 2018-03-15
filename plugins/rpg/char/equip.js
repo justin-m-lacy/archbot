@@ -3,8 +3,8 @@ const ItemGen = require( '../items/itemgen.js');
 const Weapon = require('../items/weapon.js');
 
 var MaxSlots = {
-	"amulet":3,
-	"ring":4
+	"neck":3,
+	"fingers":4
 };
 
 
@@ -36,8 +36,10 @@ module.exports = class Equip {
 		this.slots = {
 			"head":null,
 			"hands":null,
-			"amulet":null,
-			"ring":null,
+			"back":null,
+			"waist":null,
+			"neck":null,
+			"fingers":null,
 			"chest":null,
 			"shins":null,
 			"feet":null,
