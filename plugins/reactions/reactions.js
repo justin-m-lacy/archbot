@@ -57,7 +57,7 @@ class GuildReactions {
 			let key = substr.toLowerCase();
 			let cur = this.reactions[ key ];
 
-			if ( cur != null ) {
+			if ( cur ) {
 
 				// merge with existing react.
 				let r = cur.r;

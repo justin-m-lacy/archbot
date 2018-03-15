@@ -143,6 +143,20 @@ class StatBlock {
 		this._armor = 0;
 	}
 
+	/**
+	 * Gets a modifier for a base stat.
+	 * @param {*} stat 
+	 */
+	getModifier( stat ) {
+		if ( !this.hasOwnProperty(stat) ) return 0;
+		return Math.floor( ( this[stat] - 10)/2 );
+	}
+
+	addHp( amt ) {
+		this._curHp += amt;
+		this._maxHp += amt;
+	}
+
 }
 exports.StatMod = StatMods;
 exports.StatBlock = StatBlock;

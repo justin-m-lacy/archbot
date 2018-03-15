@@ -90,8 +90,8 @@ module.exports = class Equip {
 		let right = this.slots.right;
 		let left = this.slots.left;
 
-		if ( right === null ) return left.type === 'weapon' ? left : null;
-		if ( left === null ) return right.type === 'weapon' ? right : null;
+		if ( right === null ) return left ? ( left.type === 'weapon' ? left : null ) : null;
+		else if ( left === null ) return right.type === 'weapon' ? right : null;
 
 		if ( right.type !== 'weapon') return left.type === 'weapon' ? left : null;
 		if ( left.type !== 'weapon') return right.type === 'weapon' ? right : null;
@@ -226,6 +226,16 @@ module.exports = class Equip {
 		}
 
 		return cur;
+
+	}
+
+	* items() {
+
+		let it;
+		for( k in this.slots ) {
+			it = this.slots[k];
+			if ( it ) yield it;
+		}
 
 	}
 

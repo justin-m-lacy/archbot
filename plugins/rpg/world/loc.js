@@ -32,7 +32,8 @@ class Coord {
 		this.y = y;
 	}
 
-	equals( c ) { return c.x === this.x && c.y === this.y; }
+	equals( c ) {
+		return c.x === this.x && c.y === this.y; }
 
 	toString() {
 		return this.x + ',' + this.y;
