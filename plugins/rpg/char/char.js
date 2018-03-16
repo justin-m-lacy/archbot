@@ -206,9 +206,10 @@ class Char extends actor.Actor {
 	setEquip( e ) {
 
 		this._equip = e;
-		for( let it in e.items ) {
+		for( let it of e.items() ) {
 			this.applyEquip(it);
 		}
+		console.log( this.name + ' armor: ' + this.armor );
 
 	}
 
@@ -216,7 +217,10 @@ class Char extends actor.Actor {
 		if ( it.mods ) {
 			it.mods.apply( this._curStats );
 		}
-		if ( it.armor ) this._curStats.armor += it.armor;
+		if ( it.armor ) {
+			this._curStats.armor += it.armor;
+			console.log('adding armor: ' + it.armor);
+		}
 	}
 	removeEquip(it) {
 		if ( it.mods ) {
@@ -292,6 +296,10 @@ class Char extends actor.Actor {
 		if ( !this._charClass ) return;
 		super.applyBaseMods( this._charClass.statMods );
 
+	}
+
+	getWeapons() {
+		return this._equip.getWeapons();
 	}
 
 	rollDmg() {

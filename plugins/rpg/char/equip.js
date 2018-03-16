@@ -77,7 +77,7 @@ module.exports = class Equip {
 		return list;
 
 	}
-
+ 
 	get( slot ) {
 
 		if ( !this.slots.hasOwnProperty(slot)) return slot + ' is not a valid equipment slot.';
@@ -231,9 +231,8 @@ module.exports = class Equip {
 
 	* items() {
 
-		let it;
-		for( k in this.slots ) {
-			it = this.slots[k];
+		for( let k in this.slots ) {
+			var it = this.slots[k];
 			if ( it ) yield it;
 		}
 

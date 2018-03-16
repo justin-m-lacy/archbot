@@ -2,6 +2,7 @@ var initialized = false;
 
 // includes after init.
 var util, Char, Race, CharClass, CharGen, item, Trade, World, Loc;
+const Combat = require( './combat.js');
 
 const display = require( './display');
 const RPG_DIR = 'rpg/';
@@ -412,7 +413,7 @@ class RPG {
 
 			char = await this.activeCharOrErr( msg, msg.author );
 			if ( !char ) {
-				await msg.reply( 'Character \'' + who + '\' not found.');
+				await msg.reply( `Character '${who}' not found.`);
 				return;
 			}
 
@@ -430,7 +431,7 @@ class RPG {
 		try {
 
 			let dest = await this.tryLoadChar( who );
-			if ( !dest ) await msg.reply( '\'' + who + '\' not found on server.' );
+			if ( !dest ) await msg.reply( `'${who}' not found on server.` );
 			else {
 
 				let err = Trade.transfer( src, dest, expr );
@@ -459,35 +460,17 @@ class RPG {
 
 		let dest = await this.tryLoadChar( who );
 		if ( !dest ) {
-			m.reply( '\'' + who + '\' not found on server.' );
+			m.reply( `'${who}' not found on server.` );
 			return;
 		}
 
-		if ( !(src.loc.equals(dest.loc)) ) {
-			m.reply( dest.name + ' is not in the same location as ' + src.name + '.' );
-			return;
-		}
-
-		let dmg = dest.rollDmg();
-		let res = dest.name + ' hits ' + src.name + ' for ' + dmg + ' damage.';
-
-		if ( src.hit(dmg) === 'died' ) {
-			console.log('src died');
-			this.world.goHome(src);
-			res += '\n' + src.name + ' has died.';
-		}
-
-		dmg = src.rollDmg();
-		res = ( src.name + ' hits ' + dest.name + ' for ' + dmg + ' damage.\n' ) + res;
-
-		if ( dest.hit( dmg ) === 'died' ) {
-			this.world.goHome(dest);
-			res += '\n' + dest.name + ' has died.';
-		}
+		let com = new Combat(src, dest, this.world );
+		com.fight();
 
 		this.cacheChar( src );
 		this.cacheChar(dest);
-		display.sendBlock( m, res );
+
+		display.sendBlock( m, com.getText() );
 	}
 
 	async cmdRmChar( msg, charname ) {
@@ -501,7 +484,7 @@ class RPG {
 
 			let char = await this.tryLoadChar( charname );
 			if ( !char ) {
-				await msg.reply( charname + ' not found on server.');
+				await msg.reply( `'${charname}' not found on server.` );
 				return;
 			} 
 
@@ -594,11 +577,11 @@ class RPG {
 			if ( charname != null ) {
 
 				if ( this._context.illegalName(charname)) {
-					m.reply( charname + ' contains illegal characters.');
+					m.reply( `'${charname}' contains illegal characters.`);
 					return;
 				}
 				if ( await this.charExists(charname) ) {
-					m.reply( 'Character ' + charname + ' already exists.' );
+					m.reply( `Character '${charname}' already exists.` );
 					return;
 				}
 
@@ -645,11 +628,11 @@ class RPG {
 
 		char = await this.tryLoadChar( charname );
 		if ( !char ) {
-			await m.reply( 'Character \'' + charname + '\' no longer exists. Load new char.');
+			await m.reply( `Error loading '${charname}' Load new character.` );
 			return;
 		}
 		if ( char.owner != user.id ) {
-			await m.reply( 'Character \'' + charname + '\' is owned by someone else. Load a new character.');
+			await m.reply( `You are not the owner of character '${charname}'` );
 			return;
 		}
 
