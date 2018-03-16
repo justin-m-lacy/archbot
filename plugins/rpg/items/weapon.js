@@ -24,7 +24,6 @@ module.exports = class Weapon extends Item.Item {
 
 		if ( json.dmg ) {
 			w.damage = DamageSrc.FromJSON( json.dmg );
-			delete json.dmg;
 		} else w.damage = new DamageSrc();
 
 		return Item.Item.FromJSON( json, w );
@@ -67,6 +66,8 @@ module.exports = class Weapon extends Item.Item {
 
 	get mods() { return this._mods; }
 	set mods(v) { this._mods = v;}
+
+	get damageType() { return this.damage.type;}
 
 	constructor( name, desc ) {
 

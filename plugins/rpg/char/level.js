@@ -12,7 +12,7 @@ function tryLevel( char ) {
 
 function getNextExp( char ) {
 
-	let req = requiredExp( char.level);
+	let req = requiredExp( char.level+1);
 
 	let cls = char.charClass;
 	if ( cls ) req *= cls.expMod;
