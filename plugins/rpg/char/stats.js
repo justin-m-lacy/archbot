@@ -1,4 +1,3 @@
-
 class StatMods {
 
 	static FromJSON(json){
@@ -77,7 +76,15 @@ class StatBlock {
 	}
 
 	get curHp() { return this._curHp; }
-	set curHp( v) { this._curHp = v; }
+	set curHp( v) {
+		this._curHp = v > this._maxHp ? this._maxHp : v;
+	}
+	
+	get maxMp() { return this._maxMp; }
+	set maxMp(v) { this._maxMp = v; }
+
+	get curMp() { return this._curMp; }
+	set curMp(v) { this._curMp = v > this._maxMp ? this._maxMp : v; }
 
 	get level() { return this._level; }
 	set level( n ) { this._level = n; }
@@ -111,6 +118,7 @@ class StatBlock {
 		// LEGACY
 		if ( json.hp ) stats._maxHp = json.hp;
 		if ( !json.curHp ) stats._curHp = stats._maxHp;
+		if ( !json.curMp && stats._maxMp ) stats._curMp = stats._maxMp;
 
 		return stats;
 
@@ -124,6 +132,9 @@ class StatBlock {
 			curHp:this._curHp,
 			level:this._level,
 			armor:this._armor,
+
+			maxMp:this._maxMp,
+			curMp:this._curMp,
 
 			str:this._str,
 			con:this._con,
@@ -148,8 +159,9 @@ class StatBlock {
 	 * @param {*} stat 
 	 */
 	getModifier( stat ) {
-		if ( !this.hasOwnProperty(stat) ) return 0;
-		return Math.floor( ( this[stat] - 10)/2 );
+		let val = this[stat];
+		if ( !val) return 0;
+		return Math.floor( ( val - 10)/2 );
 	}
 
 	addHp( amt ) {

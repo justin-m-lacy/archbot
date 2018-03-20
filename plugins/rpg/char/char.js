@@ -149,8 +149,14 @@ class Char extends actor.Actor {
 		let cook = require( '../data/cooking.json');
 		let resp = cook.response[ Math.floor( cook.response.length*Math.random() )];
 
-		return 'You eat the ' + item.name + '. ' + resp + '.';
+		let prevhp = this.curHp;
+		this.curHp += Math.floor( 5*Math.random()) +1;
+		prevhp = this.curHp - prevhp;
 
+		resp = 'You eat the ' + item.name + '. ' + resp + '.';
+		if ( prevhp > 0 ) resp += ' ' + prevhp + ' hp recovered.'
+
+		return resp;
 	}
 
 	cook( what ) {
@@ -242,6 +248,13 @@ class Char extends actor.Actor {
 	}
 
 	/**
+	 * Removes and returns a random item, or null.
+	 */
+	randItem() {
+		return this._inv.randItem();
+	}
+
+	/**
 	 * Get an item from inventory without removing it.
 	 * @param {number|string|Item} whichItem 
 	 */
@@ -302,21 +315,6 @@ class Char extends actor.Actor {
 		return this._equip.getWeapons();
 	}
 
-	rollDmg() {
-
-		let weaps = this._equip.getWeapons();
-		if ( weaps === null ) return dice.roll(1,2);
-		else if ( weaps instanceof Array ) {
-
-			return weaps[Math.floor(weaps.length*Math.random() )].roll();
-
-		} else {
-			return weaps.roll();
-		}
-
-	}
-
-
 	testDmg() {
 
 		let weaps = this._equip.getWeapons();
@@ -363,6 +361,14 @@ class Char extends actor.Actor {
 
 		}
 		return str;
+
+	}
+
+	getHistory() {
+
+		let resp = (this._history.explored || 0 ) + ' locations discovered.\n';
+		resp += ( this._history.crafted || 0 ) + ' items crafted.';
+		return resp;
 
 	}
 

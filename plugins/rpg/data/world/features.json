@@ -1,0 +1,27 @@
+[
+
+    {
+        "name":"Healing Fount",
+        "desc":"Healing waters of healing power.",
+        "fb":"%c drinks from the shimmering water.",
+        "action":"heal"
+    },
+    {
+        "name":"Portal",
+        "fb":"%c steps into the swirling portal.",
+        "desc":"A mysterious portal."
+    },
+    {
+        "name":"Shrine",
+        "desc":"It looks mystical.",
+        "fb":"%c chants to the mystical shrine.",
+        "action":"revive"
+    },
+    {
+        "name":"Evil Shrine",
+        "fb":"%c prays to the wicked altar.",
+        "desc":"It looks evil.",
+        "action":"hurt"
+    }
+
+]

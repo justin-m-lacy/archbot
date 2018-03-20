@@ -37,18 +37,17 @@ class Race {
 			o._hitdice = json.hitdice;
 		}
 
+		o._desc = json.desc;
+
 		if ( json.exp ) o._expMod = json.exp;
 
 		// mod stats added to base. recomputed on load
 		// to allow for changes.
-		if ( json.hasOwnProperty('baseMods')){
-			o._baseMods = json.baseMods;
-		}
+		if ( json.baseMods ) o._baseMods = json.baseMods;
 
 		// absolute stats set once. gold, age, height, etc.
-		if ( json.hasOwnProperty('infoMods')) {
-			o._infoMods = json.infoMods;
-		}
+		if ( json.infoMods ) o._infoMods = json.infoMods;
+
 		return o;
 
 	}
@@ -56,6 +55,7 @@ class Race {
 	constructor() {
 	}
 
+	get desc() { return this._desc; }
 	get infoMods() { return this._infoMods; }
 	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }

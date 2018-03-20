@@ -122,14 +122,13 @@ class RPG {
 		let char = await this.activeCharOrErr( m, m.author );
 		if (!char) return;
 
-		let res = await this.world.explored(char);
-		display.sendBlock( m, res );
+		display.sendBlock( m, await this.world.explored(char) );
 
 	}
 
 	async cmdViewLoc( msg, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		let info = await this.world.view( char, what );
@@ -141,18 +140,26 @@ class RPG {
 
 	async cmdLook( msg, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		display.sendBlock( msg, await this.world.look( char, what ) );
 
 	}
 
+	async cmdUseLoc( msg, wot ) {
+
+		let char = await this.activeCharOrErr( msg, msg.author );
+		if (!char) return;
+
+		display.sendBlock( msg, await this.world.useLoc(char, wot ));
+	}
+
 	async cmdMove( msg, dir ) {
 
 		try {
 
-			let char = await this.activeCharOrErr( msg, msg.author )
+			let char = await this.activeCharOrErr( msg, msg.author );
 			if (!char) return;
 
 			display.sendBlock( msg, await this.world.move(char,dir) );
@@ -236,24 +243,24 @@ class RPG {
 
 	}
 
-	async cmdEquip( msg, what ) {
+	async cmdEquip( m, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
 		if ( !what ) {
 
-			await msg.reply('```' + char.name + ' equip:\n' + char.listEquip() + '```');
+			display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 
 		} else {
 
 			let res = char.equip(what);
 			if ( res === true ){
-				await msg.reply( char.name + ' equips ' + what );
+				await m.reply( char.name + ' equips ' + what );
 			} else if ( typeof(res) === 'string') {
-				await msg.reply( res );
+				await m.reply( res );
 			} else {
-				await msg.reply( char.name + ' does not have ' + what );
+				await m.reply( char.name + ' does not have ' + what );
 			}
 
 		}
@@ -264,7 +271,7 @@ class RPG {
 
 		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
-		if ( !slot ) display.sendBlock( m, char.name + ' equip:\n' + char.listEquip() );
+		if ( !slot ) display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 		else {
 
 			let item = char.getEquip( slot );
@@ -283,8 +290,7 @@ class RPG {
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if (!char) return;
 
-		let resp =  char.eat( what );
-		await msg.reply( resp );
+		await msg.reply( char.eat( what ) );
 
 	}
 
@@ -340,7 +346,7 @@ class RPG {
 
 	}
 
-	async cmdView( msg, which ) {
+	async cmdViewItem( msg, which ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if (!char) return;
@@ -419,7 +425,7 @@ class RPG {
 
 		}
 
-		await msg.reply( '```' + char.name + ' Inventory:\n' + char.inv.getMenu() + '```' );
+		display.sendBlock( msg, `${char.name} Inventory:\n${char.inv.getMenu()}` );
 
 	}
 
@@ -428,28 +434,24 @@ class RPG {
 		let src = await this.activeCharOrErr( msg, msg.author );
 		if ( !src ) return;
 
-		try {
+		let dest = await this.tryLoadChar( who );
+		if ( !dest ) await msg.reply( `'${who}' not found on server.` );
+		else {
 
-			let dest = await this.tryLoadChar( who );
-			if ( !dest ) await msg.reply( `'${who}' not found on server.` );
-			else {
-
-				let err = Trade.transfer( src, dest, expr );
-				if ( typeof(err) === 'string ' ) {
+			let err = Trade.transfer( src, dest, expr );
+			if ( typeof(err) === 'string ' ) {
 			
-					await msg.reply( err );
+				await msg.reply( err );
 
-				} else {
+			} else {
 
-					this.cacheChar( src );
-					this.cacheChar( dest  );
-					await msg.reply( 'Transfer complete.');
-
-				}
+				this.cacheChar( src );
+				this.cacheChar( dest  );
+				await msg.reply( 'Transfer complete.');
 
 			}
 
-		} catch ( e ) { console.log(e); }
+		}
 
 	}
 
@@ -460,12 +462,30 @@ class RPG {
 
 		let dest = await this.tryLoadChar( who );
 		if ( !dest ) {
-			m.reply( `'${who}' not found on server.` );
-			return;
+			return m.reply( `'${who}' not found on server.` );
 		}
 
 		let com = new Combat(src, dest, this.world );
 		com.fight();
+
+		this.cacheChar( src );
+		this.cacheChar(dest);
+
+		display.sendBlock( m, com.getText() );
+	}
+
+	async cmdSteal( m, who, wot=null ) {
+
+		let src = await this.activeCharOrErr( m, m.author );
+		if ( !src ) return;
+
+		let dest = await this.tryLoadChar( who );
+		if ( !dest ) {
+			return m.reply( `'${who}' not found on server.` );
+		}
+
+		let com = new Combat( src, dest, this.world );
+		com.steal( wot );
 
 		this.cacheChar( src );
 		this.cacheChar(dest);
@@ -506,24 +526,39 @@ class RPG {
 	}
 
 	async cmdViewChar( m, charname=null ) {
-
-		try {
 	
-			let char;
+		let char;
 
-			if ( !charname ) {
-				char = await this.activeCharOrErr( m, m.author );
-				if ( !char) return;
-			} else {
-				char = await this.tryLoadChar( charname );
-				if (!char) {
-					m.reply( charname + ' not found on server. D:' );
-					return;
-				}
+		if ( !charname ) {
+			char = await this.activeCharOrErr( m, m.author );
+			if ( !char) return;
+		} else {
+			char = await this.tryLoadChar( charname );
+			if (!char) {
+				m.reply( charname + ' not found on server. D:' );
+				return;
 			}
-			this.echoChar( m.channel, char );
+		}
+		display.echoChar( m.channel, char );
+
+	}
+
+	async cmdCharStats( m, charname=null ) {
 	
-		} catch(e) {console.log(e);}
+		let char;
+
+		if ( !charname ) {
+			char = await this.activeCharOrErr( m, m.author );
+			if ( !char) return;
+		} else {
+			char = await this.tryLoadChar( charname );
+			if (!char) {
+				m.reply( charname + ' not found on server. D:' );
+				return;
+			}
+		}
+		try {
+		display.sendBlock( m, char.getHistory() );}catch(e){console.log(e);}
 
 	}
 
@@ -556,7 +591,7 @@ class RPG {
 				prefix = 'Active character set.\n';
 			}
 	
-			this.echoChar( msg.channel, char, prefix );
+			display.echoChar( msg.channel, char, prefix );
 
 		} catch(e) {console.log(e);}
 	
@@ -574,7 +609,7 @@ class RPG {
 
 			if ( !sex ) sex = Math.random() < 0.5 ? 'm' : 'f';
 
-			if ( charname != null ) {
+			if ( charname ) {
 
 				if ( this._context.illegalName(charname)) {
 					m.reply( `'${charname}' contains illegal characters.`);
@@ -591,7 +626,7 @@ class RPG {
 			console.log( 'char rolled: ' + char.name );
 
 			await this.setActiveChar( m.author, char );
-			this.echoChar( m.channel, char );
+			display.echoChar( m.channel, char );
 			await this.saveChar( char, true );
 
 		} catch ( e ){ console.log(e); }
@@ -599,20 +634,9 @@ class RPG {
 	}
 	
 	async charExists( charname ) {
-
-		let key = this.getCharKey( charname );
-		return await this._context.cache.exists( key );
-
+		return await this._context.cache.exists( this.getCharKey( charname ) );
 	}
 
-	echoChar( chan, char, prefix = '' ) {
-	
-		let namestr = char.name + ' is a';
-		let desc = char.getLongDesc();
-		chan.send( prefix + '```' + namestr + ( display.isVowel(desc.charAt(0) )?'n ':' ') + desc + '```' );
-	
-	}
-	
 	async activeCharOrErr( m, user ) {
 
 		let char = this.activeChars[user.id];
@@ -635,8 +659,29 @@ class RPG {
 			await m.reply( `You are not the owner of character '${charname}'` );
 			return;
 		}
-
 		return char;
+
+	}
+
+	async clearActiveChar( uid ) {
+
+		delete this.activeChars[uid];
+		if ( !this.lastChars ) await this.loadLastChars();
+		delete this.lastChars[uid];
+
+	}
+
+	async setActiveChar( user, char ) {
+
+		let lastChar = this.activeChars[user.id];
+		if ( lastChar ) await this.saveChar( lastChar, true );		// save previous.
+
+		if ( !this.lastChars ) await this.loadLastChars();
+
+		this.activeChars[user.id] = char;
+		this.lastChars[user.id] = char.name;
+
+		this._context.cacheKeyData( LAST_CHARS, this.lastChars );
 
 	}
 
@@ -648,28 +693,6 @@ class RPG {
 			return lastjson;
 		}
 		this.lastChars = {};
-		this._context.cacheKeyData( LAST_CHARS, this.lastChars );
-
-	}
-
-	async clearActiveChar( uid ) {
-
-		delete this.activeChars[uid];
-		if ( this.lastChars == null ) await this.loadLastChars();
-		delete this.lastChars[uid];
-
-	}
-
-	async setActiveChar( user, char ) {
-
-		let lastChar = this.activeChars[user.id];
-		if ( lastChar ) await this.saveChar( lastChar, true );		// save previous.
-
-		if ( this.lastChars == null ) await this.loadLastChars();
-
-		this.activeChars[user.id] = char;
-		this.lastChars[user.id] = char.name;
-
 		this._context.cacheKeyData( LAST_CHARS, this.lastChars );
 
 	}
@@ -693,10 +716,7 @@ class RPG {
 	}
 
 	async saveChar( char, forceSave=false ) {
-
-		let key = this.getCharKey( char.name );
-		await this._context.storeKeyData( key, char, forceSave );
-
+		await this._context.storeKeyData( this.getCharKey( char.name ), char, forceSave );
 	}
 
 	async tryLoadChar( charname ) {
@@ -706,11 +726,10 @@ class RPG {
 		let key = this.getCharKey( charname );
 
 		let data = this._context.getKeyData(key);
-		if ( data == null ) {
+		if ( !data ) {
 			data = await this._context.fetchKeyData( key );
-			if ( data == null ) return null;
+			if ( !data ) return null;
 		}
-
 		if ( data instanceof Char ) return data;
 
 		console.log('parsing JSON char: ' + charname );
@@ -721,7 +740,7 @@ class RPG {
 
 		return char;
 
-	} catch(e) { console.log(e);}
+		} catch(e) { console.log(e);}
 	}
 
 	getCharKey( charname ) { return RPG_DIR + charname; }
@@ -742,8 +761,6 @@ class RPG {
 
 exports.init = function( bot ){
 
-	console.log( 'rpg INIT' );
-
 	// CHAR MANAGEMENT
 	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]', RPG.prototype.cmdRollChar, RPG, { maxArgs:4} );
 
@@ -752,12 +769,14 @@ exports.init = function( bot ){
 
 	bot.addContextCmd( 'viewchar', '!viewchar <charname>', RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'charstats', '!charstats [charname]', RPG.prototype.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
 
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
 			RPG, {maxArgs:0} );
 
 	// PVP TEST
 	bot.addContextCmd( 'attack', '!attack who', RPG.prototype.cmdAttack, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'steal', '!steal fromwho', RPG.prototype.cmdSteal, RPG, {minArgs:1, maxArgs:2});
 
 	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
@@ -770,7 +789,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
 	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
-	bot.addContextCmd( 'view', '!view <item_number|item_name> : View an item.', RPG.prototype.cmdView, RPG, {maxArgs:1} );
+	bot.addContextCmd( 'viewitem', '!viewitem <item_number|item_name> : View an item.', RPG.prototype.cmdViewItem, RPG, {maxArgs:1} );
 	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 	bot.addContextCmd( 'inv', '!inv [player]', RPG.prototype.cmdInv, RPG, {maxArgs:1});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
@@ -787,14 +806,16 @@ exports.init = function( bot ){
 
 	// LOCATION
 	bot.addContextCmd( 'look', '!look [item on ground]', RPG.prototype.cmdLook, RPG, { maxArgs:1 } );
-	bot.addContextCmd( 'viewloc', '!viewloc <item_number|item_name>', RPG.prototype.cmdViewLoc, RPG );
+	bot.addContextCmd( 'view', '!view <item_number|item_name>', RPG.prototype.cmdViewLoc, RPG );
 	bot.addContextCmd( 'drop', '!drop <what>', RPG.prototype.cmdDrop, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'take', '!take <what>', RPG.prototype.cmdTake, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'locdesc', '!locdesc <description>', RPG.prototype.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'explored', '!explored', RPG.prototype.cmdExplored, RPG, {maxArgs:0} );
 	bot.addContextCmd( 'sethome', '!sethome', RPG.prototype.cmdSetHome, RPG, {maxArgs:0});
 	bot.addContextCmd( 'gohome', '!gohome', RPG.prototype.cmdGoHome, RPG, {maxArgs:0});
+	bot.addContextCmd( 'useloc', '!useloc [feature]', RPG.prototype.cmdUseLoc, RPG, {maxArgs:1});
 
+	// MOVE
 	bot.addContextCmd( 'move', '!move <direction>', RPG.prototype.cmdMove, RPG, {maxArgs:1});
 	bot.addContextCmd( 'north', '!north', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['north'] } );
 	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );

@@ -93,9 +93,11 @@ exports.Item = class Item {
 	*/
 	getDetails( imgTag=true ) {
 
-		let s = this._name + ': ' + this._desc;
+		let s = this._name;
+		if ( this._desc ) s += ': ' + this._desc;
 		if ( this._inscript ) s += ' { ' + this._inscript + ' }';
 		if ( this._attach && imgTag ) s += ' [img]';
+		if ( this._crafter ) s += '\ncreated by ' + this._crafter;
 
 		return s;
 	}
@@ -104,11 +106,17 @@ exports.Item = class Item {
 
 		let len = a.length;
 		if ( len === 0 ) return 'nothing';
-		else if ( len === 1 ) return (start) + ') ' + a[0]._name;
+		else if ( len === 1 ) return (start) + ') ' + a[0]._name + ( a[0].attach ? '\t[img]' : '');
 
-		let res = (start++) + ') ' + a[0]._name;
+		let it = a[0];
+		let res = (start++) + ') ' + it._name;
+		if ( it.attach ) res += '\t[img]';
+
 		for( let i = 1; i < len; i++ ) {
-			res += '\n' + (start++) + ') ' + a[i]._name;
+
+			it = a[i];
+			res += '\n' + (start++) + ') ' + it._name;
+			if ( it.attach ) res += '\t[img]';
 		}
 
 		return res;
@@ -123,32 +131,20 @@ exports.Item = class Item {
 
 		let len = a.length;
 		if ( len === 0 ) return 'nothing';
-		else if ( len === 1 ) return a[0]._name;
+		else if ( len === 1 ) return a[0]._name + ( a[0].attach ? '\t[img]' : '' );
 
-		let res = a[0]._name;
+		let it = a[0];
+		let res = it._name;
+		if ( it.attach ) res += ' [img]';
+
 		for( let i = 1; i < len; i++ ) {
-			res += ', ' + a[i]._name;
+			it = a[i];
+			res += ', ' + it._name;
+			if ( it.attach ) res += ' [img]';
+
 		}
 
 		return res;
-
-	}
-
-	/**
-	 * Returns a menu for selecting an item.
-	 * @param {Item[]} a 
-	 */
-	static ItemMenu( a ) {
-
-		let list = '';
-		let len = a.length;
-		if ( len === 0 ) return '';
-
-		for( let i = 0; i < len; i++ ) {
-			list += (i+1) + ') ' + a[i].name + '\n';
-		}
-
-		return list;
 
 	}
 
@@ -185,7 +181,7 @@ exports.Craft = function( char, name, desc, attach ) {
 	item.time = Date.now();
 
 	char.addCrafted();
-	char.addExp( 1 );
+	char.addExp( 2 );
 	char.addItem( item );
 
 }

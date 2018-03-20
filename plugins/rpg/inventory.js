@@ -6,6 +6,8 @@ module.exports = class Inventory {
 	get items() { return this._items; }
 	set items(v) { this._items = v;}
 
+	get length() { return this._items.length; }
+
 	static FromJSON( json ) {
 
 		let arr = json.items;
@@ -17,7 +19,7 @@ module.exports = class Inventory {
 		for( let i = 0; i < len; i++ ) {
 
 			var it = ItemGen.fromJSON( arr[i]);
-			if ( it != null ) items.push( ItemGen.fromJSON( it ) );
+			if ( it ) items.push( it );
 
 		}
 
@@ -33,6 +35,16 @@ module.exports = class Inventory {
 		return { items:this._items };
 	}
 
+	randItem() {
+
+		let len = this._items.length;
+		if ( len === 0 ) return null;
+
+		let ind = Math.floor( len*Math.random() );
+		return this._items.splice( ind, 1 )[0];
+
+	}
+
 	getList() {
 		return itemjs.Item.ItemList( this._items );
 	}
@@ -42,12 +54,18 @@ module.exports = class Inventory {
 	*/
 	getMenu() {
 
-		let list = '';
 		let len = this._items.length;
 		if ( len === 0 ) return '';
 
-		for( let i = 0; i < len; i++ ) {
-			list += (i+1) + ') ' + this._items[i].name + '\n';
+		let it = this._items[0];
+		let list = '1) ' + it.name;
+		if ( it.attach ) list += '\t[img]';
+
+		for( let i = 1; i < len; i++ ) {
+			it = this._items[i];
+			list += '\n'+(i+1) + ') ' + it.name;
+			if ( it.attach ) list += '\t[img]';
+	
 		}
 
 		return list;
