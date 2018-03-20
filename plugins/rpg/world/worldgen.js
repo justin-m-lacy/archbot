@@ -1,5 +1,5 @@
 const Loc = require( './loc.js');
-
+const itemgen = require( '../items/itemgen.js');
 const biomes = require( '../data/world/biomes.json');
 
 
@@ -33,6 +33,10 @@ module.exports = class {
 
 		for( let i = exits.length-1; i>= 0; i-- ) {
 			loc.addExit( exits[i]);
+		}
+
+		while( Math.random() < 0.1 ) {
+			loc.addFeature( itemgen.genFeature() );
 		}
 
 		return loc;

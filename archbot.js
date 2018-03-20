@@ -495,10 +495,8 @@ function logGames( guildMember, prevGame, curGame ) {
 	let now = Date.now();
 	var gameData = {};
 
-	if ( prevGame ) { gameData[prevGame.name] = now;
-	}
-	if ( curGame ){ gameData[curGame.name] = now;
-	}
+	if ( prevGame ) gameData[prevGame.name] = now;
+	if ( curGame ) gameData[curGame.name] = now;
 	
 	mergeMember( guildMember, {games:gameData} );
 

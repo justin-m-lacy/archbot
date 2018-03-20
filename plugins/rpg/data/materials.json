@@ -1,14 +1,14 @@
 [
     { "name":"silk", "type":"cloth", "weight":0, "priceMod":5, "weapon":-10 },
     { "name":"stone", "type":"metal", "weight":3, "bonus":1, "weapon":-1 },
-    { "name":"leather", "type":"natural", "weight":1, "priceMod":1, "bonus":2 },
-    { "name":"wood", "adj":"wooden", "priceMod":1, "bonus":3 },
-    { "name":"bronze", "weight":2, "priceMod":5, "bonus":5 },
-    { "name":"iron", "type":"metal", "weight":2, "priceMod":10, "bonus":8 },
-    { "name":"steel", "type":"metal", "weight":2, "priceMod":20, "bonus":10 },
-    { "name":"watered steel", "type":"metal", "weight":2, "priceMod":25, "bonus":12 },
-    { "name":"mithril", "type":"metal", "weight":1, "priceMod":100, "bonus":20 },
-    { "name":"ebonwood", "type":"natural", "weight":1, "priceMod":100, "bonus":20},
-    { "name":"adamant", "type":"metal", "adj":"adamantine", "priceMod":1000, "bonus":25 }
+    { "name":"leather", "type":"natural", "weight":1, "priceMod":1, "bonus":1 },
+    { "name":"wood", "adj":"wooden", "priceMod":1, "bonus":1 },
+    { "name":"bronze", "weight":2, "priceMod":5, "bonus":2 },
+    { "name":"iron", "type":"metal", "weight":2, "priceMod":10, "bonus":3 },
+    { "name":"steel", "type":"metal", "weight":2, "priceMod":20, "bonus":4 },
+    { "name":"quicksteel", "type":"metal", "weight":2, "priceMod":25, "bonus":5 },
+    { "name":"mithril", "type":"metal", "weight":1, "priceMod":100, "bonus":7 },
+    { "name":"ebonwood", "type":"natural", "weight":1, "priceMod":100, "bonus":6},
+    { "name":"adamant", "type":"metal", "adj":"adamantine", "priceMod":1000, "bonus":10 }
 
 ]

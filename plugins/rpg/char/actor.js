@@ -1,6 +1,9 @@
-const Dice = require( '../dice.js');
+const dice = require( '../dice.js');
 const Loc = require( '../world/loc.js');
 const stats = require( './stats.js');
+
+exports.Alive = 'alive';
+exports.Dead = 'dead';
 
 exports.Actor = class Actor {
 
@@ -18,11 +21,18 @@ exports.Actor = class Actor {
 
 	}
 
+	get state() { return this._state; }
+	set state(v) { this._state = v; }
+
+	// old.
 	get hp() { return this._curStats._curHp; }
-	set hp( v) { this._curStats._curHp = v; }
+	set hp(v ) { this._curStats.curHp = v; }
 
 	get curHp() { return this._curStats._curHp; }
-	set curHp(v) { this._curStats._curHp = v; }
+	set curHp(v) { this._curStats.curHp = v; }
+
+	get curMp() { return this._curStats.curMp; }
+	set curMp(v) { this._curStats.curMp = v; }
 
 	get maxHp() { return this._curStats._maxHp; }
 	set maxHp(v ) { this._curStats.maxHp = v; }
@@ -109,6 +119,17 @@ exports.Actor = class Actor {
 
 	}
 
+	statRoll( ...stats ) {
+		let roll = dice.roll(1,20+this._curStats._level );
+		for( let s of stats ) {
+			console.log('stat: ' + s);
+			roll += this.getModifier( s );
+		}
+		return roll;
+
+	}
+	skillRoll() { return dice.roll( 1, 20+this._curStats._level);}
+
 	levelUp() {
 
 		this._baseStats.level += 1;
@@ -116,7 +137,7 @@ exports.Actor = class Actor {
 		this._baseStats.addHp( hpBonus );
 		this._curStats.addHp( hpBonus );
 
-		this._levelFlag = true;
+		this.levelFlag = true;
 
 	}
 
@@ -124,8 +145,17 @@ exports.Actor = class Actor {
 		this._info.gold += amt;
 	}
 
-	getModifier( stat ) {
-		return this._curStats.getModifier(stat);
+	/**
+	 * 
+	 * @param {string} stat 
+	 */
+	getModifier( stat ) { return this._curStats.getModifier(stat); }
+
+	revive() {
+
+		this.curHp = 1;
+		this.state = exports.Alive;
+
 	}
 
 	/**
@@ -134,8 +164,8 @@ exports.Actor = class Actor {
 	hit( amt ) {
 		this.curHp -= amt;
 		if ( this.curHp <= 0 ) {
-			this.curHp = this.maxHp;
-			return 'died';
+			this.state = exports.Dead;
+			return exports.Dead;
 		}
 	}
 
@@ -148,13 +178,14 @@ exports.Actor = class Actor {
 		let level = this._curStats.level;
 		let hp = this._baseStats.maxHp + level*this.getModifier('con');
 
+		console.log('con:' + this.getModifier('con') );
 		// temp levels.
 		for( let i = level - this._baseStats.level; i > 0; i-- ) {
-			hp += Dice.roll( 1, hd );
+			hp += dice.roll( 1, hd );
 		}
 
 		if ( hp < 1 ) hp = 1;
-		this.hp = hp;
+		this.maxHp = hp;
 
 	}
 
@@ -178,7 +209,7 @@ exports.Actor = class Actor {
 		let maxHp = hd + this._baseStats.getModifier( 'con');
 
 		for( let i = this._baseStats.level-1; i > 0; i-- ) {
-			maxHp += Dice.roll( 1, hd );
+			maxHp += dice.roll( 1, hd );
 		}
 
 		this._baseStats.maxHp = maxHp;
@@ -225,7 +256,7 @@ exports.Actor = class Actor {
 
 			mod = mods[k];
 			if ( typeof(mod) === 'string' ) {
-				mod = Dice.parseRoll(mod);
+				mod = dice.parseRoll(mod);
 			}
 
 			val = stats[k];

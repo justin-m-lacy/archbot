@@ -2,21 +2,51 @@ const Weapon = require( './weapon.js' );
 const Armor = require( './armor.js');
 const Item = require( './item.js');
 const Material = require( './material.js');
+const Feature = require( '../world/feature.js');
 
 exports.fromJSON = fromJSON;
 exports.genWeapon = genWeapon;
 exports.genArmor = genArmor;
 exports.genItem = genItem;
+exports.genFeature = randFeature;
+
 exports.randItem = randItem;
+
+var featureByName;
+var featureList;
 
 var baseWeapons = require( '../data/weapons.json');
 var baseArmors = require( '../data/armors.json');
 var armorBySlot;
 var weaponByType;
 
+initFeatures();
 initArmors();
 
 Material.LoadMaterials();
+
+/**
+ * Create named feature from data.
+ * @param {string} s 
+ */
+function getFeature( s ) {
+	let d = featureByName[s];
+	if ( d ) return Feature.FromJSON(d);
+	return null;
+}
+
+function initFeatures() {
+
+	console.log('INIT FEATURES');
+	featureList = require( '../data/world/features.json');
+	featureByName = {};
+
+	for( let i = featureList.length-1; i>= 0; i-- ) {
+		featureByName[ featureList[i].name ] = featureList[i]; 
+	}
+	console.log('INIT FEATURES DONE');
+
+}
 
 function initArmors() {
 
@@ -51,6 +81,10 @@ function fromJSON( json ) {
 
 		case 'weapon':
 		return Weapon.FromJSON(json);
+		break;
+
+		case 'feature':
+		return Feature.FromJSON(json);
 		break;
 
 		default:
@@ -93,6 +127,14 @@ function getRandSlot( slot ) {
 	let list = armorBySlot[slot];
 	if ( !list ) return null;
 	return list[ Math.floor( list.length*Math.random() )];
+
+}
+
+function randFeature() {
+
+	console.log('CREATING RAND FEATURE');
+	let data = featureList[ Math.floor(featurelist.length*Math.random() )];
+	return Feature.FromJSON( data );
 
 }
 

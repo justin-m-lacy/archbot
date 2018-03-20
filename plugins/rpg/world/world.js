@@ -35,6 +35,25 @@ module.exports = class World {
 	}
 
 	/**
+	 * Attempt to use a feature at the location.
+	 * @param {Char} char 
+	 * @param {*} wot 
+	 */
+	async useLoc( char, wot ) {
+
+		let loc = await this.getOrGen( char.loc, char );
+
+		let f = loc.getFeature( wot );
+		if ( !f ) return 'You do not see any such thing here.';
+
+		let res = f.use(char);
+
+		if ( !res ) return 'Nothing seems to happen.';
+		return res;
+
+	}
+
+	/**
 	 * Attempt to take an item from cur location.
 	 * @param {Char} char 
 	 * @param {string|number|Item} what 
@@ -107,9 +126,9 @@ module.exports = class World {
 	 * @param {string|number|Item} what 
 	 */
 	async look( char, what ) {
-
+try{
 		let loc = await this.getOrGen( char.loc );
-		//console.log('looking at: ' + char.loc );
+		console.log('LOOKING at: ' + char.loc );
 		if ( what ) {
 
 			let it = loc.get( what );
@@ -118,6 +137,7 @@ module.exports = class World {
 
 		} else return char.name + ' is' + loc.look();
 
+	} catch(e) {console.log(e);}
 	}
 
 	/**
@@ -203,7 +223,7 @@ module.exports = class World {
 			dest.setMaker( char.name );
 
 			char.addExplored();
-			char.addExp( 1 );
+			char.addExp( 2 );
 
 			this.cache.cache( this.coordKey(destCoord), dest );
 
@@ -230,6 +250,7 @@ module.exports = class World {
 		} else if ( loc instanceof Loc.Loc ) return loc;
 		else {
 
+			console.log('REVIVING LOC OBJECT');
 			// instantiate json object.
 			loc = Loc.Loc.FromJSON( loc );
 			// store instance in cache.

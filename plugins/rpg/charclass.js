@@ -31,6 +31,8 @@ let CharClass = module.exports = class {
 			o._baseMods = json.baseMods;
 		}
 
+		o._desc = json.desc;
+
 		if ( json.exp) o._expMod = json.exp;
 
 		if ( json.hasOwnProperty('infoMods')) {
@@ -40,6 +42,7 @@ let CharClass = module.exports = class {
 
 	}
 
+	get desc() { return this._desc; }
 	get baseMods() { return this._baseMods; }
 	get infoMods() { return this._infoMods; } 
 	get ver(){ return this._ver; }

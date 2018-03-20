@@ -20,7 +20,7 @@ exports.MOUTANIN = MOUNTAIN;
 exports.UNDER = UNDER;
 
 const Inv = require( '../inventory.js');
-const Item = require( '../items/item.js');
+const itemjs = require( '../items/item.js');
 
 var reverses = { enter:'exit', exit:'enter', north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
 
@@ -99,6 +99,8 @@ exports.Loc = class Loc {
 
 		}
 
+		if ( json.features ) loc._features = Inv.FromJSON( json.features );
+
 		if ( json.attach ) loc._attach = json.attach;
 
 		if ( json.inv ) {
@@ -132,6 +134,7 @@ exports.Loc = class Loc {
 			biome:this._biome
 		};
 
+		if ( this._features ) o.featurers = this._features;
 		if ( this._attach) o.attach = this._attach;
 		if ( this._maker ) o.maker = this._maker;
 		if ( this._time) o.time = this._time;
@@ -151,8 +154,8 @@ exports.Loc = class Loc {
 		this._biome = biomeName;
 
 		this._npcs = [];
-		this._features =[];
 
+		this._features = new Inv();
 		this._inv = new Inv();
 	
 		this._exits = {};
@@ -229,9 +232,10 @@ exports.Loc = class Loc {
 
 		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')';
 		if ( this._attach && imgTag ) r += ' [img]';
-		r += '\n' + this._desc + '\n';
+		r += '\n' + this._desc;
 
-		r += 'On the ground you see ' + this._inv.getList();
+		if ( this._features.length > 0 ) r += '\nFeatures: ' + this._features.getList();
+		r += '\nOn the ground you see ' + this._inv.getList();
 
 		r += '\nPaths:'
 		for( let k in this._exits ) {
@@ -243,15 +247,43 @@ exports.Loc = class Loc {
 
 	}
 
-	lookItems() {
+	/**
+	 * 
+	 * @param {Char} char 
+	 * @param {Feature|string|number} wot 
+	 */
+	use( char, wot) {
 
-		return 'On the ground you see: ' + this._inv.getList();
+		let f = this._features.get(f);
+		if ( !f ) return false;
+
+		return f.use( char );
 
 	}
 
+	lookFeatures() {
+		return 'Area features: ' + this._features.getList();
+	}
+
+	lookItems() {
+		return 'On the ground you see: ' + this._inv.getList();
+	}
+
+	/**
+	 * 
+	 * @param {Feature} f 
+	 */
+	addFeature( f ) { this._features.add(f);}
+
+	/**
+	 * 
+	 * @param {Feature|string|number} wot 
+	 */
+	getFeature(wot) { return this._features.get(wot);}
+
 	/**
 	 * Get item information without picking it up.
-	 * @param {*} item 
+	 * @param {Item|string|number} item 
 	 */
 	get( item ) {
 		return this._inv.get(item);

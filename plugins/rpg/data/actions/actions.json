@@ -1,0 +1,23 @@
+{
+    "revive":{ "name":"revive", "effects":[ {"require":{"state":"dead"}, "apply":{ "state":"alive", "curHp":1 },
+        "fb":"%c has been revived.", "err":"%c is already alive."}]
+    },
+
+    "sexswitch":{ "name":"switch", "effects":[
+
+        { "require":{ "sex":"m"}, "apply":{ "sex":"f"} },
+        { "require":{ "sex":"f"}, "apply":{"sex":"m"}}
+
+    ]},
+
+    "heal":{ "name":"heal", "effects":
+    [{"apply":{"curHp":{ "roll":"3d4"}},
+        "fb":"%c feels slightly better."}
+    ]},
+
+    "hurt":{ "name":"hurt", "effects":[
+        {"apply":
+            {"curHp":{  "roll":"3d4"}}, "fb":"%c is struck by evil lightnings."
+        }] }
+
+}
