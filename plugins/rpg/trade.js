@@ -1,5 +1,47 @@
+const util = require('../../jsutils.js');
 
 var isGold = /^(\d+)\s*g(?:old)?$/i;
+
+function rollCost(lvl) {
+	return 10*lvl*( 1 << Math.floor(lvl/4) );
+}
+
+exports.rollWeap = (char ) => {
+
+	let level = char.level;
+	if ( !char.payOrFail( rollCost(level) ) )
+		return char.name + ' cannot afford to roll a new weapon.'; 
+
+	let gen = require( './items/itemgen.js' );
+
+	level = Math.max( 0, level + util.random( -1, 2 ) );
+	let it = gen.genWeapon( level );
+
+	if ( !it) return 'Failed to roll a weapon.';
+
+	char.addItem(it);
+	return char.name + ' rolled a shiny new ' + it.name;
+
+}
+
+exports.rollArmor = (char, slot ) => {
+
+	let level = char.level;
+	if ( !char.payOrFail( rollCost(level) ) )
+		return char.name + ' cannot afford to roll a new weapon.'; 
+
+	let gen = require( './items/itemgen.js' );
+
+	level = Math.max( 0, level + util.random( -1, 2 ) );
+	let it = gen.genArmor( slot, level );
+
+	if ( !it) return 'Failed to roll armor.';
+
+	char.addItem(it);
+
+	return char.name + ' rolled a shiny new ' + it.name;
+
+}
 
 exports.sell = (src, wot) => {
 

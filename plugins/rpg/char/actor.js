@@ -120,6 +120,18 @@ exports.Actor = class Actor {
 
 	}
 
+	/**
+	 * Removes a gold amount or returns false.
+	 * @param {number} amt 
+	 */
+	payOrFail( amt ) {
+
+		if ( amt > this.gold ) return false;
+		this.gold -= amt;
+		return true;
+
+	}
+
 	statRoll( ...stats ) {
 		let roll = dice.roll(1,20+this._curStats._level );
 		for( let s of stats ) {

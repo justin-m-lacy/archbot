@@ -112,9 +112,11 @@ module.exports = class Equip {
 
 	removeSlot( slot ) {
 
-		if( slot == null || !this.slots.hasOwnProperty(slot)) return null;
+		if( slot == null ) return null;
 
 		let it = this.slots[slot];
+		if ( !it) return null;
+
 		this.slots[slot] = null;
 
 		return it;
