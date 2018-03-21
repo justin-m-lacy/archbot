@@ -199,15 +199,8 @@ class RPG {
 
 		try {
 
-			let gen = require( './items/itemgen.js' );
-
-			let level = Math.max( 0, char.level + util.random( -1, 2 ) );
-			let it = gen.genWeapon( char.level );
-			if ( !it) msg.reply( 'Failed to roll a weapon.');
-
-			await msg.reply( char.name + ' rolled a shiny new ' + it.name );
-			char.addItem(it);
-			await this.saveChar( char, true );
+			display.sendBlock( msg, Trade.rollWeap( char ) );
+			this.saveChar( char, true );
 
 		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
@@ -224,17 +217,9 @@ class RPG {
 
 		try {
 
-			let gen = require( './items/itemgen.js' );
+			display.sendBlock( msg, Trade.rollArmor( char, slot ) );
+			this.saveChar( char, true );
 
-			let level = Math.max( 0, char.level + util.random( -1, 2 ) );
-			let it = gen.genArmor( slot, level );
-
-			if ( !it) msg.reply( 'Failed to roll armor.' );
-			else {
-				await msg.reply( char.name + ' rolled a shiny new ' + it.name );
-				char.addItem(it);
-				await this.saveChar( char, true );
-			}
 		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}

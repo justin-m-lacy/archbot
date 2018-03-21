@@ -27,7 +27,7 @@ function getNextExp( char ) {
 
 function requiredExp( level ) {
 
-	return level*( 1 << (Math.floor(level/2)) )*75;
+	return Math.floor( 150*( Math.pow( 1.5, level) ) );
 
 }
 
@@ -37,6 +37,5 @@ function requiredExp( level ) {
  * @returns {number} exp needed to reach next level.
  */
 function nextExp( curLevel ) {
-	curLevel++;
-	return (curLevel)*( 1 << (Math.floor(curLevel/2)) )*75;
+	return Math.floor( 150*( Math.pow( 1.5, ++curLevel) ) );
 }
