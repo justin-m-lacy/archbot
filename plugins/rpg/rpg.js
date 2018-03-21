@@ -4,6 +4,8 @@ var initialized = false;
 var util, Char, Race, CharClass, CharGen, item, Trade, World, Loc;
 const Combat = require( './combat.js');
 
+const gamejs = require( './game.js');
+
 const display = require( './display');
 const RPG_DIR = 'rpg/';
 const LAST_CHARS = RPG_DIR + '`lastchars`';
@@ -89,6 +91,10 @@ class RPG {
 		let resp = await this.world.setDesc( char, desc, m.attachments.first() );
 		if ( resp ) await m.reply( resp );
 
+	}
+
+	async cmdLore( m, wot ) {
+		display.send( m, gamejs.getDesc(wot) );
 	}
 
 	async cmdTake( msg, what ){
@@ -194,7 +200,10 @@ class RPG {
 		try {
 
 			let gen = require( './items/itemgen.js' );
-			let it = gen.genWeapon();
+
+			let level = Math.max( 0, char.level + util.random( -1, 2 ) );
+			let it = gen.genWeapon( char.level );
+			if ( !it) msg.reply( 'Failed to roll a weapon.');
 
 			await msg.reply( char.name + ' rolled a shiny new ' + it.name );
 			char.addItem(it);
@@ -216,9 +225,11 @@ class RPG {
 		try {
 
 			let gen = require( './items/itemgen.js' );
-			let it = gen.genArmor( slot );
 
-			if ( !it) msg.reply( 'Failed to create item.' );
+			let level = Math.max( 0, char.level + util.random( -1, 2 ) );
+			let it = gen.genArmor( slot, level );
+
+			if ( !it) msg.reply( 'Failed to roll armor.' );
 			else {
 				await msg.reply( char.name + ' rolled a shiny new ' + it.name );
 				char.addItem(it);
@@ -427,6 +438,14 @@ class RPG {
 
 		display.sendBlock( msg, `${char.name} Inventory:\n${char.inv.getMenu()}` );
 
+	}
+
+	async cmdSell( m, wot ) {
+
+		let src = await this.activeCharOrErr( m, m.author );
+		if ( !src ) return;
+
+		display.sendBlock( m, Trade.sell( src, wot ));
 	}
 
 	async cmdGive( msg, who, expr ) {
@@ -774,6 +793,9 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
 			RPG, {maxArgs:0} );
 
+	// HELP
+	bot.addContextCmd( 'lore', '!lore wot', RPG.prototype.cmdLore, RPG, {minArgs:1, maxArgs:1} );
+
 	// PVP TEST
 	bot.addContextCmd( 'attack', '!attack who', RPG.prototype.cmdAttack, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'steal', '!steal fromwho', RPG.prototype.cmdSteal, RPG, {minArgs:1, maxArgs:2});
@@ -794,6 +816,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'inv', '!inv [player]', RPG.prototype.cmdInv, RPG, {maxArgs:1});
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'sell', '!sell <wot>', RPG.prototype.cmdSell, RPG, {minArgs:1, maxArgs:1} );
 
 	// FOOD
 	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', RPG.prototype.cmdEat, RPG, {minArgs:1, maxArgs:1});

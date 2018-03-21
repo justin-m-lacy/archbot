@@ -95,10 +95,10 @@ function fromJSON( json ) {
 
 }
 
-function genWeapon() {
+function genWeapon( lvl ) {
 
-	let mat = Material.Random();
-	if ( mat === null ) console.log( 'material is null');
+	let mat = Material.Random( lvl );
+	if ( mat === null ) { console.log( 'material is null'); return null; }
 
 	console.log( 'weaps len: ' + baseWeapons.length );
 	let tmp = baseWeapons[ Math.floor( baseWeapons.length*Math.random() )];
@@ -109,10 +109,12 @@ function genWeapon() {
 
 }
 
-function genArmor( slot=null ) {
+function genArmor( slot=null, lvl=0 ) {
+	
+	console.log( 'armor level: ' + lvl );
 
-	let mat = Material.Random();
-	if ( mat === null ) console.log( 'material is null');
+	let mat = Material.Random( lvl );
+	if ( mat === null ) { console.log( 'material is null'); return null; }
 
 	let tmp = slot ? getRandSlot(slot) : baseArmors[ Math.floor( baseArmors.length*Math.random() )];
 

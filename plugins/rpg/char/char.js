@@ -1,5 +1,5 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'info', 'baseStats', 'loc', 'history' ];
+const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats', 'loc', 'history' ];
 
 const Level = require( './level.js');
 
@@ -79,7 +79,7 @@ class Char extends actor.Actor {
 
 		if ( json == null ) return null;
 
-		let char = new Char( Race.GetRace(json.race), Class.GetClass( json.charClass ) );
+		let char = new Char( Race.RandRace(json.race), Class.RandClass( json.charClass ) );
 
 		char.name = json.name;
 		char.exp = json.exp || 0;
@@ -94,6 +94,7 @@ class Char extends actor.Actor {
 			Object.assign( char._loc, json.loc );
 		}
 
+		if ( json.state) char.state = json.state;
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
 
@@ -339,6 +340,7 @@ class Char extends actor.Actor {
 		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold + '\t exp: ' + this._exp;
 		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this.armor;
 		desc += '\n' + this.getStatString();
+		desc += '\nstatus: ' + this._state;
 
 		return desc;
 

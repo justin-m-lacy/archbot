@@ -1,6 +1,17 @@
 
 var isGold = /^(\d+)\s*g(?:old)?$/i;
 
+exports.sell = (src, wot) => {
+
+	let it = src.takeItem(wot);
+	if ( !it ) return 'Item not found.';
+
+	let gold = Number.isNaN(it.cost) ? ( Math.random() < 0.5 ? 1 : 0 ) : it.cost;
+	src.addGold( gold );
+	return it.name + ' sold for ' + gold + ' gold.';
+
+}
+
 exports.transfer = function transfer( src, dest, what ) {
 
 	let res = isGold.exec( what );
@@ -13,7 +24,7 @@ exports.transfer = function transfer( src, dest, what ) {
 
 		console.log( 'item transfer: ' + what );
 		let it = src.takeItem(what);
-		if ( it != null ) {
+		if ( it ) {
 			dest.addItem(it);
 			return true;
 		}

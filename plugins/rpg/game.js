@@ -1,4 +1,29 @@
+const Race = require('./race.js');
+const Class = require('./charclass.js');
+
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
+
+exports.getDesc = (wot) => {
+
+	let val = Race.GetRace( wot );
+	if ( val ) return wot + ': ' + val.desc;
+
+	val = Class.GetRace( wot );
+	if ( val ) return wot + ': ' + val.desc;
+
+	return 'Unknown entity: ' + wot;
+
+}
+
+/**
+ * actions not allowed per player state.
+*/
+var stop_actions = {
+	"alive":{},
+	"dead":{
+		"take":1,"attack":1,"drop":1, "steal":1, "craft":1, "give":1,"eat":1,"cook":1
+	}
+};
 
 var eventFb = {
 	levelup:'%c has leveled up.',
