@@ -115,6 +115,7 @@ exports.Actor = class Actor {
 
 		this._loc = new Loc.Coord( 0,0);
 
+		this._state = exports.Alive;
 		this._curMods = [];
 
 	}

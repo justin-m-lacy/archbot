@@ -48,8 +48,10 @@
     { "name":"ArchBot", "desc":"The world's greatest Discord Bot(tm)."},
     { "name":"Gallon of PCP", "desc":"I didn't know you could get it in liquid form."},
     { "name":"Light Saber", "desc":"Needs batteries." },
+    { "name":"Overwhelmingly Large Telescope", "desc":"You could see anything with this."},
     { "name":"A Spoon", "desc":"Try to realize the truth." },
     { "name":"Pale Blue Dot", "desc":"Probably worthless." },
-    { "name":"A simple golden ring.", "desc":"This would probably be very powerful in another fictional world." }
+    { "name":"A simple golden ring.", "desc":"This would probably be very powerful in another fictional world." },
+    { "name":"Log", "desc":"Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog." }
     
 ]

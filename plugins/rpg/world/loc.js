@@ -134,7 +134,7 @@ exports.Loc = class Loc {
 			biome:this._biome
 		};
 
-		if ( this._features ) o.featurers = this._features;
+		if ( this._features ) o.features = this._features;
 		if ( this._attach) o.attach = this._attach;
 		if ( this._maker ) o.maker = this._maker;
 		if ( this._time) o.time = this._time;

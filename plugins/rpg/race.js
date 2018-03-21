@@ -5,6 +5,12 @@ class Race {
 
 	static GetRace( racename ) {
 
+		if ( racename ) return raceByName[racename.toLowerCase()];
+		return null;
+	}
+
+	static RandRace( racename ) {
+
 		if ( racename ) {
 			racename = racename.toLowerCase();
 			if ( raceByName.hasOwnProperty(racename)) return raceByName[racename];

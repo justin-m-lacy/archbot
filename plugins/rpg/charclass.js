@@ -4,6 +4,13 @@ let CharClass = module.exports = class {
 
 	static GetClass( classname ) {
 
+		if ( classname ) return classByName[classname.toLowerCase()];
+		return null;
+	
+	}
+
+	static RandClass( classname ) {
+
 		if ( classname ) {
 			classname = classname.toLowerCase();
 			if ( classByName.hasOwnProperty(classname) ) return classByName[classname];
