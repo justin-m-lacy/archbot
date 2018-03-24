@@ -1,7 +1,7 @@
 [
-    { "name":"silk", "type":"cloth", "weight":0, "priceMod":5, "weapon":-10, "level":3 },
-    { "name":"stone", "type":"metal", "weight":3, "bonus":1, "weapon":-1, "level":1 },
-    { "name":"leather", "type":"natural", "weight":1, "priceMod":1, "bonus":1, "level":1 },
+    { "name":"silk", "type":"cloth", "weight":0, "priceMod":5, "dmg":-3, "hit":-3, "level":3 },
+    { "name":"stone", "type":"metal", "weight":3, "bonus":1, "dmg":1, "level":1 },
+    { "name":"leather", "type":"natural", "weight":1, "priceMod":1, "dmg":-2, "bonus":1, "level":1 },
     { "name":"wood", "adj":"wooden", "priceMod":1, "bonus":1, "level":2 },
     { "name":"bronze", "weight":2, "priceMod":5, "bonus":2, "level":3 },
     { "name":"iron", "type":"metal", "weight":2, "priceMod":10, "bonus":3, "level":5 },

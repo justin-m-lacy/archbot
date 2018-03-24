@@ -8,6 +8,8 @@ module.exports = class Weapon extends Item.Item {
 		let json = super.toJSON();
 		json.material = this._material;
 		json.dmg = this.damage;
+		json.hit = this.toHit;
+	
 		if ( this.mods ) json.mods = this.mods;
 
 		return json;
@@ -25,6 +27,8 @@ module.exports = class Weapon extends Item.Item {
 		if ( json.dmg ) {
 			w.damage = DamageSrc.FromJSON( json.dmg );
 		} else w.damage = new DamageSrc();
+
+		json.hit = w.toHit;
 
 		return Item.Item.FromJSON( json, w );
 
@@ -48,6 +52,7 @@ module.exports = class Weapon extends Item.Item {
 		if ( tmp.hands ) w.hands = tmp.hands;
 		if ( tmp.mods ) this._mods = Object.assign( {}, tmp.mods );
 
+		w.toHit = tmp.hit || 0;
 
 		w.damage = DamageSrc.FromString( tmp.dmg );
 		w.damage.type = tmp.type;
@@ -61,17 +66,21 @@ module.exports = class Weapon extends Item.Item {
 	set material(m) { this._material = m;}
 	get material() { return this._material; }
 
+	get toHit() { return this._toHit; }
+	set toHit(v) { this._toHit = v; }
+
 	get bonus() { return this.damage.bonus; }
 	set bonus( v ) { if ( v < 0 )v = 0; this.damage.bonus = v;}
 
 	get mods() { return this._mods; }
 	set mods(v) { this._mods = v;}
 
-	get damageType() { return this.damage.type;}
+	get dmgType() { return this.damage.type;}
 
 	constructor( name, desc ) {
 
 		super( name, desc, 'weapon' );
+		this._toHit = 0;
 
 	}
 

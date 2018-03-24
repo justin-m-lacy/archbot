@@ -33,7 +33,7 @@ module.exports = class Combat {
 			attack.dmg = attack.weap.roll() + src.getModifier('str');
 			if ( attack.dmg <= 0 ) attack.dmg = 1;
 
-			this.resp += `\n${src.name} hits ${dest.name} for ${attack.dmg} ${attack.weap.damageType} damage.`;
+			this.resp += `\n${src.name} hits ${dest.name} for ${attack.dmg} ${attack.weap.dmgType} damage.`;
 
 		}
 		return attack;
@@ -51,6 +51,8 @@ module.exports = class Combat {
 			return;
 		}
 
+		
+
 		let atk = this.attacker.skillRoll() + this.attacker.getModifier('dex') + this.attacker.getModifier('wis');
 		let def = this.defender.skillRoll() + this.defender.getModifier('dex') + this.defender.getModifier('wis');
 
@@ -61,42 +63,45 @@ module.exports = class Combat {
 
 			this.take(this.attacker, this.defender, wot, del );
 
-		} else if ( del < 0 ) {
+		} else if ( del < 0 && this.defender.state === 'alive' ) {
 
 			this.resp += `${this.defender.name} catches ${this.attacker.name} attempting to steal.\n`;
 			this.attack( this.defender, this.attacker );
+
 		} else {
 			this.resp += `${this.attacker.name} fails to steal from ${this.defender.name}`;
 		}
 
 	}
 
-	take( src, dest, wot, stealRoll=0) {
+	take( src, targ, wot, stealRoll=0) {
 
 		let it;
 		if ( wot ) {
 	
-			it = dest.takeItem(wot);
+			it = targ.takeItem(wot);
 			if ( !it) {
-				this.resp += `${src.name} tries to rob ${dest.name}, but could not find the item they wanted.`;
+				this.resp += `${src.name} tries to rob ${targ.name}, but could not find the item they wanted.`;
 				return;
 			}
 
-		} else it = dest.randItem();
+		} else it = targ.randItem();
 
 		if ( it ) {
 
 			src.addItem( it );
-			this.resp += `${src.name} stole ${it.name} from ${dest.name}.`;
+			this.resp += `${src.name} stole ${it.name} from ${targ.name}.`;
 
-			src.addExp( 2 );
+			src.addExp( 2*targ.level );
 
-		} else this.resp += `${src.name} attempts to steal from ${dest.name} but their pack is empty.`;
+		} else this.resp += `${src.name} attempts to steal from ${targ.name} but their pack is empty.`;
 
 	}
 
 	/**
 	 * single player attack. no reprisal.
+	 * @param {Char} src 
+	 * @param {Char} dest 
 	 */
 	attack( src, dest ) {
 		if ( !(src.loc.equals(dest.loc)) ) {
@@ -115,6 +120,11 @@ module.exports = class Combat {
 			return;
 		}
 	
+		if ( this.defender.state !== 'alive') {
+			this.resp += `${this.defender.name} is already dead.`;
+			return;
+		}
+
 		let atk1 = this.tryHit( this.attacker, this.defender );
 		this.resp += '\n';
 		let atk2 = this.tryHit( this.defender, this.attacker );
@@ -128,12 +138,13 @@ module.exports = class Combat {
 
 		if ( char.hit( atk.dmg )) {
 			this.resp += `\n${char.name} has been slain.`;
+			if ( atk.char ) atk.char.addExp( char.level*10 );
 		}
 
 	}
 
 	getAttack( char ) {
-		return new Attack( this.getWeapon(char), char.skillRoll() + char.getModifier('dex') );
+		return new Attack( char, this.getWeapon(char) );
 	}
 
 	getWeapon(char ) {
@@ -152,10 +163,11 @@ module.exports = class Combat {
 
 class Attack {
 
-	constructor( weap, hitroll ) {
+	constructor( attacker, weap ) {
 
+		this.char = attacker;
 		this.weap = weap;
-		this.hitroll = hitroll;
+		this.hitroll = attacker.skillRoll() + attacker.getModifier('dex') + weap.toHit;
 
 	}
 

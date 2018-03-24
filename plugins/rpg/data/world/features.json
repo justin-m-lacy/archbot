@@ -12,6 +12,12 @@
         "desc":"A mysterious portal."
     },
     {
+        "name":"Gate",
+        "fb":"%c steps through existence.",
+        "desc":"A magical rip in reality. You doubt there's a way back.",
+        "action":"gate"
+    },
+    {
         "name":"Shrine",
         "desc":"It looks mystical.",
         "fb":"%c chants to the mystical shrine.",

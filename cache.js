@@ -72,7 +72,7 @@ exports.Cache = class {
 		}
 		if ( !this.loader ) return null;
 
-		//console.log( 'fetching from file: ' + key );
+		console.log( 'fetching from file: ' + key );
 		let val = await this.loader( this._cacheKey + key );
 		if ( val != null ) {
 			this._dict[key] = new Item(key, val, false );
@@ -88,7 +88,7 @@ exports.Cache = class {
 	 */
 	async store( key, value ) {
 
-		//console.log('writing key: ' + key );
+		console.log('STORING key: ' + key );
 		let item = new Item(key, value);
 		this._dict[key] = item;
 
@@ -122,7 +122,7 @@ exports.Cache = class {
 	 */
 	cache( key, value ) {
 
-		//console.log('writing key: ' + key );
+		console.log( 'CACHING key: ' + key );
 		this._dict[key] = new Item( key, value);
 
 	}
@@ -134,10 +134,14 @@ exports.Cache = class {
 	 */
 	async delete( key ) {
 
+		console.log( 'DELETING key: ' + key );
 		delete this._dict[key];
+		//this._dict[key] = null;
+
 		if ( this.deleter != null ) {
 			try {
 				 await this.deleter( this._cacheKey + key );
+				 console.log( 'FILE DELETED: ' + key );
 			} catch(e) {console.log(e);}
 		}
 	
@@ -160,12 +164,14 @@ exports.Cache = class {
 			var item = dict[k];
 			if ( item instanceof exports.Cache ) {
 
+				//subcache.
 				item.backup( time );
 
 			} else {
 
 				try {
 					if ( now - item.lastSave > time ) {
+						console.log( 'BACKING UP: ' + item.key );
 						await this.saver( this._cacheKey + item.key, item.data );
 						item.lastSave = now;	// technically some time passed.
 					}

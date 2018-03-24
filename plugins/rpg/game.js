@@ -8,7 +8,7 @@ exports.getDesc = (wot) => {
 	let val = Race.GetRace( wot );
 	if ( val ) return wot + ': ' + val.desc;
 
-	val = Class.GetRace( wot );
+	val = Class.GetClass( wot );
 	if ( val ) return wot + ': ' + val.desc;
 
 	return 'Unknown entity: ' + wot;
@@ -18,10 +18,10 @@ exports.getDesc = (wot) => {
 /**
  * actions not allowed per player state.
 */
-var stop_actions = {
-	"alive":{},
+var illegal_acts = {
 	"dead":{
-		"take":1,"attack":1,"drop":1, "steal":1, "craft":1, "give":1,"eat":1,"cook":1
+		"take":1,"attack":1,"drop":1, "equip":1, "unequip":1, "steal":1, "craft":1,
+		"give":1,"eat":1,"cook":1, "sell":1, "destroy":1, "inscribe":1
 	}
 };
 
@@ -35,6 +35,18 @@ var eventExp = {
 	explored:2,
 	crafted:1
 };
+
+
+exports.actionErr = ( m, char, act ) => {
+
+	let illegal = illegal_acts[ char.state ];
+	if ( illegal && illegal.hasOwnProperty(act)) {
+		m.reply( 'Cannot perform action ' + act + ' while ' + char.state );
+		return true;
+	}
+	return false;
+
+}
 
 
 class Result {

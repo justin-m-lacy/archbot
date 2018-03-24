@@ -1,4 +1,16 @@
-for( let k in null ) {
-	console.log(k);
+var z = 0;
+var a;
+
+while ( a = inc() ) {
+	console.log('while');
 }
-console.log('done');
+
+function inc() {
+
+	z++;
+	if ( z > 10 ) {
+		return false;
+	}
+	return true;
+
+}

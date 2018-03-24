@@ -135,7 +135,7 @@ function getRandSlot( slot ) {
 function randFeature() {
 
 	console.log('CREATING RAND FEATURE');
-	let data = featureList[ Math.floor(featurelist.length*Math.random() )];
+	let data = featureList[ Math.floor(featureList.length*Math.random() )];
 	return Feature.FromJSON( data );
 
 }

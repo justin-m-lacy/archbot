@@ -45,6 +45,8 @@ const Context = class {
 
 	}
 
+	isMaster( u) { return this._bot.isMaster(u); }
+
 	/**
 	 * Register message event with Discord client.
 	 * @param {string} evtName 
@@ -229,10 +231,10 @@ const Context = class {
 	 * @param {*} key 
 	 */
 	getKeyData( key ) { return this._cache.get(key); }
-
+	
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) { return await this._cache.fetch(key); }
-	
+
 	// associate data with key.
 	async storeKeyData( key, data, forceSave=false ) {
 
