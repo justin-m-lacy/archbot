@@ -1,6 +1,8 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats', 'loc', 'history' ];
+const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats',
+					'loc', 'history', 'statPoints', 'spentPoints' ];
 
+const Loc = require( '../world/loc.js');
 const Level = require( './level.js');
 
 const Inv = require( '../inventory.js');
@@ -28,6 +30,8 @@ class Char extends actor.Actor {
 	get inv() { return this._inv; }
 	set inv( v ) { this._inv = v; }
 
+	get equip() {return this._equip; }
+
 	get home() { return this._home;}
 	set home(v) { this._home = v;}
 
@@ -43,7 +47,12 @@ class Char extends actor.Actor {
 	get history() { return this._history; }
 	set history(v) { this._history = v;}
 
-	
+	get statPoints() { return this._statPoints; }
+	set statPoints(v) { this._statPoints = v; }
+
+	get spentPoints() { return this._spentPoints; }
+	set spentPoints(v) { this._spentPoints = v; }
+
 	/**
 	 * Notification for level up.
 	 * TODO: replace with event system.
@@ -86,7 +95,7 @@ class Char extends actor.Actor {
 		char.owner = json.owner;
 
 		if (json.history ) Object.assign( char.history, json.history );
-		if ( json.home) char._home = json.home;
+		if ( json.home) char._home = new Loc.Coord( json.home.x, json.home.y );
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
 		if ( json.info ) Object.assign( char._info, json.info );
@@ -95,6 +104,9 @@ class Char extends actor.Actor {
 		}
 
 		if ( json.state) char.state = json.state;
+
+		char.statPoints = json.statPoints | char._baseStats.level;
+		char.spentPoints = json.spentPoints | 0;
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
 
@@ -112,6 +124,9 @@ class Char extends actor.Actor {
 
 		this._charClass = charclass;
 
+		this._statPoints = 0;
+		this._spentPoints = 0;
+
 		this._inv = new Inv();
 		this._equip = new Equip();
 
@@ -122,11 +137,37 @@ class Char extends actor.Actor {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} stat 
+	 */
+	addStat( stat ) {
+
+		stat = stat.toLowerCase();
+		if ( statTypes.indexOf( stat ) < 0 ) return 'Stat not found.';
+		if ( this._spentPoints >= this._statPoints ) return 'No stat points available.';
+
+		this._baseStats[stat]++;
+		this._curStats[stat]++;
+
+		this._spentPoints++;
+
+		return true;
+
+	}
+
 	addCrafted() {
 		this._history.crafted++;
 	}
 	addExplored() {
 		this._history.explored++;
+	}
+
+	levelUp() {
+
+		super.levelUp();
+		this._statPoints++;
+
 	}
 
 	addExp( amt ) {
@@ -197,16 +238,46 @@ class Char extends actor.Actor {
 
 	}
 
+	/**
+	 * Removes any items matching the predicate and returns them.
+	 * Removed items are not added to inventory.
+	 * @param {function} p 
+	 */
+	removeWhere( p ) {
+
+		let removed = this._equip.removeWhere(p);
+		for( let i = removed.length-1; i >= 0; i-- ) {
+			this.removeEquip( removed[i]);
+		}
+		return removed;
+
+	}
+
 	unequip( slot ) {
 
 		let item = this._equip.removeSlot( slot );
-		if ( !item ) return false;
+		if ( !item ) return null;
 
-		this.removeEquip(item);
+		if ( item instanceof Array ) {
 
-		this._inv.add( item );
+			if ( item.length === 0 ) return null;
 
-		return true;
+			for( let i = item.length-1; i >= 0; i-- ) {
+
+				this.removeEquip( item[i]);
+				this._inv.add( item[i]);
+
+			}
+			return item;
+
+		} else {
+	
+			this.removeEquip(item);
+			this._inv.add( item );
+
+		}
+
+		return item;
 
 	}
 
@@ -214,7 +285,10 @@ class Char extends actor.Actor {
 
 		this._equip = e;
 		for( let it of e.items() ) {
-			this.applyEquip(it);
+
+			if ( it instanceof Array ) { it.forEach( this.applyEquip ); }
+			else this.applyEquip(it);
+
 		}
 		console.log( this.name + ' armor: ' + this.armor );
 
@@ -233,7 +307,8 @@ class Char extends actor.Actor {
 		if ( it.mods ) {
 			it.mods.remove( this._curStats );
 		}
-		if ( it.armor ) this._curStats.armor -= it.armor;
+		console.log('removing armor: ' + it.armor );
+		if ( it.armor ) this._curStats._armor -= it.armor;
 	}
 
 	/**
@@ -279,6 +354,8 @@ class Char extends actor.Actor {
 	takeItem( which ) {
 		return this._inv.remove(which);
 	}
+
+	takeRange( start, end){ return this._inv.takeRange( start, end); }
 
 	/**
 	 * reroll hp.
@@ -336,11 +413,10 @@ class Char extends actor.Actor {
 
 	getLongDesc() {
 
-		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name;
+		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name + '\t[' + this._state + ']';
 		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold + '\t exp: ' + this._exp;
 		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this.armor;
 		desc += '\n' + this.getStatString();
-		desc += '\nstatus: ' + this._state;
 
 		return desc;
 

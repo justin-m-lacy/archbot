@@ -97,6 +97,17 @@ module.exports = class Inventory {
 
 	}
 
+	takeRange( start, finish ) {
+
+		if ( isNaN(start) || isNaN(finish)) return null;
+
+		if ( --start < 0) start = 0;
+		if ( finish > this._items.length ) { finish = this._items.length; }
+
+		return this._items.splice( start, finish-start );
+
+	}
+
 	/**
 	 * Attempts to remove an item by name or index.
 	 * @param {number|string|Item} which
@@ -107,7 +118,7 @@ module.exports = class Inventory {
 		if ( which == null ) return null;
 		if ( which instanceof itemjs.Item ) {
 
-			let ind = this._items.indexOf( which );
+			let ind = this._items.indexOf( which ); 
 			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
 			return null;
 
@@ -153,6 +164,34 @@ module.exports = class Inventory {
 
 		if ( it instanceof Array ) this._items = this._items.concat( it );
 		else this._items.push(it);
+	}
+
+	/**
+	 * Remove all items matching predicate; returns the list of items removed.
+	 * @param {*} p 
+	 */
+	removeWhere( p ) {
+
+		let r = [];
+
+		for( let i = this._items.length-1; i >= 0; i-- ) {
+			if ( p(this._items[i])) r.push( this._items.splice(i,1)[0] );
+		}
+
+		return r;
+
+	}
+
+	/**
+	 * Apply function to each item in inventory.
+	 * @param {function} f 
+	 */
+	forEach( f ) {
+
+		for( let i = this._items.length-1; i >= 0; i-- ) {
+			f( this._items[i]);
+		}
+
 	}
 
 }

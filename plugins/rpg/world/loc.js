@@ -291,7 +291,7 @@ exports.Loc = class Loc {
 
 	/**
 	 * 
-	 * @param {Item} item 
+	 * @param {Item|Item[]} item 
 	 */
 	drop( item ) {
 		this._inv.add( item );

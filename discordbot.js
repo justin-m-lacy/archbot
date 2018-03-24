@@ -204,9 +204,15 @@ class DiscordBot {
 
 	}
 
+	isMaster( u ) {
+
+		if ( u instanceof Discord.User ) return u.id === this._master;
+		return u === this._master;
+	}
+
 	async cmdBackup( m ) {
 
-		if ( m.author.id === this._master ) {
+		if ( this.isMaster( m.author.id ) ) {
 			await this._cache.backup();
 			await m.reply( 'backup complete.');
 		}
@@ -215,7 +221,7 @@ class DiscordBot {
 
 	cmdLeaveGuild( m ) {
 
-		if ( m.author.id === this._master && m.guild ) {
+		if ( this.isMaster( m.author.id ) && m.guild ) {
 			m.guild.leave();
 			console.log('leaving guild: ' + m.guild.name );
 		}

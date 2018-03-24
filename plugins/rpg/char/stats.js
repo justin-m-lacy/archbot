@@ -63,11 +63,11 @@ class StatMods {
 
 }
 
+exports.pointStats = [ 'str', 'con', 'dex', 'int', 'wis', 'char', 'armor' ];
+
 class StatBlock {
 
-	set hp(v) {
-		this._maxHp = this._curHp = v;
-	}
+	set hp(v) { this._maxHp = this._curHp = v; }
 
 	get maxHp() { return this._maxHp; }
 	set maxHp( v) {

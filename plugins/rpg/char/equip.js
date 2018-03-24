@@ -105,14 +105,35 @@ module.exports = class Equip {
 		if ( it.type === 'weapon') return this.removeWeap(it);
 
 		let slot = it.slot;
-		// is it a name? what?
-		return this.removeSlot( slot );
+		let cur = this.slots[slot];
+
+		if ( cur instanceof Array ) {
+
+			for( let i = cur.length-1; i >= 0; i-- ) {
+
+				if ( cur[i] == it ) {
+					cur.splice( i, 1);
+					return true;
+				}
+
+			}
+
+		} else {
+
+			if ( cur == it ) {
+				this.slots[slot] = null;
+				return true;
+			}
+
+		}
+
+		return false;
 
 	}
 
 	removeSlot( slot ) {
 
-		if( slot == null ) return null;
+		if( !slot ) return null;
 
 		let it = this.slots[slot];
 		if ( !it) return null;
@@ -200,7 +221,7 @@ module.exports = class Equip {
 		if ( it.type === 'weapon' ) return this.equipWeap(it);
 
 		let slot = it.slot;
-		if( slot == null || !this.slots.hasOwnProperty(slot)) return it.name + ' cannot be equipped.';
+		if( slot === null || !this.slots.hasOwnProperty(slot)) return it.name + ' cannot be equipped.';
 
 		let cur = this.slots[slot];
 		if ( cur instanceof Array ) {
@@ -229,6 +250,60 @@ module.exports = class Equip {
 
 		return cur;
 
+	}
+
+	removeWhere( p ) {
+
+		let v;
+		let removed = [];
+
+		for( let k in this.slots ) {
+
+			v = this.slots[k];
+			if ( v === null || v === undefined ) continue;
+
+			if ( v instanceof Array ) {
+
+				for( let i = v.length-1; i >= 0; i-- ) {
+
+					if ( p( v[i]) ) {
+						removed.push( v.splice(i,1)[0] );
+					}
+
+				}
+
+			} else if ( p(v) ) {
+
+				this.slots[k] = null;
+				removed.push(v);
+
+			}
+
+		}
+
+		return removed;
+
+	}
+
+	forEach( func ) {
+
+		let v;
+
+		for( let k in this.slots ) {
+
+			v = this.slots[k];
+			if ( v instanceof Array ) {
+
+				for( let i = v.length-1; i >= 0; i-- ) func( v[i] );
+
+			} else func( v );
+
+		}
+
+	}
+
+	* slotNames() {
+		for( let k in this.slots ) yield k;
 	}
 
 	* items() {

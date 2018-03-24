@@ -180,6 +180,10 @@ exports.Craft = function( char, name, desc, attach ) {
 	item.crafter = char.name;
 	item.time = Date.now();
 
+	let maxBonus = char.level + char.getModifier('int') + 1;
+	if ( maxBonus < 2 ) maxBonus = 2;
+	item.cost = Math.floor( maxBonus * Math.random() );
+
 	char.addCrafted();
 	char.addExp( 2 );
 	char.addItem( item );

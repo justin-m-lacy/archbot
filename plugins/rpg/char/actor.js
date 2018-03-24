@@ -146,6 +146,8 @@ exports.Actor = class Actor {
 	levelUp() {
 
 		this._baseStats.level += 1;
+		this._curStats.level += 1;
+
 		let hpBonus = this.HD + this._baseStats.getModifier( 'con' );
 		this._baseStats.addHp( hpBonus );
 		this._curStats.addHp( hpBonus );
@@ -192,10 +194,7 @@ exports.Actor = class Actor {
 		let hp = this._baseStats.maxHp + level*this.getModifier('con');
 
 		console.log('con:' + this.getModifier('con') );
-		// temp levels.
-		for( let i = level - this._baseStats.level; i > 0; i-- ) {
-			hp += dice.roll( 1, hd );
-		}
+		// todo: temp levels?
 
 		if ( hp < 1 ) hp = 1;
 		this.maxHp = hp;

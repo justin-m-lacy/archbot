@@ -145,15 +145,16 @@ try{
 	 * @param {Char} char 
 	 * @param {string|Item|number} what 
 	 */
-	async drop( char, what) {
+	async drop( char, what, end ) {
 
-		let it = char.takeItem( what );
-		if ( !it ) return 'No such item.';
+		let it = end ? char.takeRange( what, end ) : char.takeItem( what );
+		if ( !it ) return 'Invalid item.';
 
 		let loc = await this.getOrGen( char.loc, char );
 		loc.drop( it );
 		this.quickSave( loc );
 
+		if ( it instanceof Array ) return it.length + ' items dropped.';
 		return char.name + ' dropped ' + it.name;
 
 	}

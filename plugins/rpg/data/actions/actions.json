@@ -10,6 +10,8 @@
 
     ]},
 
+    "gate":{ "name":"gate", "effects":[]},
+
     "heal":{ "name":"heal", "effects":
     [{"apply":{"curHp":{ "roll":"3d4"}},
         "fb":"%c feels slightly better."}
@@ -17,7 +19,7 @@
 
     "hurt":{ "name":"hurt", "effects":[
         {"apply":
-            {"curHp":{  "roll":"3d4"}}, "fb":"%c is struck by evil lightnings."
+            {"curHp":{ "roll":"-3d4"}}, "fb":"%c is struck by evil lightnings."
         }] }
 
 }

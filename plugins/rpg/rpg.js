@@ -63,6 +63,27 @@ class RPG {
 
 	}
 
+	async cmdWhere( m, who ) {
+
+		let char = await this.tryLoadChar( who );
+		if ( !char ) return;
+		m.reply( char.name + ' is at ' + char.loc.toString() );
+
+	}
+
+	async cmdNerf( m, who ) {
+
+		let char = await this.tryLoadChar( who );
+		if ( !char ) return;
+
+		if ( !this._context.isMaster( m.author ) ) m.reply( 'You do not have permission to do such a thing.');
+
+		let res = Trade.nerfItems( char );
+
+		m.reply( res );
+
+	}
+
 	async cmdSetHome( m ) {
 
 		let char = await this.activeCharOrErr( m, m.author );
@@ -77,6 +98,8 @@ class RPG {
 
 		let char = await this.activeCharOrErr( m, m.author );
 		if (!char) return;
+
+		if ( gamejs.actionErr( m, char, 'home' ) ) return;
 
 		await m.reply( this.world.goHome( char ) );
 		this.cacheChar( char );
@@ -97,27 +120,31 @@ class RPG {
 		display.send( m, gamejs.getDesc(wot) );
 	}
 
-	async cmdTake( msg, what ){
+	async cmdTake( m, what ){
 
 		try {
 
-			let char = await this.activeCharOrErr( msg, msg.author )
+			let char = await this.activeCharOrErr( m, m.author )
 			if (!char) return;
 
+			if ( gamejs.actionErr( m, char, 'take' ) ) return;
+
 			let resp = await this.world.take( char, what );
-			await msg.channel.send( resp);
+			await m.channel.send( resp);
 
 		} catch ( e) { console.log(e); }
 	}
 
-	async cmdDrop( msg, what ) {
+	async cmdDrop( m, what, end=null ) {
 
 		try {
-			let char = await this.activeCharOrErr( msg, msg.author )
+			let char = await this.activeCharOrErr( m, m.author )
 			if (!char) return;
 
-			let resp = await this.world.drop( char, what );
-			await msg.channel.send( resp);
+			if ( gamejs.actionErr( m, char, 'drop' ) ) return;
+		
+			let resp = await this.world.drop( char, what, end );
+			await m.channel.send( resp);
 
 		} catch ( e) { console.log(e); }
 
@@ -224,16 +251,18 @@ class RPG {
 
 	}
 
-	async cmdUnequip( msg, slot ) {
+	async cmdUnequip( m, slot ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( !slot ) await msg.reply( 'You must specify an equip slot to remove.');
+		if ( gamejs.actionErr( m, char, 'unequip' ) ) return;
+	
+		if ( !slot ) await m.reply( 'You must specify an equip slot to remove.');
 		else {
 
-			if ( char.unequip(slot) ) await msg.reply( 'Removed.');
-			else await msg.reply( 'Cannot unequip from ' + slot );
+			if ( char.unequip(slot) ) await m.reply( 'Removed.');
+			else await m.reply( 'Cannot unequip from ' + slot );
 
 		}
 
@@ -244,6 +273,8 @@ class RPG {
 		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
+		if ( gamejs.actionErr( m, char, 'equip' ) ) return;
+	
 		if ( !what ) {
 
 			display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
@@ -281,39 +312,45 @@ class RPG {
 
 	}
 
-	async cmdEat( msg, what ) {
+	async cmdEat( m, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
-		await msg.reply( char.eat( what ) );
+		if ( gamejs.actionErr( m, char, 'eat' ) ) return;
+	
+		await m.reply( char.eat( what ) );
 
 	}
 
-	async cmdCook( msg, what ) {
+	async cmdCook( m, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
+
+		if ( gamejs.actionErr( m, char, 'cook' ) ) return;
 
 		let resp = char.cook( what );
-		await msg.reply( resp );
+		await m.reply( resp );
 
 	}
 
-	async cmdInscribe( msg, whichItem, inscrip ) {
+	async cmdInscribe( m, whichItem, inscrip ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( !whichItem ) await msg.reply( 'Which item in inventory do you want to inscribe?');
+		if ( gamejs.actionErr( m, char, 'inscribe' ) ) return;
+
+		if ( !whichItem ) await m.reply( 'Which item in inventory do you want to inscribe?');
 		else {
 
 			let item = char.getItem( whichItem );
-			if ( !item ) await msg.reply( 'Item not found.');
+			if ( !item ) await m.reply( 'Item not found.');
 			else {
 
 				item.inscription = inscrip;
-				await msg.reply( 'Item inscribed.');
+				await m.reply( 'Item inscribed.');
 				await this.saveChar( char );
 
 			}
@@ -322,19 +359,28 @@ class RPG {
 
 	}
 
-	async cmdDestroy( msg, whichItem ) {
+	async cmdDestroy( m, whichItem, end=null ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( !whichItem ) await msg.reply( 'Which inventory item do you want to obliterate?');
-		else {
+		if ( gamejs.actionErr( m, char, 'destroy' ) ) return;
+
+		if ( !whichItem ) await m.reply( 'Which inventory item do you want to destroy?');
+
+		if ( end != null ) {
+
+			let itms = char.takeItems( whichItem, end );
+			if ( !itms) m.reply( 'Invalid item range.');
+			else m.reply( itms.length + ' items destroyed.');
+
+		} else {
 
 			let item = char.takeItem( whichItem );
-			if ( !item ) await msg.reply( 'Item ' + whichItem + ' not in inventory.');
+			if ( !item ) await m.reply( 'Item ' + whichItem + ' not in inventory.');
 			else {
 
-				await msg.reply( item.name + ' is gone forever.' );
+				await m.reply( item.name + ' is gone forever.' );
 
 			}
 
@@ -379,22 +425,24 @@ class RPG {
 
 	}
 
-	async cmdCraft( msg, itemName, desc ) {
+	async cmdCraft( m, itemName, desc ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.activeCharOrErr( m, m.author )
 		if ( !char ) return;
 
-		if ( !itemName ) await msg.reply( 'Crafted item must have name.');
-		else if ( !desc ) await msg.reply( 'Crafted item must have a description.' );
+		if ( gamejs.actionErr( m, char, 'craft' ) ) return;
+	
+		if ( !itemName ) await m.reply( 'Crafted item must have name.');
+		else if ( !desc ) await m.reply( 'Crafted item must have a description.' );
 		else {
 
-			let a = msg.attachments.first();
+			let a = m.attachments.first();
 			if ( a ) {
 				item.Craft( char, itemName, desc, a.proxyURL );
 
 			} else item.Craft( char, itemName, desc );
 
-			this.checkLevel(msg,char);
+			this.checkLevel(m,char);
 
 			await this.saveChar( char );
 
@@ -425,33 +473,39 @@ class RPG {
 
 	}
 
-	async cmdSell( m, wot ) {
+	async cmdSell( m, wot, end ) {
 
 		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
 
-		display.sendBlock( m, Trade.sell( src, wot ));
+		if ( gamejs.actionErr( m, src, 'sell' ) ) return;
+
+		display.sendBlock( m, Trade.sell( src, wot, end ));
 	}
 
-	async cmdGive( msg, who, expr ) {
+	async cmdGive( m, who, expr ) {
 
-		let src = await this.activeCharOrErr( msg, msg.author );
+		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
 
+		if ( gamejs.actionErr( m, src, 'give' ) ) return;
+	
 		let dest = await this.tryLoadChar( who );
-		if ( !dest ) await msg.reply( `'${who}' not found on server.` );
+		if ( !dest ) await m.reply( `'${who}' not found on server.` );
 		else {
 
-			let err = Trade.transfer( src, dest, expr );
-			if ( typeof(err) === 'string ' ) {
+			let res = Trade.transfer( src, dest, expr );
+			if ( typeof(res) === 'string' ) {
 			
-				await msg.reply( err );
+				await m.reply( res );
 
 			} else {
 
 				this.cacheChar( src );
 				this.cacheChar( dest  );
-				await msg.reply( 'Transfer complete.');
+
+				if ( res.name ) m.reply( `Gave ${dest.name} ${res.name}.`);
+				else await m.reply( 'Transfer complete.');
 
 			}
 
@@ -464,6 +518,8 @@ class RPG {
 		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
 
+		if ( gamejs.actionErr( m, src, 'attack' ) ) return;
+
 		let dest = await this.tryLoadChar( who );
 		if ( !dest ) {
 			return m.reply( `'${who}' not found on server.` );
@@ -474,8 +530,8 @@ class RPG {
 
 		this.cacheChar( src );
 		this.cacheChar(dest);
-
 		display.sendBlock( m, com.getText() );
+		
 	}
 
 	async cmdSteal( m, who, wot=null ) {
@@ -483,6 +539,8 @@ class RPG {
 		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
 
+		if ( gamejs.actionErr( m, src, 'steal' ) ) return;
+	
 		let dest = await this.tryLoadChar( who );
 		if ( !dest ) {
 			return m.reply( `'${who}' not found on server.` );
@@ -547,6 +605,16 @@ class RPG {
 
 	}
 
+	async cmdAddStat( m, stat ) {
+
+		let char = await this.activeCharOrErr( m, m.author );
+		if ( !char) return;
+
+		let res = char.addStat( stat );
+		if ( typeof(res) === 'string') m.reply(res);
+
+	}
+
 	async cmdCharStats( m, charname=null ) {
 	
 		let char;
@@ -605,10 +673,10 @@ class RPG {
 
 		try {
 			
-			let race = Race.GetRace( racename );
+			let race = Race.RandRace( racename );
 			if ( !race ) return await m.reply( 'Race ' + racename + ' not found.' );
 
-			let charclass = CharClass.GetClass( classname );
+			let charclass = CharClass.RandClass( classname );
 			if ( !charclass ) return await m.reply( 'Class ' + classname + ' not found.' );
 
 			if ( !sex ) sex = Math.random() < 0.5 ? 'm' : 'f';
@@ -715,14 +783,6 @@ class RPG {
 		}
 	}
 
-	cacheChar( char ) {
-		this._context.cacheKeyData( this.getCharKey( char.name ), char );
-	}
-
-	async saveChar( char, forceSave=false ) {
-		await this._context.storeKeyData( this.getCharKey( char.name ), char, forceSave );
-	}
-
 	async tryLoadChar( charname ) {
 
 		try {
@@ -749,6 +809,14 @@ class RPG {
 
 	getCharKey( charname ) { return RPG_DIR + charname; }
 
+	cacheChar( char ) {
+		this._context.cacheKeyData( this.getCharKey( char.name ), char );
+	}
+
+	async saveChar( char, forceSave=false ) {
+		await this._context.storeKeyData( this.getCharKey( char.name ), char, forceSave );
+	}
+
 	async uniqueName( race, sex ) {
 
 		let namegen = require( './namegen.js');
@@ -765,69 +833,74 @@ class RPG {
 
 exports.init = function( bot ){
 
+	var proto = RPG.prototype;
+
 	// CHAR MANAGEMENT
-	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]', RPG.prototype.cmdRollChar, RPG, { maxArgs:4} );
+	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]', proto.cmdRollChar, RPG, { maxArgs:4} );
 
-	bot.addContextCmd( 'loadchar', '!loadchar <charname>', RPG.prototype.cmdLoadChar, RPG, { maxArgs:1}  );
-	bot.addContextCmd( 'savechar', '!savechar', RPG.prototype.cmdSaveChar, RPG, {maxArgs:0});
+	bot.addContextCmd( 'loadchar', '!loadchar <charname>', proto.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'savechar', '!savechar', proto.cmdSaveChar, RPG, {maxArgs:0});
 
-	bot.addContextCmd( 'viewchar', '!viewchar <charname>', RPG.prototype.cmdViewChar, RPG, { maxArgs:1}  );
-	bot.addContextCmd( 'rmchar', '!rmchar <charname>', RPG.prototype.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'charstats', '!charstats [charname]', RPG.prototype.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'viewchar', '!viewchar <charname>', proto.cmdViewChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'rmchar', '!rmchar <charname>', proto.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'charstats', '!charstats [charname]', proto.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'addstat', '!addstat [statname]', proto.cmdAddStat, RPG, {minArgs:1, maxArgs:1} );
 
-	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', RPG.prototype.cmdAllChars,
+	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', proto.cmdAllChars,
 			RPG, {maxArgs:0} );
 
 	// HELP
-	bot.addContextCmd( 'lore', '!lore wot', RPG.prototype.cmdLore, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'lore', '!lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
 
 	// PVP TEST
-	bot.addContextCmd( 'attack', '!attack who', RPG.prototype.cmdAttack, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'steal', '!steal fromwho', RPG.prototype.cmdSteal, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'attack', '!attack who', proto.cmdAttack, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'steal', '!steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
 
 	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
-			RPG.prototype.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
+			proto.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
 	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
-				RPG.prototype.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', RPG.prototype.cmdWorn, RPG, {maxArgs:1});
+				proto.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', proto.cmdWorn, RPG, {maxArgs:1});
 
 	// ITEMS
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
-					RPG.prototype.cmdDestroy, RPG, {maxArgs:1});
-	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', RPG.prototype.cmdInspect, RPG, {maxArgs:1});
-	bot.addContextCmd( 'viewitem', '!viewitem <item_number|item_name> : View an item.', RPG.prototype.cmdViewItem, RPG, {maxArgs:1} );
-	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', RPG.prototype.cmdInscribe, RPG, {maxArgs:2, group:"right"});
-	bot.addContextCmd( 'inv', '!inv [player]', RPG.prototype.cmdInv, RPG, {maxArgs:1});
-	bot.addContextCmd( 'craft', '!craft <item_name> <description>', RPG.prototype.cmdCraft, RPG, {maxArgs:2, group:"right"} );
-	bot.addContextCmd( 'give', '!give <charname> <what>', RPG.prototype.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
-	bot.addContextCmd( 'sell', '!sell <wot>', RPG.prototype.cmdSell, RPG, {minArgs:1, maxArgs:1} );
+					proto.cmdDestroy, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', proto.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'viewitem', '!viewitem <item_number|item_name> : View an item.', proto.cmdViewItem, RPG, {maxArgs:1} );
+	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
+	bot.addContextCmd( 'inv', '!inv [player]', proto.cmdInv, RPG, {maxArgs:1});
+	bot.addContextCmd( 'craft', '!craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'give', '!give <charname> <what>', proto.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'sell', '!sell <wot> OR !sell <start> <end>', proto.cmdSell, RPG, {minArgs:1, maxArgs:2} );
 
 	// FOOD
-	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', RPG.prototype.cmdEat, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', RPG.prototype.cmdCook, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
 
 	// TESTING
-	bot.addContextCmd( 'rolldmg', '!rolldmg', RPG.prototype.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
-	bot.addContextCmd( 'rollweap', '!rollweap', RPG.prototype.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
-	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', RPG.prototype.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
+	bot.addContextCmd( 'rolldmg', '!rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollweap', '!rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
+	bot.addContextCmd( 'nerf', '', proto.cmdNerf, RPG, {hidden:true, minArgs:1, maxArgs:1});
 
 	// LOCATION
-	bot.addContextCmd( 'look', '!look [item on ground]', RPG.prototype.cmdLook, RPG, { maxArgs:1 } );
-	bot.addContextCmd( 'view', '!view <item_number|item_name>', RPG.prototype.cmdViewLoc, RPG );
-	bot.addContextCmd( 'drop', '!drop <what>', RPG.prototype.cmdDrop, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'take', '!take <what>', RPG.prototype.cmdTake, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'locdesc', '!locdesc <description>', RPG.prototype.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'explored', '!explored', RPG.prototype.cmdExplored, RPG, {maxArgs:0} );
-	bot.addContextCmd( 'sethome', '!sethome', RPG.prototype.cmdSetHome, RPG, {maxArgs:0});
-	bot.addContextCmd( 'gohome', '!gohome', RPG.prototype.cmdGoHome, RPG, {maxArgs:0});
-	bot.addContextCmd( 'useloc', '!useloc [feature]', RPG.prototype.cmdUseLoc, RPG, {maxArgs:1});
+	bot.addContextCmd( 'look', '!look [item on ground]', proto.cmdLook, RPG, { maxArgs:1 } );
+	bot.addContextCmd( 'view', '!view <item_number|item_name>', proto.cmdViewLoc, RPG );
+	bot.addContextCmd( 'drop', '!drop <what> OR !drop <start> <end>', proto.cmdDrop, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'take', '!take <what>', proto.cmdTake, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'locdesc', '!locdesc <description>', proto.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'explored', '!explored', proto.cmdExplored, RPG, {maxArgs:0} );
+	bot.addContextCmd( 'sethome', '!sethome', proto.cmdSetHome, RPG, {maxArgs:0});
+	bot.addContextCmd( 'gohome', '!gohome', proto.cmdGoHome, RPG, {maxArgs:0});
+	//bot.addContextCmd( 'where', '!where [char]', proto.cmdWhere, RPG, {minArgs:1,maxArgs:1});
+	bot.addContextCmd( 'useloc', '!useloc [feature]', proto.cmdUseLoc, RPG, {maxArgs:1});
 
 	// MOVE
-	bot.addContextCmd( 'move', '!move <direction>', RPG.prototype.cmdMove, RPG, {maxArgs:1});
-	bot.addContextCmd( 'north', '!north', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['north'] } );
-	bot.addContextCmd( 'south', '!south', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['south'] } );
-	bot.addContextCmd( 'east', '!east', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['east'] } );
-	bot.addContextCmd( 'west', '!west', RPG.prototype.cmdMove, RPG, { maxArgs:0, args:['west'] } );
+	bot.addContextCmd( 'move', '!move <direction>', proto.cmdMove, RPG, {maxArgs:1});
+	bot.addContextCmd( 'north', '!north', proto.cmdMove, RPG, { maxArgs:0, args:['north'] } );
+	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
+	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
+	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
 
 }

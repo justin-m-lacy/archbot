@@ -1,11 +1,13 @@
 class Spell {
 
-	name() { return this._name; }
-	duration() { return this._duration; }
+	get name() { return this._name; }
+	get duration() { return this._duration; }
 
 	// 'single', 'allies', 'enemies', 'all', 'self'
-	target() { return this._target; }
-	damage() { return this._damage; }
+	get target() { return this._target; }
+	get damage() { return this._damage; }
+
+	get mods() { return this._mods; }
 
 	constructor() {
 	}
