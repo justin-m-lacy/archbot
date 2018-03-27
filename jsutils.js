@@ -4,7 +4,7 @@ exports.randElm = (arr)=>{
 }
 
 exports.random = (min, max)=>{
-	return Math.floor( Math.random()*(max-min)) + min;
+	return Math.round( Math.random()*(max-min)) + min;
 }
 
 // Performs a recursive merge of variables from src to dest.

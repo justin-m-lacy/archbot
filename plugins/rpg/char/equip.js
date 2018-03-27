@@ -17,13 +17,15 @@ module.exports = class Equip {
 		let dest = e.slots;
 		if ( src == null ) return e;
 
-		let it;
 		for( let k in src ) {
 
-			it = src[k];
-			if ( it != null ) {
-				dest[k] = ItemGen.fromJSON( it );
-			}
+			var wot = src[k];
+			if ( !wot ) continue;
+			if ( wot instanceof Array ){
+
+				dest[k] = wot.map( ItemGen.fromJSON );
+
+			} else 	dest[k] = ItemGen.fromJSON( wot );
 
 		}
 
@@ -100,12 +102,15 @@ module.exports = class Equip {
 
 	}
 
+	/**
+	 * 
+	 * @param {Item} it 
+	 */
 	remove( it ) {
 
 		if ( it.type === 'weapon') return this.removeWeap(it);
 
-		let slot = it.slot;
-		let cur = this.slots[slot];
+		let cur = this.slots[it.slot];
 
 		if ( cur instanceof Array ) {
 
@@ -121,7 +126,7 @@ module.exports = class Equip {
 		} else {
 
 			if ( cur == it ) {
-				this.slots[slot] = null;
+				this.slots[it.slot] = null;
 				return true;
 			}
 
@@ -136,9 +141,12 @@ module.exports = class Equip {
 		if( !slot ) return null;
 
 		let it = this.slots[slot];
-		if ( !it) return null;
 
-		this.slots[slot] = null;
+		if ( it instanceof Array ) {
+			it = it.shift();
+		} else {
+			this.slots[slot] = null;
+		}
 
 		return it;
 
@@ -227,13 +235,12 @@ module.exports = class Equip {
 		if ( cur instanceof Array ) {
 
 			cur.push( it );
-			if ( cur.length > MaxSlots[slot] ) {
-				cur = cur.shift();
-			}
+			if ( cur.length > MaxSlots[slot] ) cur = cur.shift();
+			else cur = null;
 
 		} else {
 
-			if ( cur == null ) {
+			if ( !cur ) {
 				this.slots[slot] = it;
 			} else {
 

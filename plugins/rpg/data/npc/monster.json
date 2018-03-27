@@ -1,0 +1,20 @@
+{
+    "kobold":{
+
+        "level":0.5,
+        "hp":"1d4+1",
+        "armor":"4",
+        "dmg":"1d4"
+
+
+    },
+    "goblin":{
+
+    },
+    "orc":{
+
+    },
+    "dire rat":{
+    }
+
+}

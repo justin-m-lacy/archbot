@@ -56,19 +56,19 @@ module.exports = class World {
 	/**
 	 * Attempt to take an item from cur location.
 	 * @param {Char} char 
-	 * @param {string|number|Item} what 
+	 * @param {string|number|Item} first 
 	 */
-	async take( char, what ) {
+	async take( char, first, end ) {
 
 		let loc = await this.getOrGen( char.loc, char );
-		let it = loc.take( what );
-		if ( !it ) return 'You do not see any ' + what + ' here.';
+		let it = end ? loc.takeRange(first, end) : loc.take( first );
+		if ( !it ) return 'Item not found.';
 
 		char.addItem( it );
 
 		this.quickSave( loc );
 
-		return char.name + ' took ' + it.name;
+		return end ? 'took ' + it.length + ' items.' : char.name + ' took ' + it.name;
 	}
 
 	async move( char, dir ) {

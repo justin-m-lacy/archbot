@@ -81,7 +81,7 @@ var actions = loadActions();
 function loadActions() {
 
 	let acts = {};
-	let data = require( '../data/actions/actions.json');
+	let data = require( '../data/magic/actions.json');
 
 	for( let k in data ) {
 		acts[k] = Action.FromJSON( data[k] );

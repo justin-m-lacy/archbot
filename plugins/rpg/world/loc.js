@@ -282,7 +282,7 @@ exports.Loc = class Loc {
 	getFeature(wot) { return this._features.get(wot);}
 
 	/**
-	 * Get item information without picking it up.
+	 * Get item without taking it.
 	 * @param {Item|string|number} item 
 	 */
 	get( item ) {
@@ -295,6 +295,10 @@ exports.Loc = class Loc {
 	 */
 	drop( item ) {
 		this._inv.add( item );
+	}
+
+	takeRange( start, end ) {
+		return this._inv.takeRange( start, end );
 	}
 
 	/**

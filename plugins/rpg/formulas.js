@@ -68,14 +68,7 @@ exports.DamageSrc = class DamageSrc {
 }
 
 const ops = [ '+', '/', '-', '*', 'd'];
-const precede = {
-
-	'+':0,
-	'-':0,
-	'/':1,
-	'*':2,
-	'd':3
-}
+const priority = { '=':0,'+':1,'-':1,'/':2,'*':2,'d':3 }
 
 const CONST = 1;
 const VAR = 2;
@@ -85,68 +78,83 @@ const CLOSE = 5;
 const ERR = 0;
 
 
-class ValueRoll {
+module.exports.Formula = class Formula {
 
-	constructor( str) {
+	static TryParse(str) {
+		if ( !str ) return false;
+		return new FormulaParser( str ).parse();
+	}
 
+	constructor( str, stack=null) {
 		this._str = str;
-
+		this.stack = stack || Formula.TryParse(str);
 	}
 
 	toJSON() { return this._str; }
 
-	tryParse(str) {
+	eval( tar ) {
 
-		if ( str == null ) return;
+		let expr = this.stack.slice();
+		let vals = [];
 
-		let p = new RollParser( str );
-		this.tree = p.parse();
+		let cur,tx,ty;
 
+		// TODO: this is wrong.
+		while ( expr.length > 1 ) {
 
-	}
+			cur = expr.pop();
 
-	get( char ) {
+			if ( cur.type === OP ){
 
-		let stack = this.tree.slice();
-		let tx,ty,top;
+				if ( vals.length < 1 ) {
+					console.log( 'ERR: 2 args required: ' + this._str );
+					console.log( 'cur op: ' +  cur.op );
+					break;
+				}
 
-		while ( stack.length > 1 ) {
+				//assume two-args.
+				
+				tx = vals.pop();
+				ty = vals.pop();
+	
+				if ( cur.op === '=') {
+					this.assign( tar, tx, ty );
+				}
 
-			tx = stack.pop();
-			ty = stack.pop();
+				vals.push( this.doOp( cur.op, tar, tx, ty ) );
 
-			top = stack.pop();
-			if ( top.type !== OP ) {
-				console.log( 'ERR: Operation expected: ' + top.op() );
-				break;
-			}
-
-			stack.push( doOp( top.op(), tx.value(char), ty.value(char ) ) );
+			} else vals.push( cur );
 
 		}
 
+		if ( vals.length === 0 ) console.log( 'ERR: no output: ' + this._str );
+
+		return vals.pop();
 
 	}
 
-	doOp( op, x, y ) {
+	assign( tar, x, y ) {
 
+		tar[x] = y;
+
+	}
+
+	doOp( op, tar, x, y ) {
+
+		if ( x instanceof Token ) x = x.eval(tar);
+		if ( y instanceof Token ) y = y.eval(tar);
 		switch ( op ) {
 
 			case '+':
-				return x + y;
-				break;
+				return y ? x + y : x;
 			case '-':
-				return x - y;
-				break;
+				return y ? x - y : -x;
 			case '*':
 				return x * y;
-				break;
 			case 'd':
 				return this.roll( x, y );
-				break;
 			case '/':
 				return x / y;
-				break;
 			default:
 				console.log( 'Unexpected op: ' + op );
 				return 0;
@@ -172,25 +180,7 @@ class ValueRoll {
 
 }
 
-class StatValue {
-
-	constructor( stat, mult, mod ) {
-
-		this.stat = stat;
-		this.mult = mult;
-		this.mod = mod;
-	}
-
-	getValue( char ) {
-
-		if ( mod ) return this.mult*char.getModifier( this.stat);
-		return this.mult*char[stat];
-
-	}
-
-}
-
-class RollParser {
+class FormulaParser {
 
 	constructor( str ) {
 
@@ -198,42 +188,77 @@ class RollParser {
 		this.index = 0;
 		this.len = str.length;
 
-		this.opStack = [];
-		this.varStack = [];
-		this.resultStack = [];
-
 	}
 
-	parse() {
+	parse( str ) {
 
-		var token;
+		let opStack = [];
+		let resStack = [];
+
+		var token, top = null;
+		var curPriority;
+
 		while ( token = readToken() ) {
 
 			if ( token.type === OP) {
 
-				this.opStack.push( token );
+				curPriority = priority[token.op];
+				while( opStack.length > 0 ) {
 
-			} else if ( token.type == OPEN ) {
+					top = opStack.pop();
+					if ( top === null ) {
+						console.log( 'unexpected null op: ' + FormulaParser._str );
+						break;
+					} else if ( priority[top.op] < curPriority) {
+						opStack.push( top );	// todo: slightly inefficient.
+						break;
+					}
+
+					resStack.push( top );	// high-priority op to output.
+
+				}
+				opStack.push( token );
+
+			} else if ( token.type === OPEN ) {
 	
-				this.opStack.push( token );
+				opStack.push( token );
 
-			} else if ( token.type == CLOSE ) {
+			} else if ( token.type === CLOSE ) {
+
+				while ( opStack.length > 0 ) {
+
+					// pop to open paren.
+					top = opStack.pop();
+					if ( top.type === OPEN ) break;
+
+					resStack.push( top );
+	
+				}
+				if ( top === null || top.type !== OPEN ) console.log('Missing close paren: ' + top.op );
 
 			} else {
-				this.varStack.push( token );
+				resStack.push( token );
 			}
 
 		}
+
+		while ( opStack.length > 0 ) FormulaParser.resultStack.push( opStack.pop() );
+
+		// result is 'pushed' for efficiency, which causes the expression to be backwards.
+		resStack.reverse();
+		return resStack;
 
 	}
 
 	readToken() {
 
-		let c = this.str[ this.index++ ];
+		let c = this.str[ this.index ];
 		if ( ops.includes(c) ) {
+			this.index++;
 			return new Token( c, OP );
 		}
-		return new Token( c, ERR );	}
+		return this.readValue();
+	}
 
 	readValue() {
 
@@ -249,6 +274,7 @@ class RollParser {
 
 			while ( this.isDigit( this.str.charCodeAt(ind++ ) ) );
 
+			this.index = ind;
 			return new Token( Number( this.str.slice(start, ind )), VAR );
 
 
@@ -256,11 +282,13 @@ class RollParser {
 
 			while ( this.isChar( this.str.charCodeAt(ind++ ) ) );
 
+			this.index = ind;
 			return new Token( this.str.slice( start, ind ), VAR );
 
 		} else {
 
 			console.log( 'UNEXPECTED CHAR: ' + this.str.charCodeAt( (ind-1) ));
+			this.index = ind;
 			return new Token( 0, ERR );
 		}
 
@@ -269,26 +297,23 @@ class RollParser {
 	isDigit( n ) { return n >= 48 && n <= 57; }
 	isChar( n ) { return (n >= 65 && n <= 90) || (n >= 97 && n <= 122); }
 
-	//readNum() {}
-	//readVar() {}
-
 }
 
 class Token {
+
+	get value() { return this.val; }
+	// makes OP explicit.
+	get op() { return this.val; }
 
 	constructor( val, type ) {
 		this.val = val;
 		this.type = type;
 	}
 
-	// use when op expected.
-	op() { 
-		return this.val;
-	}
-
-	value( char ) {
+	eval( tar ) {
 
 		if ( this.type === CONST ) return this.val;
+		return tar[this.val];
 
 	}
 
