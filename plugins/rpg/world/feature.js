@@ -1,5 +1,5 @@
 const itemjs = require( '../items/item.js' );
-const actionjs = require( '../actions/action.js' );
+const actionjs = require( '../magic/action.js' );
 
 module.exports = class Feature extends itemjs.Item {
 

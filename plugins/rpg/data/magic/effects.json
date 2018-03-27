@@ -1,0 +1,14 @@
+{
+    "revive":{
+
+        "require":{"state":"dead"},
+        "apply":{
+            "curHp":1,
+            "state":"alive"
+        }
+
+    },
+    "cure light wounds":{
+    }
+
+}

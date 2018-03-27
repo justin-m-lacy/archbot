@@ -229,7 +229,10 @@ class Char extends actor.Actor {
 
 			this.applyEquip(item);
 			this._inv.remove( item );
-			if ( removed ) this._inv.add(removed);
+			if ( removed ) {
+				this.removeEquip( removed );
+				this._inv.add(removed);
+			}
 
 			return true;
 	
@@ -245,39 +248,20 @@ class Char extends actor.Actor {
 	 */
 	removeWhere( p ) {
 
-		let removed = this._equip.removeWhere(p);
-		for( let i = removed.length-1; i >= 0; i-- ) {
-			this.removeEquip( removed[i]);
-		}
+		this.removeEquip( this._equip.removeWhere(p) );
 		return removed;
 
 	}
 
 	unequip( slot ) {
 
-		let item = this._equip.removeSlot( slot );
-		if ( !item ) return null;
-
-		if ( item instanceof Array ) {
-
-			if ( item.length === 0 ) return null;
-
-			for( let i = item.length-1; i >= 0; i-- ) {
-
-				this.removeEquip( item[i]);
-				this._inv.add( item[i]);
-
-			}
-			return item;
-
-		} else {
+		let removed = this._equip.removeSlot( slot );
+		if ( !removed ) return null;
 	
-			this.removeEquip(item);
-			this._inv.add( item );
+		this.removeEquip(removed);
+		this._inv.add( removed );
 
-		}
-
-		return item;
+		return removed;
 
 	}
 
@@ -285,8 +269,10 @@ class Char extends actor.Actor {
 
 		this._equip = e;
 		for( let it of e.items() ) {
-
-			if ( it instanceof Array ) { it.forEach( this.applyEquip ); }
+			
+			if ( it instanceof Array ) {
+				it.forEach( it=>this.applyEquip(it) );
+			}
 			else this.applyEquip(it);
 
 		}
@@ -303,12 +289,28 @@ class Char extends actor.Actor {
 			console.log('adding armor: ' + it.armor);
 		}
 	}
-	removeEquip(it) {
-		if ( it.mods ) {
-			it.mods.remove( this._curStats );
+
+	/**
+	 * 
+	 * @param {Item|Item[]} wot 
+	 */
+	removeEquip(wot) {
+
+		if ( wot instanceof Array ) {
+
+			let it;
+			for( let i = wot.length-1; i >= 0; i-- ) {
+				it = wot[i];
+				if ( it.mods ) it.mods.remove( this._curStats );
+				if ( it.armor ) this._curStats._armor -= it.armor;
+			}
+
+		} else if ( wot ) {
+			if ( wot.mods ) { wot.mods.remove( this._curStats ); }
+			console.log('removing armor: ' + wot.armor );
+			if ( wot.armor ) this._curStats._armor -= wot.armor;
 		}
-		console.log('removing armor: ' + it.armor );
-		if ( it.armor ) this._curStats._armor -= it.armor;
+
 	}
 
 	/**

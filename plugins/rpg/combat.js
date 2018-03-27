@@ -1,10 +1,19 @@
 const Weapon = require( './items/weapon.js');
-const dmg = require( './damage.js');
+const dmg = require( './formulas.js');
 const dice = require( './dice.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
 fist.damage = new dmg.DamageSrc( 1, 2, 0, 'blunt');
 
+function hitRoll( m ) {
+	return dice.roll( 1, 20 + m.level ) + m.toHit;
+}
+
+function atkMonster( char, mons ) {
+
+
+
+}
 
 module.exports = class Combat {
 

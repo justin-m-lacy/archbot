@@ -1,10 +1,13 @@
 [
 
     {
-        "knock":{
-            
+        "phase":{
+            "target":"self",
+            "duration":"instant"
         }
+
     },
+
     {
         "magic_missile":{
             "target":"single",

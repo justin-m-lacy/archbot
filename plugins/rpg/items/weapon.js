@@ -1,5 +1,5 @@
 const Item = require( './item.js');
-const DamageSrc = require( '../damage.js').DamageSrc;
+const DamageSrc = require( '../formulas.js').DamageSrc;
 
 module.exports = class Weapon extends Item.Item {
 

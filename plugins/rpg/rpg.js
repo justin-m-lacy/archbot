@@ -120,7 +120,7 @@ class RPG {
 		display.send( m, gamejs.getDesc(wot) );
 	}
 
-	async cmdTake( m, what ){
+	async cmdTake( m, first, end ){
 
 		try {
 
@@ -129,7 +129,7 @@ class RPG {
 
 			if ( gamejs.actionErr( m, char, 'take' ) ) return;
 
-			let resp = await this.world.take( char, what );
+			let resp = await this.world.take( char, first, end );
 			await m.channel.send( resp);
 
 		} catch ( e) { console.log(e); }
@@ -888,7 +888,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'look', '!look [item on ground]', proto.cmdLook, RPG, { maxArgs:1 } );
 	bot.addContextCmd( 'view', '!view <item_number|item_name>', proto.cmdViewLoc, RPG );
 	bot.addContextCmd( 'drop', '!drop <what> OR !drop <start> <end>', proto.cmdDrop, RPG, {minArgs:1, maxArgs:2});
-	bot.addContextCmd( 'take', '!take <what>', proto.cmdTake, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'take', '!take <what> OR !take <start> <end>', proto.cmdTake, RPG, {minArgs:1, maxArgs:2});
 	bot.addContextCmd( 'locdesc', '!locdesc <description>', proto.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'explored', '!explored', proto.cmdExplored, RPG, {maxArgs:0} );
 	bot.addContextCmd( 'sethome', '!sethome', proto.cmdSetHome, RPG, {maxArgs:0});
