@@ -1,69 +1,38 @@
+const dice = require( './dice.js');
+
 exports.DamageSrc = class DamageSrc {
 
-	static FromString( str ) {
-
-		if ( str == null ) return new DamageSrc();
-
-		let num, sides, bonus;
-
-		let ind = str.indexOf( '+' );
-		if ( ind >= 0 ) {
-
-			bonus = parseInt( str.slice(ind+1) );
-			if ( Number.isNaN(bonus)) bonus = 0;
-			str = str.slice(0, ind);
-		}
-
-		
-		ind = str.indexOf( 'd' );
-		if ( ind < 0 ) {
-
-			num = 1;
-			sides = parseInt(str);
-
-		} else {
-
-			num = parseInt( str.slice(0,ind) );
-			if ( isNaN(num)) num = 1;
-			sides = parseInt( str.slice( ind+1 ) );
-
-		}
-
-		if ( isNaN(sides)) sides = 6;
-		return new DamageSrc( num, sides, bonus );
-
+	static FromString( dmg, type ) {
+		return new DamageSrc( dice.Roller.FromString(dmg), type );
 	}
 
 	static FromJSON( json ) {
-		return Object.assign( new DamageSrc(), json );
+
+		if ( typeof(json) === 'string') {
+			return new DamageSrc( dice.Roller.FromString( json));
+		} else {
+
+			if ( json.dmg ) {
+				return new DamageSrc( dice.Roller.FromString( json.dmg ), json.type );
+			} else {
+				return new DamageSrc( new dice.Roller(json.count, json.sides, json.bonus), json.type );
+			}
+
+		}
 	}
 
-	constructor( count=1, sides=6, bonus=0, type=null ) {
+	toJSON() { return { dmg:this.roller.toString(), type:this.type }; }
 
-		this.sides = sides;
-		this.count = count;
-		this.bonus = bonus;
-		this.type = type;
+	constructor( roller, type=null ) {
 
-	}
-
-	toString() {
-		return this.bonus ? this.count + 'd' + this.sides + '+' + this.bonus + ' ' + this.type
-			: this.count + 'd' + this.sides + ' ' + this.type;
-	}
-
-	roll() {
-
-		let tot = this.bonus;
-		let s = this.sides;
-
-		let i = this.count;
-		while ( i-- > 0 ) tot += Math.floor( s*Math.random() + 1 );		
-		if ( tot < 0) tot = 0;
-
-		return tot;
+		this.roller = roller;
+		this.type = type || 'blunt';
 
 	}
+
+	toString() { return this.roller.toString() + ' ' + this.type; }
+
+	roll() { return this.roller.roll(); }
 
 }
 

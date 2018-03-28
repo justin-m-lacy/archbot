@@ -8,12 +8,11 @@ exports.Roller = class Roller {
 		if ( res === null ) return new Roller();
 
 		let count = parseInt( res[1] );
-		if ( Number.isNaN(count ) ) count = 1;
-
 		let sides = parseInt( res[2] );
-		if ( Number.isNaN(sides )) sides = 6;
-
 		let bonus = parseInt( res[3] );
+
+		if ( Number.isNaN(count ) ) count = 1;
+		if ( Number.isNaN(sides )) sides = 6;
 		if ( Number.isNaN(bonus)) bonus = 0;
 
 		return new Roller( num, sides, bonus );
@@ -21,10 +20,12 @@ exports.Roller = class Roller {
 	}
 
 	static FromJSON( json ) {
+
+		if ( typeof(json) === 'string') return Roller.FromString(json);
 		return Object.assign( new Roller(), json );
 	}
 
-	constructor( count=1, sides=6, bonus=0 ) {
+	constructor( count=1, sides=0, bonus=0 ) {
 
 		this.sides = sides;
 		this.count = count;
@@ -38,21 +39,18 @@ exports.Roller = class Roller {
 
 	roll() {
 
-		let total = 0;
-		let s = this.sides;
-		let sign = 1;
+		let tot = this.bonus, s = this.sides;
 		let i = this.count;
 	
-		if ( i < 0 ) {
-			i = -i;
-			sign = -1;
-		}
+		if ( i >= 0 ) {
 
-		while ( i-- > 0 ) {
-			total += Math.floor( s*Math.random() + 1 );
-		}
+			while ( i-- > 0 ) tot += Math.floor( s*Math.random() + 1 );
+			return tot;
+		} else {
 
-		return sign*total;
+			while ( i++ < 0 ) tot += Math.floor( s*Math.random() + 1 );
+			return -tot;
+		}
 
 	}
 
@@ -74,35 +72,36 @@ exports.parseRoll = function( str ) {
 	if ( Number.isNaN(sides )) sides = 6;
 	if ( Number.isNaN(bonus)) bonus = 0;
 
-	let total = 0;
-	let neg;
-	if ( num < 0 ) {
-		neg = true;
-		num = -num;
-	}
+	let tot = bonus;
 
-	while ( num-- > 0 ) {
-		total += Math.floor( sides*Math.random() ) + 1;
-	}
+	if ( num >= 0 ) {
 
-	return neg ? -total : total;
+		while ( num-- > 0 ) tot += Math.floor( sides*Math.random() ) + 1;
+		return tot;
+
+	} else {
+
+		while ( num++ < 0 ) tot += Math.floor( sides*Math.random() ) + 1;
+		return -tot;
+
+	}
 
 }
 
 function roll( count, sides, bonus=0 ) {
 
-	let total = bonus;
+	let tot = bonus;
 
-	let neg;
-	if ( count < 0 ) {
-		neg = true;
-		count = -count;
+	if ( count >= 0 ) {
+
+		while ( count-- > 0 ) tot += Math.floor( sides*Math.random() ) + 1;
+		return tot;
+
+	} else {
+
+		while ( count++ < 0 ) tot += Math.floor( sides*Math.random() ) + 1;
+		return -tot;
+
 	}
-
-	while ( count-- > 0 ) {
-		total += Math.floor( sides*Math.random() ) + 1;
-	}
-
-	return neg ? -total : total;
 
 }

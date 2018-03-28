@@ -728,7 +728,7 @@ class RPG {
 			return;
 		}
 		if ( char.owner != user.id ) {
-			await m.reply( `You are not the owner of character '${charname}'` );
+			await m.reply( `You are not the owner of '${charname}'` );
 			return;
 		}
 		return char;
@@ -796,7 +796,7 @@ class RPG {
 		}
 		if ( data instanceof Char ) return data;
 
-		console.log('parsing JSON char: ' + charname );
+		console.log('parsing JSON: ' + charname );
 
 		let char = Char.FromJSON( data );
 		//restore char so Char is returned, not json.

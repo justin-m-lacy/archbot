@@ -133,7 +133,7 @@ exports.Actor = class Actor {
 	}
 
 	statRoll( ...stats ) {
-		let roll = dice.roll(1,20+this._curStats._level );
+		let roll = this.skillRoll();
 		for( let s of stats ) {
 			console.log('stat: ' + s);
 			roll += this.getModifier( s );
@@ -141,7 +141,7 @@ exports.Actor = class Actor {
 		return roll;
 
 	}
-	skillRoll() { return dice.roll( 1, 20+this._curStats._level);}
+	skillRoll() { return dice.roll( 1, 5*( this._curStats._level+4) ) ;}
 
 	levelUp() {
 

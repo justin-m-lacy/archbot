@@ -72,6 +72,8 @@ exports.Loc = class Loc {
 	get x() { return this._coord.x; }
 	get y() { return this._coord.y; }
 
+	get norm() { return Math.abs(this._coord.x) + Math.abs(this._coord.y); }
+
 	get maker() { return this._maker; }
 	set maker(v) { this._maker = v; }
 
@@ -100,7 +102,6 @@ exports.Loc = class Loc {
 		}
 
 		if ( json.features ) loc._features = Inv.FromJSON( json.features );
-
 		if ( json.attach ) loc._attach = json.attach;
 
 		if ( json.inv ) {
@@ -114,11 +115,25 @@ exports.Loc = class Loc {
 		loc.desc = json.desc;
 		loc.areaName = json.areaName;
 
+		if ( json.npcs ) loc._npcs = Loc.ParseNpcs( json.npcs, loc );
+
 		if ( json.owner ) loc._owner = json.owner;
 		if ( json.maker) loc._maker = json.maker;
 		if ( json.time ) loc._time = json.time;
 
 		return loc;
+
+	}
+
+	static ParseNpcs( a, loc ) {
+
+		let len = a.length;
+		for( let i = 0; i < len; i++ ) {
+
+			var m = Mons.FromJSON( a[i]);
+			if ( m ) loc.addNpc(m);
+
+		} //for
 
 	}
 
@@ -134,6 +149,7 @@ exports.Loc = class Loc {
 			biome:this._biome
 		};
 
+		if ( this._npcs ) o.npcs = this._npcs;
 		if ( this._features ) o.features = this._features;
 		if ( this._attach) o.attach = this._attach;
 		if ( this._maker ) o.maker = this._maker;
@@ -235,7 +251,12 @@ exports.Loc = class Loc {
 		r += '\n' + this._desc;
 
 		if ( this._features.length > 0 ) r += '\nFeatures: ' + this._features.getList();
-		r += '\nOn the ground you see ' + this._inv.getList();
+		r += '\nOn ground: ' + this._inv.getList();
+
+		if ( this._npcs.length > 0 ) {
+			r += '\nCreatures: ';
+			r += this.npcList();
+		}
 
 		r += '\nPaths:'
 		for( let k in this._exits ) {
@@ -261,13 +282,9 @@ exports.Loc = class Loc {
 
 	}
 
-	lookFeatures() {
-		return 'Area features: ' + this._features.getList();
-	}
+	lookFeatures() { return 'Features: ' + this._features.getList(); }
 
-	lookItems() {
-		return 'On the ground you see: ' + this._inv.getList();
-	}
+	lookItems() { return 'On ground: ' + this._inv.getList(); }
 
 	/**
 	 * 
@@ -307,6 +324,43 @@ exports.Loc = class Loc {
 	 */
 	take( what ) {
 		return this._inv.remove( what );
+	}
+
+	getNpc( wot ) {
+
+		let ind = Number.parseInt( wot );
+		if ( Number.isNaN(int)) {
+
+			return this._npcs.find( (m)=>m.name === wot );
+
+		} else {
+			return this._npcs[ind];
+		}
+
+	}
+
+	addNpc( m ) {
+		this._npcs.push(m);
+	}
+
+	removeNpc(m){
+
+		let ind = this._npcs.indexOf(m);
+		if ( ind >= 0 ) return this._npcs.splice(ind,1)[0];
+		return null;
+
+	}
+
+	npcList(){
+
+		let len = this._npcs.length;
+		if ( len === 0 ) return 'none';
+		if ( len === 1 ) return this._npcs[0].name;
+
+		let s = this._npcs[0].name;
+		for( let i = 1; i < len; i++ ) s += ', ' + this._npcs[i].name;
+		return s;
+
 	}
 
 }

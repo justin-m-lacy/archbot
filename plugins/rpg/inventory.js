@@ -74,17 +74,17 @@ module.exports = class Inventory {
 
 	/**
 	 * Retrieves an item by name or index.
-	 * @param {<string>|<number>} whichItem
+	 * @param {<string>|<number>} wot
 	 * @returns Item found, or null on failure.
 	 */
-	get( whichItem ) {
+	get( wot ) {
 
-		if ( !whichItem ) return null;
+		if ( !wot ) return null;
 
-		let num = parseInt( whichItem );
+		let num = parseInt( wot );
 		if ( Number.isNaN(num) ) {
 
-			let it = this.findItem( whichItem );
+			let it = this.findItem( wot );
 			if ( it != null ) return it;
 	
 		} else {
