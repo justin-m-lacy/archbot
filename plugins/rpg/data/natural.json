@@ -1,0 +1,23 @@
+[
+    {
+        "name":"claws",
+        "type":"slash",
+        "dmg":"1d6"
+    },
+    {
+        "name":"wings",
+        "type":"slash",
+        "dmg":"1d4"
+    },
+    {
+        "name":"tail", 
+        "type":"blunt",
+        "dmg":"1d6"
+    },
+    {
+        "name":"beak",
+        "type":"pierce",
+        "dmg":"1d6"
+    }
+
+]

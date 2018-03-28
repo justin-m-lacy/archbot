@@ -1,20 +1,456 @@
-{
-    "kobold":{
-
-        "level":0.5,
+[
+    {
+        "name":"kobold",
+        "level":0.75,
+        "desc":"",
         "hp":"1d4+1",
+        "armor":"7",
+        "weap":{
+            "name":"pointy stick",
+            "type":"pierce",
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"goblin",
+        "level":0.75,
+        "desc":"",
+        "hp":"1d4+2",
+        "armor":"6",
+        "weap":{
+            "name":"scimitar",
+            "type":"slash",
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"orc",
+        "level":1,
+        "desc":"",
+        "hp":"3d4+3",
+        "armor":"8",
+        "toHit":1,
+        "weap":{
+            "name":"spear",
+            "type":"pierce",
+            "dmg":"1d6"
+        }
+
+    },
+    
+    {
+        "name":"zombie",
+        "level":0.75,
+        "desc":"",
+        "hp":"1d4+1",
+        "toHit":-1,
         "armor":"4",
-        "dmg":"1d4"
-
-
-    },
-    "goblin":{
-
-    },
-    "orc":{
+        "weap":{
+            "name":"smash",
+            "type":"blunt",
+            "dmg":"1d6+2"
+        }
 
     },
-    "dire rat":{
+
+    {
+        "name":"skeleton",
+        "level":1.5,
+        "desc":"",
+        "hp":"2d4+2",
+        "toHit":1,
+        "armor":"10",
+        "weap":{
+            "name":"cursed blade",
+            "type":"slash",
+            "dmg":"1d4+1"
+        }
+
+    },
+
+    {
+        "name":"rat",
+        "level":0.5,
+        "desc":"Smelly rat.",
+        "hp":"1d4",
+        "toHit":-1,
+        "armor":"5",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",   
+            "dmg":"1d2+1"
+        }
+
+    },
+    {
+        "name":"kakapo",
+        "level":1,
+        "desc":"",
+        "hp":"2d4",
+        "toHit":1,
+        "armor":"7",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"dire rat",
+        "level":1,
+        "desc":"",
+        "hp":"2d3+3",
+        "toHit":1,
+        "armor":"8",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d6"}
+
+    },
+    {
+        "name":"bat",
+        "level":0.5,
+        "desc":"",
+        "hp":"1d2",
+        "toHit":4,
+        "armor":"15",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d2+1"
+        }
+
+    },
+    {
+        "name":"orc warrior",
+        "level":2,
+        "desc":"",
+        "hp":"4d4+4",
+        "armor":"18",
+        "toHit":2,
+        "weap":{
+            "name":"orc hammer",
+            "type":"blunt",
+            "dmg":"1d6+2"
+        }
+
+    },
+    {
+        "name":"hobgoblin",
+        "level":2,
+        "desc":"",
+        "hp":"3d4+4",
+        "armor":"17",
+        "toHit":2,
+        "weap":{
+            "name":"dagger",
+            "type":"pierce",
+            "dmg":"1d6+1"
+        }
+
+    },
+    {
+        "name":"giant centipede",
+        "level":2,
+        "desc":"creepy crawly",
+        "hp":"3d6+4",
+        "armor":"15",
+        "weap":{
+            "name":"sting",
+            "type":"pierce",
+            "dmg":"1d6+1"
+        }
+
+    },
+    {
+        "name":"wolf",
+        "level":2,
+        "desc":"",
+        "hp":"2d6+2",
+        "armor":"12",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"2d4+1"
+        }
+
+    },
+    {
+        "name":"giant worm",
+        "level":1,
+        "desc":"",
+        "hp":"2d6+4",
+        "armor":"17",
+        "weap":{
+            "name":"crush",
+            "type":"blunt",
+            "dmg":"1d4+1"
+        }
+
+    },
+    {
+        "name":"minotaur",
+        "level":3,
+        "desc":"",
+        "hp":"4d6+5",
+        "armor":"18",
+        "weap":{
+            "name":"mallet",
+            "type":"blunt",
+            "dmg":"1d6+3"
+        }
+
+    },
+    {
+        "name":"imp",
+        "level":3,
+        "desc":"",
+        "hp":"2d6+8",
+        "armor":"22",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+        "dmg":"1d6+3"
+        }
+
+    },
+    {
+        "name":"giant spider",
+        "level":3,
+        "desc":"",
+        "hp":"3d6",
+        "armor":"15",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d6+3"
+        }
+
+    },
+    {
+        "name":"wight",
+        "level":3,
+        "desc":"",
+        "hp":"3d6+4",
+        "toHit":1,
+        "armor":"18",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"1d6+2"
+        }
+
+    },
+    {
+        "name":"dire wolf",
+        "level":4,
+        "desc":"",
+        "hp":"3d6+3",
+        "toHit":2,
+        "armor":"20",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"3d6+2"
+        }
+
+    },
+    {
+        "name":"ghast",
+        "level":4,
+        "desc":"",
+        "hp":"4d6+7",
+        "toHit":3,
+        "armor":"23",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"2d6+3"
+        }
+
+    },
+    {
+        "name":"bugbear",
+        "level":4,
+        "desc":"",
+        "hp":"4d8+15",
+        "armor":"25",
+        "toHit":2,
+        "weap":{
+            "name":"mace",
+            "type":"blunt",
+            "dmg":"2d6+1"
+        }
+
+    },
+    {
+        "name":"ogre",
+        "level":4,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":1,
+        "armor":"20",
+        "weap":{
+            "name":"spiked club",
+            "type":"blunt",
+            "dmg":"2d6+3"
+        }
+
+    },
+    {
+        "name":"clay golem",
+        "level":5,
+        "desc":"I made you out of clay...",
+        "hp":"8d6+15",
+        "toHit":-1,
+        "armor":"30",
+        "weap":{
+            "name":"smash",
+            "type":"blunt",
+            "dmg":"1d6+1"
+        }
+
+    },
+    {
+        "name":"master swordsman",
+        "level":5,
+        "desc":"",
+        "hp":"5d6+5",
+        "toHit":5,
+        "armor":"25",
+        "weap":{
+            "name":"longsword",
+            "type":"slash",
+            "dmg":"1d6+2"
+        }
+
+    },
+    {
+        "name":"air elemental",
+        "level":6,
+        "desc":"Wispy.",
+        "toHit":8,
+        "hp":"3d4+10",
+        "armor":"48",
+        "weap":{
+            "name":"air whip",
+            "type":"slash",
+            "dmg":"2d4"
+        }
+
+    },
+    {
+        "name":"stone golem",
+        "level":6,
+        "desc":"",
+        "hp":"8d10+15",
+        "toHit":-1,
+        "armor":"40",
+        "weap":{
+            "name":"smash",
+            "type":"blunt",
+            "dmg":"1d6+5"
+        }
+
+    },
+    {
+        "name":"phoenix",
+        "level":7,
+        "desc":"",
+        "toHit":4,
+        "hp":"5d4+10",
+        "armor":"40",
+        "weap":{
+            "name":"flame wing",
+            "type":"heat",
+            "dmg":"3d4+8"
+        }
+
+    },
+    {
+        "name":"cave troll",
+        "level":7,
+        "desc":"They have a cave troll...",
+        "hp":"9d10+20",
+        "toHit":4,
+        "armor":"35",
+        "weap":{
+            "name":"club",
+            "type":"blunt",
+            "dmg":"3d6+5"
+        }
+
+    },
+    {
+        "name":"fire elemental",
+        "level":8,
+        "desc":"",
+        "toHit":9,
+        "hp":"4d4+3",
+        "armor":"22",
+        "weap":{
+            "name":"flame",
+            "type":"heat",
+            "dmg":"3d6+2"
+        }
+
+    },
+    {
+        "name":"hill giant",
+        "level":8,
+        "desc":"You've seen bigger.",
+        "hp":"10d10+40",
+        "toHit":2,
+        "armor":"40",
+        "weap":{"name":"club",
+            "type":"blunt",
+            "dmg":"4d8+10"
+        }
+
+    },
+    {
+        "name":"troll",
+        "level":9,
+        "desc":"",
+        "hp":"9d10+30",
+        "toHit":4,
+        "armor":"50",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"3d8+5"
+        }
+
+    },
+    {
+        "name":"small green dragon",
+        "level":10,
+        "desc":"",
+        "hp":"10d10+30",
+        "toHit":10,
+        "armor":"55",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"4d8+5"
+        }
+    },
+    {
+        "name":"ent",
+        "level":10,
+        "desc":"",
+        "hp":"10d12+40",
+        "toHit":5,
+        "armor":"50",
+        "weap":{
+            "name":"pound",
+            "type":"blunt",
+            "dmg":"4d10+10"
+        }
     }
 
-}
+]

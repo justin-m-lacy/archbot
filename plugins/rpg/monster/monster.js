@@ -1,39 +1,63 @@
 const form = require( '../formulas.js');
-const monsters;
-const byLevel;
+const dice = require( '../dice.js');
 
-// vars that can be rolled.
-const formVars = [ 'hp','armor','toHit','mp'];
+// monster template objects.
+var templates, byLevel;
 
-function initMonsters() {
+this.initTemplates();
 
-	monsters = require( '../data/npc/monster.json');
+function initTemplates() {
+
+	let raw = require( '../data/npc/monster.json');
+	templates = {};
 	byLevel = {};
 
-	for( let k in monsters ) {
+	for( let k = raw.length-1; k >= 0; k-- ) {
 
-		var m = monsters[k];
-		m[name] = k;
+		var t = parseTemplate( raw[k] );
 
-		let a = byLevel[ Math.floor(m.level)];
-		if ( !a ) byLevel[ Math.floor(m.level)] = a = [];
-		a.push( m );
+		templates[ t.name ] = t;
+
+		let a = byLevel[ Math.floor(t.level)];
+		if ( !a ) byLevel[ Math.floor(t.level)] = a = [];
+		a.push( t );
 
 	}
 
+}
+
+// var strings to parse.
+const parseVars = [ 'hp','armor','toHit','mp'];
+function parseTemplate( json ) {
+
+	let t = Object.assign( {}, json );
+
+	for( let i = parseVars.length-1; i>=0; i-- ) {
+
+		var v = parseVars[i];
+		var s = t[v];
+		if ( typeof(s) !== 'string' || !isNaN(s) ) continue;
+
+		t[v] = new dice.Roller.FromString( s );
+
+	}
+	t.dmg = new form.DamageSrc.FromJSON( t.dmg );
 
 }
 
-function create( data ) {
+function create( template ) {
 
 	let m = new Monster();
 
-	for( let k in data ) {
+	for( let k in template ) {
 
-		var v = data[k];
+		// roll data formulas into concrete numbers.
+		var v = template[k];
 		if ( v instanceof form.Formula ) {
 			m[k] = v.eval(m);
-		}
+		} else if ( v instanceof dice.Roller ) {
+			m[k] = v.roll();
+		} else m[k] = v;
 
 	} //for
 
@@ -43,16 +67,15 @@ function create( data ) {
 
 module.exports = class Monster {
 
-	static RandMonster( level ) {
+	static RandMonster( lvl ) {
 
-		level = Math.floor(level);
+		lvl = Math.floor(lvl);
 
 		do {
+			var a = byLevel[lvl];
+			if ( a && a.length > 0 ) return create( a[ Math.floor( a.length*Math.random())] );
 
-			var a = byLevel[level];
-			if ( a && a.length > 0 ) return a[ Math.floor( a.length*Math.random())].clone();
-
-		} while ( level >= 0 );
+		} while ( lvl >= 0 );
 
 	}
 
@@ -71,7 +94,8 @@ module.exports = class Monster {
 			desc:this._desc,
 			level:this._level,
 			dmg:this._dmg,
-			hp:this._hp,
+			maxHp:this._maxHp,
+			hp:this._curHp,
 			armor:this._armor,
 			toHit:this._toHit
 		}
@@ -84,23 +108,43 @@ module.exports = class Monster {
 	get toHit() { return this._toHit; }
 	set toHit(v ) { this._toHit = v;}
 
+	get size(){ return this._size; }
+	set size(v) { this._size = v;}
+
 	get armor() { return this._armor; }
 	set armor(v ) { this._armor = v;}
 
 	get dmg() { return this._dmg; }
 	set dmg( v ) { this._dmg = v; }
-	get hp() { return this._hp; }
-	set hp( v ) { this._hp = v; }
+
+	get curHp() { return this._hp; }
+	set curHp( v ) { this._hp = v; }
+	get maxHp() { return this._maxHp;}
+	set maxHp(v ) { this._maxHp = v;}
+
+	set hp(v){ this._curHp = this._maxHp = v; }
+
 	get desc() { return this._desc; }
 	set desc( v ) { this._desc = v; }
 
-	constructor() {
-	}
+	get weap() { return this._weap;}
+	set weap(v) { this._weap = v; }
+
+	get state() { return this._state; }
+	set state(v) { this._state = v;}
+
+	constructor() {}
+
+	// combat & future compatibility.
+	getModifier( stat ) { return 0; }
 
 	hit( dmg, type ) {
 
 		this._hp -= dmg;
-		if ( this._hp <= 0 ) return true;
+		if ( this._hp <= 0 ) {
+			this._state = 'dead';
+			return true;
+		}
 		return false;
 
 	}

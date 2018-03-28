@@ -1,5 +1,6 @@
 const Gen = require( './worldgen.js');
 const Loc = require( './loc.js');
+const Mons = require( '../monster/monster.js');
 //const game = require( '../game.js');
 
 module.exports = class World {
@@ -229,6 +230,9 @@ try{
 			this.cache.cache( this.coordKey(destCoord), dest );
 
 		}
+
+		this.trySpawn( dest );
+
 		return dest;
 
 	}
@@ -282,6 +286,30 @@ try{
 		await this.cache.store( key, loc );
 
 		return loc;
+
+	}
+
+	/**
+	 * Attempt to spawn a monster at the given location.
+	 * @param {Loc} loc
+	 */
+	trySpawn( loc ) {
+
+		if ( Math.random > 0.8 ) return;
+
+		let lvl = Math.floor( loc.norm / 20 );
+		let r = Math.random();
+		if ( r > 0.95) lvl += 4;
+		else if ( r > 0.8 ) lvl += 2;
+		else if ( r < 0.05) { lvl -= 2; if ( lvl < 0 ) lvl = 0; }
+		else if ( r < 0.2 ) { lvl -= 1; if ( lvl <0 ) lvl = 0; }
+
+		let m = Mons.RandMonster( lvl );
+		if ( !m ) return null;
+
+		loc.addNpc( m );
+
+		return m;
 
 	}
 
