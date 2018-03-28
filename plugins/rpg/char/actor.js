@@ -99,6 +99,8 @@ exports.Actor = class Actor {
 	get curMods() { return this._curMods; }
 	set curMods(v) { this._curMods = v; }
 
+	get toHit() { return this.getModifier('dex'); }
+
 	// Loc.Coord
 	get loc() { return this._loc; }
 	set loc(v) { this._loc = v; }

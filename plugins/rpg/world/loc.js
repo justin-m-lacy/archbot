@@ -50,6 +50,9 @@ exports.Loc = class Loc {
 	get areaName() { return this._areaName; }
 	set areaName(v) { this._areaName = v; }
 
+	/**
+	 * {string} - name of the biome, not a biome object.
+	 */
 	get biome() { return this._biome; }
 	set biome(v) { this._biome = v;}
 
@@ -115,7 +118,7 @@ exports.Loc = class Loc {
 		loc.desc = json.desc;
 		loc.areaName = json.areaName;
 
-		if ( json.npcs ) loc._npcs = Loc.ParseNpcs( json.npcs, loc );
+		if ( json.npcs ) Loc.ParseNpcs( json.npcs, loc );
 
 		if ( json.owner ) loc._owner = json.owner;
 		if ( json.maker) loc._maker = json.maker;
@@ -329,12 +332,12 @@ exports.Loc = class Loc {
 	getNpc( wot ) {
 
 		let ind = Number.parseInt( wot );
-		if ( Number.isNaN(int)) {
+		if ( Number.isNaN(ind)) {
 
 			return this._npcs.find( (m)=>m.name === wot );
 
 		} else {
-			return this._npcs[ind];
+			return this._npcs[ind-1];
 		}
 
 	}
@@ -346,6 +349,7 @@ exports.Loc = class Loc {
 	removeNpc(m){
 
 		let ind = this._npcs.indexOf(m);
+		console.log('removing npc at: ' + ind );
 		if ( ind >= 0 ) return this._npcs.splice(ind,1)[0];
 		return null;
 

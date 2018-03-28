@@ -4,14 +4,16 @@ exports.Roller = class Roller {
 
 	static FromString( str ) {
 
+		console.log('roller from: ' + str );
+
 		let res = rollex.exec( str );
 		if ( res === null ) return new Roller();
 
-		let count = parseInt( res[1] );
+		let num = parseInt( res[1] );
 		let sides = parseInt( res[2] );
 		let bonus = parseInt( res[3] );
 
-		if ( Number.isNaN(count ) ) count = 1;
+		if ( Number.isNaN(num ) ) num = 1;
 		if ( Number.isNaN(sides )) sides = 6;
 		if ( Number.isNaN(bonus)) bonus = 0;
 

@@ -31,7 +31,12 @@ module.exports = class Combat {
 
 	}
 
-	atkMonster() {
+	fightNpc() {
+
+		if ( this.defender.state !== 'alive') {
+			this.resp += `${this.defender.name} is already dead.`;
+			return;
+		}
 
 		let atk1 = this.tryHit( this.attacker, this.defender );
 		this.resp += '\n';
@@ -42,24 +47,9 @@ module.exports = class Combat {
 
 	}
 
-	/**
-	 * single attack. no reprisal.
-	 * @param {Char} src 
-	 * @param {Char} dest 
-	 */
-	attack( src, dest ) {
-		if ( !(src.loc.equals(dest.loc)) ) {
-			this.resp += `${src.name} does not see ${dest.name} at their location.`;
-			return;
-		}
-		let atk1 = this.tryHit( src, dest );
-		if ( atk1.dmg ) this.applyHit( dest, atk1 );
-	}
-
 	fight() {
 
 		if ( !(this.attacker.loc.equals(this.defender.loc)) ) {
-
 			this.resp += `${this.attacker.name} does not see ${this.defender.name} at their location.`;
 			return;
 		}
@@ -76,6 +66,20 @@ module.exports = class Combat {
 		if ( atk1.dmg ) this.applyHit( this.defender, atk1 );
 		if ( atk2.dmg ) this.applyHit( this.attacker, atk2 );
 	
+	}
+
+	/**
+	 * single attack. no reprisal.
+	 * @param {Char} src 
+	 * @param {Char} dest 
+	 */
+	attack( src, dest ) {
+		if ( !(src.loc.equals(dest.loc)) ) {
+			this.resp += `${src.name} does not see ${dest.name} at their location.`;
+			return;
+		}
+		let atk1 = this.tryHit( src, dest );
+		if ( atk1.dmg ) this.applyHit( dest, atk1 );
 	}
 
 	tryHit( src, dest ) {
@@ -97,22 +101,16 @@ module.exports = class Combat {
 
 	}
 
-	applyHit( char, atk ) {
+	applyHit( target, atk ) {
 
-		if ( char.hit( atk.dmg )) {
-			this.resp += `\n${char.name} has been slain.`;
-			if ( atk.char ) atk.char.addExp( lvlExp( char ) );
+		if ( target.hit( atk.dmg )) {
+			this.resp += `\t${target.name} was slain.`;
+			if ( atk.actor ) atk.actor.addExp( lvlExp( target ) );
 		}
 
 	}
 
-	getAttack( char ) {
-
-		let weap = this.getWeapon( char );
-
-		return new Attack( char, this.getWeapon(char) );
-
-	}
+	getAttack( char ) { return new Attack( char ); }
 
 	/**
 	 * 
@@ -170,24 +168,11 @@ module.exports = class Combat {
 
 	}
 
-	
-	getWeapon(char ) {
-
-		let weaps = char.getWeapons();
-		if ( weaps === null ) return fist;
-		else if ( weaps instanceof Array ) {
-			return weaps[Math.floor(weaps.length*Math.random() )];
-		} else {
-			return weaps;
-		}
-
-	}
-
 }
 
 class Attack {
 
-	get dmgType() { return this.dmg.type; }
+	get dmgType() { return this.weap.dmgType; }
 	get name() { return this._name; }
 
 	get dmg() { return this._dmg; }
@@ -195,28 +180,21 @@ class Attack {
 	constructor( actor ) {
 
 		this.actor = actor;
+		this.weap = this.getWeapon( actor );
 
-		if ( actor instanceof Monster ) {
+		this._name = this.weap.name;
 
-			this.hitroll = this.monsterHit(actor);
-			this._isMonster = true;
-			this.roller = actor.dmg;
-
-		} else {
-
-			this.hitroll = actor.skillRoll() + actor.getModifier('dex') + weap.toHit;
-
-		}
+		this.hitroll = this.skillRoll( actor ) + actor.toHit + this.weap.toHit;
 
 	} 
 
-	monsterHit( m ) {
-		return dice.roll( 1,  5*(m.level+4) ) + m.toHit;
-	}
+	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ) ;}
+
+	//monsterHit( m ) { return dice.roll( 1,  5*(m.level+4) ) + m.toHit; }
 
 	rollDmg() {
 
-		let dmg = this._isMonster ? this.roller.roll() : this.roller.roll() + this.actor.getModifier('str' );
+		let dmg = this.weap.roll() + this.actor.getModifier('str' );
 		if ( dmg <= 0 ) dmg = 1;
 
 		this._dmg = dmg;

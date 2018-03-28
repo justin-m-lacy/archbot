@@ -35,6 +35,17 @@ module.exports = class World {
 
 	}
 
+	async getNpc( char, who ) {
+		let loc = await this.getOrGen(char.loc, char);
+		return loc.getNpc(who);
+	}
+
+	async removeNpc( char, who ) {
+		let loc = await this.getOrGen(char.loc, char);
+		return loc.removeNpc(who);
+
+	}
+
 	/**
 	 * Attempt to use a feature at the location.
 	 * @param {Char} char 
@@ -121,15 +132,32 @@ module.exports = class World {
 
 	}
 
+		/**
+	 * 
+	 * @param {Char} char 
+	 * @param {string|number|Monster} what 
+	 */
+	async examine( char, what ) {
+
+		let loc = await this.getOrGen( char.loc );
+
+		if ( !what ) return 'Examine what?';
+		
+		let it = loc.getNpc( what );
+		if ( !it ) return 'Creature not found.';
+		return it.getDetails();
+		
+	}
+
 	/**
 	 * 
 	 * @param {Char} char 
 	 * @param {string|number|Item} what 
 	 */
 	async look( char, what ) {
-try{
+//try{
 		let loc = await this.getOrGen( char.loc );
-		console.log('LOOKING at: ' + char.loc );
+		//console.log('LOOKING at: ' + char.loc );
 		if ( what ) {
 
 			let it = loc.get( what );
@@ -138,7 +166,7 @@ try{
 
 		} else return char.name + ' is' + loc.look();
 
-	} catch(e) {console.log(e);}
+//} catch(e) {console.log(e);}
 	}
 
 	/**
@@ -295,18 +323,20 @@ try{
 	 */
 	trySpawn( loc ) {
 
-		if ( Math.random > 0.8 ) return;
+		if ( Math.random() > 0.5 || loc.npcs.length>4 ) return;
 
+		console.log('attempting spawn.');
+	
 		let lvl = Math.floor( loc.norm / 20 );
-		let r = Math.random();
-		if ( r > 0.95) lvl += 4;
-		else if ( r > 0.8 ) lvl += 2;
-		else if ( r < 0.05) { lvl -= 2; if ( lvl < 0 ) lvl = 0; }
-		else if ( r < 0.2 ) { lvl -= 1; if ( lvl <0 ) lvl = 0; }
+		let dev = Math.random() - 0.5;
 
-		let m = Mons.RandMonster( lvl );
+		if ( Math.abs(dev) >= 0.2 ) lvl += Math.floor(10*dev)
+		if ( lvl < 0) lvl = 0;
+
+		let m = Mons.RandMonster( lvl, loc.biome );
 		if ( !m ) return null;
 
+		console.log('adding monster: ' + m.name );
 		loc.addNpc( m );
 
 		return m;
