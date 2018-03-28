@@ -171,6 +171,15 @@ class RPG {
 
 	}
 
+	async cmdExamine( msg, what ) {
+
+		let char = await this.activeCharOrErr( msg, msg.author );
+		if (!char) return;
+
+		display.sendBlock( msg, await this.world.examine( char, what ) );
+
+	}
+
 	async cmdLook( msg, what ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author );
@@ -515,23 +524,38 @@ class RPG {
 
 	async cmdAttack( m, who ) {
 
+		try {
 		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
 
 		if ( gamejs.actionErr( m, src, 'attack' ) ) return;
 
-		let dest = await this.tryLoadChar( who );
-		if ( !dest ) {
-			return m.reply( `'${who}' not found on server.` );
-		}
+		let dest = await this.world.getNpc( src, who );
+		let com;
 
-		let com = new Combat(src, dest, this.world );
-		com.fight();
+		if ( dest ){
 
-		this.cacheChar( src );
-		this.cacheChar(dest);
-		display.sendBlock( m, com.getText() );
+			com = new Combat( src, dest, this.world );
+			com.fightNpc();
+			if ( dest.state !== 'alive') {
+				this.world.removeNpc( src, dest );
+			}
+
+		} else {
 		
+			dest = await this.tryLoadChar( who );
+			if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
+
+			com = new Combat(src, dest, this.world );
+			com.fight();
+
+			this.cacheChar(dest);
+
+		}
+	
+		this.cacheChar( src );
+		display.sendBlock( m, com.getText() );
+		} catch (e) { console.log(e);}
 	}
 
 	async cmdSteal( m, who, wot=null ) {
@@ -883,6 +907,9 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'rollweap', '!rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
 	bot.addContextCmd( 'nerf', '', proto.cmdNerf, RPG, {hidden:true, minArgs:1, maxArgs:1});
+
+	// NPC
+	bot.addContextCmd( 'ex', '!ex [monster|npc]', proto.cmdExamine, RPG, { maxArgs:1 } );
 
 	// LOCATION
 	bot.addContextCmd( 'look', '!look [item on ground]', proto.cmdLook, RPG, { maxArgs:1 } );

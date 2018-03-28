@@ -20,15 +20,19 @@ module.exports = class Weapon extends Item.Item {
 
 		let w = new Weapon( json.name, json.desc );
 
-		w.material = json.material;
+		if ( json.material) w.material = json.material;
 
 		if ( json.mods ) this.mods = json.mods;
 
 		if ( json.dmg ) {
+			console.log( 'parsing weap damage.');
 			w.damage = DamageSrc.FromJSON( json.dmg );
-		} else w.damage = new DamageSrc();
+		} else {
+			console.log('parsing weap dmg. no dmg.')
+			w.damage = new DamageSrc();
+		}
 
-		json.hit = w.toHit;
+		w.toHit = json.hit;
 
 		return Item.Item.FromJSON( json, w );
 

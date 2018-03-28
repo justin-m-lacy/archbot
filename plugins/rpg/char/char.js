@@ -286,7 +286,7 @@ class Char extends actor.Actor {
 		}
 		if ( it.armor ) {
 			this._curStats.armor += it.armor;
-			console.log('adding armor: ' + it.armor);
+			//console.log('adding armor: ' + it.armor);
 		}
 	}
 

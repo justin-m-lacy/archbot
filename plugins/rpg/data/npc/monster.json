@@ -1,5 +1,73 @@
 [
     {
+        "name":"wombat",
+        "level":0.75,
+        "desc":"",
+        "hp":"2d6+4",
+        "armor":"10",
+        "weap":{
+            "name":"wombatting",
+            "type":"blunt",
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"gremlin",
+        "level":0.5,
+        "desc":"Na-na-na-na-Na-na Na-na-na-na-Na-na...",
+        "hp":"1d3+1",
+        "armor":"4",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"1d2"
+        }
+
+    },
+    {
+        "name":"rat",
+        "level":0.5,
+        "desc":"Smelly rat.",
+        "hp":"1d4",
+        "toHit":-1,
+        "armor":"5",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",   
+            "dmg":"1d2+1"
+        }
+
+    },
+    {
+        "name":"kakapo",
+        "level":0.5,
+        "desc":"",
+        "hp":"1d3+1",
+        "toHit":1,
+        "armor":"7",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"bat",
+        "level":0.5,
+        "desc":"",
+        "hp":"1d2",
+        "toHit":4,
+        "armor":"15",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d2+1"
+        }
+
+    },
+    {
         "name":"kobold",
         "level":0.75,
         "desc":"",
@@ -26,6 +94,20 @@
 
     },
     {
+        "name":"garden gnome",
+        "level":0.75,
+        "desc":"Standard variety garden gnome.",
+        "hp":"1d4+2",
+        "armor":"4",
+        "toHit":2,
+        "weap":{
+            "name":"magic missile",
+            "type":"magic",
+            "dmg":"2d4"
+        }
+
+    },
+    {
         "name":"orc",
         "level":1,
         "desc":"",
@@ -39,10 +121,23 @@
         }
 
     },
-    
+    {
+        "name":"cutpurse",
+        "level":1,
+        "desc":"Wants to steal your stuff.",
+        "hp":"3d3+2",
+        "armor":"8",
+        "toHit":2,
+        "weap":{
+            "name":"dagger",
+            "type":"pierce",
+            "dmg":"1d5"
+        }
+
+    },
     {
         "name":"zombie",
-        "level":0.75,
+        "level":1,
         "desc":"",
         "hp":"1d4+1",
         "toHit":-1,
@@ -69,32 +164,57 @@
         }
 
     },
-
     {
-        "name":"rat",
-        "level":0.5,
-        "desc":"Smelly rat.",
-        "hp":"1d4",
-        "toHit":-1,
-        "armor":"5",
+        "name":"jackal",
+        "level":1,
+        "desc":"",
+        "hp":"2d4+1",
+        "toHit":0,
+        "armor":"8",
         "weap":{
             "name":"bite",
-            "type":"pierce",   
-            "dmg":"1d2+1"
+            "type":"pierce",
+            "dmg":"1d4+1"
         }
 
     },
     {
-        "name":"kakapo",
+        "name":"elf",
         "level":1,
         "desc":"",
-        "hp":"2d4",
+        "hp":"3d3+4",
         "toHit":1,
-        "armor":"7",
+        "armor":"10",
         "weap":{
-            "name":"beak",
+            "name":"bow",
             "type":"pierce",
-            "dmg":"1d4"
+            "dmg":"1d6"}
+
+    },
+    {
+        "name":"hobbit slinger",
+        "level":1,
+        "desc":"",
+        "hp":"3d3+2",
+        "toHit":3,
+        "armor":"8",
+        "weap":{
+            "name":"sling",
+            "type":"blunt",
+            "dmg":"1d4"}
+
+    },
+    {
+        "name":"dire bat",
+        "level":1,
+        "desc":"",
+        "hp":"1d4+1",
+        "toHit":3,
+        "armor":"17",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d2+2"
         }
 
     },
@@ -112,16 +232,71 @@
 
     },
     {
-        "name":"bat",
-        "level":0.5,
+        "name":"eel",
+        "level":1,
+        "biome":["swamp"],
         "desc":"",
-        "hp":"1d2",
-        "toHit":4,
-        "armor":"15",
+        "hp":"2d4+1",
+        "toHit":1,
+        "armor":"14",
         "weap":{
             "name":"bite",
             "type":"pierce",
-            "dmg":"1d2+1"
+            "dmg":"1d4"
+        }
+
+    },
+    {
+        "name":"ranger",
+        "level":2,
+        "desc":"",
+        "hp":"2d6+5",
+        "armor":"19",
+        "weap":{
+            "name":"longbow",
+            "type":"pierce",
+            "dmg":"1d6"
+        }
+
+    },
+    {
+        "name":"bandit",
+        "level":2,
+        "desc":"Wants to steal your stuff.",
+        "hp":"3d5+4",
+        "armor":"15",
+        "toHit":1,
+        "weap":{
+            "name":"short sword",
+            "type":"slash",
+            "dmg":"1d6+1"
+        }
+
+    },
+    {
+        "name":"bre'unor",
+        "level":2,
+        "desc":"",
+        "hp":"2d5+5",
+        "armor":"21",
+        "weap":{
+            "name":"bone boomerang",
+            "type":"slash",
+            "dmg":"1d5"
+        }
+
+    },
+    {
+        "name":"undead kakapo",
+        "level":2,
+        "desc":"",
+        "hp":"4d4+5",
+        "toHit":0,
+        "armor":"15",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"1d4+2"
         }
 
     },
@@ -129,7 +304,7 @@
         "name":"orc warrior",
         "level":2,
         "desc":"",
-        "hp":"4d4+4",
+        "hp":"4d4+8",
         "armor":"18",
         "toHit":2,
         "weap":{
@@ -167,6 +342,20 @@
 
     },
     {
+        "name":"ghoul",
+        "level":2,
+        "desc":"",
+        "hp":"3d6+2",
+        "toHit":2,
+        "armor":"18",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"1d6+1"
+        }
+
+    },
+    {
         "name":"wolf",
         "level":2,
         "desc":"",
@@ -180,14 +369,14 @@
 
     },
     {
-        "name":"giant worm",
-        "level":1,
+        "name":"slime",
+        "level":2,
         "desc":"",
-        "hp":"2d6+4",
-        "armor":"17",
+        "hp":"2d10+10",
+        "armor":"8",
         "weap":{
-            "name":"crush",
-            "type":"blunt",
+            "name":"squelch",
+            "type":"acid",
             "dmg":"1d4+1"
         }
 
@@ -201,7 +390,92 @@
         "weap":{
             "name":"mallet",
             "type":"blunt",
-            "dmg":"1d6+3"
+            "dmg":"1d6+5"
+        }
+
+    },
+    {
+        "name":"crocodile",
+        "biome":["swamp"],
+        "level":3,
+        "desc":"They're wild!",
+        "hp":"4d5+3",
+        "toHit":3,
+        "armor":"20",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d5+2"
+        }
+
+    },
+    {
+        "name":"werewolf",
+        "level":3,
+        "desc":"",
+        "toHit":7,
+        "hp":"4d4+5",
+        "armor":"25",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"1d6"
+        }
+
+    },
+    {
+        "name":"mechanical swordsman",
+        "level":3,
+        "desc":"Durable, but not very good at his job.",
+        "toHit":0,
+        "hp":"4d5+6",
+        "armor":"28",
+        "weap":{
+            "name":"short sword",
+            "type":"slash",
+            "dmg":"1d6"
+        }
+
+    },
+    {
+        "name":"harpy",
+        "level":3,
+        "desc":"She doesn't look happy.",
+        "toHit":5,
+        "hp":"4d5+2",
+        "armor":"22",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"3d6"
+        }
+
+    },
+    {
+        "name":"drunken boxer",
+        "level":3,
+        "desc":"This monk has had a bit too much to drink...",
+        "toHit":7,
+        "hp":"4d3+4",
+        "armor":"29",
+        "weap":{
+            "name":"fists",
+            "type":"blunt",
+            "dmg":"2d6"
+        }
+
+    },
+    {
+        "name":"dire kakapo",
+        "level":3,
+        "desc":"",
+        "hp":"4d4+5",
+        "toHit":3,
+        "armor":"22",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"3d4"
         }
 
     },
@@ -210,11 +484,11 @@
         "level":3,
         "desc":"",
         "hp":"2d6+8",
-        "armor":"22",
+        "armor":"30",
         "weap":{
             "name":"claws",
             "type":"slash",
-        "dmg":"1d6+3"
+        "dmg":"1d6+2"
         }
 
     },
@@ -232,12 +506,26 @@
 
     },
     {
+        "name":"vampire bat",
+        "level":3,
+        "desc":"It vants to suck your blood.",
+        "hp":"3d4+3",
+        "toHit":2,
+        "armor":"25",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",   
+            "dmg":"3d2+2"
+        }
+
+    },
+    {
         "name":"wight",
         "level":3,
         "desc":"",
         "hp":"3d6+4",
         "toHit":1,
-        "armor":"18",
+        "armor":"22",
         "weap":{
             "name":"claws",
             "type":"slash",
@@ -265,11 +553,53 @@
         "desc":"",
         "hp":"4d6+7",
         "toHit":3,
-        "armor":"23",
+        "armor":"26",
         "weap":{
             "name":"claws",
             "type":"slash",
             "dmg":"2d6+3"
+        }
+
+    },
+    {
+        "name":"ghost",
+        "level":4,
+        "desc":"",
+        "hp":"4d5+5",
+        "toHit":4,
+        "armor":"30",
+        "weap":{
+            "name":"death touch",
+            "type":"drain",
+            "dmg":"1d6+2"
+        }
+
+    },
+    {
+        "name":"salamander",
+        "level":4,
+        "desc":"",
+        "hp":"4d7+5",
+        "toHit":2,
+        "armor":"23",
+        "weap":{
+            "name":"flame claws",
+            "type":"fire",
+            "dmg":"3d6"
+        }
+
+    },
+    {
+        "name":"beserker",
+        "level":4,
+        "desc":"You gotta... dance.",
+        "hp":"4d5+5",
+        "toHit":5,
+        "armor":"29",
+        "weap":{
+            "name":"claymore",
+            "type":"slash",
+            "dmg":"3d6"
         }
 
     },
@@ -284,6 +614,61 @@
             "name":"mace",
             "type":"blunt",
             "dmg":"2d6+1"
+        }
+
+    },
+    {
+        "name":"giant snake",
+        "level":4,
+        "desc":"",
+        "hp":"4d8+15",
+        "armor":"23",
+        "toHit":0,
+        "weap":{
+            "name":"constrict",
+            "type":"blunt",
+            "dmg":"3d6+1"
+        }
+
+    },
+    {
+        "name":"evil priest",
+        "level":4,
+        "desc":"",
+        "hp":"4d8+10",
+        "armor":"32",
+        "toHit":5,
+        "weap":{
+            "name":"harm",
+            "type":"evil",
+            "dmg":"2d6"
+        }
+
+    },
+    {
+        "name":"quasit",
+        "level":4,
+        "desc":"",
+        "hp":"2d7+8",
+        "armor":"30",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"1d6+3"
+        }
+
+    },
+    {
+        "name":"greater zombie",
+        "level":4,
+        "desc":"Like a regular zombie... but bigger.",
+        "hp":"4d10+15",
+        "armor":"22",
+        "toHit":0,
+        "weap":{
+            "name":"slam",
+            "type":"blunt",
+            "dmg":"1d8+1"
         }
 
     },
@@ -305,13 +690,100 @@
         "name":"clay golem",
         "level":5,
         "desc":"I made you out of clay...",
-        "hp":"8d6+15",
+        "hp":"8d8+15",
         "toHit":-1,
-        "armor":"30",
+        "armor":"33",
         "weap":{
             "name":"smash",
             "type":"blunt",
             "dmg":"1d6+1"
+        }
+
+    },
+    {
+        "name":"dire crocodile",
+        "biome":["swamp"],
+        "level":5,
+        "desc":"",
+        "hp":"4d7+8",
+        "toHit":5,
+        "armor":"32",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"2d5+5"
+        }
+
+    },
+    {
+        "name":"ettin",
+        "level":5,
+        "biome":["hills","forest","swamp","mountains"],
+        "desc":"Two heads is better than one.",
+        "hp":"5d6+15",
+        "toHit":3,
+        "armor":"30",
+        "weap":{
+            "name":"spiked club",
+            "type":"blunt",
+            "dmg":"2d6+4"
+        }
+
+    },
+    {
+        "name":"yeti",
+        "biome":["mountain"],
+        "level":5,
+        "desc":"You ain't seen nothing yeti.",
+        "hp":"5d8+25",
+        "toHit":4,
+        "armor":"25",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"2d6+2"
+        }
+
+    },
+    {
+        "name":"kakapo lord",
+        "level":5,
+        "desc":"",
+        "hp":"5d4+10",
+        "toHit":5,
+        "armor":"30",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"4d4"
+        }
+
+    },
+    {
+        "name":"shade",
+        "level":5,
+        "desc":"",
+        "hp":"3d6+3",
+        "toHit":3,
+        "armor":"38",
+        "weap":{
+            "name":"cold touch",
+            "type":"cold",
+            "dmg":"3d5+5"
+        }
+
+    },
+    {
+        "name":"invisible stalker",
+        "level":5,
+        "desc":"",
+        "hp":"3d8+4",
+        "toHit":26,
+        "armor":"42",
+        "weap":{
+            "name":"slam",
+            "type":"blunt",
+            "dmg":"3d3+2"
         }
 
     },
@@ -321,11 +793,95 @@
         "desc":"",
         "hp":"5d6+5",
         "toHit":5,
-        "armor":"25",
+        "armor":"35",
         "weap":{
             "name":"longsword",
             "type":"slash",
+            "dmg":"1d6+5"
+        }
+
+    },
+    {
+        "name":"doppelganger",
+        "level":5,
+        "desc":"What a handsome fellow!",
+        "hp":"7d7+7",
+        "toHit":4,
+        "armor":"32",
+        "weap":{
+            "name":"slam",
+            "type":"blunt",
             "dmg":"1d6+2"
+        }
+
+    },
+    {
+        "name":"magic blade",
+        "level":5,
+        "desc":"",
+        "hp":"5d4+4",
+        "toHit":7,
+        "armor":"35",
+        "weap":{
+            "name":"magic sword",
+            "type":"slash",
+            "dmg":"1d6+3"
+        }
+
+    },
+    {
+        "name":"bear",
+        "level":5,
+        "desc":"",
+        "hp":"5d12+4",
+        "toHit":1,
+        "armor":"30",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"2d6+2"
+        }
+
+    },
+    {
+        "name":"wood golem",
+        "level":5,
+        "desc":"",
+        "toHit":5,
+        "hp":"3d10+9",
+        "armor":"28",
+        "weap":{
+            "name":"punch",
+            "type":"blunt",
+            "dmg":"2d6"
+        }
+
+    },
+    {
+        "name":"pegasus",
+        "level":5,
+        "desc":"It's a unicorn with wings and no horn.",
+        "hp":"5d10+5",
+        "toHit":3,
+        "armor":"27",
+        "weap":{
+            "name":"trample",
+            "type":"blunt",
+            "dmg":"2d10"
+        }
+
+    },
+    {
+        "name":"earth elemental",
+        "level":5,
+        "desc":"",
+        "toHit":2,
+        "hp":"3d10+30",
+        "armor":"30",
+        "weap":{
+            "name":"pound",
+            "type":"blunt",
+            "dmg":"3d6"
         }
 
     },
@@ -358,15 +914,99 @@
 
     },
     {
+        "name":"myrkridia",
+        "level":6,
+        "desc":"Balor is not going to like this...",
+        "hp":"6d7+14",
+        "toHit":7,
+        "armor":"32",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"3d5+2"
+        }
+
+    },
+    {
+        "name":"skeleton lord",
+        "level":6,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":7,
+        "armor":"34",
+        "weap":{
+            "name":"longsword",
+            "type":"slash",
+            "dmg":"1d8+4"
+        }
+
+    },
+    {
+        "name":"unicorn",
+        "level":6,
+        "desc":"",
+        "hp":"5d12+7",
+        "toHit":3,
+        "armor":"32",
+        "weap":{
+            "name":"horn",
+            "type":"pierce",
+            "dmg":"2d12"
+        }
+
+    },
+    {
+        "name":"vampire",
+        "level":6,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":8,
+        "armor":"37",
+        "weap":{
+            "name":"bite",
+            "type":"drain",
+            "dmg":"1d5+3"
+        }
+
+    },
+    {
+        "name":"wraith",
+        "level":6,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":8,
+        "armor":"37",
+        "weap":{
+            "name":"death touch",
+            "type":"drain",
+            "dmg":"1d5+3"
+        }
+
+    },
+    {
+        "name":"roc",
+        "level":6,
+        "desc":"",
+        "toHit":3,
+        "hp":"5d5+8",
+        "armor":"33",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"3d6+3"
+        }
+
+    },
+    {
         "name":"phoenix",
         "level":7,
         "desc":"",
         "toHit":4,
-        "hp":"5d4+10",
+        "hp":"5d6+10",
         "armor":"40",
         "weap":{
             "name":"flame wing",
-            "type":"heat",
+            "type":"fire",
             "dmg":"3d4+8"
         }
 
@@ -386,16 +1026,170 @@
 
     },
     {
+        "name":"iron golem",
+        "level":7,
+        "desc":"",
+        "hp":"10d10+25",
+        "toHit":1,
+        "armor":"45",
+        "weap":{
+            "name":"smash",
+            "type":"blunt",
+            "dmg":"2d6+4"
+        }
+
+    },
+    {
+        "name":"medusa",
+        "level":7,
+        "desc":"Kind of ugly.",
+        "toHit":2,
+        "hp":"7d8+8",
+        "armor":"40",
+        "weap":{
+            "name":"stare",
+            "type":"magic",
+            "dmg":"4d8+2"
+        }
+
+    },
+    {
+        "name":"naga",
+        "level":7,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":8,
+        "armor":"48",
+        "weap":{
+            "name":"scimitars",
+            "type":"slash",
+            "dmg":"1d10+4"
+        }
+
+    },
+    {
+        "name":"poltergeist",
+        "level":7,
+        "desc":"",
+        "toHit":7,
+        "hp":"4d9+14",
+        "armor":"40",
+        "weap":{
+            "name":"chill touch",
+            "type":"drain",
+            "dmg":"3d4+3"
+        }
+
+    },
+    {
+        "name":"ice elemental",
+        "level":7,
+        "desc":"",
+        "toHit":2,
+        "hp":"5d12+10",
+        "armor":"35",
+        "weap":{
+            "name":"ice shard",
+            "type":"cold",
+            "dmg":"2d6+3"
+        }
+
+    },
+    {
         "name":"fire elemental",
         "level":8,
         "desc":"",
         "toHit":9,
-        "hp":"4d4+3",
-        "armor":"22",
+        "hp":"4d8+3",
+        "armor":"55",
         "weap":{
             "name":"flame",
-            "type":"heat",
+            "type":"fire",
             "dmg":"3d6+2"
+        }
+
+    },
+    {
+        "name":"drunken master",
+        "level":8,
+        "desc":"Master Wong Fei-Hung.",
+        "hp":"5d7+15",
+        "toHit":10,
+        "armor":"44",
+        "weap":{
+            "name":"fists",
+            "type":"blunt",
+            "dmg":"2d5+5"
+        }
+
+    },
+    {
+        "name":"orc champion",
+        "level":8,
+        "desc":"",
+        "hp":"6d7+17",
+        "toHit":4,
+        "armor":"40",
+        "weap":{
+            "name":"broadsword",
+            "type":"slash",
+            "dmg":"2d6+6"
+        }
+
+    },
+    {
+        "name":"undead horror",
+        "level":8,
+        "desc":"",
+        "hp":"5d6+15",
+        "toHit":10,
+        "armor":"50",
+        "weap":{
+            "name":"chill touch",
+            "type":"drain",
+            "dmg":"2d6+4"
+        }
+
+    },
+    {
+        "name":"mind flayer",
+        "level":8,
+        "desc":"",
+        "hp":"5d7+15",
+        "toHit":10,
+        "armor":"44",
+        "weap":{
+            "name":"mind flay",
+            "type":"psionic",
+            "dmg":"2d6+7"
+        }
+
+    },
+    {
+        "name":"lesser wyrm",
+        "level":8,
+        "desc":"",
+        "toHit":5,
+        "hp":"9d8+30",
+        "armor":"42",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"4d7+5"
+        }
+
+    },
+    {
+        "name":"basilisk",
+        "level":8,
+        "desc":"",
+        "toHit":5,
+        "hp":"9d9+10",
+        "armor":"42",
+        "weap":{
+            "name":"stare",
+            "type":"magic",
+            "dmg":"5d8+4"
         }
 
     },
@@ -405,10 +1199,10 @@
         "desc":"You've seen bigger.",
         "hp":"10d10+40",
         "toHit":2,
-        "armor":"40",
+        "armor":"45",
         "weap":{"name":"club",
             "type":"blunt",
-            "dmg":"4d8+10"
+            "dmg":"4d6+5"
         }
 
     },
@@ -417,7 +1211,7 @@
         "level":9,
         "desc":"",
         "hp":"9d10+30",
-        "toHit":4,
+        "toHit":3,
         "armor":"50",
         "weap":{
             "name":"claws",
@@ -427,7 +1221,105 @@
 
     },
     {
-        "name":"small green dragon",
+        "name":"vampire master",
+        "level":9,
+        "desc":"",
+        "hp":"5d8+25",
+        "toHit":10,
+        "armor":"42",
+        "weap":{
+            "name":"bite",
+            "type":"drain",
+            "dmg":"5d5+3"
+        }
+
+    },
+    {
+        "name":"bog witch",
+        "level":9,
+        "desc":"",
+        "hp":"9d10+30",
+        "toHit":7,
+        "armor":"48",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"4d5+3"
+        }
+
+    },
+    {
+        "name":"valkyrie",
+        "level":9,
+        "desc":"",
+        "hp":"7d7+15",
+        "toHit":10,
+        "armor":"54",
+        "weap":{
+            "name":"claymore",
+            "type":"slash",
+            "dmg":"3d5+5"
+        }
+
+    },
+    {
+        "name":"fire golem",
+        "level":9,
+        "desc":"Crafted from the finest phlogiston.",
+        "hp":"9d9+20",
+        "toHit":4,
+        "armor":"53",
+        "weap":{
+            "name":"fire punch",
+            "type":"fire",
+            "dmg":"3d6+2"
+        }
+
+    },
+    {
+        "name":"wyvern",
+        "level":9,
+        "desc":"",
+        "hp":"9d12+30",
+        "toHit":5,
+        "armor":"42",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"3d10+2"
+        }
+
+    },
+    {
+        "name":"gryffon",
+        "level":9,
+        "desc":"",
+        "hp":"10d12+34",
+        "toHit":5,
+        "armor":"40",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"3d12+3"
+        }
+
+    },
+    {
+        "name":"grimstalk",
+        "level":9,
+        "desc":"Slashy wood creature.",
+        "hp":"9d8+20",
+        "toHit":7,
+        "armor":"43",
+        "weap":{
+            "name":"claws",
+            "type":"slash",
+            "dmg":"4d8+4"
+        }
+
+    },
+    {
+        "name":"green dragon",
         "level":10,
         "desc":"",
         "hp":"10d10+30",
@@ -440,17 +1332,181 @@
         }
     },
     {
+        "name":"trow",
+        "level":10,
+        "desc":"",
+        "hp":"10d11+25",
+        "toHit":5,
+        "armor":"50",
+        "weap":{
+            "name":"kik",
+            "type":"blunt",
+            "dmg":"5d9+8"
+        }
+
+    },
+    {
+        "name":"king kakapo",
+        "level":10,
+        "desc":"kakapo gets what kakapo wants.",
+        "hp":"9d10+15",
+        "toHit":3,
+        "armor":"45",
+        "weap":{
+            "name":"sexual aggression",
+            "type":"slash",
+            "dmg":"5d10"
+        }
+
+    },
+    {
+        "name":"manticore",
+        "level":10,
+        "desc":"",
+        "hp":"10d13+25",
+        "toHit":8,
+        "armor":"48",
+        "weap":{
+            "name":"sting",
+            "type":"pierce",
+            "dmg":"5d10+7"
+        }
+
+    },
+    {
         "name":"ent",
         "level":10,
         "desc":"",
         "hp":"10d12+40",
-        "toHit":5,
+        "toHit":2,
         "armor":"50",
         "weap":{
             "name":"pound",
             "type":"blunt",
             "dmg":"4d10+10"
         }
+    },
+    {
+        "name":"red dragon",
+        "level":11,
+        "desc":"",
+        "hp":"10d11+35",
+        "toHit":10,
+        "armor":"60",
+        "weap":{
+            "name":"fire breath",
+            "type":"fire",
+            "dmg":"4d10+7"
+        }
+    },
+    {
+        "name":"mithril golem",
+        "level":11,
+        "desc":"",
+        "hp":"10d12+30",
+        "toHit":3,
+        "armor":"60",
+        "weap":{
+            "name":"pound",
+            "type":"blunt",
+            "dmg":"4d10+10"
+        }
+    },
+    {
+        "name":"magma elemental",
+        "level":11,
+        "desc":"",
+        "hp":"10d11+25",
+        "toHit":0,
+        "armor":"50",
+        "weap":{
+            "name":"lava slam",
+            "type":"fire",
+            "dmg":"6d10+8"
+        }
+    },
+    {
+        "name":"beholder",
+        "level":11,
+        "desc":"",
+        "hp":"11d9+25",
+        "toHit":12,
+        "armor":"50",
+        "weap":{
+            "name":"eye beam",
+            "type":"magic",
+            "dmg":"5d8+3"
+        }
+    },
+    {
+        "name":"angel",
+        "level":12,
+        "desc":"",
+        "hp":"9d11+33",
+        "toHit":10,
+        "armor":"70",
+        "weap":{
+            "name":"light sword",
+            "type":"holy",
+            "dmg":"5d9+5"
+        }
+
+    },
+    {
+        "name":"lich",
+        "level":12,
+        "desc":"",
+        "hp":"10d11+33",
+        "toHit":8,
+        "armor":"68",
+        "weap":{
+            "name":"death touch",
+            "type":"drain",
+            "dmg":"5d8+4"
+        }
+
+    },
+    {
+        "name":"cyclops",
+        "level":12,
+        "desc":"",
+        "hp":"10d12+35",
+        "toHit":5,
+        "armor":"65",
+        "weap":{
+            "name":"punch",
+            "type":"blunt",
+            "dmg":"5d10+7"
+        }
+
+    },
+    {
+        "name":"demon",
+        "level":12,
+        "desc":"",
+        "hp":"9d12+37",
+        "toHit":10,
+        "armor":"70",
+        "weap":{
+            "name":"darksword",
+            "type":"evil",
+            "dmg":"5d9+7"
+        }
+
+    },
+    {
+        "name":"behemoth",
+        "level":13,
+        "desc":"",
+        "hp":"10d14+45",
+        "toHit":5,
+        "armor":"75",
+        "weap":{
+            "name":"trample",
+            "type":"blunt",
+            "dmg":"6d10+7"
+        }
+
     }
 
 ]
