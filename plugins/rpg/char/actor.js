@@ -237,6 +237,25 @@ exports.Actor = class Actor {
 
 	}
 
+	heal( amt ) {
+		let prev = this.curHp;
+		this.curHp += amt;
+		return ( this.curHp - prev );
+	}
+
+	// recover hp without rest.
+	recover() {
+		let amt = Math.ceil(this.getModifier('con') + this.getModifier('wis') + this.level)/2;
+		if ( amt < 1 ) amt = 1;
+		return this.heal( amt );
+	}
+
+	rest() {
+		let amt = this.getModifier('con') + this.getModifier('wis') + this.level;
+		if ( amt < 0 ) amt = 1;
+		return this.heal( amt );
+	}
+
 	/**
 	 * 
 	 * @param {stats.StatMod} mod 

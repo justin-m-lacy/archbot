@@ -26,13 +26,18 @@ module.exports = class Weapon extends Item.Item {
 
 		if ( json.dmg ) {
 			console.log( 'parsing weap damage.');
-			w.damage = DamageSrc.FromJSON( json.dmg );
+			w.damage = DamageSrc.FromJSON( json.dmg, json.type );
 		} else {
-			console.log('parsing weap dmg. no dmg.')
-			w.damage = new DamageSrc();
+			console.log('ERR: parsing weap dmg. no dmg.')
+			w.damage = new DamageSrc( null, json.type );
 		}
 
-		w.toHit = json.hit;
+		if ( json.type ) {
+			w.damage.type = json.type;
+			json.type = 'weapon';	//TODO: fix this.
+		}
+
+		w.toHit = json.hit || 0;
 
 		return Item.Item.FromJSON( json, w );
 
@@ -54,14 +59,14 @@ module.exports = class Weapon extends Item.Item {
 		w.cost = mat.priceMod ? tmp.cost*mat.priceMod : tmp.cost;
 
 		if ( tmp.hands ) w.hands = tmp.hands;
-		if ( tmp.mods ) this._mods = Object.assign( {}, tmp.mods );
+		if ( tmp.mods ) w._mods = Object.assign( {}, tmp.mods );
 
 		w.toHit = tmp.hit || 0;
 
 		w.damage = DamageSrc.FromString( tmp.dmg );
 		w.damage.type = tmp.type;
 
-		if ( mat.bonus ) w.damage.bonus += mat.bonus;
+		w.damage.bonus += mat.dmg || mat.bonus || 0;
 
 		return w;
 
@@ -89,7 +94,7 @@ module.exports = class Weapon extends Item.Item {
 	}
 
 	getDetails() {
-		return this._name + '\t base damage: ' + this.damage + '\t price: ' + this.cost + '\n' + super.getDetails();
+		return this._name + '\t damage: ' + this.damage + '\t price: ' + this.cost + '\n' + super.getDetails();
 	}
 
 	/**

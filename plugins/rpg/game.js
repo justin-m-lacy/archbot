@@ -36,6 +36,17 @@ var eventExp = {
 	crafted:1
 };
 
+class Skill {
+
+	get name() { return this._name;}
+	set name(v) { this._name = v;}
+
+	get stat() { return this._stat; }
+	set stat(v) { this._stat = v;}
+
+	constructor() {}
+
+}
 
 exports.actionErr = ( m, char, act ) => {
 
@@ -48,6 +59,34 @@ exports.actionErr = ( m, char, act ) => {
 
 }
 
+exports.Game = class Game {
+
+	constructor() {}
+
+	actionErr( char, act ) {
+		let illegal = illegal_acts[ char.state ];
+		if ( illegal && illegal.hasOwnProperty(act)) return `Cannot ${act} while ${char.state}.`;
+		return false;
+	}
+
+	rest( char ) {
+
+		let res = this.actionErr( char, 'rest' );
+		if ( res ) return res;
+		char.rest();
+		return `${char.name} rested. hp: ${char.curHp}/${char.maxHp}`;
+
+	}
+
+	eat ( char, wot ) {
+
+		let res = this.actionErr( char, 'eat' );
+		if ( res ) return res;
+		return char.eat( wot );
+
+	}
+
+}
 
 class Result {
 

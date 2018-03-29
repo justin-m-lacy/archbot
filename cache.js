@@ -88,7 +88,7 @@ exports.Cache = class {
 	 */
 	async store( key, value ) {
 
-		console.log('STORING key: ' + key );
+		//console.log('STORING key: ' + key );
 		let item = new Item(key, value);
 		this._dict[key] = item;
 
@@ -122,7 +122,7 @@ exports.Cache = class {
 	 */
 	cache( key, value ) {
 
-		console.log( 'CACHING key: ' + key );
+		//console.log( 'CACHING key: ' + key );
 		this._dict[key] = new Item( key, value);
 
 	}
@@ -171,7 +171,7 @@ exports.Cache = class {
 
 				try {
 					if ( now - item.lastSave > time ) {
-						console.log( 'BACKING UP: ' + item.key );
+						//console.log( 'BACKING UP: ' + item.key );
 						await this.saver( this._cacheKey + item.key, item.data );
 						item.lastSave = now;	// technically some time passed.
 					}

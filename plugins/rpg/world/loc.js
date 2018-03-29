@@ -21,6 +21,7 @@ exports.UNDER = UNDER;
 
 const Inv = require( '../inventory.js');
 const itemjs = require( '../items/item.js');
+const Monster = require('../monster/monster.js');
 
 var reverses = { enter:'exit', exit:'enter', north:'south', south:'north', east:'west', west:'east', left:'right', right:'left', up:'down', down:'up' };
 
@@ -133,7 +134,7 @@ exports.Loc = class Loc {
 		let len = a.length;
 		for( let i = 0; i < len; i++ ) {
 
-			var m = Mons.FromJSON( a[i]);
+			var m = Monster.FromJSON( a[i]);
 			if ( m ) loc.addNpc(m);
 
 		} //for
@@ -249,7 +250,7 @@ exports.Loc = class Loc {
 	*/
 	look( imgTag=true ) {
 
-		let r = in_prefix[this._biome] + this._biome + ' (' + this._coord.toString() + ')';
+		let r = in_prefix[this._biome] + this._biome;//+ ' (' + this._coord.toString() + ')';
 		if ( this._attach && imgTag ) r += ' [img]';
 		r += '\n' + this._desc;
 

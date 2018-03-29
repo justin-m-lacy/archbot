@@ -2,7 +2,7 @@ const Weapon = require( './items/weapon.js');
 const forms = require( './formulas.js');
 const Char = require( './char/char.js');
 const Monster = require( './monster/monster.js');
-
+const itemgen = require( './items/itemgen.js');
 const dice = require( './dice.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
@@ -11,11 +11,10 @@ fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
 
 /**
  * Exp for killing target.
- * @param {*} targ 
+ * @param {*} lvl 
  */
-function lvlExp( targ ) {
-	return 10*targ.level;
-}
+const npcExp = lvl => Math.floor( 10* Math.pow( 1.45, lvl ) );
+const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.45, lvl/2 ) );
 
 module.exports = class Combat {
 
@@ -44,6 +43,13 @@ module.exports = class Combat {
 
 		if ( atk1.dmg ) this.applyHit( this.defender, atk1 );
 		if ( atk2.dmg ) this.applyHit( this.attacker, atk2 );
+
+		if ( this.defender.state === 'dead') {
+	
+			this.world.removeNpc( this.attacker, this.defender );
+			this.doLoot( this.attacker, itemgen.genLoot( this.defender.level ) );
+
+		}
 
 	}
 
@@ -94,7 +100,7 @@ module.exports = class Combat {
 
 			attack.rollDmg();
 
-			this.resp += `\n${src.name} hits ${dest.name} for ${attack.dmg} ${attack.dmgType} damage.`;
+			this.resp += `\n${src.name} Hits for ${attack.dmg} ${attack.dmgType} damage.`;
 
 		}
 		return attack;
@@ -104,8 +110,28 @@ module.exports = class Combat {
 	applyHit( target, atk ) {
 
 		if ( target.hit( atk.dmg )) {
-			this.resp += `\t${target.name} was slain.`;
-			if ( atk.actor ) atk.actor.addExp( lvlExp( target ) );
+
+			this.resp += ` ${target.name} was slain.`;
+			if ( atk.actor instanceof Char ) this.doKill( atk.actor, target );
+
+		}
+
+	}
+
+	doKill( char, target ) {
+
+		let lvl = target.level;
+
+		if ( target instanceof Monster ) {
+
+			if ( target.evil ) char.evil += -target.evil/2;
+			char.addExp( npcExp( level ) );
+
+		} else {
+
+			char.addExp( pvpExp(level ) );
+			char.evil += ( -target.evil ) + 1 + target.getModifier( 'cha');
+
 		}
 
 	}
@@ -168,6 +194,34 @@ module.exports = class Combat {
 
 	}
 
+	doLoot( dest, loot ) {
+
+		if ( !loot.gold && !loot.items ) return;
+
+		this.resp += '\n' + dest.name + ' loots';
+
+		if ( loot.gold ) {
+			dest.gold += loot.gold;
+			this.resp += ` ${loot.gold} gold`;
+		}
+
+		let items = loot.items;
+		if ( items && items.length > 0 ) {
+
+			dest.addItem( items );
+
+			if ( loot.gold ) this.resp += ',';
+			for( let i = items.length-1; i >= 1; i-- ) {
+
+				this.resp += ' ' + items[i].name + ',';
+
+			}
+			this.resp += ' ' + items[0].name;
+
+		}
+
+	} //loot()
+
 }
 
 class Attack {
@@ -183,6 +237,12 @@ class Attack {
 		this.weap = this.getWeapon( actor );
 
 		this._name = this.weap.name;
+
+		/*if ( actor instanceof Monster ) {
+			console.log( 'mons level: ' + actor.level );
+			console.log( 'mons tohit: ' + actor.toHit );
+			console.log( 'monster weap hit: ' + this.weap.toHit );
+		}*/
 
 		this.hitroll = this.skillRoll( actor ) + actor.toHit + this.weap.toHit;
 

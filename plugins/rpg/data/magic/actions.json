@@ -13,7 +13,7 @@
     "gate":{ "name":"gate", "effects":[]},
 
     "heal":{ "name":"heal", "effects":
-    [{"apply":{"curHp":{ "roll":"3d4"}},
+    [{"apply":{"curHp":{ "roll":"4d5"}},
         "fb":"%c feels slightly better."}
     ]},
 

@@ -45,6 +45,7 @@ class RPG {
 			// active chars by user id.
 			this.activeChars = {};
 
+			this.game = new gamejs.Game();
 			this.world = new World( this._context.cache );
 
 		} catch ( e ) { console.log(e); }
@@ -117,7 +118,17 @@ class RPG {
 	}
 
 	async cmdLore( m, wot ) {
-		display.send( m, gamejs.getDesc(wot) );
+		display.sendBlock( m, gamejs.getDesc(wot) );
+	}
+
+	async cmdChanges(m) {
+		let changes = require('./data/changelog.json');
+		let list = '';
+		for( let k in changes ) {
+			list += k + '\n' + changes[k].join('\n') + '\n\n';
+		}
+
+		display.sendBlock( m, list )
 	}
 
 	async cmdTake( m, first, end ){
@@ -204,6 +215,7 @@ class RPG {
 			let char = await this.activeCharOrErr( msg, msg.author );
 			if (!char) return;
 
+			char.recover();
 			display.sendBlock( msg, await this.world.move(char,dir) );
 			this.checkLevel( msg, char );
 
@@ -323,24 +335,30 @@ class RPG {
 
 	async cmdEat( m, what ) {
 
+		console.time( 'eat');
 		let char = await this.activeCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( gamejs.actionErr( m, char, 'eat' ) ) return;
-	
-		await m.reply( char.eat( what ) );
+		console.timeEnd('eat');
+		await m.reply( this.game.eat( char, what ) );
 
+	}
+
+	async cmdRest( m ) {
+
+		let char = await this.activeCharOrErr( m, m.author );
+		if ( !char) return;
+		await m.reply( this.game.rest( char ) );
 	}
 
 	async cmdCook( m, what ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
-		if (!char) return;
+		console.time('cook');
+		let char = await this.activeCharOrErr( m, m.author );
+		if (!char || gamejs.actionErr( m, char, 'cook' ) ) return;
 
-		if ( gamejs.actionErr( m, char, 'cook' ) ) return;
-
-		let resp = char.cook( what );
-		await m.reply( resp );
+		console.timeEnd('cook');
+		await m.reply( char.cook( what ) );
 
 	}
 
@@ -524,6 +542,7 @@ class RPG {
 
 	async cmdAttack( m, who ) {
 
+		console.time('attack');
 		try {
 		let src = await this.activeCharOrErr( m, m.author );
 		if ( !src ) return;
@@ -537,9 +556,6 @@ class RPG {
 
 			com = new Combat( src, dest, this.world );
 			com.fightNpc();
-			if ( dest.state !== 'alive') {
-				this.world.removeNpc( src, dest );
-			}
 
 		} else {
 		
@@ -556,6 +572,7 @@ class RPG {
 		this.cacheChar( src );
 		display.sendBlock( m, com.getText() );
 		} catch (e) { console.log(e);}
+		console.timeEnd('attack');
 	}
 
 	async cmdSteal( m, who, wot=null ) {
@@ -748,7 +765,7 @@ class RPG {
 
 		char = await this.tryLoadChar( charname );
 		if ( !char ) {
-			await m.reply( `Error loading '${charname}' Load new character.` );
+			await m.reply( `Error loading '${charname}'. Load new character.` );
 			return;
 		}
 		if ( char.owner != user.id ) {
@@ -875,6 +892,7 @@ exports.init = function( bot ){
 
 	// HELP
 	bot.addContextCmd( 'lore', '!lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
 	// PVP TEST
 	bot.addContextCmd( 'attack', '!attack who', proto.cmdAttack, RPG, {minArgs:1, maxArgs:1});
@@ -898,9 +916,10 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'give', '!give <charname> <what>', proto.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'sell', '!sell <wot> OR !sell <start> <end>', proto.cmdSell, RPG, {minArgs:1, maxArgs:2} );
 
-	// FOOD
+	// DOWNTIME
 	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'rest', '!rest', proto.cmdRest, RPG, {maxArgs:0} );
 
 	// TESTING
 	bot.addContextCmd( 'rolldmg', '!rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
