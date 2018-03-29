@@ -69,6 +69,10 @@ class StatBlock {
 
 	set hp(v) { this._maxHp = this._curHp = v; }
 
+	get evil() { return this._evil; }
+	set evil(v) { this._evil = v;}
+
+
 	get maxHp() { return this._maxHp; }
 	set maxHp( v) {
 		this._maxHp = v;

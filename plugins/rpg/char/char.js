@@ -53,6 +53,12 @@ class Char extends actor.Actor {
 	get spentPoints() { return this._spentPoints; }
 	set spentPoints(v) { this._spentPoints = v; }
 
+	get skills() { return this._skills; }
+	set skills(v) { this._skills = v; }
+
+	get skillPts() { return this._skillPts; }
+	set skillPts(v ) { this._skillPts = v; }
+
 	/**
 	 * Notification for level up.
 	 * TODO: replace with event system.
@@ -92,6 +98,8 @@ class Char extends actor.Actor {
 
 		char.name = json.name;
 		char.exp = json.exp || 0;
+		char.evil = json.evil || 0;
+
 		char.owner = json.owner;
 
 		if (json.history ) Object.assign( char.history, json.history );
@@ -191,12 +199,10 @@ class Char extends actor.Actor {
 		let cook = require( '../data/cooking.json');
 		let resp = cook.response[ Math.floor( cook.response.length*Math.random() )];
 
-		let prevhp = this.curHp;
-		this.curHp += Math.floor( 5*Math.random()) +1;
-		prevhp = this.curHp - prevhp;
+		let amt = this.heal( Math.floor( 5*Math.random()) + this.level );
 
-		resp = 'You eat the ' + item.name + '. ' + resp + '.';
-		if ( prevhp > 0 ) resp += ' ' + prevhp + ' hp recovered.'
+		resp = `You eat the ${item.name}. ${resp}.`;
+		if ( prevhp > 0 ) resp += ` ${amt} hp healed. ${this.curHp}/${this.maxHp} total.`;
 
 		return resp;
 	}
@@ -256,7 +262,7 @@ class Char extends actor.Actor {
 	unequip( slot ) {
 
 		let removed = this._equip.removeSlot( slot );
-		if ( !removed ) return null;
+		if ( !removed ) return;
 	
 		this.removeEquip(removed);
 		this._inv.add( removed );
@@ -342,7 +348,7 @@ class Char extends actor.Actor {
 
 	/**
 	 * Add an item to inventory.
-	 * @param {Item} it 
+	 * @param {Item|Item[]} it 
 	 */
 	addItem( it ) {
 		this._inv.add( it );

@@ -4,7 +4,7 @@ const Material = require( './items/material.js');
 var isGold = /^(\d+)\s*g(?:old)?$/i;
 
 function rollCost(lvl) {
-	return 10*lvl*( Math.floor( Math.pow( 1.5, Math.floor(lvl/5 )) ) );
+	return 50*lvl*( Math.floor( Math.pow( 1.5, Math.floor(lvl/3 )) ) );
 }
 
 exports.rollWeap = (char ) => {

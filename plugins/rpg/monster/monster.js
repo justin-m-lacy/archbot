@@ -97,7 +97,7 @@ class Monster {
 		Object.assign( m, json );
 
 		if ( m.weap ) m.weap = Weapon.FromJSON( m.weap );
-
+		if ( m.toHit ) m.toHit = Number( m.toHit );
 		return m;
 
 	}
@@ -157,6 +157,7 @@ class Monster {
 	set state(v) { this._state = v;}
 
 	constructor() {
+		this._toHit = 0;
 		this._state = 'alive';
 	}
 

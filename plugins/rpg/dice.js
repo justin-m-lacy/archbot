@@ -4,7 +4,7 @@ exports.Roller = class Roller {
 
 	static FromString( str ) {
 
-		console.log('roller from: ' + str );
+		//console.log('roller from: ' + str );
 
 		let res = rollex.exec( str );
 		if ( res === null ) return new Roller();

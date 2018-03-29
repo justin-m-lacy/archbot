@@ -9,6 +9,7 @@ exports.genWeapon = genWeapon;
 exports.genArmor = genArmor;
 exports.genItem = genItem;
 exports.genFeature = randFeature;
+exports.genLoot = genLoot;
 
 exports.randItem = randItem;
 
@@ -116,7 +117,13 @@ function genArmor( slot=null, lvl=0 ) {
 	let mat = Material.Random( lvl );
 	if ( mat === null ) { console.log( 'material is null'); return null; }
 
-	let tmp = slot ? getRandSlot(slot) : baseArmors[ Math.floor( baseArmors.length*Math.random() )];
+	let tmp;
+	if ( slot ) {
+		tmp = getSlotRand( slot, lvl );
+	} else {
+		let list = baseArmors.filter( t=>!t.level || t.level <= lvl );
+		tmp = list[ Math.floor( list.length*Math.random() )];
+	}
 
 	if ( !tmp ) return;
 
@@ -124,23 +131,44 @@ function genArmor( slot=null, lvl=0 ) {
 
 }
 
-function getRandSlot( slot ) {
+function getSlotRand( slot,lvl=0) {
 
 	let list = armorBySlot[slot];
-	if ( !list ) return null;
+	if ( !list ) return;
+	list = list.filter( t=>!t.level || t.level <= lvl );
 	return list[ Math.floor( list.length*Math.random() )];
 
 }
 
 function randFeature() {
 
-	console.log('CREATING RAND FEATURE');
 	let data = featureList[ Math.floor(featureList.length*Math.random() )];
 	return Feature.FromJSON( data );
 
 }
 
 function genItem() {
+}
+
+function genLoot( lvl ) {
+
+	lvl = Math.floor(lvl);
+
+	let loot = {};
+	if ( Math.random() < 0.5 ) {
+		// gold
+		loot.gold = Math.floor( 20*lvl*Math.random()+0.1 );
+	}
+	if ( Math.random() < 0.2 ) {
+		loot.items = [genArmor(null,lvl)];
+	}
+	if ( Math.random() < 0.1 ) {
+		if ( !loot.items) loot.items =[];
+		loot.items.push( genWeapon(lvl) );
+	}
+
+	return loot;
+
 }
 
 function randItem() {

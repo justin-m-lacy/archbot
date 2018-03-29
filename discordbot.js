@@ -56,7 +56,7 @@ class DiscordBot {
 		client.setInterval(
 			()=>{ this._cache.cleanup(60*1000*30); }, 60*1000*30 );
 		client.setInterval(
-			()=>{this._cache.backup(60*1000*15); }, 60*1000*15 );
+			()=>{this._cache.backup(60*1000*15); console.log('ROUTINE BACKUP.'); }, 60*1000*15 );
 
 		this.initClient();
 

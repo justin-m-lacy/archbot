@@ -1,8 +1,21 @@
 [
     {
+        "name":"elfroid",
+        "level":0.1,
+        "desc":"Completely harmless.",
+        "hp":"1d1",
+        "armor":"0",
+        "weap":{
+            "name":"blathering",
+            "type":"noob",
+            "dmg":"1d1"
+        }
+
+    },
+    {
         "name":"wombat",
-        "level":0.75,
-        "desc":"",
+        "level":1,
+        "desc":"Just wombatting around.",
         "hp":"2d6+4",
         "armor":"10",
         "weap":{
@@ -42,7 +55,7 @@
     {
         "name":"kakapo",
         "level":0.5,
-        "desc":"",
+        "desc":"Don't kill it! They're endangered!",
         "hp":"1d3+1",
         "toHit":1,
         "armor":"7",
@@ -56,7 +69,7 @@
     {
         "name":"bat",
         "level":0.5,
-        "desc":"",
+        "desc":"Careful. They carry rabies.",
         "hp":"1d2",
         "toHit":4,
         "armor":"15",
@@ -70,7 +83,7 @@
     {
         "name":"kobold",
         "level":0.75,
-        "desc":"",
+        "desc":"You no take candle!",
         "hp":"1d4+1",
         "armor":"7",
         "weap":{
@@ -83,7 +96,7 @@
     {
         "name":"goblin",
         "level":0.75,
-        "desc":"",
+        "desc":"It reminds you of the babe...",
         "hp":"1d4+2",
         "armor":"6",
         "weap":{
@@ -110,7 +123,7 @@
     {
         "name":"orc",
         "level":1,
-        "desc":"",
+        "desc":"For the Horde!",
         "hp":"3d4+3",
         "armor":"8",
         "toHit":1,
@@ -138,7 +151,7 @@
     {
         "name":"zombie",
         "level":1,
-        "desc":"",
+        "desc":"Slow and rotting corpse.",
         "hp":"1d4+1",
         "toHit":-1,
         "armor":"4",
@@ -149,11 +162,24 @@
         }
 
     },
+    {
+        "name":"homonculus",
+        "level":1,
+        "desc":"Must have escaped from its jar.",
+        "hp":"1d4+1",
+        "toHit":-1,
+        "armor":"5",
+        "weap":{
+            "name":"bite",
+            "type":"pierce",
+            "dmg":"1d4+1"
+        }
 
+    },
     {
         "name":"skeleton",
         "level":1.5,
-        "desc":"",
+        "desc":"It appears to be missing all its fleshy bits.",
         "hp":"2d4+2",
         "toHit":1,
         "armor":"10",
@@ -167,7 +193,7 @@
     {
         "name":"jackal",
         "level":1,
-        "desc":"",
+        "desc":"They're tricksy.",
         "hp":"2d4+1",
         "toHit":0,
         "armor":"8",
@@ -181,7 +207,7 @@
     {
         "name":"elf",
         "level":1,
-        "desc":"",
+        "desc":"So lithe. So graceful.",
         "hp":"3d3+4",
         "toHit":1,
         "armor":"10",
@@ -194,7 +220,7 @@
     {
         "name":"hobbit slinger",
         "level":1,
-        "desc":"",
+        "desc":"How much damage could he do with just a sling?",
         "hp":"3d3+2",
         "toHit":3,
         "armor":"8",
@@ -207,7 +233,7 @@
     {
         "name":"dire bat",
         "level":1,
-        "desc":"",
+        "desc":"That's one large bat.",
         "hp":"1d4+1",
         "toHit":3,
         "armor":"17",
@@ -221,7 +247,7 @@
     {
         "name":"dire rat",
         "level":1,
-        "desc":"",
+        "desc":"Red eyes... that's different.",
         "hp":"2d3+3",
         "toHit":1,
         "armor":"8",
@@ -235,7 +261,7 @@
         "name":"eel",
         "level":1,
         "biome":["swamp"],
-        "desc":"",
+        "desc":"It's wriggly.",
         "hp":"2d4+1",
         "toHit":1,
         "armor":"14",
@@ -249,7 +275,7 @@
     {
         "name":"ranger",
         "level":2,
-        "desc":"",
+        "desc":"Rangers aren't very good with people.",
         "hp":"2d6+5",
         "armor":"19",
         "weap":{
@@ -276,7 +302,7 @@
     {
         "name":"bre'unor",
         "level":2,
-        "desc":"",
+        "desc":"Why is it wearing a skull on its face?",
         "hp":"2d5+5",
         "armor":"21",
         "weap":{
@@ -289,7 +315,7 @@
     {
         "name":"undead kakapo",
         "level":2,
-        "desc":"",
+        "desc":"It ambles about, looking for living flesh.",
         "hp":"4d4+5",
         "toHit":0,
         "armor":"15",
@@ -468,7 +494,7 @@
     {
         "name":"dire kakapo",
         "level":3,
-        "desc":"",
+        "desc":"This kakapo has been touched by evil!",
         "hp":"4d4+5",
         "toHit":3,
         "armor":"22",
@@ -495,7 +521,7 @@
     {
         "name":"giant spider",
         "level":3,
-        "desc":"",
+        "desc":"You can't tell if she looks hungry.",
         "hp":"3d6",
         "armor":"15",
         "weap":{
@@ -508,7 +534,7 @@
     {
         "name":"vampire bat",
         "level":3,
-        "desc":"It vants to suck your blood.",
+        "desc":"It vants to zuck your blood.",
         "hp":"3d4+3",
         "toHit":2,
         "armor":"25",
@@ -564,7 +590,7 @@
     {
         "name":"ghost",
         "level":4,
-        "desc":"",
+        "desc":"Boo!",
         "hp":"4d5+5",
         "toHit":4,
         "armor":"30",
@@ -634,7 +660,7 @@
     {
         "name":"evil priest",
         "level":4,
-        "desc":"",
+        "desc":"He worships evil.",
         "hp":"4d8+10",
         "armor":"32",
         "toHit":5,
@@ -648,7 +674,8 @@
     {
         "name":"quasit",
         "level":4,
-        "desc":"",
+        "desc":"Looks a bit like a demonic humanoid vulture.",
+        "toHit":3,
         "hp":"2d7+8",
         "armor":"30",
         "weap":{
@@ -661,8 +688,8 @@
     {
         "name":"greater zombie",
         "level":4,
-        "desc":"Like a regular zombie... but bigger.",
-        "hp":"4d10+15",
+        "desc":"It ate up all the smaller zombies.",
+        "hp":"4d8+25",
         "armor":"22",
         "toHit":0,
         "weap":{
@@ -675,8 +702,8 @@
     {
         "name":"ogre",
         "level":4,
-        "desc":"",
-        "hp":"5d6+15",
+        "desc":"Ever wonder what orcs would look like if they were three times as large?",
+        "hp":"5d8+25",
         "toHit":1,
         "armor":"20",
         "weap":{
@@ -690,7 +717,7 @@
         "name":"clay golem",
         "level":5,
         "desc":"I made you out of clay...",
-        "hp":"8d8+15",
+        "hp":"8d8+25",
         "toHit":-1,
         "armor":"33",
         "weap":{
@@ -705,7 +732,7 @@
         "biome":["swamp"],
         "level":5,
         "desc":"",
-        "hp":"4d7+8",
+        "hp":"4d7+12",
         "toHit":5,
         "armor":"32",
         "weap":{
@@ -720,7 +747,7 @@
         "level":5,
         "biome":["hills","forest","swamp","mountains"],
         "desc":"Two heads is better than one.",
-        "hp":"5d6+15",
+        "hp":"5d10+25",
         "toHit":3,
         "armor":"30",
         "weap":{
@@ -735,7 +762,7 @@
         "biome":["mountain"],
         "level":5,
         "desc":"You ain't seen nothing yeti.",
-        "hp":"5d8+25",
+        "hp":"5d9+25",
         "toHit":4,
         "armor":"25",
         "weap":{
@@ -748,8 +775,8 @@
     {
         "name":"kakapo lord",
         "level":5,
-        "desc":"",
-        "hp":"5d4+10",
+        "desc":"Kakapo is very pleased with himself.",
+        "hp":"5d5+12",
         "toHit":5,
         "armor":"30",
         "weap":{
@@ -763,7 +790,7 @@
         "name":"shade",
         "level":5,
         "desc":"",
-        "hp":"3d6+3",
+        "hp":"3d7+3",
         "toHit":3,
         "armor":"38",
         "weap":{
@@ -776,8 +803,8 @@
     {
         "name":"invisible stalker",
         "level":5,
-        "desc":"",
-        "hp":"3d8+4",
+        "desc":"You don't see a thing.",
+        "hp":"3d8+5",
         "toHit":26,
         "armor":"42",
         "weap":{
@@ -790,8 +817,8 @@
     {
         "name":"master swordsman",
         "level":5,
-        "desc":"",
-        "hp":"5d6+5",
+        "desc":"He's looking for a six-fingered man.",
+        "hp":"5d8+5",
         "toHit":5,
         "armor":"35",
         "weap":{
@@ -818,8 +845,8 @@
     {
         "name":"magic blade",
         "level":5,
-        "desc":"",
-        "hp":"5d4+4",
+        "desc":"It just floats there...",
+        "hp":"5d5+4",
         "toHit":7,
         "armor":"35",
         "weap":{
@@ -832,8 +859,8 @@
     {
         "name":"bear",
         "level":5,
-        "desc":"",
-        "hp":"5d12+4",
+        "desc":"He's angry now!!!",
+        "hp":"5d12+12",
         "toHit":1,
         "armor":"30",
         "weap":{
@@ -846,9 +873,9 @@
     {
         "name":"wood golem",
         "level":5,
-        "desc":"",
+        "desc":"A golem crafted on a budget.",
         "toHit":5,
-        "hp":"3d10+9",
+        "hp":"3d10+12",
         "armor":"28",
         "weap":{
             "name":"punch",
@@ -861,7 +888,7 @@
         "name":"pegasus",
         "level":5,
         "desc":"It's a unicorn with wings and no horn.",
-        "hp":"5d10+5",
+        "hp":"5d10+15",
         "toHit":3,
         "armor":"27",
         "weap":{
@@ -874,9 +901,9 @@
     {
         "name":"earth elemental",
         "level":5,
-        "desc":"",
+        "desc":"How do you fight dirt?",
         "toHit":2,
-        "hp":"3d10+30",
+        "hp":"4d8+32",
         "armor":"30",
         "weap":{
             "name":"pound",
@@ -895,15 +922,15 @@
         "weap":{
             "name":"air whip",
             "type":"slash",
-            "dmg":"2d4"
+            "dmg":"3d4+2"
         }
 
     },
     {
         "name":"stone golem",
         "level":6,
-        "desc":"",
-        "hp":"8d10+15",
+        "desc":"The head stone's connected to the... spine stone.",
+        "hp":"8d10+20",
         "toHit":-1,
         "armor":"40",
         "weap":{
@@ -917,7 +944,7 @@
         "name":"myrkridia",
         "level":6,
         "desc":"Balor is not going to like this...",
-        "hp":"6d7+14",
+        "hp":"6d7+24",
         "toHit":7,
         "armor":"32",
         "weap":{
@@ -930,8 +957,8 @@
     {
         "name":"skeleton lord",
         "level":6,
-        "desc":"",
-        "hp":"5d6+15",
+        "desc":"Are those rubies in its eyes?",
+        "hp":"5d7+17",
         "toHit":7,
         "armor":"34",
         "weap":{
@@ -944,8 +971,8 @@
     {
         "name":"unicorn",
         "level":6,
-        "desc":"",
-        "hp":"5d12+7",
+        "desc":"Its horn is full of magic.",
+        "hp":"5d12+17",
         "toHit":3,
         "armor":"32",
         "weap":{
@@ -958,8 +985,8 @@
     {
         "name":"vampire",
         "level":6,
-        "desc":"",
-        "hp":"5d6+15",
+        "desc":"Standard blood sucking variety.",
+        "hp":"5d8+19",
         "toHit":8,
         "armor":"37",
         "weap":{
@@ -972,10 +999,10 @@
     {
         "name":"wraith",
         "level":6,
-        "desc":"",
-        "hp":"5d6+15",
+        "desc":"A ghostly black form.",
+        "hp":"5d5+15",
         "toHit":8,
-        "armor":"37",
+        "armor":"40",
         "weap":{
             "name":"death touch",
             "type":"drain",
@@ -986,10 +1013,10 @@
     {
         "name":"roc",
         "level":6,
-        "desc":"",
+        "desc":"It's the biggest bird you've ever seen!",
         "toHit":3,
-        "hp":"5d5+8",
-        "armor":"33",
+        "hp":"5d5+18",
+        "armor":"32",
         "weap":{
             "name":"beak",
             "type":"pierce",
@@ -998,11 +1025,25 @@
 
     },
     {
+        "name":"incubus",
+        "level":6,
+        "desc":"You could bounce a coin off those abs.",
+        "toHit":3,
+        "hp":"5d4+14",
+        "armor":"25",
+        "weap":{
+            "name":"seduction",
+            "type":"sexy",
+            "dmg":"2d6+2"
+        }
+
+    },
+    {
         "name":"phoenix",
         "level":7,
-        "desc":"",
+        "desc":"It's more fire than bird.",
         "toHit":4,
-        "hp":"5d6+10",
+        "hp":"5d7+10",
         "armor":"40",
         "weap":{
             "name":"flame wing",
@@ -1015,7 +1056,7 @@
         "name":"cave troll",
         "level":7,
         "desc":"They have a cave troll...",
-        "hp":"9d10+20",
+        "hp":"9d10+27",
         "toHit":4,
         "armor":"35",
         "weap":{
@@ -1028,8 +1069,8 @@
     {
         "name":"iron golem",
         "level":7,
-        "desc":"",
-        "hp":"10d10+25",
+        "desc":"It moves with heavy clonking steps.",
+        "hp":"8d12+32",
         "toHit":1,
         "armor":"45",
         "weap":{
@@ -1049,14 +1090,28 @@
         "weap":{
             "name":"stare",
             "type":"magic",
-            "dmg":"4d8+2"
+            "dmg":"4d8+12"
+        }
+
+    },
+    {
+        "name":"succubus",
+        "level":7,
+        "desc":"Oh my!",
+        "hp":"5d7+15",
+        "toHit":20,
+        "armor":"35",
+        "weap":{
+            "name":"seduction",
+            "type":"sexy",
+            "dmg":"3d5+5"
         }
 
     },
     {
         "name":"naga",
         "level":7,
-        "desc":"",
+        "desc":"From the waist up, it doesn't look that bad.",
         "hp":"5d6+15",
         "toHit":8,
         "armor":"48",
@@ -1070,9 +1125,9 @@
     {
         "name":"poltergeist",
         "level":7,
-        "desc":"",
+        "desc":"Only the objects flying at your head alert you to its presence.",
         "toHit":7,
-        "hp":"4d9+14",
+        "hp":"4d9+24",
         "armor":"40",
         "weap":{
             "name":"chill touch",
@@ -1084,9 +1139,9 @@
     {
         "name":"ice elemental",
         "level":7,
-        "desc":"",
+        "desc":"What's so scary about a bunch of icicles?",
         "toHit":2,
-        "hp":"5d12+10",
+        "hp":"8d9+20",
         "armor":"35",
         "weap":{
             "name":"ice shard",
@@ -1098,9 +1153,9 @@
     {
         "name":"fire elemental",
         "level":8,
-        "desc":"",
+        "desc":"Too hot to get close to.",
         "toHit":9,
-        "hp":"4d8+3",
+        "hp":"5d5+27",
         "armor":"55",
         "weap":{
             "name":"flame",
@@ -1113,7 +1168,7 @@
         "name":"drunken master",
         "level":8,
         "desc":"Master Wong Fei-Hung.",
-        "hp":"5d7+15",
+        "hp":"5d7+21",
         "toHit":10,
         "armor":"44",
         "weap":{
@@ -1126,22 +1181,22 @@
     {
         "name":"orc champion",
         "level":8,
-        "desc":"",
-        "hp":"6d7+17",
+        "desc":"The strongest orc in the whole tribe!",
+        "hp":"7d7+27",
         "toHit":4,
         "armor":"40",
         "weap":{
             "name":"broadsword",
             "type":"slash",
-            "dmg":"2d6+6"
+            "dmg":"2d6+8"
         }
 
     },
     {
         "name":"undead horror",
         "level":8,
-        "desc":"",
-        "hp":"5d6+15",
+        "desc":"You need to stop looking at it before you go insane.",
+        "hp":"5d7+15",
         "toHit":10,
         "armor":"50",
         "weap":{
@@ -1154,9 +1209,9 @@
     {
         "name":"mind flayer",
         "level":8,
-        "desc":"",
+        "desc":"It licks your brain with its mind.",
         "hp":"5d7+15",
-        "toHit":10,
+        "toHit":12,
         "armor":"44",
         "weap":{
             "name":"mind flay",
@@ -1168,7 +1223,7 @@
     {
         "name":"lesser wyrm",
         "level":8,
-        "desc":"",
+        "desc":"A cross between a worm and a dragon.",
         "toHit":5,
         "hp":"9d8+30",
         "armor":"42",
@@ -1182,14 +1237,14 @@
     {
         "name":"basilisk",
         "level":8,
-        "desc":"",
+        "desc":"Looking at this one is a bad idea.",
         "toHit":5,
-        "hp":"9d9+10",
+        "hp":"7d7+30",
         "armor":"42",
         "weap":{
             "name":"stare",
             "type":"magic",
-            "dmg":"5d8+4"
+            "dmg":"5d10+8"
         }
 
     },
@@ -1197,7 +1252,7 @@
         "name":"hill giant",
         "level":8,
         "desc":"You've seen bigger.",
-        "hp":"10d10+40",
+        "hp":"10d10+50",
         "toHit":2,
         "armor":"45",
         "weap":{"name":"club",
@@ -1209,8 +1264,8 @@
     {
         "name":"troll",
         "level":9,
-        "desc":"",
-        "hp":"9d10+30",
+        "desc":"tro lo lo.",
+        "hp":"9d8+40",
         "toHit":3,
         "armor":"50",
         "weap":{
@@ -1223,8 +1278,8 @@
     {
         "name":"vampire master",
         "level":9,
-        "desc":"",
-        "hp":"5d8+25",
+        "desc":"Worked his way up the vampire ranks, and has his very own brood now.",
+        "hp":"5d9+25",
         "toHit":10,
         "armor":"42",
         "weap":{
@@ -1237,8 +1292,8 @@
     {
         "name":"bog witch",
         "level":9,
-        "desc":"",
-        "hp":"9d10+30",
+        "desc":"Nasty witch that lives in the waters of a bog. Have you ever seen legend?",
+        "hp":"9d9+40",
         "toHit":7,
         "armor":"48",
         "weap":{
@@ -1251,8 +1306,8 @@
     {
         "name":"valkyrie",
         "level":9,
-        "desc":"",
-        "hp":"7d7+15",
+        "desc":"She'll take you to Valhalla.",
+        "hp":"7d7+25",
         "toHit":10,
         "armor":"54",
         "weap":{
@@ -1265,14 +1320,14 @@
     {
         "name":"fire golem",
         "level":9,
-        "desc":"Crafted from the finest phlogiston.",
-        "hp":"9d9+20",
-        "toHit":4,
+        "desc":"Crafted from only the finest phlogiston.",
+        "hp":"9d7+40",
+        "toHit":8,
         "armor":"53",
         "weap":{
             "name":"fire punch",
             "type":"fire",
-            "dmg":"3d6+2"
+            "dmg":"3d6+5"
         }
 
     },
@@ -1280,7 +1335,7 @@
         "name":"wyvern",
         "level":9,
         "desc":"",
-        "hp":"9d12+30",
+        "hp":"9d12+40",
         "toHit":5,
         "armor":"42",
         "weap":{
@@ -1293,7 +1348,7 @@
     {
         "name":"gryffon",
         "level":9,
-        "desc":"",
+        "desc":"Body of a lion. Face of a giant eagle.",
         "hp":"10d12+34",
         "toHit":5,
         "armor":"40",
@@ -1307,7 +1362,7 @@
     {
         "name":"grimstalk",
         "level":9,
-        "desc":"Slashy wood creature.",
+        "desc":"Slashy wood demon.",
         "hp":"9d8+20",
         "toHit":7,
         "armor":"43",
@@ -1321,8 +1376,8 @@
     {
         "name":"green dragon",
         "level":10,
-        "desc":"",
-        "hp":"10d10+30",
+        "desc":"Your standard dragon.",
+        "hp":"10d10+70",
         "toHit":10,
         "armor":"55",
         "weap":{
@@ -1334,8 +1389,8 @@
     {
         "name":"trow",
         "level":10,
-        "desc":"",
-        "hp":"10d11+25",
+        "desc":"You should have stayed out of the cloudspine.",
+        "hp":"9d11+35",
         "toHit":5,
         "armor":"50",
         "weap":{
@@ -1349,7 +1404,7 @@
         "name":"king kakapo",
         "level":10,
         "desc":"kakapo gets what kakapo wants.",
-        "hp":"9d10+15",
+        "hp":"9d10+45",
         "toHit":3,
         "armor":"45",
         "weap":{
@@ -1374,9 +1429,23 @@
 
     },
     {
+        "name":"lightning elemental",
+        "level":10,
+        "desc":"All your hairs feel prickly.",
+        "toHit":14,
+        "hp":"4d7+3",
+        "armor":"63",
+        "weap":{
+            "name":"lightning",
+            "type":"electric",
+            "dmg":"7d6+4"
+        }
+
+    },
+    {
         "name":"ent",
         "level":10,
-        "desc":"",
+        "desc":"Out cruising for some ent-wives.",
         "hp":"10d12+40",
         "toHit":2,
         "armor":"50",
@@ -1390,7 +1459,7 @@
         "name":"red dragon",
         "level":11,
         "desc":"",
-        "hp":"10d11+35",
+        "hp":"10d11+55",
         "toHit":10,
         "armor":"60",
         "weap":{
@@ -1402,8 +1471,8 @@
     {
         "name":"mithril golem",
         "level":11,
-        "desc":"",
-        "hp":"10d12+30",
+        "desc":"Would be worth a fortune if you could actually make a dent in it.",
+        "hp":"10d12+40",
         "toHit":3,
         "armor":"60",
         "weap":{
@@ -1415,8 +1484,8 @@
     {
         "name":"magma elemental",
         "level":11,
-        "desc":"",
-        "hp":"10d11+25",
+        "desc":"Go ahead. Attack molten lava.",
+        "hp":"10d11+45",
         "toHit":0,
         "armor":"50",
         "weap":{
@@ -1428,8 +1497,8 @@
     {
         "name":"beholder",
         "level":11,
-        "desc":"",
-        "hp":"11d9+25",
+        "desc":"It seeeeees you.",
+        "hp":"11d9+35",
         "toHit":12,
         "armor":"50",
         "weap":{
@@ -1441,8 +1510,8 @@
     {
         "name":"angel",
         "level":12,
-        "desc":"",
-        "hp":"9d11+33",
+        "desc":"It has wings and a halo of light.",
+        "hp":"9d11+73",
         "toHit":10,
         "armor":"70",
         "weap":{
@@ -1455,8 +1524,8 @@
     {
         "name":"lich",
         "level":12,
-        "desc":"",
-        "hp":"10d11+33",
+        "desc":"It was a wizard, once.",
+        "hp":"10d11+53",
         "toHit":8,
         "armor":"68",
         "weap":{
@@ -1470,7 +1539,7 @@
         "name":"cyclops",
         "level":12,
         "desc":"",
-        "hp":"10d12+35",
+        "hp":"10d12+55",
         "toHit":5,
         "armor":"65",
         "weap":{
@@ -1484,7 +1553,7 @@
         "name":"demon",
         "level":12,
         "desc":"",
-        "hp":"9d12+37",
+        "hp":"9d12+57",
         "toHit":10,
         "armor":"70",
         "weap":{
@@ -1498,7 +1567,7 @@
         "name":"behemoth",
         "level":13,
         "desc":"",
-        "hp":"10d14+45",
+        "hp":"10d14+75",
         "toHit":5,
         "armor":"75",
         "weap":{

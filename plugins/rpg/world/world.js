@@ -334,7 +334,7 @@ module.exports = class World {
 		if ( lvl < 0) lvl = 0;
 
 		let m = Mons.RandMonster( lvl, loc.biome );
-		if ( !m ) return null;
+		if ( !m ) return;
 
 		console.log('adding monster: ' + m.name );
 		loc.addNpc( m );

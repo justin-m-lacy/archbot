@@ -138,9 +138,10 @@ module.exports = class Equip {
 
 	removeSlot( slot ) {
 
-		if( !slot ) return null;
+		if( !slot ) return;
 
 		let it = this.slots[slot];
+		if ( !it) return;
 
 		if ( it instanceof Array ) {
 			it = it.shift();

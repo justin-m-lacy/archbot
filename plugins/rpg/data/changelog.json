@@ -1,0 +1,13 @@
+{
+    "03/29/2018":[
+        "Added !rpgchanges command.",
+        "Added !rest command.",
+        "Slight hp recovery on movement.",
+        "Wings no longer roll randomly at low levels.",
+        "Doing drugs is no longer 'cool'.",
+        "Monster strength increased to balance hp recovery.",
+        "World coordinates no longer displayed.",
+        "Small trolls no longer short-sell mithril commodities."
+    ]
+
+}

@@ -26,10 +26,17 @@ exports.DamageSrc = class DamageSrc {
 
 	toJSON() { return { dmg:this.roller.toString(), type:this.type }; }
 
+	get bonus() { return this.roller.bonus; }
+	set bonus(v) { this.roller.bonus = v;}
+	get sides() { return this.roller.sides;}
+	set sides(v) { this.roller.sides = v;}
+	get count() { return this.roller.count; }
+	set count(v) { this.roller.count = v;}
+
 	constructor( roller, type=null ) {
 
 		this.roller = roller;
-		this.type = type || 'blunt';
+		this.type = type || 'mystery';
 
 	}
 
