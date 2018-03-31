@@ -103,7 +103,7 @@ exports.Actor = class Actor {
 
 	// Loc.Coord
 	get loc() { return this._loc; }
-	set loc(v) { this._loc = v; }
+	set loc(v) { this._loc.setTo( v ); }
 
 	constructor( race ) {
 

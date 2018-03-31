@@ -4,6 +4,7 @@ const Char = require( './char/char.js');
 const Monster = require( './monster/monster.js');
 const itemgen = require( './items/itemgen.js');
 const dice = require( './dice.js');
+const Party = require( './party.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
 fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
@@ -13,7 +14,7 @@ fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
  * Exp for killing target.
  * @param {*} lvl 
  */
-const npcExp = lvl => Math.floor( 10* Math.pow( 1.45, lvl ) );
+const npcExp = lvl => Math.floor( 10* Math.pow( 1.5, lvl ) );
 const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.45, lvl/2 ) );
 
 module.exports = class Combat {
@@ -23,7 +24,13 @@ module.exports = class Combat {
 	constructor( c1, c2, world ) {
 
 		this.attacker = c1;
+		if ( c1 instanceof Party ) this.attackParty = true;
+		else this.attackParty = false;
+
 		this.defender = c2;
+		if ( c2 instanceof Party ) this.defendParty = true;
+		else this.defendParty = false;
+
 		this.world = world;
 
 		this.resp = '';
@@ -50,6 +57,20 @@ module.exports = class Combat {
 			this.doLoot( this.attacker, itemgen.genLoot( this.defender.level ) );
 
 		}
+
+	}
+
+	isAlive( g ) {
+
+		if ( g instanceof Party ) {
+		} else return g.state === 'alive';
+
+	}
+
+	canAttack( g ) {
+
+		if ( g instanceof Party ) {
+		} else return g.state === 'alive';
 
 	}
 
@@ -90,7 +111,7 @@ module.exports = class Combat {
 
 	tryHit( src, dest ) {
 
-		let attack = this.getAttack(src );
+		let attack = this.getHitResult(src );
 
 		this.resp += `${src.name} attacks ${dest.name} with ${attack.name}`;
 
@@ -100,7 +121,8 @@ module.exports = class Combat {
 
 			attack.rollDmg();
 
-			this.resp += `\n${src.name} Hits for ${attack.dmg} ${attack.dmgType} damage.`;
+			this.resp += `\n${dest.name} hit for ${attack.dmg} ${attack.dmgType} damage.`;
+			this.resp += ` hp: ${dest.curHp - attack.dmg}/${dest.maxHp}`;
 
 		}
 		return attack;
@@ -124,19 +146,19 @@ module.exports = class Combat {
 
 		if ( target instanceof Monster ) {
 
-			if ( target.evil ) char.evil += -target.evil/2;
-			char.addExp( npcExp( level ) );
+			if ( target.evil ) char.evil += -target.evil/4;
+			char.addExp( npcExp( lvl ) );
 
 		} else {
 
-			char.addExp( pvpExp(level ) );
-			char.evil += ( -target.evil ) + 1 + target.getModifier( 'cha');
+			char.addExp( pvpExp(lvl ) );
+			char.evil += ( -target.evil )/2 + 1 + target.getModifier( 'cha');
 
 		}
 
 	}
 
-	getAttack( char ) { return new Attack( char ); }
+	getHitResult( char ) { return new AttackInfo( char ); }
 
 	/**
 	 * 
@@ -224,7 +246,7 @@ module.exports = class Combat {
 
 }
 
-class Attack {
+class AttackInfo {
 
 	get dmgType() { return this.weap.dmgType; }
 	get name() { return this._name; }
@@ -246,7 +268,7 @@ class Attack {
 
 		this.hitroll = this.skillRoll( actor ) + actor.toHit + this.weap.toHit;
 
-	} 
+	}
 
 	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ) ;}
 
@@ -265,13 +287,41 @@ class Attack {
 	getWeapon(char ) {
 
 		let w = char.getWeapons();
-		if ( w === null ) return fist;
+		if ( !w ) return fist;
 		else if ( w instanceof Array ) {
 			return w[Math.floor( w.length*Math.random() )];
 		} else {
 			return w;
 		}
 
+	}
+
+}
+
+class Attack {
+
+	static FromJSON(json) {
+	}
+
+	toJSON() {
+	}
+
+	// stat mod to add to hit roll.
+	get hitStat(){ return this._hitStat; }
+	set hitStat(v) { this._hitStat = v; } 
+
+	// stat to add to dmg roll.
+	get dmgStat(){ return this._dmgStat; }
+	set dmgStat( v ) { this._dmgStat = v; }
+
+	get effect() { return this._effect; }
+
+	// hp by default.
+	get targetStat(){}
+
+	get saveStat() {}
+
+	constructor() {
 	}
 
 }

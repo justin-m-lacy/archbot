@@ -1,5 +1,6 @@
 
 exports.tryLevel = tryLevel;
+exports.nextExp = getNextExp;
 
 function tryLevel( char ) {
 

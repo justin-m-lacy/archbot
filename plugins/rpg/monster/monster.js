@@ -1,6 +1,7 @@
 const form = require( '../formulas.js');
 const dice = require( '../dice.js');
 const Weapon = require( '../items/weapon.js');
+const stats = require('../char/stats.js');
 
 // var formulas to parse.
 const parseVars = [ 'hp','armor','toHit','mp'];
@@ -17,11 +18,12 @@ function initTemplates() {
 	byLevel = [];
 
 	let a;
-
+	let tot = 0;
 	for( let k = raw.length-1; k >= 0; k-- ) {
 
 		var t = parseTemplate( raw[k] );
 
+		tot++;
 		templates[ t.name ] = t;
 
 		a = byLevel[ Math.floor(t.level)];
@@ -34,6 +36,7 @@ function initTemplates() {
 		a = byLevel[k];
 		if ( a ) console.log('Level ' + k + ' monsters: ' + a.length );
 	}
+	console.log( 'total monsters: ' + tot );
 
 }
 
@@ -51,7 +54,9 @@ function parseTemplate( json ) {
 
 	}
 	if ( t.dmg ) { t.dmg = new form.DamageSrc.FromJSON( t.dmg ); }
-	if ( t.weap ) { t.weap = Weapon.FromJSON(t.weap); }
+	if ( t.weap ) {
+		t.weap = Weapon.FromData(t.weap);
+	}
 
 	return t;
 
@@ -114,8 +119,12 @@ class Monster {
 			toHit:this._toHit,
 			state:this._state
 		};
+
+		if ( this._evil ) json.evil = this._evil;
+		if ( this._kind ) json.kind = this._kind;
+
 		if ( this._dmg ) json.dmg = this._dmg;
-		if ( this._weap ) json._weap = this._weap;
+		if ( this._weap ) json.weap = this._weap;
 
 		return json;
 
@@ -131,6 +140,12 @@ class Monster {
 	get toHit() { return this._toHit; }
 	set toHit(v ) { this._toHit = v;}
 
+	get evil() { return this._evil; }
+	set evil(v) { this._evil = v; }
+
+	get kind() { return this._kind; }
+	set kind(v) { this._kind = v; }
+
 	get size(){ return this._size; }
 	set size(v) { this._size = v;}
 
@@ -139,6 +154,13 @@ class Monster {
 
 	get dmg() { return this._dmg; }
 	set dmg( v ) { this._dmg = v; }
+
+	get attacks() {
+		return this._attacks;
+	}
+	set attacks( v) {
+		this._attacks = v;
+	}
 
 	get curHp() { return this._curHp; }
 	set curHp( v ) { this._curHp = v; }
@@ -163,7 +185,8 @@ class Monster {
 
 	getDetails() {
 
-		return `Level ${this._level} ${this._name} hp:${this._curHp}/${this._maxHp} armor:${this._armor}\n${this._desc}`;
+		let kind = this._kind ? ` ${this._kind}` : '';
+		return `level ${this._level} ${this._name} [${stats.getEvil(this._evil)}${kind}]\nhp:${this._curHp}/${this._maxHp} armor:${this._armor}\n${this._desc}`;
 
 	}
 
@@ -172,6 +195,7 @@ class Monster {
 	addExp( exp ) { }
 
 	getWeapons() { return this._weap; }
+	getAttacks() { return this._attacks; }
 
 	hit( dmg, type ) {
 

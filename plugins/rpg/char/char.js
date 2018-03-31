@@ -12,6 +12,7 @@ const Equip = require( './equip.js');
 const Item = require( '../items/item.js');
 const Race = require( '../race.js');
 const Class = require( '../charclass.js');
+const stats = require( './stats.js');
 
 class Char extends actor.Actor {
 
@@ -254,8 +255,7 @@ class Char extends actor.Actor {
 	 */
 	removeWhere( p ) {
 
-		this.removeEquip( this._equip.removeWhere(p) );
-		return removed;
+		return this.removeEquip( this._equip.removeWhere(p) );
 
 	}
 
@@ -421,10 +421,10 @@ class Char extends actor.Actor {
 
 	getLongDesc() {
 
-		let desc = 'level ' + this.level + ' ' + this._race.name + ' ' + this._charClass.name + '\t[' + this._state + ']';
-		desc += '\nage: ' + this.age + '\t sex: ' + this.sex + '\t gold: ' + this.gold + '\t exp: ' + this._exp;
-		desc += '\nhp: ' + this.curHp + '/' + this.maxHp + '\t armor: ' + this.armor;
-		desc += '\n' + this.getStatString();
+		let desc = `level ${this.level} ${stats.getEvil(this._evil)} ${this._race.name} ${this._charClass.name} [${this._state}]`;
+		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${Level.nextExp(this)}`;
+		desc += `\nhp: ${this.curHp}/${this.maxHp} armor: ${this.armor}\n`;
+		desc += this.getStatString();
 
 		return desc;
 
@@ -434,8 +434,6 @@ class Char extends actor.Actor {
 
 		let str = '';
 		let len = statTypes.length;
-
-		if ( len === 0 ) return '';
 
 		let stat = statTypes[0];
 		str += stat + ': ' + this._curStats[stat];

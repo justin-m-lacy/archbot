@@ -45,8 +45,9 @@ class RPG {
 			// active chars by user id.
 			this.activeChars = {};
 
-			this.game = new gamejs.Game();
+			
 			this.world = new World( this._context.cache );
+			this.game = new gamejs.Game( this, this.world );
 
 		} catch ( e ) { console.log(e); }
 
@@ -64,17 +65,44 @@ class RPG {
 
 	}
 
+	async cmdParty( m, who ) {
+
+		let char = await this.activeCharOrErr( m, m.author );
+		if (!char) return;
+
+		let t = null;
+
+		if ( who ) {
+			t = await this.tryGetChar( who );
+			if ( !t ) return;
+		}
+
+		display.sendBlock( m, this.game.party(char, t ));
+
+	}
+
+	async cmdLeaveParty( m ) {
+
+		let char = await this.activeCharOrErr( m, m.author );
+		if (!char) return;
+
+		display.sendBlock( m, this.game.leaveParty(char) );
+	}
+
 	async cmdWhere( m, who ) {
 
-		let char = await this.tryLoadChar( who );
-		if ( !char ) return;
+		let char = await this.activeCharOrErr( m, m.author );
+		if (!char) return;
+
+		let t = await this.tryGetChar( who );
+		if ( !t ) return;
 		m.reply( char.name + ' is at ' + char.loc.toString() );
 
 	}
 
 	async cmdNerf( m, who ) {
 
-		let char = await this.tryLoadChar( who );
+		let char = await this.loadChar( who );
 		if ( !char ) return;
 
 		if ( !this._context.isMaster( m.author ) ) m.reply( 'You do not have permission to do such a thing.');
@@ -210,17 +238,19 @@ class RPG {
 
 	async cmdMove( msg, dir ) {
 
+		console.time("move");
 		try {
 
 			let char = await this.activeCharOrErr( msg, msg.author );
 			if (!char) return;
 
 			char.recover();
-			display.sendBlock( msg, await this.world.move(char,dir) );
+			display.sendBlock( msg, await this.game.move(char,dir) );
 			this.checkLevel( msg, char );
 
 		} catch ( e) { console.log(e);}
 
+		console.timeEnd("move");
 	}
 
 	/**
@@ -324,8 +354,16 @@ class RPG {
 
 			let item = char.getEquip( slot );
 			if ( item == null ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
-			else if ( typeof(item) === 'string' ) await m.reply( item );
-			else {
+			if ( typeof(item) === 'string' ) await m.reply( item );
+			else if ( item instanceof Array ) {
+
+				let r = '';
+				for( let i = item.length-1; i>= 0; i-- ) {
+					r += item[i].getDetails() + '\n';
+				}
+				m.reply(r);
+
+			} else {
 				await m.reply( item.getDetails() );
 			}
 
@@ -436,15 +474,15 @@ class RPG {
 
 	}
 
-	async cmdInspect( msg, whichItem ) {
+	async cmdInspect( msg, wot ) {
 
 		let char = await this.activeCharOrErr( msg, msg.author )
 		if ( !char ) return;
 
-		if ( !whichItem ) await msg.reply( 'Which inventory item do you want to inspect?');
+		if ( !wot ) await msg.reply( 'Which inventory item do you want to inspect?');
 		else {
 
-			let item = char.getItem( whichItem );
+			let item = char.getItem( wot );
 			if ( !item ) await msg.reply( 'Item not found.');
 			else await msg.reply( item.getDetails() );
 
@@ -483,7 +521,7 @@ class RPG {
 
 		if ( who ) {
 
-			char = await this.tryLoadChar( who );
+			char = await this.tryGetChar( who );
 			if ( !char ) return;
 
 		} else {
@@ -517,7 +555,7 @@ class RPG {
 
 		if ( gamejs.actionErr( m, src, 'give' ) ) return;
 	
-		let dest = await this.tryLoadChar( who );
+		let dest = await this.tryGetChar( who );
 		if ( !dest ) await m.reply( `'${who}' not found on server.` );
 		else {
 
@@ -540,6 +578,19 @@ class RPG {
 
 	}
 
+	async cmdTrack( m, who ) {
+
+		let src = await this.activeCharOrErr( m, m.author );
+		if ( !src ) return;
+
+		let dest = await this.tryGetChar( who );
+		if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
+
+		let res = this.game.track( src, dest );
+		display.sendBlock( m, res );
+
+	}
+
 	async cmdAttack( m, who ) {
 
 		console.time('attack');
@@ -559,7 +610,7 @@ class RPG {
 
 		} else {
 		
-			dest = await this.tryLoadChar( who );
+			dest = await this.tryGetChar( who );
 			if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
 
 			com = new Combat(src, dest, this.world );
@@ -582,7 +633,7 @@ class RPG {
 
 		if ( gamejs.actionErr( m, src, 'steal' ) ) return;
 	
-		let dest = await this.tryLoadChar( who );
+		let dest = await this.tryGetChar( who );
 		if ( !dest ) {
 			return m.reply( `'${who}' not found on server.` );
 		}
@@ -605,7 +656,7 @@ class RPG {
 
 		try {
 
-			let char = await this.tryLoadChar( charname );
+			let char = await this.loadChar( charname );
 			if ( !char ) {
 				await msg.reply( `'${charname}' not found on server.` );
 				return;
@@ -636,7 +687,7 @@ class RPG {
 			char = await this.activeCharOrErr( m, m.author );
 			if ( !char) return;
 		} else {
-			char = await this.tryLoadChar( charname );
+			char = await this.tryGetChar( charname );
 			if (!char) {
 				m.reply( charname + ' not found on server. D:' );
 				return;
@@ -664,7 +715,7 @@ class RPG {
 			char = await this.activeCharOrErr( m, m.author );
 			if ( !char) return;
 		} else {
-			char = await this.tryLoadChar( charname );
+			char = await this.tryGetChar( charname );
 			if (!char) {
 				m.reply( charname + ' not found on server. D:' );
 				return;
@@ -691,7 +742,7 @@ class RPG {
 	
 		try {
 	
-			let char = await this.tryLoadChar( charname );
+			let char = await this.tryGetChar( charname );
 			let prefix;
 			if (!char) {
 				await msg.reply( charname + ' not found on server. D:' );
@@ -763,7 +814,7 @@ class RPG {
 			return;
 		}
 
-		char = await this.tryLoadChar( charname );
+		char = await this.loadChar( charname );
 		if ( !char ) {
 			await m.reply( `Error loading '${charname}'. Load new character.` );
 			return;
@@ -772,6 +823,36 @@ class RPG {
 			await m.reply( `You are not the owner of '${charname}'` );
 			return;
 		}
+		return char;
+
+	}
+
+	async tryGetChar( charname ) {
+
+		for( let k in this.activeChars ) {
+			var c = this.activeChars[k];
+			if ( c.name === charname ) return c;
+		}
+		return this.loadChar(charname);
+	}
+
+	async loadChar( charname ) {
+	
+		let key = this.getCharKey( charname );
+
+		let data = this._context.getKeyData(key);
+		if ( !data ) {
+			data = await this._context.fetchKeyData( key );
+			if ( !data ) return null;
+		}
+		if ( data instanceof Char ) return data;
+
+		console.log('parsing JSON: ' + charname );
+
+		let char = Char.FromJSON( data );
+		//restore char so Char is returned, not json.
+		this._context.storeKeyData( key, char );
+
 		return char;
 
 	}
@@ -824,30 +905,6 @@ class RPG {
 		}
 	}
 
-	async tryLoadChar( charname ) {
-
-		try {
-	
-		let key = this.getCharKey( charname );
-
-		let data = this._context.getKeyData(key);
-		if ( !data ) {
-			data = await this._context.fetchKeyData( key );
-			if ( !data ) return null;
-		}
-		if ( data instanceof Char ) return data;
-
-		console.log('parsing JSON: ' + charname );
-
-		let char = Char.FromJSON( data );
-		//restore char so Char is returned, not json.
-		this._context.storeKeyData( key, char );
-
-		return char;
-
-		} catch(e) { console.log(e);}
-	}
-
 	getCharKey( charname ) { return RPG_DIR + charname; }
 
 	cacheChar( char ) {
@@ -894,9 +951,15 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'lore', '!lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
-	// PVP TEST
+	// PVP
 	bot.addContextCmd( 'attack', '!attack who', proto.cmdAttack, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'track', '!track who', proto.cmdTrack, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'steal', '!steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
+
+	// PARTY
+	bot.addContextCmd( 'party', '!party [who] - join party, invite to party, or show current party.',
+		proto.cmdParty, RPG, {minArgs:0, maxArgs:1});
+	bot.addContextCmd( 'leaveparty', '!leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
 
 	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
