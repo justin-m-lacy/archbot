@@ -1,4 +1,4 @@
-
+const forms = require( './formulas.js');
 
 function revive( char ) {
 
@@ -11,5 +11,18 @@ function kill( char ) {
 
 	char.state = 'dead';
 	char.curHp = 0;
+
+}
+
+class Effect {
+
+	constructor() {}
+
+	doTick() {
+
+		if ( this.dot ) {
+		}
+
+	}
 
 }

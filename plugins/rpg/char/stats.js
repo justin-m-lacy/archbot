@@ -63,11 +63,38 @@ class StatMods {
 
 }
 
+exports.getEvil = evil => {
+
+	if ( !evil) return 'neutral';
+
+	if ( evil >= 5 ){
+
+		if ( evil > 40 ) return 'diabolical';
+		if ( evil > 30 ) return 'malevolent';
+		if ( evil > 20 ) return 'evil';
+		if ( evil > 10 ) return 'wicked';
+		return 'mean';
+
+	} else if ( evil <= -5 ) {
+
+		if ( evil < -40) return 'righteous';
+		if ( evil < -30) return 'virtuous';
+		if ( evil < -20) return 'good';
+		if ( evil < -10) return 'nice';
+
+		return 'polite';
+
+	} else return 'neutral';
+
+	//if ( evil < -30 ) return 'diabolical'
+	//['mean','wicked', 'evil', 'diabolical'],
+	//['nice', 'good', '', 'righteous'];
+
+};
+
 exports.pointStats = [ 'str', 'con', 'dex', 'int', 'wis', 'char', 'armor' ];
 
 class StatBlock {
-
-	set hp(v) { this._maxHp = this._curHp = v; }
 
 	get evil() { return this._evil; }
 	set evil(v) { this._evil = v;}
@@ -119,6 +146,8 @@ class StatBlock {
 			if ( stats.hasOwnProperty(k)) stats[k] = json[k];
 		}
 
+		if ( !json.evil ) this.evil = 0;
+
 		// LEGACY
 		if ( json.hp ) stats._maxHp = json.hp;
 		if ( !json.curHp ) stats._curHp = stats._maxHp;
@@ -139,6 +168,8 @@ class StatBlock {
 
 			maxMp:this._maxMp,
 			curMp:this._curMp,
+
+			evil:this._evil,
 
 			str:this._str,
 			con:this._con,

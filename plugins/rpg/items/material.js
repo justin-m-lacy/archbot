@@ -17,7 +17,7 @@ module.exports = class Material {
 			while ( maxLevel >= 0 ) {
 
 				list = byLevel[maxLevel];
-				console.log('getting mat for level: ' + maxLevel )
+				console.log('getting level mat: ' + maxLevel )
 				if ( list && list.length > 0 ) return list[ Math.floor( list.length*Math.random() )];
 				console.log( maxLevel + ' material list is null');
 				maxLevel--;

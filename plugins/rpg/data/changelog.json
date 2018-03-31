@@ -1,5 +1,6 @@
 {
     "03/29/2018":[
+        "Evilness tracking.",
         "Added !rpgchanges command.",
         "Added !rest command.",
         "Slight hp recovery on movement.",
@@ -7,7 +8,10 @@
         "Doing drugs is no longer 'cool'.",
         "Monster strength increased to balance hp recovery.",
         "World coordinates no longer displayed.",
-        "Small trolls no longer short-sell mithril commodities."
+        "Small trolls no longer short-sell mithril futures."
+    ],
+    "03/30/2018":[
+        "Alpha version of tracking other characters."
     ]
 
 }

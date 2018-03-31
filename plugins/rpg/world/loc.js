@@ -33,6 +33,15 @@ class Coord {
 		this.y = y;
 	}
 
+	setTo( coord ) {
+		this.x = coord.x;
+		this.y = coord.y;
+	}
+
+	dist( c ) {
+		return Math.abs( c.x - this.x ) + Math.abs(c.y - this.y );
+	}
+
 	equals( c ) {
 		return c.x === this.x && c.y === this.y; }
 
@@ -135,6 +144,7 @@ exports.Loc = class Loc {
 		for( let i = 0; i < len; i++ ) {
 
 			var m = Monster.FromJSON( a[i]);
+			console.log('reviving npc: ' + m.name );
 			if ( m ) loc.addNpc(m);
 
 		} //for
