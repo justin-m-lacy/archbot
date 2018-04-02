@@ -206,7 +206,7 @@ module.exports = class World {
 	goHome( char ) {
 
 		let coord = char.home;
-		if ( !coord ) return 'No home set.';
+		if ( !coord ) coord = new Loc.Coord(0,0);
 
 		Object.assign( char.loc, coord );
 		return char.name + ' has travelled home.';

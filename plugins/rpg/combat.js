@@ -24,141 +24,157 @@ module.exports = class Combat {
 	constructor( c1, c2, world ) {
 
 		this.attacker = c1;
-		if ( c1 instanceof Party ) this.attackParty = true;
-		else this.attackParty = false;
-
 		this.defender = c2;
-		if ( c2 instanceof Party ) this.defendParty = true;
-		else this.defendParty = false;
 
 		this.world = world;
 
 		this.resp = '';
 
+		this.attacks = [];
+
 	}
 
-	fightNpc() {
+	async fightNpc() {
 
 		if ( this.defender.state !== 'alive') {
 			this.resp += `${this.defender.name} is already dead.`;
 			return;
 		}
 
-		let atk1 = this.tryHit( this.attacker, this.defender );
-		this.resp += '\n';
-		let atk2 = this.tryHit( this.defender, this.attacker );
+		if ( this.attacker instanceof Party ) await this.partyAttack( this.attacker, this.defender );
+		else await this.tryHit( this.attacker, this.defender );
 
-		if ( atk1.dmg ) this.applyHit( this.defender, atk1 );
-		if ( atk2.dmg ) this.applyHit( this.attacker, atk2 );
+		this.resp += '\n';
+		if ( this.attacker instanceof Party ) {
+			await this.tryHit( this.defender, await this.attacker.randTarget() );
+		} else await this.tryHit( this.defender, this.attacker );
+
+		this.resolve();
 
 		if ( this.defender.state === 'dead') {
 	
 			this.world.removeNpc( this.attacker, this.defender );
-			this.doLoot( this.attacker, itemgen.genLoot( this.defender.level ) );
+			await this.doLoot( this.attacker, itemgen.genLoot( this.defender.level ) );
 
 		}
 
 	}
 
-	isAlive( g ) {
+	async partyAttack( p, dest ) {
 
-		if ( g instanceof Party ) {
-		} else return g.state === 'alive';
+		let destParty = dest instanceof Party;
+
+		let names = p.names;
+		let len = names.length;
+
+		for( let i = 0; i < len; i++ ) {
+
+			var c = await p.getChar( names[i]);
+			if ( !c || c.state !== 'alive' ) continue;
+
+			this.resp += '\n';
+			if ( destParty ) {
+
+				var destChar = dest.randTarget();
+				if ( !destChar ) {
+					console.log( 'WARNING: all opponents have 0 hp.');
+					break;	// no opponents with hp left.
+				}
+				await this.tryHit( c, destchar, p );
+	
+			} else await this.tryHit( c ,dest, p );
+
+		}
 
 	}
 
-	canAttack( g ) {
-
-		if ( g instanceof Party ) {
-		} else return g.state === 'alive';
-
-	}
-
-	fight() {
+	async fight() {
 
 		if ( !(this.attacker.loc.equals(this.defender.loc)) ) {
 			this.resp += `${this.attacker.name} does not see ${this.defender.name} at their location.`;
 			return;
 		}
-	
-		if ( this.defender.state !== 'alive') {
+		if ( await this.defender.getState() !== 'alive') {
 			this.resp += `${this.defender.name} is already dead.`;
 			return;
 		}
 
-		let atk1 = this.tryHit( this.attacker, this.defender );
-		this.resp += '\n';
-		let atk2 = this.tryHit( this.defender, this.attacker );
+		if ( this.attacker instanceof Party ) await this.partyAttack( this.attacker, this.defender );
+		else await this.tryHit( this.attacker, this.defender );
 
-		if ( atk1.dmg ) this.applyHit( this.defender, atk1 );
-		if ( atk2.dmg ) this.applyHit( this.attacker, atk2 );
+		this.resp += '\n';
+
+		if ( this.defender instanceof Party ) await this.partyAttack( this.defender, this.attacker );
+		else await this.tryHit( this.defender, this.attacker );
+
+		this.resolve();
 	
 	}
 
-	/**
-	 * single attack. no reprisal.
-	 * @param {Char} src 
-	 * @param {Char} dest 
-	 */
-	attack( src, dest ) {
-		if ( !(src.loc.equals(dest.loc)) ) {
-			this.resp += `${src.name} does not see ${dest.name} at their location.`;
-			return;
+	async resolve() {
+
+		let len = this.attacks.length;
+		for( let i = 0; i < len; i++ ) {
+
+			var atk = this.attacks[i];
+			if ( atk.killed ) {
+
+				console.log('attack kills defender.')
+				atk.defender.refreshState();
+				this.resp += ` ${atk.defender.name} was slain.`;
+
+				if ( atk.attacker instanceof Char ) {
+
+					console.log( 'Char killed defender.');
+					this.doKill( atk.attacker, atk.defender, atk.party );
+
+				}
+
+
+			} //
+
 		}
-		let atk1 = this.tryHit( src, dest );
-		if ( atk1.dmg ) this.applyHit( dest, atk1 );
+
 	}
 
-	tryHit( src, dest ) {
+	async tryHit( src, dest, srcParty ) {
 
-		let attack = this.getHitResult(src );
+		if ( !src ) {console.log( 'tryHit() src is null'); return; }
+		if ( dest instanceof Party ) dest = await dest.randTarget();
+		if ( !dest ) { console.log( 'tryHit() dest is null'); return; }
+
+		let attack = new AttackInfo( src, dest, srcParty );
 
 		this.resp += `${src.name} attacks ${dest.name} with ${attack.name}`;
 
-		if ( attack.hitroll <= dest.armor ) {
-			this.resp += `\n${src.name} misses!`;
-		} else {
+		if ( attack.hit ) {
 
-			attack.rollDmg();
+			this.resp += `\n${dest.name} was hit for ${attack.dmg} ${attack.dmgType} damage.`;
+			this.resp += ` hp: ${dest.curHp}/${dest.maxHp}`;
 
-			this.resp += `\n${dest.name} hit for ${attack.dmg} ${attack.dmgType} damage.`;
-			this.resp += ` hp: ${dest.curHp - attack.dmg}/${dest.maxHp}`;
+		} else this.resp += `\n${src.name} misses!`;
 
-		}
-		return attack;
+		this.attacks.push( attack );
 
 	}
 
-	applyHit( target, atk ) {
-
-		if ( target.hit( atk.dmg )) {
-
-			this.resp += ` ${target.name} was slain.`;
-			if ( atk.actor instanceof Char ) this.doKill( atk.actor, target );
-
-		}
-
-	}
-
-	doKill( char, target ) {
+	doKill( char, target, party ) {
 
 		let lvl = target.level;
 
 		if ( target instanceof Monster ) {
 
 			if ( target.evil ) char.evil += -target.evil/4;
-			char.addExp( npcExp( lvl ) );
+			party ? party.addExp( npcExp(lvl) ) : char.addExp( npcExp( lvl ) ); 
 
 		} else {
 
-			char.addExp( pvpExp(lvl ) );
+			party? party.addExp(pvpExp(lvl) ) : char.addExp( pvpExp(lvl ) );
 			char.evil += ( -target.evil )/2 + 1 + target.getModifier( 'cha');
 
 		}
 
 	}
-
-	getHitResult( char ) { return new AttackInfo( char ); }
 
 	/**
 	 * 
@@ -192,6 +208,23 @@ module.exports = class Combat {
 
 	}
 
+	/**
+	 * single Char attack. no reprisal.
+	 * @param {Char} src 
+	 * @param {Char} dest 
+	 */
+	attack( src, dest ) {
+
+		if ( !(src.loc.equals(dest.loc)) ) {
+			this.resp += `${src.name} does not see ${dest.name} at their location.`;
+			return;
+		}
+
+		let atk1 = this.tryHit( src, dest );
+		this.resolve();
+
+	}
+
 	take( src, targ, wot, stealRoll=0) {
 
 		let it;
@@ -216,9 +249,11 @@ module.exports = class Combat {
 
 	}
 
-	doLoot( dest, loot ) {
+	async doLoot( dest, loot ) {
 
 		if ( !loot.gold && !loot.items ) return;
+
+		if ( dest instanceof Party ) dest = await dest.getChar( dest.leader );
 
 		this.resp += '\n' + dest.name + ' loots';
 
@@ -249,39 +284,54 @@ module.exports = class Combat {
 class AttackInfo {
 
 	get dmgType() { return this.weap.dmgType; }
+
+	// attack name.
 	get name() { return this._name; }
 
+	// damage done.
 	get dmg() { return this._dmg; }
 
-	constructor( actor ) {
+	// attack hit.
+	get hit() { return this._hit; }
 
-		this.actor = actor;
-		this.weap = this.getWeapon( actor );
+	// defender was killed.
+	get killed() { return this._killed; }
 
+	constructor( attacker, defender, party ) {
+
+		this.attacker = attacker;
+		this.defender = defender;
+
+		if ( party ) this.party = party;
+
+		this.weap = this.getWeapon( attacker );
 		this._name = this.weap.name;
 
-		/*if ( actor instanceof Monster ) {
-			console.log( 'mons level: ' + actor.level );
-			console.log( 'mons tohit: ' + actor.toHit );
-			console.log( 'monster weap hit: ' + this.weap.toHit );
-		}*/
-
-		this.hitroll = this.skillRoll( actor ) + actor.toHit + this.weap.toHit;
+		if  ( this.rollHit() ) this.rollDmg();
 
 	}
 
 	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ) ;}
 
-	//monsterHit( m ) { return dice.roll( 1,  5*(m.level+4) ) + m.toHit; }
+	rollHit() {
+
+		this.hitroll = this.skillRoll( this.attacker ) + this.attacker.toHit + this.weap.toHit;
+		if ( this.hitroll > this.defender.armor ) {
+			this._hit = true;
+			return true;
+		}
+
+	}
 
 	rollDmg() {
 
-		let dmg = this.weap.roll() + this.actor.getModifier('str' );
+		let dmg = this.weap.roll() + this.attacker.getModifier('str' );
 		if ( dmg <= 0 ) dmg = 1;
-
 		this._dmg = dmg;
 
-		return dmg;
+		let hp = this.defender.curHp -= dmg;
+		console.log('AtkInfo: Defender killed.');
+		if ( hp <= 0 ) this._killed = true;
 	}
 
 	getWeapon(char ) {

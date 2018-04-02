@@ -195,7 +195,17 @@ const Context = class {
 
 	}
 
-	// objs are idables or path strings.
+	/**
+	 * Creates a context subcache mapped by key.
+	 * @param {*} key
+	 * @returns - The Cache object.
+	 */
+	subcache( key ) { return this._cache.makeSubCache(key); }
+
+	/**
+	 * 
+	 * @param {*} objs - objs are idables or cache path strings.
+	 */
 	getDataKey( ...objs ) {
 
 		let len = objs.length;

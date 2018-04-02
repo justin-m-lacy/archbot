@@ -38,7 +38,7 @@ exports.genChar = function( owner, race, charClass, name, sex ) {
 	let base = rollStats( stat_rolls.base, new stats.StatBlock() );
 
 	console.log( 'hit: ' + race.HD + '  class: ' + charClass.HD );
-	base.hp = char.HD;
+	base.curHp = base.maxHp = char.HD;
 
 	char.setBaseStats( base );
 

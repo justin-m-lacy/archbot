@@ -21,6 +21,9 @@ exports.Actor = class Actor {
 
 	}
 
+	// used in combat
+	async getState() { return this._state; }
+
 	get state() { return this._state; }
 	set state(v) { this._state = v; }
 
@@ -173,6 +176,12 @@ exports.Actor = class Actor {
 		this.curHp = 1;
 		this.state = exports.Alive;
 
+	}
+
+	refreshState() {
+		if ( this.curHp <= 0 ) this.state = exports.Dead;
+		else this.state = exports.Alive;
+		return this.state;
 	}
 
 	/**
