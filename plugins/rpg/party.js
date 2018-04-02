@@ -12,6 +12,19 @@ module.exports = class Party {
 	get loc() { return this._loc; }
 	set loc(v) { this._loc.setTo(v); }
 
+	async getState() {
+
+		let char;
+		for( let i = this._names.length-1; i >= 0; i-- ) {
+
+			char = await this._cache.fetch( this._names[i]);
+			if ( char && char.state === 'alive' ) return 'alive';
+
+		} //
+		return 'dead';
+
+	}
+
 	constructor( leader, cache ) {
 
 		this._cache = cache;
@@ -24,7 +37,31 @@ module.exports = class Party {
 
 	}
 
-	move( coord ) {
+	/**
+	 * 
+	 * @param {string} name 
+	 */
+	async getChar( name ) {
+		return await this._cache.fetch( name );
+	}
+
+	/**
+	 * 
+	 * @param {Loc.Coord} coord 
+	 */
+	async move( coord ) {
+
+		this.loc = coord;
+
+		let char;
+		for( let i = this._names.length-1; i >= 0; i-- ) {
+
+			char = await this._cache.fetch( this._names[i]);
+			console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
+			if ( char ) char.loc = coord;
+
+		} //
+
 	}
 
 	getList() {
@@ -41,6 +78,72 @@ module.exports = class Party {
 	includes( char ) {
 		if ( typeof(char)==='string') return this._names.includes(char);
 		return this._names.includes(char.name);
+	}
+
+	async addExp( exp ) {
+
+		let count = this._names.length;
+
+		// add exp bonus for party members.
+		exp = exp*( 1 + count*0.2 ) / count;
+
+		for( let i = count-1; i>= 0; i-- ) {
+
+			var c = await this._cache.fetch( this._names[i] );
+			if ( c ) c.addExp( exp)
+
+		}
+
+	}
+
+	/**
+	 * Returns a random character from the group which is still alive.
+	 */
+	async randAlive() {
+
+		let len = this._names.length;
+		let ind = Math.floor( Math.random()*len );
+		let start = ind;
+
+		do {
+
+			var c = await this._cache.fetch( this._names[ind] );
+			if ( c && c.state === 'alive' ) return c;
+
+			if ( ++ind >= len ) ind = 0;
+
+		} while ( ind != start );
+
+		return null;
+
+	}
+
+
+	/**
+	 * A valid target must be alive and have positive hitpoints.
+	 */
+	async randTarget() {
+
+		let len = this._names.length;
+		let ind = Math.floor( Math.random()*len );
+		let start =ind;
+
+		do {
+
+			var c = await this._cache.fetch( this._names[ind] );
+			if ( c && c.curHp > 0 && c.state === 'alive' ) return c;
+
+			console.log( this._names[ind] + ' NOT A VALID TARGEt.');
+			if ( ++ind >= len ) ind = 0;
+
+		} while ( ind != start );
+
+		return null;
+
+	}
+
+	async randChar() {
+		return await this._cache.fetch( this._names[ Math.floor( this._names.length*Math.random() )] );
 	}
 
 	randName() {

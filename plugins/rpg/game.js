@@ -1,6 +1,7 @@
 const Race = require('./race.js');
 const Class = require('./charclass.js');
 const Party = require( './party.js');
+const Combat = require('./combat.js');
 
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
@@ -73,6 +74,8 @@ exports.Game = class Game {
 		this.rpg = rpg;
 		this.world = world;
 
+		this._cache = this.rpg.cache;
+
 		// parties by char name.
 		this._parties = {};
 
@@ -80,35 +83,15 @@ exports.Game = class Game {
 
 	getParty( char ) { return this._parties[char.name]; }
 
-	async moveParty( p, coord ) {
-
-		let a = p.names;
-		let ldr = p.leader;
-	
-		p.loc = coord;
-
-		let str = coord.toString();
-		console.log( `leader ${ldr} moving to ${str}`);
-	
-		for( let i = a.length-1; i >= 0; i-- ) {
-
-			if ( a[i] === ldr) continue; 
-			var c = await this.rpg.tryGetChar( a[i] );
-			console.log( `Moving ${c.name} to ${str}` );
-			c.loc = coord;
-
-		}
-
-	}
-
 	async move( char, dir ) {
 
 		let res = await this.world.move( char, dir );
 
 		let p = this.getParty( char );
 		if ( p && p.leader === char.name ) {
-			console.log('Moving entire party.');
-			await this.moveParty( p, char.loc );
+			console.log('Moving entire party to: ' + char.loc.toString() );
+			await p.move( char.loc );
+			//await this.moveParty( p, char.loc );
 		}
 		return res;
 
@@ -116,7 +99,7 @@ exports.Game = class Game {
 
 	makeParty( char, ...invites ) {
 
-		let p = new Party( char );
+		let p = new Party( char, this._cache );
 		this._parties[char.name] = p;
 
 		for( let i = invites.length-1; i >=0;i-- ) {
@@ -136,12 +119,7 @@ exports.Game = class Game {
 	party( char, t ) {
 
 		let party = this.getParty( char );
-		if ( !t ) {
-
-			if ( party ) return party.getList();
-			else return `You are not in a party.`;
-	
-		}
+		if ( !t ) return party ? party.getList() : "You are not in a party.";
 
 		let other = this.getParty( t );
 
@@ -157,13 +135,10 @@ exports.Game = class Game {
 		} else if ( other ) {
 
 			// attempt to accept.
-			if ( other.accept(char ) ) {
+			if ( !other.accept(char ) ) return `You have not been invited to ${other.leader}'s awesome party.`;
 
-				this._parties[char.name ] = other;
-				return `${char.name} Joined ${other.leader}'s party.`;
-
-			}
-			return `You have not been invited to ${other.leader}'s awesome party.`;
+			this._parties[char.name ] = other;
+			return `${char.name} Joined ${other.leader}'s party.`;
 
 		} else {
 
@@ -235,6 +210,29 @@ exports.Game = class Game {
 		else if ( a < 0 && Math.abs(-90-a) < (3*45)/2 ) dir = dir ? 'south ' + dir : 'south';
 
 		return `You believe ${targ.name} is to the ${dir}.`
+
+	}
+
+	async attackNpc( src, npc ) {
+
+		src = this.getParty( src ) || src;
+
+		let com = new Combat( src, npc, this.world );
+		await com.fightNpc();
+
+		return com.getText();
+
+	}
+
+	async attack( src, dest ) {
+
+		let p1 = this.getParty( src ) || src;
+		let p2 = this.getParty( dest ) || dest;
+
+		let com = new Combat( p1, p2, this.world );
+		await com.fight();
+
+		return com.getText();
 
 	}
 

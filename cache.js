@@ -44,8 +44,8 @@ exports.Cache = class {
 	}
 
 	/**
-	 * 
-	 * @param {string} subkey 
+	 * Creates a subcache of this cache and stores it in the dictionary.
+	 * @param {string} subkey - key used to distinguish subcache items. 
 	 */
 	makeSubCache( subkey ) {
 

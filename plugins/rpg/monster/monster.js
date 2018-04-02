@@ -193,6 +193,9 @@ class Monster {
 	// combat & future compatibility.
 	getModifier( stat ) { return 0; }
 	addExp( exp ) { }
+	refreshState() { if ( this._curHp <= 0) this._state = 'dead';}
+	// used in combat
+	async getState() { return this._state; }
 
 	getWeapons() { return this._weap; }
 	getAttacks() { return this._attacks; }
@@ -202,6 +205,7 @@ class Monster {
 		this._curHp -= dmg;
 		if ( this._curHp <= 0 ) {
 			this._state = 'dead';
+			console.log('creature dead.');
 			return true;
 		}
 		return false;

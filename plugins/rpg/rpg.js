@@ -8,7 +8,7 @@ const gamejs = require( './game.js');
 
 const display = require( './display');
 const RPG_DIR = 'rpg/';
-const LAST_CHARS = RPG_DIR + '`lastchars`';
+const LAST_CHARS = '`lastchars`';
 
 function initData() {
 
@@ -29,6 +29,8 @@ function initData() {
 // created for each discord context.
 class RPG {
 
+	get cache() { return this._cache; }
+
 	/**
 	 * 
 	 * @param {botcontext.Context} context 
@@ -41,11 +43,8 @@ class RPG {
 			console.log( "Creating RPG instance.");
 
 			if ( !initialized) initData();
+			this._cache = this._context.subcache( RPG_DIR );
 
-			// active chars by user id.
-			this.activeChars = {};
-
-			
 			this.world = new World( this._context.cache );
 			this.game = new gamejs.Game( this, this.world );
 
@@ -67,13 +66,13 @@ class RPG {
 
 	async cmdParty( m, who ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		let t = null;
 
 		if ( who ) {
-			t = await this.tryGetChar( who );
+			t = await this.loadChar( who );
 			if ( !t ) return;
 		}
 
@@ -83,7 +82,7 @@ class RPG {
 
 	async cmdLeaveParty( m ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		display.sendBlock( m, this.game.leaveParty(char) );
@@ -91,10 +90,10 @@ class RPG {
 
 	async cmdWhere( m, who ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		let t = await this.tryGetChar( who );
+		let t = await this.loadChar( who );
 		if ( !t ) return;
 		m.reply( char.name + ' is at ' + char.loc.toString() );
 
@@ -115,7 +114,7 @@ class RPG {
 
 	async cmdSetHome( m ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		await m.reply( this.world.setHome( char ) );
@@ -125,7 +124,7 @@ class RPG {
 
 	async cmdGoHome( m ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		if ( gamejs.actionErr( m, char, 'home' ) ) return;
@@ -137,7 +136,7 @@ class RPG {
 
 	async cmdLocDesc( m, desc ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		let resp = await this.world.setDesc( char, desc, m.attachments.first() );
@@ -163,7 +162,7 @@ class RPG {
 
 		try {
 
-			let char = await this.activeCharOrErr( m, m.author )
+			let char = await this.userCharOrErr( m, m.author )
 			if (!char) return;
 
 			if ( gamejs.actionErr( m, char, 'take' ) ) return;
@@ -177,7 +176,7 @@ class RPG {
 	async cmdDrop( m, what, end=null ) {
 
 		try {
-			let char = await this.activeCharOrErr( m, m.author )
+			let char = await this.userCharOrErr( m, m.author )
 			if (!char) return;
 
 			if ( gamejs.actionErr( m, char, 'drop' ) ) return;
@@ -191,7 +190,7 @@ class RPG {
 
 	async cmdExplored( m ) {
 		
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		display.sendBlock( m, await this.world.explored(char) );
@@ -200,7 +199,7 @@ class RPG {
 
 	async cmdViewLoc( msg, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author );
+		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		let info = await this.world.view( char, what );
@@ -212,7 +211,7 @@ class RPG {
 
 	async cmdExamine( msg, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author );
+		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		display.sendBlock( msg, await this.world.examine( char, what ) );
@@ -221,7 +220,7 @@ class RPG {
 
 	async cmdLook( msg, what ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author );
+		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		display.sendBlock( msg, await this.world.look( char, what ) );
@@ -230,7 +229,7 @@ class RPG {
 
 	async cmdUseLoc( msg, wot ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author );
+		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
 		display.sendBlock( msg, await this.world.useLoc(char, wot ));
@@ -241,7 +240,7 @@ class RPG {
 		console.time("move");
 		try {
 
-			let char = await this.activeCharOrErr( msg, msg.author );
+			let char = await this.userCharOrErr( msg, msg.author );
 			if (!char) return;
 
 			char.recover();
@@ -259,7 +258,7 @@ class RPG {
 	 */
 	async cmdRollDmg( msg ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
 		await msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
@@ -272,7 +271,7 @@ class RPG {
 	 */
 	async cmdRollWeap( msg ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
 		try {
@@ -290,7 +289,7 @@ class RPG {
 	 */
 	async cmdRollArmor( msg, slot=null ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
 		try {
@@ -304,7 +303,7 @@ class RPG {
 
 	async cmdUnequip( m, slot ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
 		if ( gamejs.actionErr( m, char, 'unequip' ) ) return;
@@ -321,7 +320,7 @@ class RPG {
 
 	async cmdEquip( m, what ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
 		if ( gamejs.actionErr( m, char, 'equip' ) ) return;
@@ -347,13 +346,13 @@ class RPG {
 
 	async cmdWorn( m, slot ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 		if ( !slot ) display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 		else {
 
 			let item = char.getEquip( slot );
-			if ( item == null ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
+			if ( !item ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
 			if ( typeof(item) === 'string' ) await m.reply( item );
 			else if ( item instanceof Array ) {
 
@@ -374,7 +373,7 @@ class RPG {
 	async cmdEat( m, what ) {
 
 		console.time( 'eat');
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
 		console.timeEnd('eat');
@@ -383,26 +382,22 @@ class RPG {
 	}
 
 	async cmdRest( m ) {
-
-		let char = await this.activeCharOrErr( m, m.author );
-		if ( !char) return;
-		await m.reply( this.game.rest( char ) );
+		let char = await this.userCharOrErr( m, m.author );
+		if ( char) await m.reply( this.game.rest( char ) );
 	}
 
 	async cmdCook( m, what ) {
 
-		console.time('cook');
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char || gamejs.actionErr( m, char, 'cook' ) ) return;
 
-		console.timeEnd('cook');
 		await m.reply( char.cook( what ) );
 
 	}
 
 	async cmdInscribe( m, whichItem, inscrip ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
 		if ( gamejs.actionErr( m, char, 'inscribe' ) ) return;
@@ -426,7 +421,7 @@ class RPG {
 
 	async cmdDestroy( m, whichItem, end=null ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
 		if ( gamejs.actionErr( m, char, 'destroy' ) ) return;
@@ -455,7 +450,7 @@ class RPG {
 
 	async cmdViewItem( msg, which ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
 		if ( !which ) await msg.reply( 'Which inventory item do you want to view?');
@@ -476,7 +471,7 @@ class RPG {
 
 	async cmdInspect( msg, wot ) {
 
-		let char = await this.activeCharOrErr( msg, msg.author )
+		let char = await this.userCharOrErr( msg, msg.author )
 		if ( !char ) return;
 
 		if ( !wot ) await msg.reply( 'Which inventory item do you want to inspect?');
@@ -492,7 +487,7 @@ class RPG {
 
 	async cmdCraft( m, itemName, desc ) {
 
-		let char = await this.activeCharOrErr( m, m.author )
+		let char = await this.userCharOrErr( m, m.author )
 		if ( !char ) return;
 
 		if ( gamejs.actionErr( m, char, 'craft' ) ) return;
@@ -521,12 +516,12 @@ class RPG {
 
 		if ( who ) {
 
-			char = await this.tryGetChar( who );
+			char = await this.loadChar( who );
 			if ( !char ) return;
 
 		} else {
 
-			char = await this.activeCharOrErr( msg, msg.author );
+			char = await this.userCharOrErr( msg, msg.author );
 			if ( !char ) {
 				await msg.reply( `Character '${who}' not found.`);
 				return;
@@ -540,7 +535,7 @@ class RPG {
 
 	async cmdSell( m, wot, end ) {
 
-		let src = await this.activeCharOrErr( m, m.author );
+		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
 		if ( gamejs.actionErr( m, src, 'sell' ) ) return;
@@ -550,12 +545,12 @@ class RPG {
 
 	async cmdGive( m, who, expr ) {
 
-		let src = await this.activeCharOrErr( m, m.author );
+		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
 		if ( gamejs.actionErr( m, src, 'give' ) ) return;
 	
-		let dest = await this.tryGetChar( who );
+		let dest = await this.loadChar( who );
 		if ( !dest ) await m.reply( `'${who}' not found on server.` );
 		else {
 
@@ -580,10 +575,10 @@ class RPG {
 
 	async cmdTrack( m, who ) {
 
-		let src = await this.activeCharOrErr( m, m.author );
+		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
-		let dest = await this.tryGetChar( who );
+		let dest = await this.loadChar( who );
 		if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
 
 		let res = this.game.track( src, dest );
@@ -595,45 +590,41 @@ class RPG {
 
 		console.time('attack');
 		try {
-		let src = await this.activeCharOrErr( m, m.author );
+		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
 		if ( gamejs.actionErr( m, src, 'attack' ) ) return;
 
 		let dest = await this.world.getNpc( src, who );
-		let com;
+		let res;
 
-		if ( dest ){
-
-			com = new Combat( src, dest, this.world );
-			com.fightNpc();
-
-		} else {
+		if ( dest ) res = await this.game.attackNpc( src, dest );
+		else {
 		
-			dest = await this.tryGetChar( who );
-			if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
+			dest = await this.loadChar( who );
+			if ( !dest ) return m.reply( `'${who}' not found.` );
 
-			com = new Combat(src, dest, this.world );
-			com.fight();
-
+			res = await this.game.attack( src, dest );
 			this.cacheChar(dest);
 
 		}
 	
 		this.cacheChar( src );
-		display.sendBlock( m, com.getText() );
+
+		display.sendBlock( m, res );
+
 		} catch (e) { console.log(e);}
 		console.timeEnd('attack');
 	}
 
 	async cmdSteal( m, who, wot=null ) {
 
-		let src = await this.activeCharOrErr( m, m.author );
+		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
 		if ( gamejs.actionErr( m, src, 'steal' ) ) return;
 	
-		let dest = await this.tryGetChar( who );
+		let dest = await this.loadChar( who );
 		if ( !dest ) {
 			return m.reply( `'${who}' not found on server.` );
 		}
@@ -666,10 +657,10 @@ class RPG {
 
 				// delete
 				let key = this.getCharKey( charname );
-				this._context.deleteKeyData( key );
+				this._cache.delete( key );
 
 				let active = this.activeChars[char.owner];
-				if ( active && active.name === charname ) await this.clearActiveChar( char.owner );
+				if ( active && active.name === charname ) await this.clearUserChar( char.owner );
 
 				msg.reply( charname + ' deleted.' );
 
@@ -684,10 +675,10 @@ class RPG {
 		let char;
 
 		if ( !charname ) {
-			char = await this.activeCharOrErr( m, m.author );
+			char = await this.userCharOrErr( m, m.author );
 			if ( !char) return;
 		} else {
-			char = await this.tryGetChar( charname );
+			char = await this.loadChar( charname );
 			if (!char) {
 				m.reply( charname + ' not found on server. D:' );
 				return;
@@ -699,7 +690,7 @@ class RPG {
 
 	async cmdAddStat( m, stat ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if ( !char) return;
 
 		let res = char.addStat( stat );
@@ -712,10 +703,10 @@ class RPG {
 		let char;
 
 		if ( !charname ) {
-			char = await this.activeCharOrErr( m, m.author );
+			char = await this.userCharOrErr( m, m.author );
 			if ( !char) return;
 		} else {
-			char = await this.tryGetChar( charname );
+			char = await this.loadChar( charname );
 			if (!char) {
 				m.reply( charname + ' not found on server. D:' );
 				return;
@@ -728,7 +719,7 @@ class RPG {
 
 	async cmdSaveChar( m ) {
 
-		let char = await this.activeCharOrErr( m, m.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
 		await this.saveChar( char, true );
@@ -742,7 +733,7 @@ class RPG {
 	
 		try {
 	
-			let char = await this.tryGetChar( charname );
+			let char = await this.loadChar( charname );
 			let prefix;
 			if (!char) {
 				await msg.reply( charname + ' not found on server. D:' );
@@ -751,7 +742,7 @@ class RPG {
 				prefix = 'This is not your character.\n';
 			} else {
 				
-				await this.setActiveChar( msg.author, char );
+				await this.setUserChar( msg.author, char );
 				prefix = 'Active character set.\n';
 			}
 	
@@ -789,7 +780,7 @@ class RPG {
 			let char = CharGen.genChar( m.author.id, race, charclass, charname, null );
 			console.log( 'char rolled: ' + char.name );
 
-			await this.setActiveChar( m.author, char );
+			await this.setUserChar( m.author, char );
 			display.echoChar( m.channel, char );
 			await this.saveChar( char, true );
 
@@ -798,13 +789,10 @@ class RPG {
 	}
 	
 	async charExists( charname ) {
-		return await this._context.cache.exists( this.getCharKey( charname ) );
+		return await this._cache.exists( this.getCharKey( charname ) );
 	}
 
-	async activeCharOrErr( m, user ) {
-
-		let char = this.activeChars[user.id];
-		if ( char ) return char;
+	async userCharOrErr( m, user ) {
 
 		if ( !this.lastChars ) await this.loadLastChars();
 
@@ -814,7 +802,7 @@ class RPG {
 			return;
 		}
 
-		char = await this.loadChar( charname );
+		let char = await this.loadChar( charname );
 		if ( !char ) {
 			await m.reply( `Error loading '${charname}'. Load new character.` );
 			return;
@@ -827,22 +815,13 @@ class RPG {
 
 	}
 
-	async tryGetChar( charname ) {
-
-		for( let k in this.activeChars ) {
-			var c = this.activeChars[k];
-			if ( c.name === charname ) return c;
-		}
-		return this.loadChar(charname);
-	}
-
 	async loadChar( charname ) {
 	
 		let key = this.getCharKey( charname );
 
-		let data = this._context.getKeyData(key);
+		let data = this._cache.get(key);
 		if ( !data ) {
-			data = await this._context.fetchKeyData( key );
+			data = await this._cache.fetch( key );
 			if ( !data ) return null;
 		}
 		if ( data instanceof Char ) return data;
@@ -851,43 +830,38 @@ class RPG {
 
 		let char = Char.FromJSON( data );
 		//restore char so Char is returned, not json.
-		this._context.storeKeyData( key, char );
+		this._cache.cache( key, char );
 
 		return char;
 
 	}
 
-	async clearActiveChar( uid ) {
+	async clearUserChar( uid ) {
 
-		delete this.activeChars[uid];
 		if ( !this.lastChars ) await this.loadLastChars();
 		delete this.lastChars[uid];
 
 	}
 
-	async setActiveChar( user, char ) {
-
-		let lastChar = this.activeChars[user.id];
-		if ( lastChar ) await this.saveChar( lastChar, true );		// save previous.
+	async setUserChar( user, char ) {
 
 		if ( !this.lastChars ) await this.loadLastChars();
 
-		this.activeChars[user.id] = char;
 		this.lastChars[user.id] = char.name;
 
-		this._context.cacheKeyData( LAST_CHARS, this.lastChars );
+		this._cache.cache( LAST_CHARS, this.lastChars );
 
 	}
 
 	async loadLastChars() {
 
-		let lastjson = await this._context.fetchKeyData( LAST_CHARS );
+		let lastjson = await this._cache.fetch( LAST_CHARS );
 		if ( lastjson ) {
 			this.lastChars = lastjson;
 			return lastjson;
 		}
 		this.lastChars = {};
-		this._context.cacheKeyData( LAST_CHARS, this.lastChars );
+		this._cache.cache( LAST_CHARS, this.lastChars );
 
 	}
 
@@ -905,14 +879,17 @@ class RPG {
 		}
 	}
 
-	getCharKey( charname ) { return RPG_DIR + charname; }
+	getCharKey( charname ) { return charname; }
 
 	cacheChar( char ) {
-		this._context.cacheKeyData( this.getCharKey( char.name ), char );
+		this._cache.cache( this.getCharKey( char.name ), char );
 	}
 
 	async saveChar( char, forceSave=false ) {
-		await this._context.storeKeyData( this.getCharKey( char.name ), char, forceSave );
+
+		if ( forceSave) await this._cache.store( this.getCharKey( char.name ), char );
+		else this._cache.cache( this.getCharKey(char.name), char );
+
 	}
 
 	async uniqueName( race, sex ) {
