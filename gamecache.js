@@ -322,7 +322,7 @@ module.exports = class GameCache {
 			} else if ( gtime < cur[3]) {
 				max = mid;
 			} else {
-				min + mid+1;
+				min = mid+1;
 
 			}
 			mid = Math.floor( (min + max)/2 );
@@ -356,7 +356,7 @@ module.exports = class GameCache {
 			} else if ( gtime < cur[3]) {
 				max = mid;
 			} else {
-				min + mid+1;
+				min = mid+1;
 
 			}
 			mid = Math.floor( (min + max)/2 );

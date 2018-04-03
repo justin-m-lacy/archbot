@@ -164,6 +164,8 @@ module.exports = class Inventory {
 
 		if ( it instanceof Array ) this._items = this._items.concat( it );
 		else this._items.push(it);
+		return this._items.length;
+
 	}
 
 	/**

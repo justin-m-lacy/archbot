@@ -60,6 +60,9 @@ class Char extends actor.Actor {
 	get skillPts() { return this._skillPts; }
 	set skillPts(v ) { this._skillPts = v; }
 
+	get evil() { return this.baseStats.evil; }
+	set evil(v) { this.baseStats.evil = v;}
+
 	/**
 	 * Notification for level up.
 	 * TODO: replace with event system.
@@ -108,9 +111,7 @@ class Char extends actor.Actor {
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
 		if ( json.info ) Object.assign( char._info, json.info );
-		if ( json.loc ) {
-			Object.assign( char._loc, json.loc );
-		}
+		if ( json.loc ) Object.assign( char._loc, json.loc );
 
 		if ( json.state) char.state = json.state;
 
@@ -171,6 +172,10 @@ class Char extends actor.Actor {
 	addExplored() {
 		this._history.explored++;
 	}
+	addHistory( evt ) {
+		let v = this._history[evt] || 0;
+		this._history[evt] = v + 1;
+	}
 
 	levelUp() {
 
@@ -198,12 +203,14 @@ class Char extends actor.Actor {
 		this._inv.remove( item );
 
 		let cook = require( '../data/cooking.json');
+		this.addHistory( 'eat');
+
 		let resp = cook.response[ Math.floor( cook.response.length*Math.random() )];
 
 		let amt = this.heal( Math.floor( 5*Math.random()) + this.level );
 
 		resp = `You eat the ${item.name}. ${resp}.`;
-		if ( prevhp > 0 ) resp += ` ${amt} hp healed. ${this.curHp}/${this.maxHp} total.`;
+		if ( amt > 0 ) resp += ` ${amt} hp healed. ${this.curHp}/${this.maxHp} total.`;
 
 		return resp;
 	}
@@ -215,6 +222,7 @@ class Char extends actor.Actor {
 
 		if ( item.type === Item.FOOD) return item.name + ' is already food.';
 
+		this.addHistory( 'cook');
 		Item.Item.Cook( item);
 		return this.name + ' cooks \'' + item.name + '\'';
 
@@ -351,7 +359,7 @@ class Char extends actor.Actor {
 	 * @param {Item|Item[]} it 
 	 */
 	addItem( it ) {
-		this._inv.add( it );
+		return this._inv.add( it );
 	}
 
 	/**
@@ -363,7 +371,7 @@ class Char extends actor.Actor {
 		return this._inv.remove(which);
 	}
 
-	takeRange( start, end){ return this._inv.takeRange( start, end); }
+	takeRange( start, end ){ return this._inv.takeRange( start, end); }
 
 	/**
 	 * reroll hp.
@@ -421,7 +429,7 @@ class Char extends actor.Actor {
 
 	getLongDesc() {
 
-		let desc = `level ${this.level} ${stats.getEvil(this._evil)} ${this._race.name} ${this._charClass.name} [${this._state}]`;
+		let desc = `level ${this.level} ${stats.getEvil(this.evil)} ${this._race.name} ${this._charClass.name} [${this._state}]`;
 		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${Level.nextExp(this)}`;
 		desc += `\nhp: ${this.curHp}/${this.maxHp} armor: ${this.armor}\n`;
 		desc += this.getStatString();
@@ -451,7 +459,10 @@ class Char extends actor.Actor {
 	getHistory() {
 
 		let resp = (this._history.explored || 0 ) + ' locations discovered.\n';
-		resp += ( this._history.crafted || 0 ) + ' items crafted.';
+		resp += ( this._history.crafted || 0 ) + ' items crafted.\n';
+		resp += ( this._history.slay || 0 ) + ' monsters slain.\n';
+		resp += ( this._history.pk || 0 ) + ' players killed.\n';
+		resp += ( this.history.stolen || 0 ) + ' items stolen.'
 		return resp;
 
 	}

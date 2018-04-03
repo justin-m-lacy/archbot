@@ -69,14 +69,28 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		let t = null;
-
+		let t;
 		if ( who ) {
 			t = await this.loadChar( who );
 			if ( !t ) return;
 		}
 
 		display.sendBlock( m, this.game.party(char, t ));
+
+	}
+
+	async cmdRevive( m, who ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		let t;
+		if ( who ) {
+			t = await this.loadChar( who );
+			if ( !t ) return;
+		}
+
+		display.sendBlock( m, this.game.revive(char, t ));
 
 	}
 
@@ -243,7 +257,6 @@ class RPG {
 			let char = await this.userCharOrErr( msg, msg.author );
 			if (!char) return;
 
-			char.recover();
 			display.sendBlock( msg, await this.game.move(char,dir) );
 			this.checkLevel( msg, char );
 
@@ -265,7 +278,7 @@ class RPG {
 
 	}
 
-		/**
+	/**
 	 * Roll a new armor for testing.
 	 * @param {*} msg 
 	 */
@@ -372,11 +385,9 @@ class RPG {
 
 	async cmdEat( m, what ) {
 
-		console.time( 'eat');
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		console.timeEnd('eat');
 		await m.reply( this.game.eat( char, what ) );
 
 	}
@@ -410,6 +421,7 @@ class RPG {
 			else {
 
 				item.inscription = inscrip;
+				char.history( 'inscribe');
 				await m.reply( 'Item inscribed.');
 				await this.saveChar( char );
 
@@ -497,15 +509,13 @@ class RPG {
 		else {
 
 			let a = m.attachments.first();
-			if ( a ) {
-				item.Craft( char, itemName, desc, a.proxyURL );
-
-			} else item.Craft( char, itemName, desc );
+			let ind = a ? item.Craft( char, itemName, desc, a.proxyURL ) : item.Craft( char, itemName, desc );
 
 			this.checkLevel(m,char);
 
 			await this.saveChar( char );
 
+			display.sendBlock( `${char.name} crafted ${itemName}. (${ind})`)
 		} //
 
 	}
@@ -563,6 +573,9 @@ class RPG {
 
 				this.cacheChar( src );
 				this.cacheChar( dest  );
+
+				src.addHistory('gave');
+				dest.addHistory('recieved');
 
 				if ( res.name ) m.reply( `Gave ${dest.name} ${res.name}.`);
 				else await m.reply( 'Transfer complete.');
@@ -936,6 +949,8 @@ exports.init = function( bot ){
 	// PARTY
 	bot.addContextCmd( 'party', '!party [who] - join party, invite to party, or show current party.',
 		proto.cmdParty, RPG, {minArgs:0, maxArgs:1});
+	bot.addContextCmd( 'revive', '!revive [who] - revive a party member.',
+		proto.cmdRevive, RPG, {minArgs:0, maxArgs:1});
 	bot.addContextCmd( 'leaveparty', '!leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
 
 	// EQUIP
