@@ -193,7 +193,7 @@ class Monster {
 	// combat & future compatibility.
 	getModifier( stat ) { return 0; }
 	addExp( exp ) { }
-	refreshState() { if ( this._curHp <= 0) this._state = 'dead';}
+	updateState() { if ( this._curHp <= 0) this._state = 'dead';}
 	// used in combat
 	async getState() { return this._state; }
 

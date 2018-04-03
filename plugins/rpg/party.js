@@ -7,7 +7,7 @@ module.exports = class Party {
 	get leader() { return this._leader; }
 	set leader(n) { this._leader = n; }
 
-	get name() { return this._leader + "'s Party ";}
+	get name() { return this._leader + "'s Party";}
 
 	get loc() { return this._loc; }
 	set loc(v) { this._loc.setTo(v); }
@@ -53,11 +53,33 @@ module.exports = class Party {
 
 		this.loc = coord;
 
-		let char;
 		for( let i = this._names.length-1; i >= 0; i-- ) {
 
-			char = await this._cache.fetch( this._names[i]);
-			console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
+			var char = await this._cache.fetch( this._names[i]);
+			if ( char ) { char.loc = coord; char.recover(); }
+			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
+
+		} //
+
+	}
+
+	async rest() {
+
+		for( let i = this._names.length-1; i >= 0; i-- ) {
+
+			var char = await this._cache.fetch( this._names[i]);
+			if ( char ) char.rest();
+
+		} //
+
+	}
+
+	async recover() {
+
+		for( let i = this._names.length-1; i >= 0; i-- ) {
+
+			var char = await this._cache.fetch( this._names[i]);
+			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
 			if ( char ) char.loc = coord;
 
 		} //
@@ -85,7 +107,9 @@ module.exports = class Party {
 		let count = this._names.length;
 
 		// add exp bonus for party members.
-		exp = exp*( 1 + count*0.2 ) / count;
+		exp = exp*( 1 + count*0.15 ) / count;
+
+		//console.log( 'EXP PER PERSON: ' + exp );
 
 		for( let i = count-1; i>= 0; i-- ) {
 

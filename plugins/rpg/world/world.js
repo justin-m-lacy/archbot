@@ -76,11 +76,11 @@ module.exports = class World {
 		let it = end ? loc.takeRange(first, end) : loc.take( first );
 		if ( !it ) return 'Item not found.';
 
-		char.addItem( it );
+		let ind = char.addItem( it );
 
 		this.quickSave( loc );
 
-		return end ? 'took ' + it.length + ' items.' : char.name + ' took ' + it.name;
+		return end ? 'took ' + it.length + ' items.' : `${char.name} took ${it.name}. (${ind})`;
 	}
 
 	async move( char, dir ) {

@@ -178,7 +178,7 @@ exports.Actor = class Actor {
 
 	}
 
-	refreshState() {
+	updateState() {
 		if ( this.curHp <= 0 ) this.state = exports.Dead;
 		else this.state = exports.Alive;
 		return this.state;

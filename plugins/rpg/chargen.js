@@ -163,5 +163,6 @@ function initItems( char ) {
 	for( count; count >= 0; count-- ) {
 		char.addItem( ItemGen.randItem() );
 	}
+	char.addItem( ItemGen.genWeapon(1), ItemGen.genArmor(null,1));
 
 }

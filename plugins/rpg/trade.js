@@ -10,8 +10,9 @@ function rollCost(lvl) {
 exports.rollWeap = (char ) => {
 
 	let level = char.level;
-	if ( !char.payOrFail( rollCost(level) ) )
-		return char.name + ' cannot afford to roll a new weapon.'; 
+	let cost = rollCost(level);
+	if ( !char.payOrFail( cost ) )
+	return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`; 
 
 	let gen = require( './items/itemgen.js' );
 	let mod = 1 + char.getModifier('cha');
@@ -22,16 +23,17 @@ exports.rollWeap = (char ) => {
 
 	if ( !it) return 'Failed to roll a weapon.';
 
-	char.addItem(it);
-	return char.name + ' rolled a shiny new ' + it.name;
+	let ind = char.addItem(it);
+	return `${char.name} rolled a shiny new ${it.name}. (${ind})`;
 
 }
 
 exports.rollArmor = (char, slot ) => {
 
 	let level = char.level;
-	if ( !char.payOrFail( rollCost(level) ) )
-		return char.name + ' cannot afford to roll a new weapon.'; 
+	let cost = rollCost(level);
+	if ( !char.payOrFail( cost ) )
+		return `${char.name} cannot afford to roll new armor. (${cost} gold)`; 
 
 	let gen = require( './items/itemgen.js' );
 
@@ -43,9 +45,9 @@ exports.rollArmor = (char, slot ) => {
 
 	if ( !it) return 'Failed to roll armor.';
 
-	char.addItem(it);
+	let ind = char.addItem(it);
 
-	return char.name + ' rolled a shiny new ' + it.name;
+	return `${char.name} rolled a spiffy new ${it.name}. (${ind})`;
 
 }
 

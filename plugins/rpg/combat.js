@@ -49,7 +49,7 @@ module.exports = class Combat {
 			await this.tryHit( this.defender, await this.attacker.randTarget() );
 		} else await this.tryHit( this.defender, this.attacker );
 
-		this.resolve();
+		await this.resolve();
 
 		if ( this.defender.state === 'dead') {
 	
@@ -71,6 +71,8 @@ module.exports = class Combat {
 
 			var c = await p.getChar( names[i]);
 			if ( !c || c.state !== 'alive' ) continue;
+
+			console.log( 'ATTACK ATTEMPT: '+names[i]);
 
 			this.resp += '\n';
 			if ( destParty ) {
@@ -107,7 +109,7 @@ module.exports = class Combat {
 		if ( this.defender instanceof Party ) await this.partyAttack( this.defender, this.attacker );
 		else await this.tryHit( this.defender, this.attacker );
 
-		this.resolve();
+		await this.resolve();
 	
 	}
 
@@ -120,13 +122,13 @@ module.exports = class Combat {
 			if ( atk.killed ) {
 
 				console.log('attack kills defender.')
-				atk.defender.refreshState();
+				atk.defender.updateState();
 				this.resp += ` ${atk.defender.name} was slain.`;
 
 				if ( atk.attacker instanceof Char ) {
 
 					console.log( 'Char killed defender.');
-					this.doKill( atk.attacker, atk.defender, atk.party );
+					await this.doKill( atk.attacker, atk.defender, atk.party );
 
 				}
 
@@ -158,19 +160,21 @@ module.exports = class Combat {
 
 	}
 
-	doKill( char, target, party ) {
+	async doKill( char, target, party ) {
 
 		let lvl = target.level;
 
 		if ( target instanceof Monster ) {
 
 			if ( target.evil ) char.evil += -target.evil/4;
-			party ? party.addExp( npcExp(lvl) ) : char.addExp( npcExp( lvl ) ); 
+			party ? await party.addExp( npcExp(lvl) ) : char.addExp( npcExp( lvl ) );
+			char.addHistory( 'slay' );
 
 		} else {
 
-			party? party.addExp(pvpExp(lvl) ) : char.addExp( pvpExp(lvl ) );
+			party? await party.addExp(pvpExp(lvl) ) : char.addExp( pvpExp(lvl ) );
 			char.evil += ( -target.evil )/2 + 1 + target.getModifier( 'cha');
+			char.addHistory( 'pk');
 
 		}
 
@@ -240,9 +244,10 @@ module.exports = class Combat {
 
 		if ( it ) {
 
-			src.addItem( it );
-			this.resp += `${src.name} stole ${it.name} from ${targ.name}.`;
+			let ind = src.addItem( it );
+			this.resp += `${src.name} stole ${it.name} from ${targ.name}. (${ind})`;
 
+			src.addHistory( 'stolen');
 			src.addExp( 2*targ.level );
 
 		} else this.resp += `${src.name} attempts to steal from ${targ.name} but their pack is empty.`;

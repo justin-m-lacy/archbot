@@ -2,7 +2,7 @@ const Race = require('./race.js');
 const Class = require('./charclass.js');
 const Party = require( './party.js');
 const Combat = require('./combat.js');
-
+const dice = require( './dice.js');
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
 exports.getDesc = (wot) => {
@@ -23,7 +23,7 @@ exports.getDesc = (wot) => {
 var illegal_acts = {
 	"dead":{
 		"take":1,"attack":1,"drop":1, "equip":1, "unequip":1, "steal":1, "craft":1,
-		"give":1,"eat":1,"cook":1, "sell":1, "destroy":1, "inscribe":1
+		"give":1,"eat":1,"cook":1, "sell":1, "destroy":1, "inscribe":1, "revive":1
 	}
 };
 
@@ -89,10 +89,11 @@ exports.Game = class Game {
 
 		let p = this.getParty( char );
 		if ( p && p.leader === char.name ) {
-			console.log('Moving entire party to: ' + char.loc.toString() );
+
+			console.log('Moving party to: ' + char.loc.toString() );
 			await p.move( char.loc );
-			//await this.moveParty( p, char.loc );
-		}
+
+		} else char.recover();
 		return res;
 
 	}
@@ -176,11 +177,31 @@ exports.Game = class Game {
 
 	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ); }
 
-	rest( char ) {
+	revive( char, targ ) {
+
+		let p = this.getParty( char );
+		if ( !p || !p.includes(targ) ) return `${targ.name} is not in your party.`;
+		if ( targ.state !== 'dead') return `${targ.name} is not dead.`;
+
+		let roll = this.skillRoll(char) + char.getModifier('wis') + targ.curHp - 5*targ.level;
+		if ( roll < 10 ) return `You failed to revive ${targ.name}.`;
+
+		char.addHistory('revived');
+
+		targ.revive();
+		return `You have revived ${targ.name}.`;
+
+	}
+
+	async rest( char ) {
 
 		let res = this.actionErr( char, 'rest' );
 		if ( res ) return res;
-		char.rest();
+
+		let p = this.getParty(char);
+		if ( p && p.isLeader(char) ) p.rest();
+		else char.rest();
+
 		return `${char.name} rested. hp: ${char.curHp}/${char.maxHp}`;
 
 	}
@@ -215,7 +236,8 @@ exports.Game = class Game {
 
 	async attackNpc( src, npc ) {
 
-		src = this.getParty( src ) || src;
+		let p = this.getParty( src );
+		if ( p && p.isLeader(src) ) src = p;
 
 		let com = new Combat( src, npc, this.world );
 		await com.fightNpc();
@@ -288,63 +310,6 @@ function Process( char, res ) {
 			char.addExp( exp );
 		}
 
-	}
-
-}
-
-// TODO: REPLACE WITH PRIORITY QUEUE.
-class Scheduler {
-
-	constructor() {
-		this._queue = [];
-	}
-
-	/**
-	 * Schedule at a fixed time from now.
-	 * @param {number} time 
-	 * @param {function} cb 
-	 */
-	schedIn( time, cb ) {
-
-		let sched = new SchedTime( Date.now() + time, cb );
-		let ind = this._queue.findIndex( it=> it.time >= time );
-		if ( ind < 0) {
-			this._queue.push( sched );
-		} else {
-			this._queue.splice( ind, 0, sched);
-		}
-
-	}
-
-	schedule( time, cb ){
-
-		let sched = new SchedTime( time, cb );
-		let ind = this._queue.findIndex( it=> it.time >= time );
-		if ( ind < 0) {
-			this._queue.push( sched );
-		} else {
-			this._queue.splice( ind, 0, sched);
-		}
-
-
-	}
-
-	peek() {
-		if ( this._queue.length === 0 ) return null;
-		return this._queue[0];
-	}
-
-	dequeue() { return this._queue.shift(); }
-
-}
-
-class SchedTime {
-
-	get cb() { return this._cb; }
-
-	constructor( time, cb ) {
-		this._time = time;
-		this._cb = cb;
 	}
 
 }

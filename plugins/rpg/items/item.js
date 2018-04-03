@@ -43,8 +43,8 @@ exports.Item = class Item {
 	/**
 	 * Since Item should be subclassed, the sub item created
 	 * is passed as a param.
-	 * @param {*} json 
-	 * @param {*} it 
+	 * @param {Object} json 
+	 * @param {Item} it 
 	 */
 	static FromJSON( json, it=null ) {
 
@@ -186,6 +186,6 @@ exports.Craft = function( char, name, desc, attach ) {
 
 	char.addCrafted();
 	char.addExp( 2 );
-	char.addItem( item );
+	return char.addItem( item );
 
 }
