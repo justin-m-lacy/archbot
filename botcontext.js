@@ -164,7 +164,7 @@ const Context = class {
 	 * if an instance does not already exists.
 	 * @param {class} cls
 	 */
-	addClass( cls ) {
+	async addClass( cls ) {
 
 		console.log( 'adding class: ' + cls.name );
 
@@ -174,7 +174,11 @@ const Context = class {
 		}
 
 		let inst = new cls( this );
+
+		if ( inst.load ) await inst.load();
+
 		this._instances[ cls.name ] = inst;
+
 		return inst;
 
 	}
@@ -184,11 +188,10 @@ const Context = class {
 		this._instances[ inst.constructor.name ] = inst;
 	}
 
-	routeCommand( cmd, args ) {
+	async routeCommand( cmd, args ) {
 
 		let target = this._instances[ cmd.instClass.name ];
-		if ( !target ) target = this.addClass( cmd.instClass );
-	
+		if ( !target ) target = await this.addClass( cmd.instClass );
 		if ( !target ) console.log( 'ERROR:Null Target' );
 
 		cmd.func.apply( target, args );

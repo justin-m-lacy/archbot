@@ -55,6 +55,9 @@ exports.Actor = class Actor {
 	get gold() { return this._info.gold; }
 	set gold( g ) { this._info.gold = g; }
 
+	get guild() { return this._guild; }
+	set guild(v) { this._guild = v; }
+
 	get sex() { return this._info.sex; }
 	set sex(s) { this._info.sex = s; }
 	get weight() { return this._info.weight; }
@@ -80,6 +83,9 @@ exports.Actor = class Actor {
 	set cha(v) { this._curStats._cha = v; }
 
 	get HD() { return this._charClass ? Math.floor( (this._charClass.HD + this._race.HD)/2 ) : this._race.HD; }
+
+	get effects() { return this._effects; }
+	set effects(v) { this._effects = v; }
 
 	/**
 	 * Base stats before race/class modifiers.
@@ -161,9 +167,7 @@ exports.Actor = class Actor {
 
 	}
 
-	addGold( amt ) {
-		this._info.gold += amt;
-	}
+	addGold( amt ) { this._info.gold += amt; }
 
 	/**
 	 * 
@@ -173,9 +177,12 @@ exports.Actor = class Actor {
 
 	revive() {
 
-		this.curHp = 1;
+		if ( this.curHp <= 0 ) this.curHp = 1;
 		this.state = exports.Alive;
 
+	}
+
+	tick() {
 	}
 
 	updateState() {

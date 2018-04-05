@@ -3,9 +3,11 @@ const Class = require('./charclass.js');
 const Party = require( './party.js');
 const Combat = require('./combat.js');
 const dice = require( './dice.js');
+const Guild = require( './world/guild.js');
+
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
-exports.getDesc = (wot) => {
+exports.getLore = (wot) => {
 
 	let val = Race.GetRace( wot );
 	if ( val ) return wot + ': ' + val.desc;
@@ -40,17 +42,6 @@ var eventExp = {
 	crafted:1
 };
 
-class Skill {
-
-	get name() { return this._name;}
-	set name(v) { this._name = v;}
-
-	get stat() { return this._stat; }
-	set stat(v) { this._stat = v;}
-
-	constructor() {}
-
-}
 
 exports.actionErr = ( m, char, act ) => {
 
@@ -75,6 +66,8 @@ exports.Game = class Game {
 		this.world = world;
 
 		this._cache = this.rpg.cache;
+		this._gcache = this._cache.makeSubCache( 'guilds');
+		Guild.SetCache( this._gcache );
 
 		// parties by char name.
 		this._parties = {};
@@ -103,9 +96,7 @@ exports.Game = class Game {
 		let p = new Party( char, this._cache );
 		this._parties[char.name] = p;
 
-		for( let i = invites.length-1; i >=0;i-- ) {
-			p.invite( invites[i] );
-		}
+		for( let i = invites.length-1; i >=0;i-- ) p.invite( invites[i] );
 
 	}
 
@@ -169,21 +160,92 @@ exports.Game = class Game {
 
 	}
 
+	async mkGuild( char, gname ) {
+
+		if ( char.guild ) return `${char.name} is already in a guild.`;
+
+		let g = await Guild.GetGuild(gname);
+		if ( g) return `${gname} already exists.`;
+
+		g = await Guild.MakeGuild( gname, char );
+		char.guild = gname;
+
+		return `${char.name} created guild '${gname}'.`;
+
+	}
+
+	async joinGuild( char, gname ) {
+
+		if ( char.guild ) return `${char.name} is already in a guild.`;
+
+		let g = await Guild.GetGuild(gname);
+		if ( !g ) return `${gname} does not exist.`;
+
+		if ( g.accept(char) ) {
+			char.guild = gname;
+			return `${char.name} has joined ${gname}.`;
+		}
+		return `${char.name} has not been invited to ${gname}.`;
+
+	}
+
+	async leaveGuild( char ) {
+
+		let g = char.guild ? await Guild.GetGuild(char.guild) : null;
+		if ( !g ) {
+			return `${char.name} is not in a guild.`;
+		}
+
+		g.leave(char);
+		char.guild = null;
+
+		return `${char.name} has left ${g.name}.`;
+
+	}
+
+	async guildInv( char, who ) {
+
+		let g = char.guild ? await Guild.GetGuild(char.guild) : null;
+		if ( !g ) {
+			return `${char.name} is not in a guild.`;
+		}
+
+		if ( !g.isLeader(char) ) return `You do not have permission to invite new members to ${g.name}.`;
+		g.invite( who );
+
+		return `${who.name} invited to guild '${g.name}'.`;
+
+	}
+
 	actionErr( char, act ) {
 		let illegal = illegal_acts[ char.state ];
 		if ( illegal && illegal.hasOwnProperty(act)) return `Cannot ${act} while ${char.state}.`;
 		return false;
 	}
 
+	tick( char, act ) {
+
+		let efx = char.effects;
+		for( let i = efx.length-1; i>= 0; i-- ) {
+
+			let e = efx[i];
+
+		}
+
+	}
+
 	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ); }
 
 	revive( char, targ ) {
+
+		let res = this.actionErr( char, 'revive' );
+		if ( res ) return res;
 
 		let p = this.getParty( char );
 		if ( !p || !p.includes(targ) ) return `${targ.name} is not in your party.`;
 		if ( targ.state !== 'dead') return `${targ.name} is not dead.`;
 
-		let roll = this.skillRoll(char) + char.getModifier('wis') + targ.curHp - 5*targ.level;
+		let roll = this.skillRoll(char) + char.getModifier('wis') + 2*targ.curHp - 5*targ.level;
 		if ( roll < 10 ) return `You failed to revive ${targ.name}.`;
 
 		char.addHistory('revived');
@@ -216,8 +278,6 @@ exports.Game = class Game {
 		if ( d === 0 ) return `${targ.name} is here.`;
 		else if ( d <= 2 ) return `You believe ${targ.name} is nearby.`;
 
-		console.log( 'roll: ' + r );
-
 		if ( d > r ) return `You find no sign of ${targ.name}`;
 
 		let a = Math.atan2( dest.y - src.y, dest.x - src.x )*180/Math.PI;
@@ -236,6 +296,9 @@ exports.Game = class Game {
 
 	async attackNpc( src, npc ) {
 
+		let res = this.actionErr( src, 'attack');
+		if ( res ) return res;
+
 		let p = this.getParty( src );
 		if ( p && p.isLeader(src) ) src = p;
 
@@ -246,7 +309,22 @@ exports.Game = class Game {
 
 	}
 
+	steal( src, dest, wot ) {
+
+		let res = this.actionErr( src, 'attack');
+		if ( res ) return res;
+
+		let com = new Combat( src, dest, this.world );
+		com.steal( wot );
+
+		return com.getText();
+
+	}
+
 	async attack( src, dest ) {
+
+		let res = this.actionErr( src, 'attack');
+		if ( res ) return res;
 
 		let p1 = this.getParty( src ) || src;
 		let p2 = this.getParty( dest ) || dest;

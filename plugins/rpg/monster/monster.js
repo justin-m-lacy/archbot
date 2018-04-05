@@ -92,7 +92,7 @@ class Monster {
 			var a = byLevel[lvl];
 			if ( a && a.length > 0 ) return create( a[ Math.floor( a.length*Math.random())] );
 
-		} while ( lvl >= 0 );
+		} while ( --lvl >= 0 );
 
 	}
 

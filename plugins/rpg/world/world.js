@@ -24,7 +24,7 @@ module.exports = class World {
 	async setDesc( char, desc, attach ) {
 
 		let loc = await this.getOrGen( char.loc, char );
-		if ( attach ) loc.attach = attach.proxyURL;
+		if ( attach ) loc.attach = attach.url;
 
 		let owner = loc.owner;
 		if ( owner && owner !== char.name ) return 'You do not control this location.';
@@ -80,7 +80,8 @@ module.exports = class World {
 
 		this.quickSave( loc );
 
-		return end ? 'took ' + it.length + ' items.' : `${char.name} took ${it.name}. (${ind})`;
+		return end ? `${char.name} took ${it.length} items.` :
+			`${char.name} took ${it.name}. (${ind})`;
 	}
 
 	async move( char, dir ) {
@@ -89,7 +90,7 @@ module.exports = class World {
 
 		let loc = char.loc;
 		if ( !loc ) {
-			console.log('error: char loc is null');
+			console.log('Error: char loc is null');
 			loc = new Loc.Coord(0,0);
 		}
 
@@ -109,12 +110,10 @@ module.exports = class World {
 	async explored( char ) {
 
 		let loc = await this.getOrGen( char.loc );
+		if ( loc.maker ) return loc.explored();
 
-		if ( !loc.maker ) {
-			loc.setMaker( char.name );
-			return 'You are the first to explore ' + loc.coord;
-		}
-		return loc.explored();
+		loc.setMaker( char.name );
+		return 'You are the first to explore ' + loc.coord;	
 
 	}
 
@@ -128,7 +127,8 @@ module.exports = class World {
 			return it.getView();
 
 		}
-		return [ char.name + ' is' + loc.look(), loc.attach ];
+		if ( loc.attach ) return [ char.name + ' is' + loc.look(), loc.attach ];
+		else return char.name + ' is ' + loc.look();
 
 	}
 
@@ -155,7 +155,7 @@ module.exports = class World {
 	 * @param {string|number|Item} what 
 	 */
 	async look( char, what ) {
-//try{
+
 		let loc = await this.getOrGen( char.loc );
 		//console.log('LOOKING at: ' + char.loc );
 		if ( what ) {
@@ -166,7 +166,6 @@ module.exports = class World {
 
 		} else return char.name + ' is' + loc.look();
 
-//} catch(e) {console.log(e);}
 	}
 
 	/**
@@ -180,11 +179,11 @@ module.exports = class World {
 		if ( !it ) return 'Invalid item.';
 
 		let loc = await this.getOrGen( char.loc, char );
-		loc.drop( it );
+		let ind = loc.drop( it );
 		this.quickSave( loc );
 
 		if ( it instanceof Array ) return it.length + ' items dropped.';
-		return char.name + ' dropped ' + it.name;
+		return `${char.name} dropped ${it.name}. (${ind})`;
 
 	}
 
@@ -194,8 +193,11 @@ module.exports = class World {
 	 */
 	setHome( char ) {
 
-		char.home = char.loc;
-		return 'Home set.';
+		if ( char.home ){
+			char.home.setTo( char.loc );
+		} else  char.home = new Loc.Coord( char.loc.x, char.loc.y );
+
+		return `${char.name} Home set.`;
 
 	}
 
@@ -249,10 +251,11 @@ module.exports = class World {
 		if ( !dest ) {
 
 			let exits = await this.getRandExits(x,y);
-			dest = Gen.genLoc( destCoord, from, exits );
+			// must use NEW coord so avoid references.
+			dest = Gen.genLoc( new Loc.Coord(x,y), from, exits );
 			dest.setMaker( char.name );
 
-			char.addExplored();
+			char.addHistory( 'explored' );
 			char.addExp( 2 );
 
 			this.cache.cache( this.coordKey(destCoord), dest );
@@ -409,8 +412,6 @@ module.exports = class World {
 	 * @param {number} y
 	 * @returns Loc found or null.
 	 */
-	async locOrNull(x,y) {
-		return await this.cache.fetch( this.getKey(x,y) );
-	}
+	async locOrNull(x,y) { return this.cache.fetch( this.getKey(x,y) ); }
 
 }

@@ -73,15 +73,17 @@ module.exports.Formula = class Formula {
 
 	eval( tar ) {
 
-		let expr = this.stack.slice();
-		let vals = [];
+		// next item from stack.
+		let stackInd, len = this.stack.length;
+
+		let vals = [];	// values read from stack.
 
 		let cur,tx,ty;
 
 		// TODO: this is wrong.
-		while ( expr.length > 1 ) {
+		while ( stackInd < len ) {
 
-			cur = expr.pop();
+			cur = this.stack[stackInd++];
 
 			if ( cur.type === OP ){
 
@@ -97,10 +99,8 @@ module.exports.Formula = class Formula {
 				ty = vals.pop();
 	
 				if ( cur.op === '=') {
-					this.assign( tar, tx, ty );
-				}
-
-				vals.push( this.doOp( cur.op, tar, tx, ty ) );
+					vals.push( this.assign( tar, tx, ty ) );
+				} else vals.push( this.doOp( cur.op, tar, tx, ty ) );
 
 			} else vals.push( cur );
 
@@ -114,11 +114,17 @@ module.exports.Formula = class Formula {
 
 	assign( tar, x, y ) {
 
-		tar[x] = y;
+		if ( x instanceof Token ) x = x.value;	// string value.
+		if ( y instanceof Token ) y = y.eval(tar);
+
+		console.log( 'assinging Val to: ' + x );
+		return tar[x] = y;
 
 	}
 
 	doOp( op, tar, x, y ) {
+
+		console.log( `OP: ${x} ${op} ${y}`);
 
 		if ( x instanceof Token ) x = x.eval(tar);
 		if ( y instanceof Token ) y = y.eval(tar);

@@ -1,6 +1,6 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats',
-					'loc', 'history', 'statPoints', 'spentPoints' ];
+					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'equip' ];
 
 const Loc = require( '../world/loc.js');
 const Level = require( './level.js');
@@ -35,15 +35,6 @@ class Char extends actor.Actor {
 
 	get home() { return this._home;}
 	set home(v) { this._home = v;}
-
-	/**
-	 * number of locations explored.
-	 */
-	get explored() { return this._history.explored; }
-	set explored(v) { this._history.explored = v;}
-
-	get crafted() { return this._history.crafted;}
-	set crafted(v) { this._history.crafted = v; }
 
 	get history() { return this._history; }
 	set history(v) { this._history = v;}
@@ -82,14 +73,8 @@ class Char extends actor.Actor {
 
 		if ( this._home ) json.home = this._home;
 
-		json.inv = this._inv;
-		json.equip = this._equip;
-
 		json.race = this._race.name;
-		json.raceVer = this._race.ver;
-
 		json.charClass = this._charClass.name;
-		json.classVer = this._charClass.ver;
 
 		return json;
 	}
@@ -101,8 +86,10 @@ class Char extends actor.Actor {
 		let char = new Char( Race.RandRace(json.race), Class.RandClass( json.charClass ) );
 
 		char.name = json.name;
-		char.exp = json.exp || 0;
+		char.exp = Math.floor(json.exp) || 0;
 		char.evil = json.evil || 0;
+
+		char.guild = json.guild;
 
 		char.owner = json.owner;
 
@@ -115,8 +102,8 @@ class Char extends actor.Actor {
 
 		if ( json.state) char.state = json.state;
 
-		char.statPoints = json.statPoints | char._baseStats.level;
-		char.spentPoints = json.spentPoints | 0;
+		char.statPoints = json.statPoints || char._baseStats.level;
+		char.spentPoints = json.spentPoints || 0;
 
 		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
 
@@ -166,12 +153,6 @@ class Char extends actor.Actor {
 
 	}
 
-	addCrafted() {
-		this._history.crafted++;
-	}
-	addExplored() {
-		this._history.explored++;
-	}
 	addHistory( evt ) {
 		let v = this._history[evt] || 0;
 		this._history[evt] = v + 1;
@@ -433,6 +414,8 @@ class Char extends actor.Actor {
 		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${Level.nextExp(this)}`;
 		desc += `\nhp: ${this.curHp}/${this.maxHp} armor: ${this.armor}\n`;
 		desc += this.getStatString();
+
+		if ( this.spentPoints < this.statPoints ) desc += '\n' + (this.statPoints-this.spentPoints) + ' stat points available.';
 
 		return desc;
 
