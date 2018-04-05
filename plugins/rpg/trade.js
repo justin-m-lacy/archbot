@@ -159,7 +159,7 @@ exports.nerfItems = ( char ) => {
 
 	let removed = char.inv.removeWhere( test );
 
-	let equip = char.equip;
+	let equip = char.getEquip();
 	removed = removed.concat( char.removeWhere( test ) ).map( it => it.name );
 
 	return 'DELETED: ' + removed.join( ', '); 

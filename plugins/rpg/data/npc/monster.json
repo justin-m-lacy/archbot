@@ -1909,6 +1909,82 @@
             "type":"blunt",
             "dmg":"5d10+15"
         }
+    },
+    {
+        "name":"ancient vampire",
+        "level":17,
+        "kind":"undead",
+        "evil":60,
+        "desc":"Probably on a first name basis with Dracula.",
+        "hp":"9d10+77",
+        "toHit":15,
+        "armor":"75",
+        "weap":{
+            "name":"bite",
+            "type":"drain",
+            "dmg":"9d8+14"
+        }
+
+    },
+    {
+        "name":"balrog",
+        "level":18,
+        "kind":"maiar",
+        "evil":70,
+        "desc":"A servant of Morgoth.",
+        "hp":"10d12+80",
+        "toHit":17,
+        "armor":"80",
+        "weap":{
+            "name":"flame whip",
+            "type":"fire",
+            "dmg":"9d15+15"
+        }
+
+    },
+    {
+        "name":"adamant golem",
+        "level":20,
+        "kind":"construct",
+        "desc":"Unbreakable",
+        "hp":"15d20+140",
+        "toHit":15,
+        "armor":"115",
+        "weap":{
+            "name":"SMASH",
+            "type":"blunt",
+            "dmg":"5d20+20"
+        }
+    },
+    {
+        "name":"mature red dragon",
+        "level":20,
+        "kind":"dragon",
+        "evil":20,
+        "desc":"",
+        "hp":"14d15+100",
+        "toHit":20,
+        "armor":"90",
+        "weap":{
+            "name":"fire breath",
+            "type":"fire",
+            "dmg":"5d25+10"
+        }
+    },
+    {
+        "name":"Cthulhu",
+        "level":30,
+        "evil":100,
+        "kind":"outsider",
+        "desc":"In his house at R'lyeh dead Cthulhu waits dreaming.",
+        "hp":"15d25+240",
+        "toHit":30,
+        "armor":"175",
+        "weap":{
+            "name":"Madness",
+            "type":"psychic",
+            "dmg":"10d25+50"
+        }
     }
 
 ]

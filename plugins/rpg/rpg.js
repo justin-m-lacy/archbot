@@ -41,8 +41,10 @@ class RPG {
 			if ( !initialized) initData();
 			this._cache = this._context.subcache( RPG_DIR );
 
+			this.charCache = this._cache.makeSubCache( 'chars', Char.FromJSON );
+
 			this.world = new World( this._context.cache );
-			this.game = new gamejs.Game( this, this.world );
+			this.game = new gamejs.Game( this, this.charCache, this.world );
 
 
 		} catch ( e ) { console.log(e); }
@@ -166,6 +168,14 @@ class RPG {
 		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
 
 		return m.reply( Trade.nerfItems( char ) );
+
+	}
+
+	async cmdFormula(m) {
+
+		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
 
 	}
 
@@ -647,11 +657,11 @@ class RPG {
 
 			if ( !char.owner || char.owner === msg.author.id ) {
 
-				this._cache.delete( this.getCharKey( charname ) );
+				this.charCache.delete( this.getCharKey( charname ) );
 
 				// TODO: REMOVE LAST LOADED NAME. etc.
 				let active = this.activeChars[char.owner];
-				if ( active && active.name === charname ) await this.clearUserChar( char.owner );
+				if ( active && active.name === charname ) this.clearUserChar( char.owner );
 
 				return msg.reply( charname + ' deleted.' );
 
@@ -767,7 +777,7 @@ class RPG {
 
 	}
 	
-	async charExists( charname ) { return this._cache.exists( this.getCharKey( charname ) ); }
+	async charExists( charname ) { return this.charCache.exists( this.getCharKey( charname ) ); }
 
 	async userCharOrErr( m, user ) {
 
@@ -794,27 +804,13 @@ class RPG {
 	
 		let key = this.getCharKey( charname );
 
-		let data = this._cache.get(key);
-		if ( !data ) {
-			data = await this._cache.fetch( key );
-			if ( !data ) return null;
-		}
-		if ( data instanceof Char ) return data;
-
-		console.log('parsing JSON: ' + charname );
-
-		let char = Char.FromJSON( data );
-		//restore char so Char is returned, not json.
-		this._cache.cache( key, char );
-
-		return char;
-
+		let data = this.charCache.get(key);
+		if ( !data ) return this.charCache.fetch( key );
+		return data;
 	}
 
-	async clearUserChar( uid ) {
-
+	clearUserChar( uid ) {
 		delete this.lastChars[uid];
-
 	}
 
 	async setUserChar( user, char ) {
@@ -846,13 +842,13 @@ class RPG {
 	getCharKey( charname ) { return charname; }
 
 	cacheChar( char ) {
-		this._cache.cache( this.getCharKey( char.name ), char );
+		this.charCache.cache( this.getCharKey( char.name ), char );
 	}
 
 	async saveChar( char, forceSave=false ) {
 
-		if ( forceSave) return this._cache.store( this.getCharKey( char.name ), char );
-		this._cache.cache( this.getCharKey(char.name), char );
+		if ( forceSave) return this.charCache.store( this.getCharKey( char.name ), char );
+		this.charCache.cache( this.getCharKey(char.name), char );
 
 	}
 
@@ -936,11 +932,14 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'rest', '!rest', proto.cmdRest, RPG, {maxArgs:0} );
 
-	// TESTING
 	bot.addContextCmd( 'rolldmg', '!rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollweap', '!rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
+
+	
+	// TESTING	
 	bot.addContextCmd( 'nerf', '', proto.cmdNerf, RPG, {hidden:true, minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'form', '!form <formula>', proto.cmdFormula, RPG, {hidden:true, minArgs:1, maxArgs:1});
 
 	// NPC
 	bot.addContextCmd( 'ex', '!ex [monster|npc]', proto.cmdExamine, RPG, { maxArgs:1 } );

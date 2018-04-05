@@ -41,7 +41,7 @@ module.exports = class Party {
 	 * 
 	 * @param {string} name 
 	 */
-	async getChar( name ) { return await this._cache.fetch( name ); }
+	async getChar( name ) { return this._cache.fetch( name ); }
 
 	/**
 	 * 
@@ -165,7 +165,7 @@ module.exports = class Party {
 	}
 
 	async randChar() {
-		return await this._cache.fetch( this._names[ Math.floor( this._names.length*Math.random() )] );
+		return this._cache.fetch( this._names[ Math.floor( this._names.length*Math.random() )] );
 	}
 
 	randName() {

@@ -1,6 +1,6 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats',
-					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'equip' ];
+					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv' ];
 
 const Loc = require( '../world/loc.js');
 const Level = require( './level.js');
@@ -31,7 +31,7 @@ class Char extends actor.Actor {
 	get inv() { return this._inv; }
 	set inv( v ) { this._inv = v; }
 
-	get equip() {return this._equip; }
+	getEquip() {return this._equip; }
 
 	get home() { return this._home;}
 	set home(v) { this._home = v;}
@@ -73,6 +73,8 @@ class Char extends actor.Actor {
 
 		if ( this._home ) json.home = this._home;
 
+		json.equip = this._equip;
+		
 		json.race = this._race.name;
 		json.charClass = this._charClass.name;
 
@@ -81,7 +83,7 @@ class Char extends actor.Actor {
 
 	static FromJSON( json ) {
 
-		if ( json == null ) return null;
+		if ( !json ) return null;
 
 		let char = new Char( Race.RandRace(json.race), Class.RandClass( json.charClass ) );
 
