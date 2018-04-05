@@ -41,9 +41,7 @@ module.exports = class Party {
 	 * 
 	 * @param {string} name 
 	 */
-	async getChar( name ) {
-		return await this._cache.fetch( name );
-	}
+	async getChar( name ) { return await this._cache.fetch( name ); }
 
 	/**
 	 * 
@@ -107,9 +105,9 @@ module.exports = class Party {
 		let count = this._names.length;
 
 		// add exp bonus for party members.
-		exp = exp*( 1 + count*0.15 ) / count;
+		exp = Math.floor( exp*( 1 + count*0.15 ) / count );
 
-		//console.log( 'EXP PER PERSON: ' + exp );
+		console.log( 'EXP PER PERSON: ' + exp );
 
 		for( let i = count-1; i>= 0; i-- ) {
 

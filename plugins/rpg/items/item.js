@@ -184,7 +184,7 @@ exports.Craft = function( char, name, desc, attach ) {
 	if ( maxBonus < 2 ) maxBonus = 2;
 	item.cost = Math.floor( maxBonus * Math.random() );
 
-	char.addCrafted();
+	char.addHistory( 'crafted ');
 	char.addExp( 2 );
 	return char.addItem( item );
 

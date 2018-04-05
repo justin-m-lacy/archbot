@@ -200,8 +200,8 @@ exports.Loc = class Loc {
 	explored() {
 
 		if (!this._maker) return 'Never explored.';
-		if ( this._time ) return this._maker + ' explored ' + this.coord + ' at ' + new Date( this._time ).toLocaleDateString();
-		return this._maker + ' explored ' + this.coord + ' first.';
+		if ( this._time ) return `Explored by ${this._maker} at ${new Date( this._time ).toLocaleDateString()}`;
+		return 'First explored by ' + this._maker + '.';
 
 	}
 
@@ -277,7 +277,6 @@ exports.Loc = class Loc {
 			r += '\t' + k;
 		}
 
-		
 		return r;
 
 	}
@@ -316,17 +315,13 @@ exports.Loc = class Loc {
 	 * Get item without taking it.
 	 * @param {Item|string|number} item 
 	 */
-	get( item ) {
-		return this._inv.get(item);
-	}
+	get( item ) { return this._inv.get(item); }
 
 	/**
 	 * 
 	 * @param {Item|Item[]} item 
 	 */
-	drop( item ) {
-		this._inv.add( item );
-	}
+	drop( item ) { return this._inv.add( item ); }
 
 	takeRange( start, end ) {
 		return this._inv.takeRange( start, end );
@@ -336,9 +331,7 @@ exports.Loc = class Loc {
 	 * 
 	 * @param {string} what 
 	 */
-	take( what ) {
-		return this._inv.remove( what );
-	}
+	take( what ) { return this._inv.remove( what ); }
 
 	getNpc( wot ) {
 
@@ -353,9 +346,7 @@ exports.Loc = class Loc {
 
 	}
 
-	addNpc( m ) {
-		this._npcs.push(m);
-	}
+	addNpc( m ) { this._npcs.push(m); }
 
 	removeNpc(m){
 

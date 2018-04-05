@@ -1,9 +1,7 @@
 var initialized = false;
 
 // includes after init.
-var util, Char, Race, CharClass, CharGen, item, Trade, World, Loc;
-const Combat = require( './combat.js');
-
+var Char, Race, CharClass, CharGen, item, Trade, World;
 const gamejs = require( './game.js');
 
 const display = require( './display');
@@ -14,15 +12,13 @@ function initData() {
 
 	initialized = true;
 
-	util = require('../../jsutils.js');
-	Char = exports.Char = require( './char/char.js');
-	Race = exports.Race = require( './race.js');
-	CharClass = exports.CharClass = require( './charclass.js' );	
+	Char = require( './char/char.js');
+	Race = require( './race.js');
+	CharClass = require( './charclass.js' );	
 	CharGen = require( './chargen.js' );
 	item = require( './items/item.js' );
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
-	Loc = require( './world/loc.js');
 
 }
 
@@ -48,18 +44,23 @@ class RPG {
 			this.world = new World( this._context.cache );
 			this.game = new gamejs.Game( this, this.world );
 
+
 		} catch ( e ) { console.log(e); }
 
+	}
+
+	async load() {
+		await this.loadLastChars();
 	}
 
 	async cmdAllChars( msg, uname=null ) {
 
 		try {
 			let list = await this._context.getDataList(RPG_DIR );
-			if ( list == null ) await msg.reply( 'An unknown error has occurred. Oopsie.');
-			else {
-				await msg.reply( list.join(', ') );
-			}
+			if ( !list ) return msg.reply( 'An unknown error has occurred. Oopsie.');
+
+			return msg.reply( list.join(', ') );
+
 		} catch(e) { console.log(e);}
 
 	}
@@ -75,7 +76,7 @@ class RPG {
 			if ( !t ) return;
 		}
 
-		display.sendBlock( m, this.game.party(char, t ));
+		await display.sendBlock( m, this.game.party(char, t ));
 
 	}
 
@@ -90,7 +91,7 @@ class RPG {
 			if ( !t ) return;
 		}
 
-		display.sendBlock( m, this.game.revive(char, t ));
+		await display.sendBlock( m, this.game.revive(char, t ));
 
 	}
 
@@ -99,7 +100,51 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		display.sendBlock( m, this.game.leaveParty(char) );
+		await display.sendBlock( m, this.game.leaveParty(char) );
+	}
+
+	async cmdMkGuild( m, gname ) {
+
+		try {
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		await display.sendBlock( m, await this.game.mkGuild(char, gname ));
+		} catch (e ) {console.log(e);}
+
+	}
+
+	async cmdJoinGuild( m, gname ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		await display.sendBlock( m, await this.game.joinGuild(char, gname ));
+
+	}
+
+	async cmdLeaveGuild( m ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		await display.sendBlock( m, await this.game.leaveGuild(char ));
+
+	}
+
+	async cmdGuildInv( m, who ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		let t;
+		if ( who ) {
+			t = await this.loadChar( who );
+			if ( !t ) return;
+		}
+
+		await display.sendBlock( m, await this.game.guildInv(char, t ));
+
 	}
 
 	async cmdWhere( m, who ) {
@@ -109,7 +154,7 @@ class RPG {
 
 		let t = await this.loadChar( who );
 		if ( !t ) return;
-		m.reply( char.name + ' is at ' + char.loc.toString() );
+		return m.reply( t.name + ' is at ' + t.loc.toString() );
 
 	}
 
@@ -118,11 +163,9 @@ class RPG {
 		let char = await this.loadChar( who );
 		if ( !char ) return;
 
-		if ( !this._context.isMaster( m.author ) ) m.reply( 'You do not have permission to do such a thing.');
+		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
 
-		let res = Trade.nerfItems( char );
-
-		m.reply( res );
+		return m.reply( Trade.nerfItems( char ) );
 
 	}
 
@@ -154,22 +197,23 @@ class RPG {
 		if (!char) return;
 
 		let resp = await this.world.setDesc( char, desc, m.attachments.first() );
-		if ( resp ) await m.reply( resp );
+		if ( resp ) return m.reply( resp );
 
 	}
 
 	async cmdLore( m, wot ) {
-		display.sendBlock( m, gamejs.getDesc(wot) );
+		await display.sendBlock( m, gamejs.getLore(wot) );
 	}
 
 	async cmdChanges(m) {
 		let changes = require('./data/changelog.json');
 		let list = '';
+
 		for( let k in changes ) {
 			list += k + '\n' + changes[k].join('\n') + '\n\n';
 		}
 
-		display.sendBlock( m, list )
+		await display.sendBlock( m, list )
 	}
 
 	async cmdTake( m, first, end ){
@@ -181,8 +225,7 @@ class RPG {
 
 			if ( gamejs.actionErr( m, char, 'take' ) ) return;
 
-			let resp = await this.world.take( char, first, end );
-			await m.channel.send( resp);
+			await m.channel.send(  await this.world.take( char, first, end ) );
 
 		} catch ( e) { console.log(e); }
 	}
@@ -195,8 +238,7 @@ class RPG {
 
 			if ( gamejs.actionErr( m, char, 'drop' ) ) return;
 		
-			let resp = await this.world.drop( char, what, end );
-			await m.channel.send( resp);
+			await m.channel.send( await this.world.drop( char, what, end ));
 
 		} catch ( e) { console.log(e); }
 
@@ -207,7 +249,7 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		display.sendBlock( m, await this.world.explored(char) );
+		await display.sendBlock( m, await this.world.explored(char) );
 
 	}
 
@@ -218,7 +260,7 @@ class RPG {
 
 		let info = await this.world.view( char, what );
 
-		if ( typeof(info) === 'string') display.sendBlock( msg, info );
+		if ( typeof(info) === 'string') await display.sendBlock( msg, info );
 		else display.sendEmbed( msg, info[0], info[1] );
 
 	}
@@ -228,16 +270,16 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
-		display.sendBlock( msg, await this.world.examine( char, what ) );
+		await display.sendBlock( msg, await this.world.examine( char, what ) );
 
 	}
 
-	async cmdLook( msg, what ) {
+	async cmdLook( m, what ) {
 
-		let char = await this.userCharOrErr( msg, msg.author );
+		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		display.sendBlock( msg, await this.world.look( char, what ) );
+		return display.sendBlock( m, await this.world.look( char, what ) );
 
 	}
 
@@ -246,7 +288,7 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
-		display.sendBlock( msg, await this.world.useLoc(char, wot ));
+		await display.sendBlock( msg, await this.world.useLoc(char, wot ));
 	}
 
 	async cmdMove( msg, dir ) {
@@ -257,7 +299,7 @@ class RPG {
 			let char = await this.userCharOrErr( msg, msg.author );
 			if (!char) return;
 
-			display.sendBlock( msg, await this.game.move(char,dir) );
+			await display.sendBlock( msg, await this.game.move(char,dir) );
 			this.checkLevel( msg, char );
 
 		} catch ( e) { console.log(e);}
@@ -274,7 +316,7 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
-		await msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
+		return msg.reply( 'Weapon roll for ' + char.name + ': ' + char.testDmg() );
 
 	}
 
@@ -289,8 +331,8 @@ class RPG {
 
 		try {
 
-			display.sendBlock( msg, Trade.rollWeap( char ) );
-			this.saveChar( char, true );
+			await display.sendBlock( msg, Trade.rollWeap( char ) );
+			return this.saveChar( char, true );
 
 		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
@@ -307,10 +349,10 @@ class RPG {
 
 		try {
 
-			display.sendBlock( msg, Trade.rollArmor( char, slot ) );
-			this.saveChar( char, true );
+			await display.sendBlock( msg, Trade.rollArmor( char, slot ) );
+			return this.saveChar( char, true );
 
-		} catch ( e) { msg.reply( 'Massive unknown error!!!'); console.log(e);}
+		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
 
 	}
 
@@ -321,13 +363,11 @@ class RPG {
 
 		if ( gamejs.actionErr( m, char, 'unequip' ) ) return;
 	
-		if ( !slot ) await m.reply( 'You must specify an equip slot to remove.');
-		else {
+		if ( !slot ) return m.reply( 'You must specify an equip slot to remove.');
 
-			if ( char.unequip(slot) ) await m.reply( 'Removed.');
-			else await m.reply( 'Cannot unequip from ' + slot );
+		if ( char.unequip(slot) ) return m.reply( 'Removed.');
+		return m.reply( 'Cannot unequip from ' + slot );
 
-		}
 
 	}
 
@@ -338,20 +378,14 @@ class RPG {
 
 		if ( gamejs.actionErr( m, char, 'equip' ) ) return;
 	
-		if ( !what ) {
+		if ( !what ) await display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 
-			display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
-
-		} else {
+		else {
 
 			let res = char.equip(what);
-			if ( res === true ){
-				await m.reply( char.name + ' equips ' + what );
-			} else if ( typeof(res) === 'string') {
-				await m.reply( res );
-			} else {
-				await m.reply( char.name + ' does not have ' + what );
-			}
+			if ( res === true ) return m.reply( char.name + ' equips ' + what );
+			else if ( typeof(res) === 'string') return m.reply( res );
+			else return m.reply( char.name + ' does not have ' + what );
 
 		}
 
@@ -361,23 +395,21 @@ class RPG {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
-		if ( !slot ) display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
+		if ( !slot ) await display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 		else {
 
 			let item = char.getEquip( slot );
-			if ( !item ) await m.reply( 'Nothing equipped in ' + slot + ' slot.');
-			if ( typeof(item) === 'string' ) await m.reply( item );
+			if ( !item ) return m.reply( 'Nothing equipped in ' + slot + ' slot.');
+			if ( typeof(item) === 'string' ) return m.reply( item );
 			else if ( item instanceof Array ) {
 
 				let r = '';
 				for( let i = item.length-1; i>= 0; i-- ) {
 					r += item[i].getDetails() + '\n';
 				}
-				m.reply(r);
+				return m.reply(r);
 
-			} else {
-				await m.reply( item.getDetails() );
-			}
+			} else return m.reply( item.getDetails() );
 
 		} //
 
@@ -388,13 +420,13 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		await m.reply( this.game.eat( char, what ) );
+		return m.reply( this.game.eat( char, what ) );
 
 	}
 
 	async cmdRest( m ) {
 		let char = await this.userCharOrErr( m, m.author );
-		if ( char) await m.reply( this.game.rest( char ) );
+		if ( char) return m.reply( await this.game.rest( char ) );
 	}
 
 	async cmdCook( m, what ) {
@@ -402,7 +434,7 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char || gamejs.actionErr( m, char, 'cook' ) ) return;
 
-		await m.reply( char.cook( what ) );
+		return m.reply( char.cook( what ) );
 
 	}
 
@@ -413,21 +445,15 @@ class RPG {
 
 		if ( gamejs.actionErr( m, char, 'inscribe' ) ) return;
 
-		if ( !whichItem ) await m.reply( 'Which item in inventory do you want to inscribe?');
-		else {
+		if ( !whichItem ) return m.reply( 'Which item in inventory do you want to inscribe?');
 
-			let item = char.getItem( whichItem );
-			if ( !item ) await m.reply( 'Item not found.');
-			else {
+		let item = char.getItem( whichItem );
+		if ( !item ) return m.reply( 'Item not found.');
 
-				item.inscription = inscrip;
-				char.history( 'inscribe');
-				await m.reply( 'Item inscribed.');
-				await this.saveChar( char );
-
-			}
-
-		} //
+		item.inscription = inscrip;
+		char.addHistory( 'inscribe');
+		await this.saveChar( char );
+		return m.reply( 'Item inscribed.');
 
 	}
 
@@ -438,23 +464,20 @@ class RPG {
 
 		if ( gamejs.actionErr( m, char, 'destroy' ) ) return;
 
-		if ( !whichItem ) await m.reply( 'Which inventory item do you want to destroy?');
+		if ( !whichItem ) return m.reply( 'Which inventory item do you want to destroy?');
 
 		if ( end != null ) {
 
 			let itms = char.takeItems( whichItem, end );
-			if ( !itms) m.reply( 'Invalid item range.');
-			else m.reply( itms.length + ' items destroyed.');
+			if ( !itms) return m.reply( 'Invalid item range.');
+			return m.reply( itms.length + ' items destroyed.');
 
 		} else {
 
 			let item = char.takeItem( whichItem );
-			if ( !item ) await m.reply( 'Item ' + whichItem + ' not in inventory.');
-			else {
+			if ( !item ) return m.reply( `'${whichItem}' not in inventory.` );
 
-				await m.reply( item.name + ' is gone forever.' );
-
-			}
+			return m.reply( item.name + ' is gone forever.' );
 
 		} //
 
@@ -465,19 +488,14 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
-		if ( !which ) await msg.reply( 'Which inventory item do you want to view?');
-		else {
+		if ( !which ) return msg.reply( 'View which inventory item?');
 
-			let item = char.getItem( which );
-			if ( !item ) await msg.reply( 'Item not found.');
-			else {
+		let item = char.getItem( which );
+		if ( !item ) return msg.reply( 'Item not found.');
 
-				let view = item.getView();
-				if ( view[1] ) await msg.reply( view[0], { embed:{ image:{url:view[1]}} } );
-				else await msg.reply( view[0] );
-			}
-
-		} //
+		let view = item.getView();
+		if ( view[1] ) await msg.reply( view[0], { embed:{ image:{url:view[1]}} } );
+		else await msg.reply( view[0] );
 
 	}
 
@@ -486,14 +504,11 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author )
 		if ( !char ) return;
 
-		if ( !wot ) await msg.reply( 'Which inventory item do you want to inspect?');
-		else {
+		if ( !wot ) return msg.reply( 'Inspect which inventory item?');
 
-			let item = char.getItem( wot );
-			if ( !item ) await msg.reply( 'Item not found.');
-			else await msg.reply( item.getDetails() );
-
-		} //
+		let item = char.getItem( wot );
+		if ( !item ) return msg.reply( 'Item not found.');
+		return msg.reply( item.getDetails() );
 
 	}
 
@@ -504,19 +519,17 @@ class RPG {
 
 		if ( gamejs.actionErr( m, char, 'craft' ) ) return;
 	
-		if ( !itemName ) await m.reply( 'Crafted item must have name.');
-		else if ( !desc ) await m.reply( 'Crafted item must have a description.' );
-		else {
+		if ( !itemName ) return m.reply( 'Crafted item must have name.');
+		if ( !desc ) return m.reply( 'Crafted item must have a description.' );
 
-			let a = m.attachments.first();
-			let ind = a ? item.Craft( char, itemName, desc, a.proxyURL ) : item.Craft( char, itemName, desc );
+		let a = m.attachments.first();
+		let ind = a ? item.Craft( char, itemName, desc, a.proxyURL ) : item.Craft( char, itemName, desc );
 
-			this.checkLevel(m,char);
+		this.checkLevel(m,char);
 
-			await this.saveChar( char );
+		await this.saveChar( char );
 
-			display.sendBlock( `${char.name} crafted ${itemName}. (${ind})`)
-		} //
+		await display.sendBlock( m, `${char.name} crafted ${itemName}. (${ind})`);
 
 	}
 
@@ -532,14 +545,11 @@ class RPG {
 		} else {
 
 			char = await this.userCharOrErr( msg, msg.author );
-			if ( !char ) {
-				await msg.reply( `Character '${who}' not found.`);
-				return;
-			}
+			if ( !char ) return msg.reply( `Character '${who}' not found.`);
 
 		}
 
-		display.sendBlock( msg, `${char.name} Inventory:\n${char.inv.getMenu()}` );
+		await display.sendBlock( msg, `${char.name} Inventory:\n${char.inv.getMenu()}` );
 
 	}
 
@@ -550,7 +560,7 @@ class RPG {
 
 		if ( gamejs.actionErr( m, src, 'sell' ) ) return;
 
-		display.sendBlock( m, Trade.sell( src, wot, end ));
+		await display.sendBlock( m, Trade.sell( src, wot, end ));
 	}
 
 	async cmdGive( m, who, expr ) {
@@ -561,28 +571,13 @@ class RPG {
 		if ( gamejs.actionErr( m, src, 'give' ) ) return;
 	
 		let dest = await this.loadChar( who );
-		if ( !dest ) await m.reply( `'${who}' not found on server.` );
-		else {
+		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
-			let res = Trade.transfer( src, dest, expr );
-			if ( typeof(res) === 'string' ) {
-			
-				await m.reply( res );
+		let res = Trade.transfer( src, dest, expr );
+		this.cacheChar( src );
+		this.cacheChar( dest  );
 
-			} else {
-
-				this.cacheChar( src );
-				this.cacheChar( dest  );
-
-				src.addHistory('gave');
-				dest.addHistory('recieved');
-
-				if ( res.name ) m.reply( `Gave ${dest.name} ${res.name}.`);
-				else await m.reply( 'Transfer complete.');
-
-			}
-
-		}
+		return m.reply( res );
 
 	}
 
@@ -592,10 +587,9 @@ class RPG {
 		if ( !src ) return;
 
 		let dest = await this.loadChar( who );
-		if ( !dest ) { return m.reply( `'${who}' not found on server.` ); }
+		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
-		let res = this.game.track( src, dest );
-		display.sendBlock( m, res );
+		await display.sendBlock( m, this.game.track( src, dest ) );
 
 	}
 
@@ -606,78 +600,62 @@ class RPG {
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
-		if ( gamejs.actionErr( m, src, 'attack' ) ) return;
-
-		let dest = await this.world.getNpc( src, who );
+		let targ = await this.world.getNpc( src, who );
 		let res;
 
-		if ( dest ) res = await this.game.attackNpc( src, dest );
+		if ( targ ) res = await this.game.attackNpc( src, targ );
 		else {
 		
-			dest = await this.loadChar( who );
-			if ( !dest ) return m.reply( `'${who}' not found.` );
+			targ = await this.loadChar( who );
+			if ( !targ ) return m.reply( `'${who}' not found.` );
 
-			res = await this.game.attack( src, dest );
-			this.cacheChar(dest);
+			res = await this.game.attack( src, targ );
+			this.cacheChar(targ);
 
 		}
 	
 		this.cacheChar( src );
 
-		display.sendBlock( m, res );
+		await display.sendBlock( m, res );
+
+		console.timeEnd('attack');
 
 		} catch (e) { console.log(e);}
-		console.timeEnd('attack');
+		
 	}
 
 	async cmdSteal( m, who, wot=null ) {
 
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
-
-		if ( gamejs.actionErr( m, src, 'steal' ) ) return;
 	
 		let dest = await this.loadChar( who );
-		if ( !dest ) {
-			return m.reply( `'${who}' not found on server.` );
-		}
+		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
-		let com = new Combat( src, dest, this.world );
-		com.steal( wot );
+		await display.sendBlock( m, this.game.steal( src, dest, wot ) );
 
-		this.cacheChar( src );
-		this.cacheChar(dest);
-
-		display.sendBlock( m, com.getText() );
 	}
 
 	async cmdRmChar( msg, charname ) {
 
-		if ( !charname ) {
-			msg.reply( 'Must specify a character to delete.');
-			return;
-		}
+		if ( !charname ) return msg.reply( 'Must specify a character to delete.');
 
 		try {
 
 			let char = await this.loadChar( charname );
-			if ( !char ) {
-				await msg.reply( `'${charname}' not found on server.` );
-				return;
-			} 
+			if ( !char ) return msg.reply( `'${charname}' not found on server.` );
 
 			if ( !char.owner || char.owner === msg.author.id ) {
 
-				// delete
-				let key = this.getCharKey( charname );
-				this._cache.delete( key );
+				this._cache.delete( this.getCharKey( charname ) );
 
+				// TODO: REMOVE LAST LOADED NAME. etc.
 				let active = this.activeChars[char.owner];
 				if ( active && active.name === charname ) await this.clearUserChar( char.owner );
 
-				msg.reply( charname + ' deleted.' );
+				return msg.reply( charname + ' deleted.' );
 
-			} else msg.reply( 'You do not have permission to delete ' + charname );
+			} else return msg.reply( 'You do not have permission to delete ' + charname );
 
 		} catch ( e ) { console.log(e); }
 	
@@ -692,10 +670,7 @@ class RPG {
 			if ( !char) return;
 		} else {
 			char = await this.loadChar( charname );
-			if (!char) {
-				m.reply( charname + ' not found on server. D:' );
-				return;
-			}
+			if (!char) return m.reply( charname + ' not found on server. D:' );
 		}
 		display.echoChar( m.channel, char );
 
@@ -706,8 +681,8 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if ( !char) return;
 
-		let res = char.addStat( stat );
-		if ( typeof(res) === 'string') m.reply(res);
+		let res = char.addStat(stat);
+		if ( typeof(res) === 'string') return m.reply( res );
 
 	}
 
@@ -720,13 +695,10 @@ class RPG {
 			if ( !char) return;
 		} else {
 			char = await this.loadChar( charname );
-			if (!char) {
-				m.reply( charname + ' not found on server. D:' );
-				return;
-			}
+			if (!char) return m.reply( charname + ' not found on server. D:' );
 		}
-		try {
-		display.sendBlock( m, char.getHistory() );}catch(e){console.log(e);}
+
+		await display.sendBlock( m, char.getHistory() );
 
 	}
 
@@ -736,7 +708,7 @@ class RPG {
 		if (!char) return;
 
 		await this.saveChar( char, true );
-		m.reply( char.name + ' saved.');
+		return m.reply( char.name + ' saved.');
 
 	}
 
@@ -747,12 +719,12 @@ class RPG {
 		try {
 	
 			let char = await this.loadChar( charname );
+			if (!char) return msg.reply( charname + ' not found on server. D:' );
+
 			let prefix;
-			if (!char) {
-				await msg.reply( charname + ' not found on server. D:' );
-				return;
-			} else if ( char.owner !== msg.author.id ) {
-				prefix = 'This is not your character.\n';
+
+			if ( char.owner !== msg.author.id ) {
+				prefix = 'This is NOT your character.\n';
 			} else {
 				
 				await this.setUserChar( msg.author, char );
@@ -779,14 +751,8 @@ class RPG {
 
 			if ( charname ) {
 
-				if ( this._context.illegalName(charname)) {
-					m.reply( `'${charname}' contains illegal characters.`);
-					return;
-				}
-				if ( await this.charExists(charname) ) {
-					m.reply( `Character '${charname}' already exists.` );
-					return;
-				}
+				if ( this._context.illegalName(charname)) return m.reply( `'${charname}' contains illegal characters.`);
+				if ( await this.charExists(charname) ) return m.reply( `Character '${charname}' already exists.` );
 
 			} else charname = await this.uniqueName( race, sex );
 
@@ -801,13 +767,9 @@ class RPG {
 
 	}
 	
-	async charExists( charname ) {
-		return await this._cache.exists( this.getCharKey( charname ) );
-	}
+	async charExists( charname ) { return this._cache.exists( this.getCharKey( charname ) ); }
 
 	async userCharOrErr( m, user ) {
-
-		if ( !this.lastChars ) await this.loadLastChars();
 
 		let charname = this.lastChars[user.id];
 		if ( !charname ) {
@@ -820,7 +782,7 @@ class RPG {
 			await m.reply( `Error loading '${charname}'. Load new character.` );
 			return;
 		}
-		if ( char.owner != user.id ) {
+		if ( char.owner !== user.id ) {
 			await m.reply( `You are not the owner of '${charname}'` );
 			return;
 		}
@@ -851,17 +813,13 @@ class RPG {
 
 	async clearUserChar( uid ) {
 
-		if ( !this.lastChars ) await this.loadLastChars();
 		delete this.lastChars[uid];
 
 	}
 
 	async setUserChar( user, char ) {
 
-		if ( !this.lastChars ) await this.loadLastChars();
-
 		this.lastChars[user.id] = char.name;
-
 		this._cache.cache( LAST_CHARS, this.lastChars );
 
 	}
@@ -885,13 +843,6 @@ class RPG {
 		}
 	}
 
-	addExp( m, char, exp ) {
-		if ( char.addExp(exp)) {
-			m.reply( char.name + ' has leveled up.');
-			char.levelFlag = false;
-		}
-	}
-
 	getCharKey( charname ) { return charname; }
 
 	cacheChar( char ) {
@@ -900,8 +851,8 @@ class RPG {
 
 	async saveChar( char, forceSave=false ) {
 
-		if ( forceSave) await this._cache.store( this.getCharKey( char.name ), char );
-		else this._cache.cache( this.getCharKey(char.name), char );
+		if ( forceSave) return this._cache.store( this.getCharKey( char.name ), char );
+		this._cache.cache( this.getCharKey(char.name), char );
 
 	}
 
@@ -953,9 +904,18 @@ exports.init = function( bot ){
 		proto.cmdRevive, RPG, {minArgs:0, maxArgs:1});
 	bot.addContextCmd( 'leaveparty', '!leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
 
+	// GUILD
+	bot.addContextCmd( 'mkguild', '!mkguild [name] - create a new guild', proto.cmdMkGuild, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'joinguild', '!joinguild [guild] - join a guild', proto.cmdJoinGuild, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'guildinv', '!guildinv [who] - invite to a guild', proto.cmdGuildInv, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'leaveguild', '!leaveguild - leave current guild', proto.cmdLeaveGuild, RPG, {maxArgs:0});
+
 	// EQUIP
 	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
 			proto.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'wear', '!wear [what]\t\tEquips item from inventory, or displays all worn items.',
+			proto.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
+
 	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
 				proto.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', proto.cmdWorn, RPG, {maxArgs:1});

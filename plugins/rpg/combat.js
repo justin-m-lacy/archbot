@@ -14,8 +14,8 @@ fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
  * Exp for killing target.
  * @param {*} lvl 
  */
-const npcExp = lvl => Math.floor( 10* Math.pow( 1.5, lvl ) );
-const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.45, lvl/2 ) );
+const npcExp = lvl => Math.floor( 10* Math.pow( 1.3, lvl ) );
+const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.2, lvl/2 ) );
 
 module.exports = class Combat {
 
@@ -206,9 +206,7 @@ module.exports = class Combat {
 			this.resp += `${this.defender.name} catches ${this.attacker.name} attempting to steal.\n`;
 			this.attack( this.defender, this.attacker );
 
-		} else {
-			this.resp += `${this.attacker.name} fails to steal from ${this.defender.name}`;
-		}
+		} else this.resp += `${this.attacker.name} failed to steal from ${this.defender.name}`;
 
 	}
 
@@ -258,7 +256,7 @@ module.exports = class Combat {
 
 		if ( !loot.gold && !loot.items ) return;
 
-		if ( dest instanceof Party ) dest = await dest.getChar( dest.leader );
+		if ( dest instanceof Party ) dest = await dest.randChar();
 
 		this.resp += '\n' + dest.name + ' loots';
 
@@ -270,15 +268,15 @@ module.exports = class Combat {
 		let items = loot.items;
 		if ( items && items.length > 0 ) {
 
-			dest.addItem( items );
+			var ind = dest.addItem( items );
 
 			if ( loot.gold ) this.resp += ',';
 			for( let i = items.length-1; i >= 1; i-- ) {
 
-				this.resp += ' ' + items[i].name + ',';
+				this.resp += ` ${items[i].name} (${ind+i}),`;
 
 			}
-			this.resp += ' ' + items[0].name;
+			this.resp += ` ${items[0].name} (${ind})`;
 
 		}
 
@@ -296,7 +294,7 @@ class AttackInfo {
 	// damage done.
 	get dmg() { return this._dmg; }
 
-	// attack hit.
+	// attack did hit.
 	get hit() { return this._hit; }
 
 	// defender was killed.
@@ -335,7 +333,6 @@ class AttackInfo {
 		this._dmg = dmg;
 
 		let hp = this.defender.curHp -= dmg;
-		console.log('AtkInfo: Defender killed.');
 		if ( hp <= 0 ) this._killed = true;
 	}
 

@@ -158,12 +158,18 @@ module.exports = class Inventory {
 
 	/**
 	 * 
-	 * @param {Item} it 
+	 * @param {Item|Item[]} it
+	 * @returns {number} - starting 1-index where items were added.
 	 */
 	add( it ) {
 
-		if ( it instanceof Array ) this._items = this._items.concat( it );
-		else this._items.push(it);
+		if ( it instanceof Array ) {
+			let ind = this._items.length + 1;
+			this._items = this._items.concat( it );
+			return ind;
+		}
+
+		this._items.push(it);
 		return this._items.length;
 
 	}

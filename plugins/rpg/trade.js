@@ -4,7 +4,7 @@ const Material = require( './items/material.js');
 var isGold = /^(\d+)\s*g(?:old)?$/i;
 
 function rollCost(lvl) {
-	return 100*lvl*( Math.floor( Math.pow( 1.5, Math.floor(lvl/2 )) ) );
+	return 40*lvl*( Math.floor( Math.pow( 1.5, Math.floor(lvl/2 )) ) );
 }
 
 exports.rollWeap = (char ) => {
@@ -101,8 +101,13 @@ exports.transfer = function transfer( src, dest, what ) {
 		console.log( 'item transfer: ' + what );
 		let it = src.takeItem(what);
 		if ( it ) {
-			dest.addItem(it);
-			return it;
+
+			let ind = dest.addItem(it);
+			src.addHistory('gave');
+			dest.addHistory('recieved');
+
+			return (it.name)? `Gave ${dest.name} ${it.name}. (${ind})` : 'Transfer complete.';
+
 		}
 	}
 

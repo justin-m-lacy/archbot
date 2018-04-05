@@ -187,6 +187,7 @@ class DiscordBot {
 
 		if ( !command ) return;
 
+
 		if ( command.isDirect ) {
 
 			this._dispatch.dispatch( command, [m] );
@@ -198,7 +199,16 @@ class DiscordBot {
 
 			let context = this.getMsgContext( m );
 			let error = this._dispatch.routeCmd( context, command, [m] );
-			if ( error ) m.channel.send( error );
+
+			if ( !error ) return;
+			else if ( error instanceof Promise ) {
+
+				error.then( s=> {if ( s) m.channel.send(s);} );
+
+			} else if ( typeof(error) === 'string' ) {
+				m.channel.send( error );
+
+			}
 
 		}
 

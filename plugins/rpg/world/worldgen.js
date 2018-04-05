@@ -13,7 +13,8 @@ module.exports = class {
 	*/
 	static genNew( coord ){
 
-		let loc = this.makeBiomeLoc( coord, Loc.TOWN );
+		// note that a new coord must be used to avoid references.
+		let loc = this.makeBiomeLoc( new Loc.Coord(coord.x, coord.y), Loc.TOWN );
 		loc.exits = this.genExits( coord.x, coord.y );
 
 		return loc;
