@@ -30,7 +30,7 @@ exports.Cache = class {
 
 	// loader fallback loads with (key)
 	// saver stores with (key,value)
-	constructor( loader, saver, checker, deleter, cacheKey = '' ) {
+	constructor( loader, saver, checker, deleter, cacheKey = '', reviver=null) {
 
 		this._cacheKey = cacheKey;
 
@@ -38,6 +38,7 @@ exports.Cache = class {
 		this.saver = saver;
 		this.checker = checker;
 		this.deleter = deleter;
+		this.reviver = reviver;
 
 		this._dict = {};
 
@@ -47,12 +48,12 @@ exports.Cache = class {
 	 * Creates a subcache of this cache and stores it in the dictionary.
 	 * @param {string} subkey - key used to distinguish subcache items. 
 	 */
-	makeSubCache( subkey ) {
+	makeSubCache( subkey, reviver=null ) {
 
 		if ( subkey.charAt( subkey.length-1 ) != '/' ) subkey = subkey + '/';
 
 		let cache = new exports.Cache(
-			this.loader, this.saver, this.checker, this.deleter, this._cacheKey + '/' + subkey );
+			this.loader, this.saver, this.checker, this.deleter, this._cacheKey + '/' + subkey, reviver );
 
 		this._dict[subkey] = cache;
 		return cache;
@@ -75,7 +76,10 @@ exports.Cache = class {
 		console.log( 'fetching from file: ' + key );
 		let val = await this.loader( this._cacheKey + key );
 		if ( val != null ) {
+
+			if ( this.reviver ) val = this.reviver(val);
 			this._dict[key] = new Item(key, val, false );
+
 		}
 		return val;
 

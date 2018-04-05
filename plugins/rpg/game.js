@@ -60,13 +60,15 @@ exports.Game = class Game {
 	 * 
 	 * @param {RPG} rpg 
 	 */
-	constructor( rpg, world ) {
+	constructor( rpg, charCache, world ) {
 
 		this.rpg = rpg;
 		this.world = world;
 
 		this._cache = this.rpg.cache;
+		this.charCache = charCache;
 		this._gcache = this._cache.makeSubCache( 'guilds');
+
 		Guild.SetCache( this._gcache );
 
 		// parties by char name.
@@ -93,7 +95,7 @@ exports.Game = class Game {
 
 	makeParty( char, ...invites ) {
 
-		let p = new Party( char, this._cache );
+		let p = new Party( char, this.charCache );
 		this._parties[char.name] = p;
 
 		for( let i = invites.length-1; i >=0;i-- ) p.invite( invites[i] );
