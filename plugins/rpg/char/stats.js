@@ -123,6 +123,14 @@ class StatBlock {
 	get armor() { return this._armor; }
 	set armor(v) { this._armor = v; }
 
+	// damage reduction.
+	get dr() { return this._dr || 0; }
+	set dr(v) { this._dr = v;}
+
+	// resistances
+	get resist() { return this._resist || null; }
+	set resist(v) { this._resist = v; }
+
 	get str() { return this._str; }
 	set str(v) { this._str = v; }
 	get con() { return this._con; }
@@ -140,8 +148,6 @@ class StatBlock {
 
 		let stats = new StatBlock();
 
-		let p;
-		let priv;
 		for( let k in json ) {
 			if ( stats.hasOwnProperty(k)) stats[k] = json[k];
 		}
@@ -155,6 +161,11 @@ class StatBlock {
 
 		return stats;
 
+	}
+
+	getDR( type ) {
+		if ( !this._dr ) return 0;
+		return this._dr[type] || 0;
 	}
 
 	toJSON() {
@@ -179,6 +190,9 @@ class StatBlock {
 			cha:this._cha
 
 		};
+
+		if ( this._dr ) json.dr = this._dr;
+		if ( this._resist ) json.resist = this._resist;
 
 		return o;
 

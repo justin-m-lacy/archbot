@@ -29,17 +29,51 @@ function kill( char ) {
 }
 
 /**
- * Effect data only. ActiveEffect goes on char.
+ * Effect data only. CharEffect is effect in progress.
  */
 class Effect {
+
+	get name() { return this._name;}
+	set name(v) { this._name = v;}
+
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v; }
+
+	get dot() { return this._dot; }
+	set dot(v) { this._dot = v;}
+
+	get time() { return this._time; }
+	set time(v) { this._time = v;}
+
+	static FromJSON( json ) {
+
+		let e = new Effect();
+		if ( data.dot ) e._dot = forms.Formula.TryParse( data.dot );
+		if ( data.mods ) e._mods = data.mods;
+
+		return e;
+
+	}
 
 	static FromData( data ) {
 
 		let e = new Effect();
-		if ( data.dot ) {
+		if ( data.dot ) e._dot = forms.Formula.TryParse( data.dot );
+		if ( data.mods ) e._mods = data.mods;
 
-			e.dot = null;
-		}
+		return e;
+
+	}
+
+	toJSON() {
+
+		let o = {};
+
+		if ( this._mods ) o.mods = this._mods;
+		if ( this._dot ) o._dot = this._dot;	// forms have toJSON()
+		if ( this._time ) o.time = this._time;
+
+		return o;
 
 	}
 
@@ -47,9 +81,11 @@ class Effect {
 
 }
 
-class ActiveEffect {
+class CharEffect {
 
 	get effect() { return this._effect; }
+	get mods() { return this._effect.mods; }
+	get dot() { return this._effect.dot; }
 
 	get time() { return this._time; }
 
@@ -58,7 +94,7 @@ class ActiveEffect {
 		let e = effects[json. name];
 		if ( !e ) return null;
 
-		return new ActiveEffect( e, json.time || e.time );
+		return new CharEffect( e, json.time || e.time );
 	}
  
 	toJSON() {
@@ -70,20 +106,61 @@ class ActiveEffect {
 
 	}
 
-	constructor( effect, time ) {
+	constructor( effect ) {
 
 		this._effect = effect;
-		this._time = time;
+		this._time = this._effect.time;
 
 	}
 
+	start( actor ) {
 
+		if ( this._mods ) return;
+	}
+
+	end( actor ) {
+	}
+
+	/**
+	 * 
+	 * @param {Actor} actor
+	 * @returns {bool} true if effect complete. 
+	 */
 	tick( actor ) {
 
-		this._time--;
+		if ( this._time ) {
+			this._time--;
+			return ( this._time <= 0 );
+		}
+		return false;
 
-		return ( this._time <= 0 );
 	}
 
+	applyMod( m, stats ) {
+
+		for( let k in m ) {
+
+			if ( stats.hasOwnProperty[k] ) {
+				stats[k] += m[k];
+			}
+
+		}
+
+	}
+
+	removeMod( m, stats ) {
+
+		for( let k in m ) {
+
+			if ( stats.hasOwnProperty[k] ) {
+				stats[k] -= m[k];
+			}
+
+		}
+
+	}
 
 }
+
+exports.CharEffect = CharEffect;
+exports.Effect = Effect;

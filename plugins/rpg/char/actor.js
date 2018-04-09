@@ -1,6 +1,7 @@
 const dice = require( '../dice.js');
 const Loc = require( '../world/loc.js');
 const stats = require( './stats.js');
+const effects = require( '../effects.js');
 
 exports.Alive = 'alive';
 exports.Dead = 'dead';
@@ -27,9 +28,9 @@ exports.Actor = class Actor {
 	get state() { return this._state; }
 	set state(v) { this._state = v; }
 
-	// old.
+	// convenience for shorter formulas.
 	get hp() { return this._curStats._curHp; }
-	set hp(v ) { this._curStats.curHp = v; }
+	set hp(v) { this._curStats.curHp = v; }
 
 	get curHp() { return this._curStats._curHp; }
 	set curHp(v) { this._curStats.curHp = v; }
@@ -167,6 +168,20 @@ exports.Actor = class Actor {
 
 	}
 
+	addEffect( e ) {
+
+		let a = new effects.CharEffect( e, 10 );
+		this._effects.push( a );
+		a.start( this );
+
+	}
+
+	rmEffect( i ) {
+
+		let e = (isNaN(i)) ? i : this._effects[i];
+
+	}
+
 	addGold( amt ) { this._info.gold += amt; }
 
 	/**
@@ -180,9 +195,6 @@ exports.Actor = class Actor {
 		if ( this.curHp <= 0 ) this.curHp = 1;
 		this.state = exports.Alive;
 
-	}
-
-	tick() {
 	}
 
 	updateState() {

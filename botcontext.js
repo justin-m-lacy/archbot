@@ -134,12 +134,9 @@ const Context = class {
 	async displayName( id ) {
 
 		if ( !id ) return 'Invalid ID';
-
-		try {
 	
-			let u = await this._bot.client.fetchUser( id );
-			if ( u ) return u.username;
-		} catch ( e) {}
+		let u = await this._bot.client.fetchUser( id );
+		if ( u ) return u.username;
 
 		return 'Unknown User';
 
@@ -190,11 +187,15 @@ const Context = class {
 
 	async routeCommand( cmd, args ) {
 
+		console.time( cmd.name );
+
 		let target = this._instances[ cmd.instClass.name ];
 		if ( !target ) target = await this.addClass( cmd.instClass );
 		if ( !target ) console.log( 'ERROR:Null Target' );
 
 		cmd.func.apply( target, args );
+
+		console.timeEnd( cmd.name );
 
 	}
 

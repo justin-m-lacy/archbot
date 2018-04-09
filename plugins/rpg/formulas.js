@@ -46,8 +46,8 @@ exports.DamageSrc = class DamageSrc {
 
 }
 
-const ops = [ '+', '/', '-', '*', 'd'];
-const priority = { '=':0,'+':1,'-':1,'/':2,'*':2,'d':3 }
+const ops = [ '+', '/', '-', '*', '%', 'd','='];
+const priority = { '=':2,'+':3,'-':3,'/':4,'*':4, '%':4,'d':5,'(':0 };
 
 const CONST = 1;
 const VAR = 2;
@@ -56,17 +56,21 @@ const OPEN = 4; // parens
 const CLOSE = 5;
 const ERR = 0;
 
-
-module.exports.Formula = class Formula {
+class Formula {
 
 	static TryParse(str) {
 		if ( !str ) return false;
 		return new FormulaParser( str ).parse();
 	}
 
-	constructor( str, stack=null) {
+	constructor( str, queue=null) {
 		this._str = str;
-		this.stack = stack || Formula.TryParse(str);
+		this.queue = queue || Formula.TryParse(str);
+
+		for( let i = this.queue.length-1; i >= 0; i-- ) {
+			console.log('stack: ' + this.queue[i].value);
+		}
+
 	}
 
 	toJSON() { return this._str; }
@@ -74,16 +78,16 @@ module.exports.Formula = class Formula {
 	eval( tar ) {
 
 		// next item from stack.
-		let stackInd, len = this.stack.length;
+		let qIndex = 0, len = this.queue.length;
 
 		let vals = [];	// values read from stack.
 
 		let cur,tx,ty;
 
 		// TODO: this is wrong.
-		while ( stackInd < len ) {
+		while ( qIndex < len ) {
 
-			cur = this.stack[stackInd++];
+			cur = this.queue[qIndex++];
 
 			if ( cur.type === OP ){
 
@@ -93,11 +97,16 @@ module.exports.Formula = class Formula {
 					break;
 				}
 
-				//assume two-args.
-				
-				tx = vals.pop();
+				// args are backwards on stack.
 				ty = vals.pop();
-	
+				if ( ty instanceof Token) console.log( ty.value );
+				else console.log( 'value: ' + ty );
+
+				tx = vals.pop();
+				if ( tx instanceof Token) console.log( 'value: ' + tx.value );
+				else console.log( tx );
+
+
 				if ( cur.op === '=') {
 					vals.push( this.assign( tar, tx, ty ) );
 				} else vals.push( this.doOp( cur.op, tar, tx, ty ) );
@@ -124,22 +133,20 @@ module.exports.Formula = class Formula {
 
 	doOp( op, tar, x, y ) {
 
-		console.log( `OP: ${x} ${op} ${y}`);
-
 		if ( x instanceof Token ) x = x.eval(tar);
 		if ( y instanceof Token ) y = y.eval(tar);
+
+		console.log( `OP: ${x} ${op} ${y}`);
+
 		switch ( op ) {
 
-			case '+':
-				return y ? x + y : x;
-			case '-':
-				return y ? x - y : -x;
-			case '*':
-				return x * y;
+			case '+': return y ? x + y : x;
+			case '-': return y ? x - y : -x;
+			case '*': return x * y;
 			case 'd':
 				return this.roll( x, y );
-			case '/':
-				return x / y;
+			case '/': return x / y;
+			case '%': return x % y;
 			default:
 				console.log( 'Unexpected op: ' + op );
 				return 0;
@@ -157,6 +164,7 @@ module.exports.Formula = class Formula {
 		}
 
 		let tot = 0;
+		console.log('rolling: ' + x + 'd' + y );
 		while ( x-- > 0 ) tot += Math.floor( y*Math.random() + 1 );
 
 		return neg ? -tot : tot;
@@ -168,23 +176,24 @@ module.exports.Formula = class Formula {
 class FormulaParser {
 
 	constructor( str ) {
-
 		this.str = str;
-		this.index = 0;
 		this.len = str.length;
-
 	}
 
-	parse( str ) {
+	parse() {
 
+		let len = this.len;
+
+		this.index = 0;
 		let opStack = [];
 		let resStack = [];
 
 		var token, top = null;
 		var curPriority;
 
-		while ( token = readToken() ) {
+		while ( this.index < len ) {
 
+			token = this.readToken();
 			if ( token.type === OP) {
 
 				curPriority = priority[token.op];
@@ -192,7 +201,7 @@ class FormulaParser {
 
 					top = opStack.pop();
 					if ( top === null ) {
-						console.log( 'unexpected null op: ' + FormulaParser._str );
+						console.log( 'unexpected null op: ' + this.str );
 						break;
 					} else if ( priority[top.op] < curPriority) {
 						opStack.push( top );	// todo: slightly inefficient.
@@ -206,6 +215,7 @@ class FormulaParser {
 
 			} else if ( token.type === OPEN ) {
 	
+				console.log( 'PUSHING OPEN PAREN');
 				opStack.push( token );
 
 			} else if ( token.type === CLOSE ) {
@@ -214,66 +224,76 @@ class FormulaParser {
 
 					// pop to open paren.
 					top = opStack.pop();
-					if ( top.type === OPEN ) break;
+					console.log('POPPED: ' + top.value );
+					console.log( 'stack len: ' + opStack.length );
 
+					if ( top.type === OPEN ) break;
 					resStack.push( top );
 	
 				}
 				if ( top === null || top.type !== OPEN ) console.log('Missing close paren: ' + top.op );
 
 			} else {
+				console.log('pushing res value');
 				resStack.push( token );
 			}
 
 		}
 
-		while ( opStack.length > 0 ) FormulaParser.resultStack.push( opStack.pop() );
+		while ( opStack.length > 0 ) resStack.push( opStack.pop() );
 
-		// result is 'pushed' for efficiency, which causes the expression to be backwards.
-		resStack.reverse();
-		return resStack;
+		return new Formula( this.str, resStack );
 
 	}
 
 	readToken() {
 
 		let c = this.str[ this.index ];
+
+		while ( c === ' ' || c === '\t' ) c = this.str[ ++this.index ];
+
+		if ( c === '(') {this.index++; return new Token( c, OPEN); }
+		if ( c === ')') { this.index++; return new Token( c, CLOSE ); }
+
 		if ( ops.includes(c) ) {
+			console.log('CREATING OP');
 			this.index++;
 			return new Token( c, OP );
 		}
+		console.log('READING VALUE');
 		return this.readValue();
 	}
 
 	readValue() {
 
 		let ind = this.index;
+		//console.log( 'reading val at: ' + ind );
 		let start = ind;
 
-		let n = this.str.charCodeAt( ind++ );
-		if ( n == '+' || n === '-') {
-			n = this.str.charCodeAt(ind++);
-		}
+		let n = this.str.charCodeAt( ind );
 
-		if ( this.isDigit(n) ) {
+		// digit OR +,-,.
+		if ( this.isDigit(n) || n === 43 || n === 45 || n === 46 ) {
 
-			while ( this.isDigit( this.str.charCodeAt(ind++ ) ) );
+			console.log('reading digit');
+			while ( this.isDigit( this.str.charCodeAt(++ind ) ) );
 
 			this.index = ind;
-			return new Token( Number( this.str.slice(start, ind )), VAR );
+			return new Token( Number( this.str.slice(start, ind )), CONST );
 
 
 		} else if ( this.isChar(n) ) {
 
-			while ( this.isChar( this.str.charCodeAt(ind++ ) ) );
+			console.log('reading var');
+			while ( this.isChar( this.str.charCodeAt(++ind ) ) );
 
 			this.index = ind;
 			return new Token( this.str.slice( start, ind ), VAR );
 
 		} else {
 
-			console.log( 'UNEXPECTED CHAR: ' + this.str.charCodeAt( (ind-1) ));
-			this.index = ind;
+			console.log( `INVALID CHAR AT  ${(ind)}: ${this.str.charCodeAt( (ind) )}` );
+			this.index = ++ind;
 			return new Token( 0, ERR );
 		}
 
@@ -284,6 +304,8 @@ class FormulaParser {
 
 }
 
+module.exports.Formula = Formula;
+
 class Token {
 
 	get value() { return this.val; }
@@ -291,6 +313,9 @@ class Token {
 	get op() { return this.val; }
 
 	constructor( val, type ) {
+
+		console.log('creating token: ' + val );
+
 		this.val = val;
 		this.type = type;
 	}

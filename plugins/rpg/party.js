@@ -1,6 +1,26 @@
 const loc = require( './world/loc.js');
 module.exports = class Party {
 
+	static FromJSON(json) {
+
+		let p = new Party();
+
+		Object.assign( p, json );
+
+		return p;
+
+	}
+
+	toJSON() {
+
+		return {
+			names:this._names,
+			leader:this._leader,
+			invites:this.pending
+		}
+
+	}
+
 	get names() { return this._names; }
 	get invites() { return this.pending; }
 
@@ -55,7 +75,6 @@ module.exports = class Party {
 
 			var char = await this._cache.fetch( this._names[i]);
 			if ( char ) { char.loc = coord; char.recover(); }
-			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
 
 		} //
 
@@ -84,9 +103,7 @@ module.exports = class Party {
 
 	}
 
-	getList() {
-		return this._leader + "'s Party:\n" + this._names.join('\n');
-	}
+	getList() { return this._leader + "'s Party:\n" + this._names.join('\n'); }
 
 	setLeader(char) { this._leader = char.name; }
 	isLeader( char ) { return this._leader === char.name; }
@@ -119,7 +136,7 @@ module.exports = class Party {
 	}
 
 	/**
-	 * Returns a random character from the group which is still alive.
+	 * Returns a random alive character from a group.
 	 */
 	async randAlive() {
 
@@ -200,6 +217,8 @@ module.exports = class Party {
 	 * @returns true if the party should be removed. false otherwise. 
 	 */
 	leave( char ) {
+
+		console.log( char.name + ' attempting to leave party.');
 
 		let name = char.name;
 		let ind = this._names.indexOf( name );

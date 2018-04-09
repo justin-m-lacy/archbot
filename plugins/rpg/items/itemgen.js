@@ -13,6 +13,8 @@ exports.genLoot = genLoot;
 
 exports.randItem = randItem;
 
+var miscItems, specItems;
+
 var featureByName;
 var featureList;
 
@@ -23,8 +25,22 @@ var weaponByType;
 
 initFeatures();
 initArmors();
+initItems();
 
 Material.LoadMaterials();
+
+function initItems() {
+
+	var items = require( '../data/items.json');
+	miscItems = items.misc;
+	var spec = items.special;
+
+	specItems = {};
+	for( let i = spec.length-1; i>=0; i--) {
+		specItems[ spec[i].name.toLowerCase() ] = spec[i];
+	}
+
+}
 
 /**
  * Create named feature from data.
@@ -150,33 +166,64 @@ function randFeature() {
 function genItem() {
 }
 
-function genLoot( lvl ) {
+function genLoot( mons ) {
 
-	lvl = Math.floor(lvl);
+	let lvl = Math.floor(mons.level);
 
-	let loot = {};
-	if ( Math.random() < 0.5 ) {
-		// gold
-		loot.gold = Math.floor( 20*lvl*Math.random()+0.1 );
-	}
+	let loot = { items:[] };
+	if ( Math.random() < 0.5 ) loot.gold = Math.floor( 20*lvl*Math.random()+0.1 );
+
 	if ( Math.random() < 0.2 ) {
-		loot.items = [genArmor(null,lvl)];
+		loot.items.push( genArmor(null,lvl) );
 	}
-	if ( Math.random() < 0.1 ) {
-		if ( !loot.items) loot.items =[];
-		loot.items.push( genWeapon(lvl) );
+	if ( Math.random() < 0.1 ) loot.items.push( genWeapon(lvl) );
+
+	if ( mons.drops ) {
+		let itms = getDrops(mons);
+		if ( itms ) loot.items = loot.items.concat( itms );
 	}
+
 
 	return loot;
 
 }
 
+function getDrops( mons ) {
+
+	let drops = mons.drops;
+	if ( !drops ) return;
+
+	if ( drops instanceof Array ) {
+
+		console.log( 'RETURNING RANDOM DROP');
+		let it = drops[ Math.floor( Math.random()*drops.length ) ];
+		if ( it) return specItems[ it ];
+
+	} else if ( typeof(drops) === 'string') {
+
+		return Math.random() < 0.5 ? specItems[drops] : null;
+
+	} else {
+
+		let it, itms = [];
+		for( let k in drops ) {
+
+			console.log('ROLLING FOR DROP: ' + k );
+			if ( 100*Math.random() < drops[k]) {
+				it = specItems[k];
+				if ( it ) itms.push( it );
+			}
+
+		}
+		return itms;
+
+	}
+
+}
+
 function randItem() {
 
-	var items = require( '../data/items.json');
-
-	let it = items[ Math.floor( items.length*Math.random() )];
-
+	let it = miscItems[ Math.floor( miscItems.length*Math.random() )];
 	let item = new Item.Item( it.name, it.desc );
 
 	return item;

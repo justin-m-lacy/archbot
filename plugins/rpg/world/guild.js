@@ -54,6 +54,7 @@ module.exports = class Guild {
 		return {
 
 			name:this._name,
+			leader:this._leader,
 			desc:this._desc,
 			roster:this._roster,
 			invites:this._invites,

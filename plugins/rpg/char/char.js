@@ -74,7 +74,7 @@ class Char extends actor.Actor {
 		if ( this._home ) json.home = this._home;
 
 		json.equip = this._equip;
-		
+
 		json.race = this._race.name;
 		json.charClass = this._charClass.name;
 
@@ -388,9 +388,7 @@ class Char extends actor.Actor {
 
 	}
 
-	getWeapons() {
-		return this._equip.getWeapons();
-	}
+	getWeapons() { return this._equip.getWeapons(); }
 
 	testDmg() {
 
@@ -404,9 +402,7 @@ class Char extends actor.Actor {
 			}
 			return res;
 
-		} else {
-			return weaps.name + ' rolled: ' + weaps.roll();
-		}
+		} else return weaps.name + ' rolled: ' + weaps.roll();
 
 	}
 
@@ -440,6 +436,10 @@ class Char extends actor.Actor {
 		return str;
 
 	}
+
+	log( str) { this._log += str +'\n'; }
+	getLog() { return this._log;}
+	clearLog() { this._log = ''; }
 
 	getHistory() {
 

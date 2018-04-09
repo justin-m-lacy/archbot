@@ -84,12 +84,37 @@ function create( template ) {
 
 class Monster {
 
-	static RandMonster( lvl ) {
+	static RandMonster( lvl, biome=null ) {
 
 		lvl = Math.floor(lvl);
+		var a;
+
+		if ( biome ) {
+
+			let ind, mons,start;
+			do {
+
+				a = byLevel[lvl];
+				if ( !a || a.length === 0 ) continue;
+
+				ind = start = Math.floor( a.length*Math.random());
+				do {
+
+					mons = a[ind];
+					if ( !mons.biome || mons.biome === biome ||
+					((mons.biome instanceof Array) && !mons.biome.includes(biome) ) )
+						return create( mons );
+					console.log('WRONG BIOME: ' + mons.name );
+					ind = (ind+1) % a.length;
+
+				} while ( ind !== start );
+
+			} while ( --lvl >= 0 );
+
+		}
 
 		do {
-			var a = byLevel[lvl];
+			a = byLevel[lvl];
 			if ( a && a.length > 0 ) return create( a[ Math.floor( a.length*Math.random())] );
 
 		} while ( --lvl >= 0 );
@@ -120,6 +145,7 @@ class Monster {
 			state:this._state
 		};
 
+		if ( this._drops) json.drops = this._drops;
 		if ( this._evil ) json.evil = this._evil;
 		if ( this._kind ) json.kind = this._kind;
 
@@ -129,6 +155,9 @@ class Monster {
 		return json;
 
 	}
+
+	get drops() { return this._drops;}
+	set drops(v) { this._drops = v;}
 
 	get template() { return this._template; }
 	set template(t) { this._template = t;}
