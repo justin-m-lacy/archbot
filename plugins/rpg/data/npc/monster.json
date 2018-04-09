@@ -10,7 +10,23 @@
             "name":"blathering",
             "type":"noob",
             "dmg":"1d1"
-        }
+        }, "biome":["town","plains"]
+
+    },
+    {
+        "name":"newt",
+        "level":0.2,
+        "kind":"beast",
+        "desc":"Wriggly.",
+        "hp":"1d2",
+        "armor":"1",
+        "weap":{
+            "name":"newting",
+            "type":"squiggly",
+            "dmg":"1d2"
+        },
+        "biome":["swamp","plains","forest","hills"],
+        "drops":["eye of newt"]
 
     },
     {
@@ -55,7 +71,7 @@
             "name":"bite",
             "type":"pierce",   
             "dmg":"1d2+1"
-        }
+        },"drops":["rat tail"]
 
     },
     {
@@ -70,8 +86,23 @@
             "name":"beak",
             "type":"pierce",
             "dmg":"1d4"
-        }
+        },
+        "drops":{ "kakapo feather":10 }
 
+    },
+    {
+        "name":"Pukeko",
+        "level":0.75,
+        "kind":"beast",
+        "desc":"Useless swamp hen.",
+        "hp":"1d3+2",
+        "toHit":2,
+        "armor":"7",
+        "weap":{
+            "name":"beak",
+            "type":"pierce",
+            "dmg":"1d4"
+        }, "biome":"swamp"
     },
     {
         "name":"bat",
@@ -98,7 +129,7 @@
             "name":"pointy stick",
             "type":"pierce",
             "dmg":"1d4"
-        }
+        }, "biome":["mountains","hills","swamp"]
 
     },
     {
@@ -125,7 +156,7 @@
             "name":"magic missile",
             "type":"magic",
             "dmg":"2d4"
-        }
+        },"biome":["town","plains","hills"]
 
     },
     {
@@ -156,7 +187,7 @@
             "name":"dagger",
             "type":"pierce",
             "dmg":"1d5"
-        }
+        },"biome":"town"
 
     },
     {
@@ -203,7 +234,7 @@
             "name":"cursed blade",
             "type":"slash",
             "dmg":"1d4+1"
-        }
+        }, "drops":{"bone":10}
 
     },
     {
@@ -218,7 +249,7 @@
             "name":"bite",
             "type":"pierce",
             "dmg":"1d4+1"
-        }
+        },"biome":"plains"
 
     },
     {
@@ -280,7 +311,7 @@
         "weap":{
             "name":"bite",
             "type":"pierce",
-            "dmg":"1d6"}
+            "dmg":"1d6"}, "drops":"rat tail"
 
     },
     {
@@ -374,7 +405,8 @@
             "name":"bone boomerang",
             "type":"slash",
             "dmg":"1d5"
-        }
+        }, "biome":["forest","swamp","hills"],
+        "drops":{"bone":10}
 
     },
     {
@@ -509,7 +541,7 @@
     },
     {
         "name":"crocodile",
-        "biome":["swamp"],
+        "biome":"swamp",
         "level":3,
         "kind":"beast",
         "desc":"They're wild!",
@@ -520,7 +552,7 @@
             "name":"bite",
             "type":"pierce",
             "dmg":"1d5+2"
-        }
+        },"drops":{"crocodile tooth":10, "crocodile tears":5}
 
     },
     {
@@ -584,7 +616,7 @@
             "name":"fists",
             "type":"blunt",
             "dmg":"2d6"
-        }
+        }, "drops":{"whiskey":10}
 
     },
     {
@@ -600,7 +632,7 @@
             "name":"beak",
             "type":"pierce",
             "dmg":"3d4"
-        }
+        }, "biome":"hills"
 
     },
     {
@@ -615,7 +647,7 @@
             "name":"claws",
             "type":"slash",
         "dmg":"1d6+2"
-        }
+        },"drops":{"sulfur dust":5}
 
     },
     {
@@ -630,7 +662,7 @@
             "name":"bite",
             "type":"pierce",
             "dmg":"1d6+3"
-        }
+        }, "biome":["swamp", "forest", "mountains"]
 
     },
     {
@@ -662,7 +694,8 @@
             "name":"claws",
             "type":"slash",
             "dmg":"1d6+2"
-        }
+        },
+        "drops":{"wight pus":40}
 
     },
     {
@@ -710,7 +743,7 @@
             "name":"death touch",
             "type":"drain",
             "dmg":"1d6+2"
-        }
+        },"drops":{"spectral essence":5}
 
     },
     {
@@ -856,7 +889,7 @@
         "name":"dire crocodile",
         "kind":"magic beast",
         "evil":5,
-        "biome":["swamp"],
+        "biome":"swamp",
         "level":5,
         "desc":"",
         "hp":"4d7+12",
@@ -866,7 +899,7 @@
             "name":"bite",
             "type":"pierce",
             "dmg":"2d5+5"
-        }
+        },"drops":{"crocodile tooth":10, "crocodile tears":5}
 
     },
     {
@@ -932,7 +965,7 @@
             "name":"cold touch",
             "type":"cold",
             "dmg":"3d5+5"
-        }
+        },"drops":{"spectral essence":5}
 
     },
     {
@@ -979,7 +1012,7 @@
             "name":"swords",
             "type":"slash",
             "dmg":"1d6+3"
-        }
+        },"drops":{"mandrake root":10}
 
     },
     {
@@ -1025,7 +1058,7 @@
             "name":"claws",
             "type":"slash",
             "dmg":"2d6+2"
-        }
+        }, "drops":["bear claw"]
 
     },
     {
@@ -1040,7 +1073,7 @@
             "name":"punch",
             "type":"blunt",
             "dmg":"2d6"
-        }
+        }, "drops":{"raw wood":5}
 
     },
     {
@@ -1071,7 +1104,7 @@
             "name":"pound",
             "type":"blunt",
             "dmg":"3d6"
-        }
+        },"drops":{"raw earth":5}
 
     },
     {
@@ -1086,7 +1119,8 @@
             "name":"air whip",
             "type":"slash",
             "dmg":"3d4+2"
-        }
+        },
+        "drops":{"air essence":10}
 
     },
     {
@@ -1101,7 +1135,7 @@
             "name":"smash",
             "type":"blunt",
             "dmg":"1d6+5"
-        }
+        },"drops":{"raw stone":5}
 
     },
     {
@@ -1148,7 +1182,7 @@
             "name":"longsword",
             "type":"slash",
             "dmg":"1d8+4"
-        }
+        }, "drops":{"bone":10}
 
     },
     {
@@ -1164,7 +1198,7 @@
             "name":"horn",
             "type":"pierce",
             "dmg":"2d12"
-        }
+        }, "biome":["plains","forest"]
 
     },
     {
@@ -1180,7 +1214,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"1d5+3"
-        }
+        }, "drops":{"vampire fang":5}
 
     },
     {
@@ -1196,7 +1230,7 @@
             "name":"death touch",
             "type":"drain",
             "dmg":"1d5+3"
-        }
+        },"drops":{"spectral essence":5}
 
     },
     {
@@ -1211,7 +1245,7 @@
             "name":"beak",
             "type":"pierce",
             "dmg":"3d6+3"
-        }
+        },"biome":"mountains"
 
     },
     {
@@ -1227,7 +1261,7 @@
             "name":"seduction",
             "type":"sexy",
             "dmg":"2d6+2"
-        }
+        }, "drops":{"sulfur dust":10}
 
     },
     {
@@ -1243,7 +1277,7 @@
             "name":"flame wing",
             "type":"fire",
             "dmg":"3d4+8"
-        }
+        }, "drops":{"phoenix feather":5, "phoenix ashes":1}
 
     },
     {
@@ -1289,7 +1323,7 @@
             "name":"smash",
             "type":"blunt",
             "dmg":"2d6+4"
-        }
+        },"drops":{"raw iron":10}
 
     },
     {
@@ -1304,7 +1338,7 @@
             "name":"stare",
             "type":"magic",
             "dmg":"4d8+12"
-        }
+        },"drops":{"medusa head":5}
 
     },
     {
@@ -1320,7 +1354,7 @@
             "name":"seduction",
             "type":"sexy",
             "dmg":"3d5+5"
-        }
+        }, "drops":{"sulfur dust":15}
 
     },
     {
@@ -1351,7 +1385,7 @@
             "name":"chill touch",
             "type":"drain",
             "dmg":"3d4+3"
-        }
+        }, "drops":{"spectral essence":10}
 
     },
     {
@@ -1366,7 +1400,7 @@
             "name":"ice shard",
             "type":"cold",
             "dmg":"2d6+3"
-        }
+        },"drops":{"Ice Essence":10}
 
     },
     {
@@ -1381,7 +1415,7 @@
             "name":"flame",
             "type":"fire",
             "dmg":"3d6+2"
-        }
+        },"drops":{"Fire Essence":10}
 
     },
     {
@@ -1397,7 +1431,7 @@
             "name":"fists",
             "type":"blunt",
             "dmg":"2d5+5"
-        }
+        }, "drops":{"whiskey":20}
 
     },
     {
@@ -1494,7 +1528,6 @@
     {
         "name":"dire bear",
         "level":8,
-        "biome":["hills","forest"],
         "kind":"magic beast",
         "evil":17,
         "desc":"He's angrier now!!!",
@@ -1505,7 +1538,8 @@
             "name":"claws",
             "type":"slash",
             "dmg":"5d6+3"
-        }
+        }, "biome":["hills","forest"],
+        "drops":["bear claw"]
 
     },
     {
@@ -1536,7 +1570,7 @@
             "name":"claws",
             "type":"slash",
             "dmg":"3d8+5"
-        }
+        }, "biome":["forest","hills","mountains","swamp"]
 
     },
     {
@@ -1552,7 +1586,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"5d5+3"
-        }
+        }, "drops":{"vampire fang":10}
 
     },
     {
@@ -1567,7 +1601,7 @@
             "name":"vorpal sword",
             "type":"slash",
             "dmg":"5d6+3"
-        }
+        }, "biome":["town","forest","plains"]
 
     },
     {
@@ -1662,14 +1696,14 @@
             "name":"claws",
             "type":"slash",
             "dmg":"4d8+4"
-        }
+        }, "drops":{"raw wood":5}
 
     },
     {
         "name":"green dragon",
         "level":10,
         "kind":"dragon",
-        "desc":"Your standard dragon.",
+        "desc":"Just your standard green dragon.",
         "hp":"10d10+70",
         "toHit":10,
         "armor":"55",
@@ -1691,7 +1725,7 @@
             "name":"kik",
             "type":"blunt",
             "dmg":"5d9+8"
-        }
+        },"drops":{"raw stone":25}
 
     },
     {
@@ -1754,7 +1788,7 @@
             "name":"pound",
             "type":"blunt",
             "dmg":"4d10+10"
-        }
+        }, "drops":{"raw wood":15}
     },
     {
         "name":"red dragon",
@@ -1847,7 +1881,7 @@
             "name":"darksword",
             "type":"evil",
             "dmg":"5d9+7"
-        }
+        },"drops":{"sulfur":30, "fire essence":1}
 
     },
     {
@@ -1878,7 +1912,7 @@
             "name":"lava slam",
             "type":"fire",
             "dmg":"7d10+8"
-        }
+        }, "drops":{"raw iron":15, "raw stone":10, "fire essence":10}
     },
     {
         "name":"vampire lord",
@@ -1893,7 +1927,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"5d8+7"
-        }
+        }, "drops":{"vampire fang":15}
 
     },
     {
@@ -1908,7 +1942,7 @@
             "name":"pound",
             "type":"blunt",
             "dmg":"5d10+15"
-        }
+        },"drops":{"raw mithril":25}
     },
     {
         "name":"ancient vampire",
@@ -1923,7 +1957,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"9d8+14"
-        }
+        }, "drops":{"vampire fang":25}
 
     },
     {
@@ -1939,7 +1973,7 @@
             "name":"flame whip",
             "type":"fire",
             "dmg":"9d15+15"
-        }
+        }, "drops":{"fire essence":10}
 
     },
     {
@@ -1954,7 +1988,7 @@
             "name":"SMASH",
             "type":"blunt",
             "dmg":"5d20+20"
-        }
+        },"drops":{"raw adamant":25}
     },
     {
         "name":"mature red dragon",

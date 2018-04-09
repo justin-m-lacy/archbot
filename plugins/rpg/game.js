@@ -4,6 +4,9 @@ const Party = require( './party.js');
 const Combat = require('./combat.js');
 const dice = require( './dice.js');
 const Guild = require( './world/guild.js');
+const util = require( '../../jsutils.js');
+const Trade = require( './trade.js');
+const item = require( './items/item.js');
 
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
@@ -29,6 +32,8 @@ var illegal_acts = {
 	}
 };
 
+// actions that allow some hp recovery.
+var rest_acts = { 'move':1, 'cook':1, 'drop':1 };
 var party_acts = [ 'attack', 'move'];
 
 var eventFb = {
@@ -41,18 +46,6 @@ var eventExp = {
 	explored:2,
 	crafted:1
 };
-
-
-exports.actionErr = ( m, char, act ) => {
-
-	let illegal = illegal_acts[ char.state ];
-	if ( illegal && illegal.hasOwnProperty(act)) {
-		m.reply( 'Cannot perform action ' + act + ' while ' + char.state );
-		return true;
-	}
-	return false;
-
-}
 
 exports.Game = class Game {
 
@@ -74,6 +67,12 @@ exports.Game = class Game {
 		// parties by char name.
 		this._parties = {};
 
+	}
+
+	actionErr( char, act ) {
+		let illegal = illegal_acts[ char.state ];
+		if ( illegal && illegal.hasOwnProperty(act)) return `Cannot ${act} while ${char.state}.`;
+		return false;
 	}
 
 	getParty( char ) { return this._parties[char.name]; }
@@ -152,7 +151,7 @@ exports.Game = class Game {
 		if ( !p ) return `${name} is not in a party.`;
 		delete this._parties[name];
 
-		if ( p.leave( name ) ) {
+		if ( p.leave( char ) ) {
 			// party contains <=1 person, and no invites.
 			p.names.forEach( n => delete this._parties[n] );
 			return `${name}'s party has been disbanded.`;
@@ -219,18 +218,157 @@ exports.Game = class Game {
 
 	}
 
-	actionErr( char, act ) {
-		let illegal = illegal_acts[ char.state ];
-		if ( illegal && illegal.hasOwnProperty(act)) return `Cannot ${act} while ${char.state}.`;
-		return false;
+	goHome( char ) {
+
+		let res = this.actionErr( char, 'home');
+		if ( res ) return res;
+
+		return this.world.goHome( char );
+
 	}
 
-	tick( char, act ) {
+	equip( char, wot ) {
+
+		if ( !wot ) return `${char.name} equip:\n${char.listEquip()}`;
+
+		let res = this.actionErr( char, 'equip');
+		if ( res) return res;
+		
+		res = char.equip(wot);
+		if ( res === true ) return char.name + ' equips ' + wot;	// TODO,echo slot used.
+		else if ( typeof(res) === 'string') return res;
+		else return char.name + ' does not have ' + wot;
+
+	}
+
+	inscribe( char, wot, inscrip ) {
+
+		let res = this.actionErr( char, 'inscribe');
+		if ( res) return res;
+
+		let item = char.getItem( wot );
+		if ( !item ) return 'Item not found.';
+
+		item.inscription = inscrip;
+		char.addHistory( 'inscribe');
+		return 'Item inscribed.';
+
+	}
+
+	destroy( char, first, end ) {
+
+		let res = this.actionErr( char, 'destroy');
+		if ( res) return res;
+
+		if ( end ) {
+
+			let itms = char.takeItems( first, end );
+			if ( !itms) return 'Invalid item range.';
+			return itms.length + ' items destroyed.';
+
+		} else {
+
+			let item = char.takeItem( first );
+			if ( !item ) return `'${first}' not in inventory.`;
+
+			return item.name + ' is gone forever.';
+
+		} //
+
+	}
+
+	sell( char, first, end ) {
+
+		let res = this.actionErr( char, 'sell');
+		if ( res) return res;
+
+		return Trade.sell( char, first, end );
+
+	}
+
+	give( src, dest, expr ) {
+		
+		let res = this.actionErr( src, 'give');
+		if ( res) return res;
+
+		return Trade.transfer( src, dest, expr );
+
+	}
+
+	cook( char, wot ) {
+
+		let res = this.actionErr( char, 'cook');
+		if ( res) return res;
+
+		return char.cook( wot )
+
+	}
+
+	craft( char, itemName, desc, imgURL=null ) {
+
+		let res = this.actionErr( char, 'craft');
+		if ( res) return res;
+
+		let ind = item.Craft( char, itemName, desc, imgURL );
+
+		return `${char.name} crafted ${itemName}. (${ind})`;
+
+	}
+
+	unequip( char, slot ) {
+
+		let err = this.actionErr( char, 'unequip');
+		if ( err ) return err;
+	
+		if ( !slot ) return 'You must specify an equip slot to remove.';
+
+		if ( char.unequip(slot) ) return 'Removed.';
+		return 'Cannot unequip from ' + slot;
+
+	}
+
+	async drop( char, what, end ) {
+
+		let err = this.actionErr( char, 'drop');
+		if ( err) return err;
+
+		return this.world.drop( char, what, end );
+
+	}
+
+	async take( char, first, end ) {
+
+		let err = this.actionErr( char, 'take');
+		if ( err) return err;
+
+		return this.world.take( char, first, end );
+
+	}
+
+	tick( char, action ) {
+
+		char.clearLog();
+
+		if ( this.actionErr(char, action ) ) return char.getLog();
+
+		this.tickEffects( char, action );
+
+		return char.getLog();
+
+	}
+
+	tickEffects( char, action ) {
 
 		let efx = char.effects;
-		for( let i = efx.length-1; i>= 0; i-- ) {
+		for( let i = efx.length-1; i >= 0; i-- ) {
 
 			let e = efx[i];
+			if ( e.tick( char ) ) {
+				// efx end.
+				util.fastCut( efx, i );
+				e.end();
+
+			}
 
 		}
 
@@ -263,16 +401,32 @@ exports.Game = class Game {
 		if ( res ) return res;
 
 		let p = this.getParty(char);
-		if ( p && p.isLeader(char) ) p.rest();
+		if ( p && p.isLeader(char) ) await p.rest();
 		else char.rest();
 
 		return `${char.name} rested. hp: ${char.curHp}/${char.maxHp}`;
 
 	}
 
+	scout( char ) {
+
+		let r = (char.skillRoll() + char.getModifier('int'));
+
+		if ( r < 5 ) return 'You are lost.';
+
+		let coord = char.loc;
+
+		let err = Math.floor( 400 / r );
+		let x = Math.round( coord.x + err*( Math.random() - 0.5) );
+		let y = Math.round( coord.y + err*( Math.random() - 0.5) );
+
+		return `You believe you are near (${x},${y}).`;
+
+	}
+
 	track( char, targ ) {
 
-		let r = (char.skillRoll() + char.getModifier('int')); // - (targ.skillRoll() + targ.getModifier('wis') );
+		let r = 4*(char.skillRoll() + char.getModifier('int')); // - (targ.skillRoll() + targ.getModifier('wis') );
 
 		let src = char.loc;
 		let dest = targ.loc;
@@ -292,7 +446,15 @@ exports.Game = class Game {
 		if ( a > 0 && Math.abs(90-a) < (3*45)/2 ) dir = dir ? 'north ' + dir : 'north';
 		else if ( a < 0 && Math.abs(-90-a) < (3*45)/2 ) dir = dir ? 'south ' + dir : 'south';
 
-		return `You believe ${targ.name} is to the ${dir}.`
+		let dist;
+		if ( d < 20 ) dist = '';
+		if ( d < 50 ) dist = 'somewhere';
+		if ( d < 125 ) dist = 'far';
+		if ( d < 225 ) dist = 'incredibly far';
+		if ( d < 300 ) dist = 'unbelievably far';
+		else dist = 'imponderably far';
+
+		return `You believe ${targ.name} is ${ dist ? dist + ' ' : ''}to the ${dir}.`;
 
 	}
 

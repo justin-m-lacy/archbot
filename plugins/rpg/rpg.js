@@ -1,11 +1,12 @@
 var initialized = false;
 
 // includes after init.
-var Char, Race, CharClass, CharGen, item, Trade, World;
+var Char, Race, CharClass, CharGen, Trade, World;
 const gamejs = require( './game.js');
-
+const formula = require( './formulas.js');
 const display = require( './display');
 const RPG_DIR = 'rpg/';
+const CHAR_DIR = 'chars/';
 const LAST_CHARS = '`lastchars`';
 
 function initData() {
@@ -16,13 +17,12 @@ function initData() {
 	Race = require( './race.js');
 	CharClass = require( './charclass.js' );	
 	CharGen = require( './chargen.js' );
-	item = require( './items/item.js' );
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
 
 }
 
-// created for each discord context.
+// created for each bot context.
 class RPG {
 
 	get cache() { return this._cache; }
@@ -33,21 +33,16 @@ class RPG {
 	 */
 	constructor( context ) {
 
-		try {
+		this._context = context;
+		console.log( "Creating RPG instance.");
 
-			this._context = context;
-			console.log( "Creating RPG instance.");
+		if ( !initialized) initData();
+		this._cache = this._context.subcache( RPG_DIR );
 
-			if ( !initialized) initData();
-			this._cache = this._context.subcache( RPG_DIR );
+		this.charCache = this._cache.makeSubCache( CHAR_DIR, Char.FromJSON );
 
-			this.charCache = this._cache.makeSubCache( 'chars', Char.FromJSON );
-
-			this.world = new World( this._context.cache );
-			this.game = new gamejs.Game( this, this.charCache, this.world );
-
-
-		} catch ( e ) { console.log(e); }
+		this.world = new World( this._context.cache );
+		this.game = new gamejs.Game( this, this.charCache, this.world );
 
 	}
 
@@ -58,7 +53,7 @@ class RPG {
 	async cmdAllChars( msg, uname=null ) {
 
 		try {
-			let list = await this._context.getDataList(RPG_DIR );
+			let list = await this._context.getDataList( RPG_DIR + CHAR_DIR );
 			if ( !list ) return msg.reply( 'An unknown error has occurred. Oopsie.');
 
 			return msg.reply( list.join(', ') );
@@ -78,7 +73,7 @@ class RPG {
 			if ( !t ) return;
 		}
 
-		await display.sendBlock( m, this.game.party(char, t ));
+		return display.sendBlock( m, this.game.party(char, t ));
 
 	}
 
@@ -145,7 +140,7 @@ class RPG {
 			if ( !t ) return;
 		}
 
-		await display.sendBlock( m, await this.game.guildInv(char, t ));
+		return display.sendBlock( m, await this.game.guildInv(char, t ));
 
 	}
 
@@ -171,11 +166,20 @@ class RPG {
 
 	}
 
-	async cmdFormula(m) {
+	async cmdFormula( m, str ) {
 
 		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
+
+		try {
+		let f = formula.Formula.TryParse( str );
+		if ( !f ) return m.reply( 'Formula could not parse.');
+	
+			let res = f.eval( char );
+			return m.reply( 'result: ' + res );
+
+		} catch ( e ) { console.log(e); }
 
 	}
 
@@ -184,8 +188,7 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		await m.reply( this.world.setHome( char ) );
-		this.cacheChar( char );
+		return m.reply( this.world.setHome( char ) );
 
 	}
 
@@ -194,10 +197,7 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		if ( gamejs.actionErr( m, char, 'home' ) ) return;
-
-		await m.reply( this.world.goHome( char ) );
-		this.cacheChar( char );
+		return m.reply( this.game.goHome( char ) );
 
 	}
 
@@ -212,18 +212,7 @@ class RPG {
 	}
 
 	async cmdLore( m, wot ) {
-		await display.sendBlock( m, gamejs.getLore(wot) );
-	}
-
-	async cmdChanges(m) {
-		let changes = require('./data/changelog.json');
-		let list = '';
-
-		for( let k in changes ) {
-			list += k + '\n' + changes[k].join('\n') + '\n\n';
-		}
-
-		await display.sendBlock( m, list )
+		return display.sendBlock( m, gamejs.getLore(wot) );
 	}
 
 	async cmdTake( m, first, end ){
@@ -233,24 +222,17 @@ class RPG {
 			let char = await this.userCharOrErr( m, m.author )
 			if (!char) return;
 
-			if ( gamejs.actionErr( m, char, 'take' ) ) return;
-
-			await m.channel.send(  await this.world.take( char, first, end ) );
+			await m.channel.send(  await this.game.take( char, first, end ) );
 
 		} catch ( e) { console.log(e); }
 	}
 
 	async cmdDrop( m, what, end=null ) {
 
-		try {
-			let char = await this.userCharOrErr( m, m.author )
-			if (!char) return;
-
-			if ( gamejs.actionErr( m, char, 'drop' ) ) return;
+		let char = await this.userCharOrErr( m, m.author )
+		if (!char) return;
 		
-			await m.channel.send( await this.world.drop( char, what, end ));
-
-		} catch ( e) { console.log(e); }
+		return m.channel.send( await this.game.drop( char, what, end ));
 
 	}
 
@@ -259,7 +241,7 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
-		await display.sendBlock( m, await this.world.explored(char) );
+		return display.sendBlock( m, await this.world.explored(char) );
 
 	}
 
@@ -298,12 +280,11 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
-		await display.sendBlock( msg, await this.world.useLoc(char, wot ));
+		return display.sendBlock( msg, await this.world.useLoc(char, wot ));
 	}
 
 	async cmdMove( msg, dir ) {
 
-		console.time("move");
 		try {
 
 			let char = await this.userCharOrErr( msg, msg.author );
@@ -314,7 +295,6 @@ class RPG {
 
 		} catch ( e) { console.log(e);}
 
-		console.timeEnd("move");
 	}
 
 	/**
@@ -371,33 +351,18 @@ class RPG {
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( gamejs.actionErr( m, char, 'unequip' ) ) return;
-	
-		if ( !slot ) return m.reply( 'You must specify an equip slot to remove.');
-
-		if ( char.unequip(slot) ) return m.reply( 'Removed.');
-		return m.reply( 'Cannot unequip from ' + slot );
-
+		return m.reply( this.game.unequip(char, slot ));
 
 	}
 
-	async cmdEquip( m, what ) {
+	async cmdEquip( m, wot ) {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
-
-		if ( gamejs.actionErr( m, char, 'equip' ) ) return;
 	
-		if ( !what ) await display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
+		if ( !wot ) return display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 
-		else {
-
-			let res = char.equip(what);
-			if ( res === true ) return m.reply( char.name + ' equips ' + what );
-			else if ( typeof(res) === 'string') return m.reply( res );
-			else return m.reply( char.name + ' does not have ' + what );
-
-		}
+		return display.sendBlock( m, this.game.equip( char, wot ) );
 
 	}
 
@@ -442,54 +407,31 @@ class RPG {
 	async cmdCook( m, what ) {
 
 		let char = await this.userCharOrErr( m, m.author );
-		if (!char || gamejs.actionErr( m, char, 'cook' ) ) return;
+		if ( !char ) return;
 
-		return m.reply( char.cook( what ) );
+		return m.reply( this.game.cook( char, what ) );
 
 	}
 
-	async cmdInscribe( m, whichItem, inscrip ) {
+	async cmdInscribe( m, wot, inscrip ) {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( gamejs.actionErr( m, char, 'inscribe' ) ) return;
+		if ( !wot ) return m.reply( 'Which item in inventory do you want to inscribe?');
 
-		if ( !whichItem ) return m.reply( 'Which item in inventory do you want to inscribe?');
-
-		let item = char.getItem( whichItem );
-		if ( !item ) return m.reply( 'Item not found.');
-
-		item.inscription = inscrip;
-		char.addHistory( 'inscribe');
-		await this.saveChar( char );
-		return m.reply( 'Item inscribed.');
+		return m.reply( this.game.inscribe( char, wot, inscrip ) );
 
 	}
 
-	async cmdDestroy( m, whichItem, end=null ) {
+	async cmdDestroy( m, first, end=null ) {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		if ( gamejs.actionErr( m, char, 'destroy' ) ) return;
+		if ( !first ) return m.reply( 'Which inventory item do you want to destroy?');
 
-		if ( !whichItem ) return m.reply( 'Which inventory item do you want to destroy?');
-
-		if ( end != null ) {
-
-			let itms = char.takeItems( whichItem, end );
-			if ( !itms) return m.reply( 'Invalid item range.');
-			return m.reply( itms.length + ' items destroyed.');
-
-		} else {
-
-			let item = char.takeItem( whichItem );
-			if ( !item ) return m.reply( `'${whichItem}' not in inventory.` );
-
-			return m.reply( item.name + ' is gone forever.' );
-
-		} //
+		return m.reply( this.game.destroy( char, first, end ));
 
 	}
 
@@ -524,22 +466,16 @@ class RPG {
 
 	async cmdCraft( m, itemName, desc ) {
 
-		let char = await this.userCharOrErr( m, m.author )
-		if ( !char ) return;
-
-		if ( gamejs.actionErr( m, char, 'craft' ) ) return;
-	
 		if ( !itemName ) return m.reply( 'Crafted item must have name.');
 		if ( !desc ) return m.reply( 'Crafted item must have a description.' );
 
+		let char = await this.userCharOrErr( m, m.author )
+		if ( !char ) return;
+		
 		let a = m.attachments.first();
-		let ind = a ? item.Craft( char, itemName, desc, a.proxyURL ) : item.Craft( char, itemName, desc );
+		let res = a ? this.game.craft( char, itemName, desc, a.proxyURL ) : this.game.craft( char, itemName, desc );
 
-		this.checkLevel(m,char);
-
-		await this.saveChar( char );
-
-		await display.sendBlock( m, `${char.name} crafted ${itemName}. (${ind})`);
+		return display.sendBlock( m, res );
 
 	}
 
@@ -563,31 +499,32 @@ class RPG {
 
 	}
 
-	async cmdSell( m, wot, end ) {
+	async cmdSell( m, first, end ) {
 
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
-		if ( gamejs.actionErr( m, src, 'sell' ) ) return;
-
-		await display.sendBlock( m, Trade.sell( src, wot, end ));
+		return display.sendBlock( m, this.game.sell( src, first, end ));
 	}
 
 	async cmdGive( m, who, expr ) {
 
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
-
-		if ( gamejs.actionErr( m, src, 'give' ) ) return;
 	
 		let dest = await this.loadChar( who );
 		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
-		let res = Trade.transfer( src, dest, expr );
-		this.cacheChar( src );
-		this.cacheChar( dest  );
+		return m.reply( this.game.give( src, dest, expr) );
 
-		return m.reply( res );
+	}
+
+	async cmdScout( m ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if ( !char ) return;
+
+		await display.sendBlock( m, this.game.scout( char ) );
 
 	}
 
@@ -605,7 +542,6 @@ class RPG {
 
 	async cmdAttack( m, who ) {
 
-		console.time('attack');
 		try {
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
@@ -620,15 +556,11 @@ class RPG {
 			if ( !targ ) return m.reply( `'${who}' not found.` );
 
 			res = await this.game.attack( src, targ );
-			this.cacheChar(targ);
 
 		}
 	
-		this.cacheChar( src );
 
 		await display.sendBlock( m, res );
-
-		console.timeEnd('attack');
 
 		} catch (e) { console.log(e);}
 		
@@ -660,8 +592,7 @@ class RPG {
 				this.charCache.delete( this.getCharKey( charname ) );
 
 				// TODO: REMOVE LAST LOADED NAME. etc.
-				let active = this.activeChars[char.owner];
-				if ( active && active.name === charname ) this.clearUserChar( char.owner );
+				if ( this.lastChars[char.owner] === charname ) this.clearUserChar( char.owner );
 
 				return msg.reply( charname + ' deleted.' );
 
@@ -682,7 +613,7 @@ class RPG {
 			char = await this.loadChar( charname );
 			if (!char) return m.reply( charname + ' not found on server. D:' );
 		}
-		display.echoChar( m.channel, char );
+		return display.echoChar( m.channel, char );
 
 	}
 
@@ -741,7 +672,7 @@ class RPG {
 				prefix = 'Active character set.\n';
 			}
 	
-			display.echoChar( msg.channel, char, prefix );
+			return display.echoChar( msg.channel, char, prefix );
 
 		} catch(e) {console.log(e);}
 	
@@ -809,9 +740,7 @@ class RPG {
 		return data;
 	}
 
-	clearUserChar( uid ) {
-		delete this.lastChars[uid];
-	}
+	clearUserChar( uid ) { delete this.lastChars[uid]; }
 
 	async setUserChar( user, char ) {
 
@@ -827,7 +756,7 @@ class RPG {
 			this.lastChars = lastjson;
 			return lastjson;
 		}
-		this.lastChars = {};
+		this.lastChars = {};	// uid->char name
 		this._cache.cache( LAST_CHARS, this.lastChars );
 
 	}
@@ -886,7 +815,7 @@ exports.init = function( bot ){
 
 	// HELP
 	bot.addContextCmd( 'lore', '!lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
+	//bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
 	// PVP
 	bot.addContextCmd( 'attack', '!attack who', proto.cmdAttack, RPG, {minArgs:1, maxArgs:1});
@@ -954,6 +883,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'sethome', '!sethome', proto.cmdSetHome, RPG, {maxArgs:0});
 	bot.addContextCmd( 'gohome', '!gohome', proto.cmdGoHome, RPG, {maxArgs:0});
 	//bot.addContextCmd( 'where', '!where [char]', proto.cmdWhere, RPG, {minArgs:1,maxArgs:1});
+	bot.addContextCmd( 'scout', '!scout', proto.cmdScout, RPG, {maxArgs:0});
 	bot.addContextCmd( 'useloc', '!useloc [feature]', proto.cmdUseLoc, RPG, {maxArgs:1});
 
 	// MOVE
@@ -964,3 +894,15 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
 
 }
+
+/*
+	async cmdChanges(m) {
+		let changes = require('./data/changelog.json');
+		let list = '';
+
+		for( let k in changes ) {
+			list += k + '\n' + changes[k].join('\n') + '\n\n';
+		}
+
+		await display.sendBlock( m, list )
+	}*/

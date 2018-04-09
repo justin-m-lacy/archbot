@@ -73,7 +73,7 @@ exports.Cache = class {
 		}
 		if ( !this.loader ) return null;
 
-		console.log( 'fetching from file: ' + key );
+		//console.log( 'fetching from file: ' + key );
 		let val = await this.loader( this._cacheKey + key );
 		if ( val != null ) {
 

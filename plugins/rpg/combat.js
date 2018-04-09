@@ -5,6 +5,7 @@ const Monster = require( './monster/monster.js');
 const itemgen = require( './items/itemgen.js');
 const dice = require( './dice.js');
 const Party = require( './party.js');
+const effects = require( './effects.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
 fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
@@ -12,7 +13,7 @@ fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
 
 /**
  * Exp for killing target.
- * @param {*} lvl 
+ * @param {number} lvl 
  */
 const npcExp = lvl => Math.floor( 10* Math.pow( 1.3, lvl ) );
 const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.2, lvl/2 ) );
@@ -54,7 +55,7 @@ module.exports = class Combat {
 		if ( this.defender.state === 'dead') {
 	
 			this.world.removeNpc( this.attacker, this.defender );
-			await this.doLoot( this.attacker, itemgen.genLoot( this.defender.level ) );
+			await this.doLoot( this.attacker, itemgen.genLoot( this.defender ) );
 
 		}
 
@@ -70,9 +71,13 @@ module.exports = class Combat {
 		for( let i = 0; i < len; i++ ) {
 
 			var c = await p.getChar( names[i]);
-			if ( !c || c.state !== 'alive' ) continue;
+			if ( !c || c.state !== 'alive' ) {
+				if ( !c) console.log('!c is true: ' + names[i]);
+				else console.log( 'attacking state: ' + c.state );
+				continue;
+			}
 
-			console.log( 'ATTACK ATTEMPT: '+names[i]);
+			console.log( 'ATTACK ATTEMPT: '+ names[i]);
 
 			this.resp += '\n';
 			if ( destParty ) {
@@ -82,7 +87,7 @@ module.exports = class Combat {
 					console.log( 'WARNING: all opponents have 0 hp.');
 					break;	// no opponents with hp left.
 				}
-				await this.tryHit( c, destchar, p );
+				await this.tryHit( c, destChar, p );
 	
 			} else await this.tryHit( c ,dest, p );
 
@@ -128,7 +133,7 @@ module.exports = class Combat {
 				if ( atk.attacker instanceof Char ) {
 
 					console.log( 'Char killed defender.');
-					await this.doKill( atk.attacker, atk.defender, atk.party );
+					return this.doKill( atk.attacker, atk.defender, atk.party );
 
 				}
 
@@ -254,7 +259,7 @@ module.exports = class Combat {
 
 	async doLoot( dest, loot ) {
 
-		if ( !loot.gold && !loot.items ) return;
+		if ( !loot.gold && loot.items.length === 0 ) return;
 
 		if ( dest instanceof Party ) dest = await dest.randChar();
 
@@ -373,7 +378,27 @@ class Attack {
 
 	get saveStat() {}
 
-	constructor() {
+	constructor() {}
+
+	rollHit() {
+	}
+
+	rollDmg() {
+	}
+
+	applyHit( actor, target ) {
+
+		let e = this._effect;
+		if ( e instanceof Array ) {
+
+			for( i = e.length-1; i >= 0; i-- ) {
+				target.effects.push( new effects.CharEffect( e[i]), 0 );
+			}
+
+		} else {
+			target.effects.push( new effects.CharEffect(e,0) );
+		}
+
 	}
 
 }

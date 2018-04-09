@@ -1,4 +1,6 @@
-[
+{
+    "misc":[
+    { "name":"Pickle", "desc":"I wonder what kind of plant they come from?"},
     { "name":"Derpy Hooves", "desc":"Put them on your feet." },
     { "name":"Potato Peeler", "desc":"For peeling potatoes." },
     { "name":"Stone Tablet", "desc":"For writing commandments." },
@@ -52,6 +54,40 @@
     { "name":"A Spoon", "desc":"Try to realize the truth." },
     { "name":"Pale Blue Dot", "desc":"Probably worthless." },
     { "name":"A simple golden ring.", "desc":"This would probably be very powerful in another fictional world." },
-    { "name":"Log", "desc":"Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog." }
-    
-]
+    { "name":"Log", "desc":"Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog." },
+    { "name":"Rat Tail", "desc":"Tug them and they come right off.", "cost":1, "type":"ing" },
+    { "name":"Eye of Newt", "desc":"Standard ingredient in every witch's brew.", "cost":1, "type":"ing" }
+   
+],
+
+    "special":[ { "name":"Dragon Tears", "desc":"You made him cry!!!", "cost":100, "type":"ing" },
+        { "name":"Dragon Scales", "desc":"Durable", "cost":50, "type":"ing" },
+        { "name":"Crocodile Tooth", "desc":"Crickey!", "cost":5, "type":"ing" },
+        { "name":"Crocodile Tears", "desc":"You made him cry!!!", "cost":10, "type":"ing" },
+        { "name":"Bear Claw", "desc":"Delicious.", "cost":5, "type":"ing" },
+        { "name":"Mandrake Root", "desc":"It has healing properties.", "cost":15, "type":"ing" },
+        { "name":"Whiskey", "desc":"Increases martial ability.", "cost":15, "type":"ing" },
+        { "name":"Sulfur Dust", "desc":"It's used for sulfur crafting.", "cost":5, "type":"ing" },
+        { "name":"Phoenix Feather", "desc":"Feather of a phoenix.", "cost":75, "type":"ing" },
+        { "name":"Phoenix Ashes", "desc":"Ashes of a dead phoenix.", "cost":175, "type":"ing" },
+        { "name":"vampire fang", "desc":"Very goth.", "cost":175, "type":"ing" },
+        { "name":"wight pus", "desc":"Explodes on impact.", "cost":25, "type":"ing" },
+        { "name":"bone", "desc":"Regular old bone. You probably have a few yourself.", "cost":5, "type":"ing"},
+        { "name":"Medusa Head", "desc":"Don't look at it.", "cost":275, "type":"ing" },
+        { "name":"Kakapo Feather", "desc":"Illegal to own.", "cost":5, "type":"ing" },
+        { "name":"Fire Essence", "desc":"A glowing ball of fire.", "cost":25, "type":"ing" },
+        { "name":"Earth Essence", "desc":"It's just a lump of dirt, but you can tell it's special.", "cost":25, "type":"ing"},
+        { "name":"Ice Essence", "desc":"Distilled properties of ice without the ice itself.", "cost":25, "type":"ing" },
+        { "name":"Air Essence", "desc":"The swirling ball of air seems to hold itself together.", "cost":25, "type":"ing" },
+        { "name":"raw wood", "desc":"Might be useful one day.", "cost":1, "type":"ing" },
+        { "name":"raw stone", "desc":"Might be useful one day.", "cost":1, "type":"ing" },
+        { "name":"raw iron", "desc":"Might be useful one day.", "cost":25, "type":"ing" },
+        { "name":"Raw Steel", "desc":"Might be useful one day.", "cost":175, "type":"ing" },
+        { "name":"Raw Mithril", "desc":"Might be useful one day.", "cost":375, "type":"ing" },
+        { "name":"Raw Adamant", "desc":"Might be useful one day", "cost":775, "type":"ing" },
+        { "name":"Pixie Wings", "desc":"Tug them and they come right off.", "cost":25, "type":"ing" },
+        { "name":"Spectral Essence", "desc":"Wispy", "cost":25, "type":"ing" }
+        
+    ]
+
+}
