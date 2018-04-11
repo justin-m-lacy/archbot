@@ -10,7 +10,8 @@
             "name":"blathering",
             "type":"noob",
             "dmg":"1d1"
-        }, "biome":["town","plains"]
+        }, "biome":["town","plains"],
+        "drops":["newbie beer", "ear of elfroid"]
 
     },
     {
@@ -56,7 +57,7 @@
             "name":"claws",
             "type":"slash",
             "dmg":"1d2"
-        }
+        }, "drops":{"potion of cure minor wounds":5}
 
     },
     {
@@ -116,7 +117,7 @@
             "name":"bite",
             "type":"pierce",
             "dmg":"1d2+1"
-        }
+        }, "drops":"bat wing"
 
     },
     {
@@ -129,7 +130,8 @@
             "name":"pointy stick",
             "type":"pierce",
             "dmg":"1d4"
-        }, "biome":["mountains","hills","swamp"]
+        }, "biome":["mountains","hills","swamp"],
+        "drops":{"potion of cure minor wounds":3}
 
     },
     {
@@ -142,7 +144,7 @@
             "name":"scimitar",
             "type":"slash",
             "dmg":"1d4"
-        }
+        }, "drops":{"potion of cure minor wounds":5, "potion of cure light wounds":1}
 
     },
     {
@@ -156,7 +158,8 @@
             "name":"magic missile",
             "type":"magic",
             "dmg":"2d4"
-        },"biome":["town","plains","hills"]
+        },"biome":["town","plains","hills"],
+        "drops":{ "potion of cure light wounds":5, "potion of cure minor wounds":5 }
 
     },
     {
@@ -171,7 +174,7 @@
             "name":"spear",
             "type":"pierce",
             "dmg":"1d6"
-        }
+        }, "drops":{"potion of cure light wounds":3}
 
     },
     {
@@ -187,7 +190,7 @@
             "name":"dagger",
             "type":"pierce",
             "dmg":"1d5"
-        },"biome":"town"
+        },"biome":"town", "drops":{"potion of cure light wounds":3}
 
     },
     {
@@ -234,7 +237,7 @@
             "name":"cursed blade",
             "type":"slash",
             "dmg":"1d4+1"
-        }, "drops":{"bone":10}
+        }, "drops":{"bone":10, "potion of light agony":5}
 
     },
     {
@@ -264,7 +267,8 @@
         "weap":{
             "name":"bow",
             "type":"pierce",
-            "dmg":"1d6"}
+            "dmg":"1d6"
+        }, "drops":{"potion of cure light wounds":5}
 
     },
     {
@@ -358,7 +362,7 @@
             "name":"longbow",
             "type":"pierce",
             "dmg":"1d6"
-        }
+        }, "drops":{"potion of cure light wounds":10 }
 
     },
     {
@@ -451,7 +455,7 @@
             "name":"dagger",
             "type":"pierce",
             "dmg":"1d6+1"
-        }
+        }, "drops":{"potion of cure light wounds":10}
 
     },
     {
@@ -536,7 +540,7 @@
             "name":"mallet",
             "type":"blunt",
             "dmg":"1d6+5"
-        }
+        }, "drops":{"potion of cure light wounds":10}
 
     },
     {
@@ -647,7 +651,7 @@
             "name":"claws",
             "type":"slash",
         "dmg":"1d6+2"
-        },"drops":{"sulfur dust":5}
+        },"drops":{"sulfur dust":5, "potion of cure light wounds":10, "potion of cure moderate wounds":10}
 
     },
     {
@@ -678,7 +682,7 @@
             "name":"bite",
             "type":"pierce",   
             "dmg":"3d2+2"
-        }
+        },"drops":"bat wing"
 
     },
     {
@@ -820,7 +824,7 @@
             "name":"harm",
             "type":"evil",
             "dmg":"2d6"
-        }
+        },"drops":{ "potion of cure moderate wounds":20, "potion of cure serious wounds":10}
 
     },
     {
@@ -836,7 +840,8 @@
             "name":"claws",
             "type":"slash",
             "dmg":"1d6+3"
-        }
+        },
+        "drops":{ "sulfur dust":10,"potion of cure moderate wounds":10, "potion of cure serious wounds":10}
 
     },
     {
@@ -1012,7 +1017,7 @@
             "name":"swords",
             "type":"slash",
             "dmg":"1d6+3"
-        },"drops":{"mandrake root":10}
+        },"drops":{"mandrake root":10, "potion of cure moderate wounds":20, "potion of cure serious wounds":10}
 
     },
     {
@@ -1214,7 +1219,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"1d5+3"
-        }, "drops":{"vampire fang":5}
+        }, "drops":{"vampire fang":5, "potion of moderate agony":10}
 
     },
     {
@@ -1261,7 +1266,7 @@
             "name":"seduction",
             "type":"sexy",
             "dmg":"2d6+2"
-        }, "drops":{"sulfur dust":10}
+        }, "drops":{"sulfur dust":10, "potion of moderate agony":10}
 
     },
     {
@@ -1277,7 +1282,7 @@
             "name":"flame wing",
             "type":"fire",
             "dmg":"3d4+8"
-        }, "drops":{"phoenix feather":5, "phoenix ashes":1}
+        }, "drops":{"phoenix feather":5, "phoenix ashes":1, "potion of cure critical wounds":5}
 
     },
     {
@@ -1292,7 +1297,7 @@
             "name":"wombat magic",
             "type":"magic",
             "dmg":"8d4"
-        }
+        }, "drops":{"potion of cure serious wounds":20}
 
     },
     {
@@ -1338,7 +1343,7 @@
             "name":"stare",
             "type":"magic",
             "dmg":"4d8+12"
-        },"drops":{"medusa head":5}
+        },"drops":{"medusa head":5, "potion of light agony":5, "potion of cure light wounds":5}
 
     },
     {
@@ -1354,7 +1359,7 @@
             "name":"seduction",
             "type":"sexy",
             "dmg":"3d5+5"
-        }, "drops":{"sulfur dust":15}
+        }, "drops":{"sulfur dust":15, "potion of serious agony":10}
 
     },
     {
@@ -1369,7 +1374,7 @@
             "name":"scimitars",
             "type":"slash",
             "dmg":"1d10+4"
-        }
+        }, "drops":{"potion of cure light wounds":20}
 
     },
     {
@@ -1446,7 +1451,7 @@
             "name":"broadsword",
             "type":"slash",
             "dmg":"2d6+8"
-        }
+        }, "drops":{ "potion of cure major wounds":15}
 
     },
     {
@@ -1493,7 +1498,7 @@
             "name":"mind flay",
             "type":"psionic",
             "dmg":"2d6+7"
-        }
+        }, "drops":{"potion of cure serious wounds":15}
 
     },
     {
@@ -1555,7 +1560,7 @@
         "weap":{"name":"club",
             "type":"blunt",
             "dmg":"4d6+5"
-        }
+        }, "drops":{"potion of cure serious wounds":15}
 
     },
     {
@@ -1586,7 +1591,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"5d5+3"
-        }, "drops":{"vampire fang":10}
+        }, "drops":{"vampire fang":10, "potion of major agony":10}
 
     },
     {
@@ -1618,7 +1623,7 @@
             "name":"claws",
             "type":"slash",
             "dmg":"4d5+3"
-        }
+        }, "drops":{ "potion of major agony":15}
 
     },
     {
@@ -1633,7 +1638,7 @@
             "name":"claymore",
             "type":"slash",
             "dmg":"3d5+5"
-        }
+        }, "drops":{ "potion of cure major wounds":15}
 
     },
     {
@@ -1833,7 +1838,7 @@
             "name":"light sword",
             "type":"holy",
             "dmg":"5d9+5"
-        }
+        }, "drops":{"angel wing":10, "halo":5, "potion of cure critical wounds":20 }
 
     },
     {
@@ -1849,7 +1854,7 @@
             "name":"death touch",
             "type":"drain",
             "dmg":"5d8+4"
-        }
+        }, "drops":{ "potion of critical agony":15}
 
     },
     {
@@ -1865,7 +1870,7 @@
             "name":"punch",
             "type":"blunt",
             "dmg":"5d10+7"
-        }
+         } , "drops":{ "potion of major agony":15, "potion of cure major wounds":15}
 
     },
     {
@@ -1881,7 +1886,7 @@
             "name":"darksword",
             "type":"evil",
             "dmg":"5d9+7"
-        },"drops":{"sulfur":30, "fire essence":1}
+        },"drops":{"sulfur":30, "fire essence":1, "potion of critical agony":15}
 
     },
     {
@@ -1927,7 +1932,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"5d8+7"
-        }, "drops":{"vampire fang":15}
+        }, "drops":{"vampire fang":15, "potion of critical agony":20}
 
     },
     {
@@ -1957,7 +1962,7 @@
             "name":"bite",
             "type":"drain",
             "dmg":"9d8+14"
-        }, "drops":{"vampire fang":25}
+        }, "drops":{"vampire fang":25, "potion of critical agony":30}
 
     },
     {

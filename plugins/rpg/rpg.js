@@ -595,6 +595,8 @@ class RPG {
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
 
+		if ( !who ) who = 1;
+
 		let targ = await this.world.getNpc( src, who );
 		let res;
 
@@ -949,6 +951,10 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
 	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
 	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
+	bot.addContextCmd( 'n', '!n', proto.cmdMove, RPG, { maxArgs:0, args:['north'] } );
+	bot.addContextCmd( 's', '!s', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
+	bot.addContextCmd( 'e', '!e', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
+	bot.addContextCmd( 'w', '!w', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
 
 }
 

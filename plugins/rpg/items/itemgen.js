@@ -2,6 +2,7 @@ const Weapon = require( './weapon.js' );
 const Armor = require( './armor.js');
 const Item = require( './item.js');
 const Material = require( './material.js');
+const Potion= require('./potion.js');
 const Feature = require( '../world/feature.js');
 
 exports.fromJSON = fromJSON;
@@ -11,7 +12,7 @@ exports.genItem = genItem;
 exports.genFeature = randFeature;
 exports.genLoot = genLoot;
 
-exports.randItem = randItem;
+exports.miscItem = miscItem;
 
 var miscItems, allItems;
 var allPots;
@@ -35,10 +36,15 @@ Material.LoadMaterials();
 function initItems() {
 
 	var items = require( '../data/items.json');
-	miscItems = items.misc;
 	var spec = items.special;
 
+	miscItems = items.misc;
 	allItems = {};
+
+	for( let i = miscItems.length-1; i>= 0; i--) {
+		allItems[ miscItems[i].name.toLowerCase() ] = miscItem[i];
+	}
+
 	for( let i = spec.length-1; i>=0; i--) {
 		allItems[ spec[i].name.toLowerCase() ] = spec[i];
 	}
@@ -50,17 +56,15 @@ function initPots() {
 	allPots = {};
 	let pots = require( '../data/potions.json' );
 
-	let p;
+	let p, name;
 	for( let i = pots.length-1; i>=0; i-- ) {
 
 		p = pots[i];
-		allPots[p.name] = p;
+		p.type = 'potion';	// assign type.
+		name = p.name.toLowerCase();
+		allItems[name] = allPots[name ] = p;
 
 	}
-
-}
-
-function getPot(name) {
 
 }
 
@@ -99,6 +103,10 @@ function fromJSON( json ) {
 		return Weapon.FromJSON(json);
 		break;
 
+		case 'potion':
+		return Potion.FromJSON(json);
+		break;
+
 		case 'feature':
 		return Feature.FromJSON(json);
 		break;
@@ -108,6 +116,14 @@ function fromJSON( json ) {
 	}
 
 	return null;
+
+}
+
+function getPot(name) {
+
+	let pot = allPots[name];
+	if ( !pot) return null;
+	return Potion.FromJSON( pot );
 
 }
 
@@ -178,6 +194,7 @@ function genLoot( mons ) {
 	if ( Math.random() < 0.1 ) loot.items.push( genWeapon(lvl) );
 
 	if ( mons.drops ) {
+		console.log('GETTING MONS DROPS.');
 		let itms = getDrops(mons);
 		if ( itms ) loot.items = loot.items.concat( itms );
 	}
@@ -196,20 +213,21 @@ function getDrops( mons ) {
 
 		console.log( 'RETURNING RANDOM DROP');
 		let it = drops[ Math.floor( Math.random()*drops.length ) ];
-		if ( it) return allItems[ it ];
+		return procItem( it );
 
 	} else if ( typeof(drops) === 'string') {
 
-		return Math.random() < 0.5 ? allItems[drops] : null;
+		return Math.random() < 0.7 ? procItem( drops ) : null;
 
 	} else {
 
+		console.log('OBJECT DROPS');
 		let it, itms = [];
 		for( let k in drops ) {
 
-			console.log('ROLLING FOR DROP: ' + k );
 			if ( 100*Math.random() < drops[k]) {
-				it = allItems[k];
+				console.log('ITEM PROC:' + k );
+				it = procItem( k );
 				if ( it ) itms.push( it );
 			}
 
@@ -220,10 +238,23 @@ function getDrops( mons ) {
 
 }
 
-function randItem() {
+function procItem( name ) {
+
+	if ( !name ) return null;
+	let data = allItems[name];
+	if ( !data ) return null;
+
+	return fromJSON( data );
+
+}
+
+/**
+ * Returns a useless item.
+ */
+function miscItem() {
 
 	let it = miscItems[ Math.floor( miscItems.length*Math.random() )];
-	let item = new Item.Item( it.name, it.desc );
+	let item = procItem( it.name );
 
 	return item;
 

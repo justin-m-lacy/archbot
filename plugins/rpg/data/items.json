@@ -1,6 +1,7 @@
 {
     "misc":[
     { "name":"Pickle", "desc":"I wonder what kind of plant they come from?"},
+    { "name":"Ear of Elfroid", "desc":"The trophy of a harmless creature."},
     { "name":"Derpy Hooves", "desc":"Put them on your feet." },
     { "name":"Potato Peeler", "desc":"For peeling potatoes." },
     { "name":"Stone Tablet", "desc":"For writing commandments." },
@@ -35,7 +36,7 @@
     { "name":"A Sheep", "desc":"In New Zealand, you can legally marry one." },
     { "name":"Cthulhu Plushie", "desc":"Squish, Squish."},
     { "name":"Wikipedia", "desc":"Handy pocket-sized edition." },
-    { "name":"Ugly Stick", "desc":"You must have spent hours beating yourself with it as a child."},
+    { "name":"Ugly Stick", "desc":"You spent hours beating yourself with it as a child."},
     { "name":"Oscar for Best Picture", "desc":"You really should thank the Academy." },
     { "name":"Piece of Candy", "desc":"I wonder where the rest of her is?" },
     { "name":"Statue of Trevelyan", "desc":"Must have been an important person. At some point." },
@@ -55,6 +56,7 @@
     { "name":"Pale Blue Dot", "desc":"Probably worthless." },
     { "name":"A simple golden ring.", "desc":"This would probably be very powerful in another fictional world." },
     { "name":"Log", "desc":"Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog." },
+    { "name":"Bat Wing", "desc":"Tug them and they come right off.", "cost":1, "type":"ing" },
     { "name":"Rat Tail", "desc":"Tug them and they come right off.", "cost":1, "type":"ing" },
     { "name":"Eye of Newt", "desc":"Standard ingredient in every witch's brew.", "cost":1, "type":"ing" }
    
