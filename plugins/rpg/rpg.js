@@ -77,6 +77,21 @@ class RPG {
 
 	}
 
+	async cmdLeader( m, who ) {
+
+		let char = await this.userCharOrErr( m, m.author );
+		if (!char) return;
+
+		let t;
+		if ( who ) {
+			t = await this.loadChar( who );
+			if ( !t ) return;
+		}
+
+		return display.sendBlock( m, this.game.setLeader(char, t ));
+
+	}
+
 	async cmdRevive( m, who ) {
 
 		let char = await this.userCharOrErr( m, m.author );
@@ -366,6 +381,17 @@ class RPG {
 
 	}
 
+	async cmdCompare( m, wot ) {
+
+		let char = await this.userCharOrErr( m, m.author )
+		if (!char) return;
+
+		if ( !wot ) return m.reply( 'Compare what item?');
+
+		return display.sendBlock( m, this.game.compare( char, wot ) );
+
+	}
+
 	async cmdWorn( m, slot ) {
 
 		let char = await this.userCharOrErr( m, m.author )
@@ -390,12 +416,21 @@ class RPG {
 
 	}
 
-	async cmdEat( m, what ) {
+	async cmdEat( m, wot ) {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
 
-		return m.reply( this.game.eat( char, what ) );
+		return m.reply( this.game.eat( char, wot ) );
+
+	}
+
+	async cmdQuaff( m, wot ) {
+
+		let char = await this.userCharOrErr( m, m.author )
+		if (!char) return;
+
+		return m.reply( this.game.quaff( char, wot ) );
 
 	}
 
@@ -474,6 +509,20 @@ class RPG {
 		
 		let a = m.attachments.first();
 		let res = a ? this.game.craft( char, itemName, desc, a.proxyURL ) : this.game.craft( char, itemName, desc );
+
+		return display.sendBlock( m, res );
+
+	}
+
+	async cmdBrew( m, potName ) {
+
+		if ( !potName ) return m.reply( 'Brew what potion?');
+
+		let char = await this.userCharOrErr( m, m.author )
+		if ( !char ) return;
+		
+		let a = m.attachments.first();
+		let res = a ? this.game.craft( char, potName, a.proxyURL ) : this.game.craft( char, potName );
 
 		return display.sendBlock( m, res );
 
@@ -827,6 +876,8 @@ exports.init = function( bot ){
 		proto.cmdParty, RPG, {minArgs:0, maxArgs:1});
 	bot.addContextCmd( 'revive', '!revive [who] - revive a party member.',
 		proto.cmdRevive, RPG, {minArgs:0, maxArgs:1});
+	bot.addContextCmd( 'leader', '!leader [who] - view or set party leader.',
+		proto.cmdLeader, RPG, {minArgs:0, maxArgs:1});
 	bot.addContextCmd( 'leaveparty', '!leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
 
 	// GUILD
@@ -844,22 +895,28 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
 				proto.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', proto.cmdWorn, RPG, {maxArgs:1});
+	bot.addContextCmd( 'compare', '!compare <pack item> - Compare inventory item to worn item.',
+		proto.cmdCompare, RPG, { minArgs:1, maxArgs:1});
 
 	// ITEMS
 	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					proto.cmdDestroy, RPG, {minArgs:1, maxArgs:2});
 	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', proto.cmdInspect, RPG, {maxArgs:1});
 	bot.addContextCmd( 'viewitem', '!viewitem <item_number|item_name> : View an item.', proto.cmdViewItem, RPG, {maxArgs:1} );
-	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 	bot.addContextCmd( 'inv', '!inv [player]', proto.cmdInv, RPG, {maxArgs:1});
-	bot.addContextCmd( 'craft', '!craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'give', '!give <charname> <what>', proto.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'sell', '!sell <wot> OR !sell <start> <end>', proto.cmdSell, RPG, {minArgs:1, maxArgs:2} );
+
+	// CRAFT
+	bot.addContextCmd( 'craft', '!craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'brew', '!brew <potion> - brew a potion.', proto.cmdBrew, RPG, {maxArgs:1, group:"right"} );
+	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
 
 	// DOWNTIME
 	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'rest', '!rest', proto.cmdRest, RPG, {maxArgs:0} );
+	bot.addContextCmd( 'quaff', '!quaff <what>\t\tQuaff a potion.', proto.cmdQuaff, RPG, {minArgs:1, maxArgs:1});
 
 	bot.addContextCmd( 'rolldmg', '!rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollweap', '!rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );

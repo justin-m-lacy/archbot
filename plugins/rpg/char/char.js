@@ -245,9 +245,7 @@ class Char extends actor.Actor {
 	 * @param {function} p 
 	 */
 	removeWhere( p ) {
-
 		return this.removeEquip( this._equip.removeWhere(p) );
-
 	}
 
 	unequip( slot ) {

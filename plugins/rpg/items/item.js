@@ -25,6 +25,9 @@ exports.Item = class Item {
 	get inscription() { return this._inscript; }
 	set inscription(v) { this._inscript = v; }
 
+	get level() { return this._level; }
+	set level( v ) { this._level = v;}
+
 	get attach() { return this._attach; }
 	set attach(v) { this._attach = v;}
 
@@ -54,6 +57,7 @@ exports.Item = class Item {
 		if ( json.attach ) it._attach = json.attach;
 		if ( json.maker ) this._crafter = json.maker;
 		if ( json.inscrip ) this._inscript = json.inscript;
+		if ( json.level ) it._level = json.level;
 
 		return it;
 
@@ -68,6 +72,7 @@ exports.Item = class Item {
 			cost:this._cost
 		}
 
+		if ( this._level ) json.level = this._level;
 		if ( this._attach ) json.attach = this._attach;
 		if ( this._crafter ) json.maker = this._crafter;
 		if ( this._inscript ) json.inscrip = this._inscript;
@@ -117,6 +122,30 @@ exports.Item = class Item {
 			it = a[i];
 			res += '\n' + (start++) + ') ' + it._name;
 			if ( it.attach ) res += '\t[img]';
+		}
+
+		return res;
+
+	}
+
+	/**
+	 * 
+	 * @param {Item[]} a 
+	 */
+	static DetailsList( a ) {
+
+		console.log('DETAILS LIST');
+
+		let len = a.length;
+		if ( len === 0 ) return 'nothing';
+		else if ( len === 1 ) return a[0].getDetails();
+
+		let it = a[0];
+		let res = it.getDetails();
+
+		for( let i = 1; i < len; i++ ) {
+			it = a[i];
+			res += ', ' + it.getDetails();
 		}
 
 		return res;

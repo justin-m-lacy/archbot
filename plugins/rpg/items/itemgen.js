@@ -13,7 +13,8 @@ exports.genLoot = genLoot;
 
 exports.randItem = randItem;
 
-var miscItems, specItems;
+var miscItems, allItems;
+var allPots;
 
 var featureByName;
 var featureList;
@@ -23,9 +24,11 @@ var baseArmors = require( '../data/armors.json');
 var armorBySlot;
 var weaponByType;
 
-initFeatures();
-initArmors();
 initItems();
+initArmors();
+initPots();
+
+initFeatures();
 
 Material.LoadMaterials();
 
@@ -35,33 +38,29 @@ function initItems() {
 	miscItems = items.misc;
 	var spec = items.special;
 
-	specItems = {};
+	allItems = {};
 	for( let i = spec.length-1; i>=0; i--) {
-		specItems[ spec[i].name.toLowerCase() ] = spec[i];
+		allItems[ spec[i].name.toLowerCase() ] = spec[i];
 	}
 
 }
 
-/**
- * Create named feature from data.
- * @param {string} s 
- */
-function getFeature( s ) {
-	let d = featureByName[s];
-	if ( d ) return Feature.FromJSON(d);
-	return null;
+function initPots() {
+
+	allPots = {};
+	let pots = require( '../data/potions.json' );
+
+	let p;
+	for( let i = pots.length-1; i>=0; i-- ) {
+
+		p = pots[i];
+		allPots[p.name] = p;
+
+	}
+
 }
 
-function initFeatures() {
-
-	console.log('INIT FEATURES');
-	featureList = require( '../data/world/features.json');
-	featureByName = {};
-
-	for( let i = featureList.length-1; i>= 0; i-- ) {
-		featureByName[ featureList[i].name ] = featureList[i]; 
-	}
-	console.log('INIT FEATURES DONE');
+function getPot(name) {
 
 }
 
@@ -197,11 +196,11 @@ function getDrops( mons ) {
 
 		console.log( 'RETURNING RANDOM DROP');
 		let it = drops[ Math.floor( Math.random()*drops.length ) ];
-		if ( it) return specItems[ it ];
+		if ( it) return allItems[ it ];
 
 	} else if ( typeof(drops) === 'string') {
 
-		return Math.random() < 0.5 ? specItems[drops] : null;
+		return Math.random() < 0.5 ? allItems[drops] : null;
 
 	} else {
 
@@ -210,7 +209,7 @@ function getDrops( mons ) {
 
 			console.log('ROLLING FOR DROP: ' + k );
 			if ( 100*Math.random() < drops[k]) {
-				it = specItems[k];
+				it = allItems[k];
 				if ( it ) itms.push( it );
 			}
 
@@ -227,5 +226,28 @@ function randItem() {
 	let item = new Item.Item( it.name, it.desc );
 
 	return item;
+
+}
+
+/**
+ * Create named feature from data.
+ * @param {string} s 
+ */
+function getFeature( s ) {
+	let d = featureByName[s];
+	if ( d ) return Feature.FromJSON(d);
+	return null;
+}
+
+function initFeatures() {
+
+	console.log('INIT FEATURES');
+	featureList = require( '../data/world/features.json');
+	featureByName = {};
+
+	for( let i = featureList.length-1; i>= 0; i-- ) {
+		featureByName[ featureList[i].name ] = featureList[i]; 
+	}
+	console.log('INIT FEATURES DONE');
 
 }
