@@ -1,6 +1,5 @@
 const Race = require('./race.js');
 const Class = require('./charclass.js');
-const Item = require( './items/item.js');
 const Party = require( './party.js');
 const Combat = require('./combat.js');
 const dice = require( './dice.js');
@@ -85,7 +84,7 @@ exports.Game = class Game {
 		let p = this.getParty( char );
 		if ( p && p.leader === char.name ) {
 
-			console.log('Moving party to: ' + char.loc.toString() );
+			//console.log('Moving party to: ' + char.loc.toString() );
 			await p.move( char.loc );
 
 		} else char.recover();
@@ -235,14 +234,14 @@ exports.Game = class Game {
 
 	compare( char, wot ) {
 
-		let item = char.getItem( wot );
-		if ( !item ) return 'Item not found.';
+		let it = char.getItem( wot );
+		if ( !it ) return 'Item not found.';
 
-		let res = 'In Pack: ' + item.getDetails() + '\n';
-		let eq = char.getEquip( item.slot );
+		let res = 'In Pack: ' + it.getDetails() + '\n';
+		let eq = char.getEquip( it.slot );
 
 		if ( !eq) res += 'Equip: nothing';
-		else if ( eq instanceof Array ) res += 'Equip: ' + Item.DetailsList( eq );
+		else if ( eq instanceof Array ) res += 'Equip: ' + item.Item.DetailsList( eq );
 		else res += 'Equip: ' + eq.getDetails();
 
 		return res;
@@ -531,7 +530,7 @@ exports.Game = class Game {
 
 		let p = char.getItem( wot );
 		if ( !p ) return 'Item not found.';
-		if ( p.type !== 'potion ') return `${p.name} cannot be quaffed.`;
+		if ( p.type !== 'potion') return `${p.name} cannot be quaffed.`;
 
 		// remove the potion.
 		char.takeItem( p );

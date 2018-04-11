@@ -161,7 +161,7 @@ function initItems( char ) {
 	let count = Math.floor( 1+ 3*Math.random() );
 
 	for( count; count >= 0; count-- ) {
-		char.addItem( ItemGen.randItem() );
+		char.addItem( ItemGen.miscItem() );
 	}
 	char.addItem( ItemGen.genWeapon(1), ItemGen.genArmor(null,1));
 

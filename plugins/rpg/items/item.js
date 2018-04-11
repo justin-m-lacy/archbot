@@ -44,7 +44,7 @@ exports.Item = class Item {
 	set time(t) { this._time = t;}
 
 	/**
-	 * Since Item should be subclassed, the sub item created
+	 * Since Item is subclassed, the sub item created
 	 * is passed as a param.
 	 * @param {Object} json 
 	 * @param {Item} it 
@@ -52,6 +52,9 @@ exports.Item = class Item {
 	static FromJSON( json, it=null ) {
 
 		if ( !it) it = new Item( json.name, json.desc, json.type );
+		else {
+			it.name = json.name;
+		}
 
 		if ( json.cost) it._cost = json.cost;
 		if ( json.attach ) it._attach = json.attach;

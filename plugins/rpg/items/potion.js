@@ -1,7 +1,7 @@
 const itemjs = require( './item.js');
 const forms = require( '../formulas.js');
 
-exports.Potion = class Potion extends itemjs.Item  {
+module.exports = class Potion extends itemjs.Item  {
 
 	static FromJSON( json ) {
 
@@ -17,14 +17,9 @@ exports.Potion = class Potion extends itemjs.Item  {
 
 		itemjs.Item.FromJSON( json, p );
 
+		console.log('json pot type: ' + p.type)
 		return p;
 
-	}
-
-	/**
-	 * @param {object} tmp - potion template. 
-	 */
-	static FromData( tmp ) {
 	}
 
 	toJSON() {
@@ -42,7 +37,7 @@ exports.Potion = class Potion extends itemjs.Item  {
 	set effect(v) { this._effect = v; }
 
 	get spell() { return this._spell; }
-	set spell() { return this._spell; }
+	set spell(v) { this._spell = v;}
 
 	constructor() {
 

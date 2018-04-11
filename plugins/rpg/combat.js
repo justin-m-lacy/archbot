@@ -54,6 +54,7 @@ module.exports = class Combat {
 
 		if ( this.defender.state === 'dead') {
 	
+			console.log('NPC SLAIN');
 			this.world.removeNpc( this.attacker, this.defender );
 			await this.doLoot( this.attacker, itemgen.genLoot( this.defender ) );
 
