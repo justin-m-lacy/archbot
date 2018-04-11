@@ -105,8 +105,17 @@ module.exports = class Party {
 
 	getList() { return this._leader + "'s Party:\n" + this._names.join('\n'); }
 
-	setLeader(char) { this._leader = char.name; }
+
 	isLeader( char ) { return this._leader === char.name; }
+	setLeader(char) {
+
+		let name = (typeof(char) === 'string') ? char : char.name;
+		if ( !this._names.includes(name)) return false;
+	
+		this._leader = name;
+		return true;
+
+	}
 
 	/**
 	 * 

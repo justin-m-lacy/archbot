@@ -82,7 +82,7 @@ module.exports = class Equip {
  
 	get( slot ) {
 
-		if ( !this.slots.hasOwnProperty(slot)) return slot + ' is not a valid equipment slot.';
+		if ( !this.slots.hasOwnProperty(slot)) return null;
 		return this.slots[slot];
 
 	}

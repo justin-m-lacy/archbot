@@ -1,5 +1,6 @@
 const Race = require('./race.js');
 const Class = require('./charclass.js');
+const Item = require( './items/item.js');
 const Party = require( './party.js');
 const Combat = require('./combat.js');
 const dice = require( './dice.js');
@@ -101,12 +102,17 @@ exports.Game = class Game {
 
 	}
 
-	setLeader( char, ldrName ) {
+	setLeader( char, tar ) {
 
 		let party = this.getParty( char );
 		if ( !party ) return 'You are not in a party.';
-		if ( !party.isLeader(char) ) return 'You are not the party leader.';
+
+		if ( !tar ) { return `current leader: ${party.leader}.`}
 	
+		if ( !party.isLeader(char) ) return 'You are not the party leader.';
+
+		if ( party.setLeader( tar ) ) return `${tar.name} is now the party leader.`;
+		return `Could not set ${tar.name} to party leader.`;
 	}
 
 	party( char, t ) {
@@ -119,7 +125,7 @@ exports.Game = class Game {
 		if ( party ) {
 
 			if ( other === party ) return `${t.name} is already in your party.`;
-			if ( other ) return `${t.name} is already in a different party.`;
+			if ( other ) return `${t.name} is already in a party:\n${party.getList()}`;
 			if ( !party.isLeader(char) ) return 'You are not the party leader.';
 
 			party.invite( t );
@@ -128,7 +134,7 @@ exports.Game = class Game {
 		} else if ( other ) {
 
 			// attempt to accept.
-			if ( !other.accept(char ) ) return `You have not been invited to ${other.leader}'s awesome party.`;
+			if ( !other.accept(char ) ) return `${other.getList()}\\nnYou have not been invited to ${other.leader}'s awesome party.`;
 
 			this._parties[char.name ] = other;
 			return `${char.name} Joined ${other.leader}'s party.`;
@@ -224,6 +230,22 @@ exports.Game = class Game {
 		if ( res ) return res;
 
 		return this.world.goHome( char );
+
+	}
+
+	compare( char, wot ) {
+
+		let item = char.getItem( wot );
+		if ( !item ) return 'Item not found.';
+
+		let res = 'In Pack: ' + item.getDetails() + '\n';
+		let eq = char.getEquip( item.slot );
+
+		if ( !eq) res += 'Equip: nothing';
+		else if ( eq instanceof Array ) res += 'Equip: ' + Item.DetailsList( eq );
+		else res += 'Equip: ' + eq.getDetails();
+
+		return res;
 
 	}
 
@@ -491,12 +513,31 @@ exports.Game = class Game {
 		if ( res ) return res;
 
 		let p1 = this.getParty( src ) || src;
-		let p2 = this.getParty( dest ) || dest;
+		let p2 = this.getParty( dest );
+
+		if ( !p2 || ( !p2.isLeader(dest) && !p2.loc.equals( dest.loc )) ) p2 = dest;
 
 		let com = new Combat( p1, p2, this.world );
 		await com.fight();
 
 		return com.getText();
+
+	}
+
+	quaff ( char, wot ) {
+
+		let res = this.actionErr( char, 'quaff' );
+		if ( res ) return res;
+
+		let p = char.getItem( wot );
+		if ( !p ) return 'Item not found.';
+		if ( p.type !== 'potion ') return `${p.name} cannot be quaffed.`;
+
+		// remove the potion.
+		char.takeItem( p );
+		p.quaff( char );
+
+		return `${char.name} quaffs ${p.name}.`;
 
 	}
 
@@ -508,7 +549,7 @@ exports.Game = class Game {
 
 	}
 
-}
+} //Game
 
 class Result {
 

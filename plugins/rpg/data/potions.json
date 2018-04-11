@@ -1,0 +1,37 @@
+[
+
+    {
+        "name":"cure minor wounds",
+        "effect":"hp=hp+1d4+1",
+        "cost":1,
+        "level":0
+    },
+
+    {
+        "name":"cure light wounds",
+        "effect":"hp=hp+2d5",
+        "cost":5,
+        "level":1
+    },
+
+    {
+        "name":"cure moderate wounds",
+        "effect":"hp=hp+2d10+2",
+        "cost":8,
+        "level":2
+    },
+
+    {
+        "name":"cure serious wounds",
+        "effect":"hp=hp+3d8+4",
+        "cost":5,
+        "level":3
+    },
+    {
+        "name":"cure critical wounds",
+        "effect":"hp=hp+4d10+15",
+        "cost":20,
+        "level":5
+    }
+
+]
