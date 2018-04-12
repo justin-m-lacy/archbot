@@ -60,7 +60,7 @@ exports.Item = class Item {
 		if ( json.attach ) it._attach = json.attach;
 		if ( json.maker ) this._crafter = json.maker;
 		if ( json.inscrip ) this._inscript = json.inscript;
-		if ( json.level ) it._level = json.level;
+		if ( !isNaN(json.level) ) it._level = json.level;
 
 		return it;
 

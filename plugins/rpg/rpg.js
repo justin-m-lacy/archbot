@@ -305,7 +305,7 @@ class RPG {
 			let char = await this.userCharOrErr( msg, msg.author );
 			if (!char) return;
 
-			await display.sendBlock( msg, await this.game.move(char,dir) );
+			await display.sendBlock( msg, await this.game.hike(char,dir) );
 			this.checkLevel( msg, char );
 
 		} catch ( e) { console.log(e);}
@@ -317,7 +317,7 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author );
 		if (!char) return;
 
-		await display.sendBlock( msg, await this.game.hike(char,dir) );
+		await display.sendBlock( msg, await this.game.move(char,dir) );
 		this.checkLevel( msg, char );
 
 	}

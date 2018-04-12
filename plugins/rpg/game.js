@@ -82,6 +82,7 @@ exports.Game = class Game {
 
 	async move( char, dir ) {
 
+
 		let res = await this.world.move( char, dir );
 
 		let p = this.getParty( char );
@@ -92,12 +93,12 @@ exports.Game = class Game {
 
 		} else char.recover();
 		return res;
-
 	}
 
 	async hike( char, dir ) {
 
 		let loc = await this.world.hike( char, dir );
+		if ( !loc ) return 'Hike failed.';
 
 		let p = this.getParty( char );
 		if ( p && p.leader === char.name ) {
@@ -358,7 +359,7 @@ exports.Game = class Game {
 			return `${char.name} failed to brew ${itemName}.`;
 		}
 
-		char.addExp( 2*pot.level );
+		if ( pot.level ) char.addExp( 2*pot.level );
 		char.addHistory( 'brew');
 		let ind = char.addItem( pot );
 
@@ -461,8 +462,13 @@ exports.Game = class Game {
 		if ( res ) return res;
 
 		let p = this.getParty(char);
-		if ( p && p.isLeader(char) ) await p.rest();
-		else char.rest();
+		if ( p && p.isLeader(char) ) {
+
+			let pct = Math.round( 100 * await p.rest() );
+			if ( pct === 100 ) return `${p.name} fully rested.`;
+			else return `${p.name} ${pct}% rested.`;
+
+		} else char.rest();
 
 		return `${char.name} rested. hp: ${char.curHp}/${char.maxHp}`;
 

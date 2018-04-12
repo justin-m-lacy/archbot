@@ -17,7 +17,7 @@ module.exports = class Potion extends itemjs.Item  {
 
 		itemjs.Item.FromJSON( json, p );
 
-		console.log('json pot type: ' + p.type)
+		console.log('json pot level: ' + p.level);
 		return p;
 
 	}
