@@ -22,11 +22,14 @@ exports.Actor = class Actor {
 
 	}
 
-	// used in combat
+	// async for combat. TODO: make this better...
 	async getState() { return this._state; }
+
+	getStatus() { return `${this.curHp}/${this.maxHp} [${this._state}]`}
 
 	get state() { return this._state; }
 	set state(v) { this._state = v; }
+	isAlive() { return this._state !== exports.Dead; }
 
 	// convenience for shorter formulas.
 	get hp() { return this._curStats._curHp; }
@@ -34,6 +37,10 @@ exports.Actor = class Actor {
 
 	get curHp() { return this._curStats._curHp; }
 	set curHp(v) { this._curStats.curHp = v; }
+
+	// convenience for shorter formulas.
+	get mp() { return this._curStats._curMp; }
+	set mp(v) { this._curStats.curMp = v; }
 
 	get curMp() { return this._curStats.curMp; }
 	set curMp(v) { this._curStats.curMp = v; }
@@ -261,6 +268,7 @@ exports.Actor = class Actor {
 	applyRace() {
 
 		if ( !this._race ) return;
+		//if ( this._race.talents ) this._talents = this._race.talents.concat( this._talents );
 		this.applyBaseMods( this._race.baseMods );
 
 	}

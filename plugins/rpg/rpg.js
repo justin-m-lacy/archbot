@@ -73,7 +73,7 @@ class RPG {
 			if ( !t ) return;
 		}
 
-		return display.sendBlock( m, this.game.party(char, t ));
+		return display.sendBlock( m, await this.game.party(char, t ));
 
 	}
 
@@ -298,7 +298,7 @@ class RPG {
 		return display.sendBlock( msg, await this.world.useLoc(char, wot ));
 	}
 
-	async cmdMove( msg, dir ) {
+	async cmdHike( msg, dir ) {
 
 		try {
 
@@ -309,6 +309,16 @@ class RPG {
 			this.checkLevel( msg, char );
 
 		} catch ( e) { console.log(e);}
+
+	}
+
+	async cmdMove( msg, dir ) {
+
+		let char = await this.userCharOrErr( msg, msg.author );
+		if (!char) return;
+
+		await display.sendBlock( msg, await this.game.hike(char,dir) );
+		this.checkLevel( msg, char );
 
 	}
 
@@ -522,7 +532,7 @@ class RPG {
 		if ( !char ) return;
 		
 		let a = m.attachments.first();
-		let res = a ? this.game.craft( char, potName, a.proxyURL ) : this.game.craft( char, potName );
+		let res = a ? this.game.brew( char, potName, a.proxyURL ) : this.game.brew( char, potName );
 
 		return display.sendBlock( m, res );
 
@@ -675,6 +685,22 @@ class RPG {
 
 		let res = char.addStat(stat);
 		if ( typeof(res) === 'string') return m.reply( res );
+
+	}
+
+	async cmdTalents( m, charname=null ) {
+	
+		let char;
+
+		if ( !charname ) {
+			char = await this.userCharOrErr( m, m.author );
+			if ( !char) return;
+		} else {
+			char = await this.loadChar( charname );
+			if (!char) return m.reply( charname + ' not found on server. D:' );
+		}
+
+		await display.sendBlock( m, char.getTalents() );
 
 	}
 
@@ -859,6 +885,8 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'viewchar', '!viewchar <charname>', proto.cmdViewChar, RPG, { maxArgs:1}  );
 	bot.addContextCmd( 'rmchar', '!rmchar <charname>', proto.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'charstats', '!charstats [charname]', proto.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'talents', '!talents [charname]', proto.cmdTalents, RPG, {minArgs:0, maxArgs:1} );
+
 	bot.addContextCmd( 'addstat', '!addstat [statname]', proto.cmdAddStat, RPG, {minArgs:1, maxArgs:1} );
 
 	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', proto.cmdAllChars,
@@ -869,7 +897,8 @@ exports.init = function( bot ){
 	//bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
 	// PVP
-	bot.addContextCmd( 'attack', '!attack who', proto.cmdAttack, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'attack', '!attack [who]', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1});
+	bot.addContextCmd( 'a', '!a [who] - attack something.', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1});
 	bot.addContextCmd( 'track', '!track who', proto.cmdTrack, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'steal', '!steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
 
@@ -951,6 +980,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
 	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
 	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
+	bot.addContextCmd( 'hike', '!hike <direction>', proto.cmdHike, RPG, { minArgs:1, maxArgs:1} );
 	bot.addContextCmd( 'n', '!n', proto.cmdMove, RPG, { maxArgs:0, args:['north'] } );
 	bot.addContextCmd( 's', '!s', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
 	bot.addContextCmd( 'e', '!e', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );

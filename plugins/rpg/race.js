@@ -45,6 +45,8 @@ class Race {
 
 		o._desc = json.desc;
 
+		if ( json.talents ) o._talents = json.talents;
+
 		if ( json.exp ) o._expMod = json.exp;
 
 		// mod stats added to base. recomputed on load
@@ -59,6 +61,10 @@ class Race {
 	}
 
 	constructor() {
+	}
+
+	hasTalent(t) {
+		return this._talents && this._talents.includes(t);
 	}
 
 	get desc() { return this._desc; }

@@ -4,7 +4,7 @@ const Char = require( './char/char.js');
 const Monster = require( './monster/monster.js');
 const itemgen = require( './items/itemgen.js');
 const dice = require( './dice.js');
-const Party = require( './party.js');
+const Party = require( './social/party.js');
 const effects = require( './effects.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
@@ -203,11 +203,11 @@ module.exports = class Combat {
 		let del = atk - def;
 		if ( wot ) del -= 5;
 
-		if ( del > 5 ) {
+		if ( del > 15 ) {
 
 			this.take(this.attacker, this.defender, wot, del );
 
-		} else if ( del < 0 && this.defender.state === 'alive' ) {
+		} else if ( del < 5 && this.defender.state === 'alive' ) {
 
 			this.resp += `${this.defender.name} catches ${this.attacker.name} attempting to steal.\n`;
 			this.attack( this.defender, this.attacker );

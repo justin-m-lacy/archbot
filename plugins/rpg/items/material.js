@@ -42,7 +42,7 @@ module.exports = class Material {
 
 		try {
 
-			const objs = require( '../data/materials.json');
+			const objs = require( '../data/items/materials.json');
 			materials = [];
 			byName = {};
 			byLevel = {};

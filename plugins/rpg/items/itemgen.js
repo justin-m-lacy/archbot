@@ -11,6 +11,7 @@ exports.genArmor = genArmor;
 exports.genItem = genItem;
 exports.genFeature = randFeature;
 exports.genLoot = genLoot;
+exports.genPot = genPot;
 
 exports.miscItem = miscItem;
 
@@ -20,14 +21,15 @@ var allPots;
 var featureByName;
 var featureList;
 
-var baseWeapons = require( '../data/weapons.json');
-var baseArmors = require( '../data/armors.json');
+var baseWeapons = require( '../data/items/weapons.json');
+var baseArmors = require( '../data/items/armors.json');
 var armorBySlot;
 var weaponByType;
 
 initItems();
 initArmors();
 initPots();
+initScrolls();
 
 initFeatures();
 
@@ -35,14 +37,14 @@ Material.LoadMaterials();
 
 function initItems() {
 
-	var items = require( '../data/items.json');
+	var items = require( '../data/items/items.json');
 	var spec = items.special;
 
 	miscItems = items.misc;
 	allItems = {};
 
 	for( let i = miscItems.length-1; i>= 0; i--) {
-		allItems[ miscItems[i].name.toLowerCase() ] = miscItem[i];
+		allItems[ miscItems[i].name.toLowerCase() ] = miscItems[i];
 	}
 
 	for( let i = spec.length-1; i>=0; i--) {
@@ -54,7 +56,7 @@ function initItems() {
 function initPots() {
 
 	allPots = {};
-	let pots = require( '../data/potions.json' );
+	let pots = require( '../data/items/potions.json' );
 
 	let p, name;
 	for( let i = pots.length-1; i>=0; i-- ) {
@@ -66,6 +68,9 @@ function initPots() {
 
 	}
 
+}
+
+function initScrolls() {
 }
 
 function initArmors() {
@@ -119,7 +124,7 @@ function fromJSON( json ) {
 
 }
 
-function getPot(name) {
+function genPot(name) {
 
 	let pot = allPots[name];
 	if ( !pot) return null;
@@ -132,10 +137,13 @@ function genWeapon( lvl ) {
 	let mat = Material.Random( lvl );
 	if ( mat === null ) { console.log( 'material is null'); return null; }
 
-	console.log( 'weaps len: ' + baseWeapons.length );
+	//console.log( 'weaps len: ' + baseWeapons.length );
 	let tmp = baseWeapons[ Math.floor( baseWeapons.length*Math.random() )];
 
-	if ( tmp == null) console.log( 'weapon template is null.');
+	if ( !tmp ) {
+		console.log( 'weapon template is null.');
+		return null;
+	}
 
 	return Weapon.FromData(tmp, mat);
 
@@ -211,7 +219,7 @@ function getDrops( mons ) {
 
 	if ( drops instanceof Array ) {
 
-		console.log( 'RETURNING RANDOM DROP');
+		console.log( 'ARRAY DROP');
 		let it = drops[ Math.floor( Math.random()*drops.length ) ];
 		return procItem( it );
 
@@ -221,14 +229,13 @@ function getDrops( mons ) {
 
 	} else {
 
-		console.log('OBJECT DROPS');
 		let it, itms = [];
 		for( let k in drops ) {
 
 			if ( 100*Math.random() < drops[k]) {
-				console.log('ITEM PROC:' + k );
 				it = procItem( k );
 				if ( it ) itms.push( it );
+				else console.log('item not found: ' + k );
 			}
 
 		}
@@ -240,7 +247,6 @@ function getDrops( mons ) {
 
 function procItem( name ) {
 
-	if ( !name ) return null;
 	let data = allItems[name];
 	if ( !data ) return null;
 
@@ -254,9 +260,7 @@ function procItem( name ) {
 function miscItem() {
 
 	let it = miscItems[ Math.floor( miscItems.length*Math.random() )];
-	let item = procItem( it.name );
-
-	return item;
+	return fromJSON( it );
 
 }
 

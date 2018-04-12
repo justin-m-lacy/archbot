@@ -1,6 +1,6 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats',
-					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv' ];
+					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'talents' ];
 
 const Loc = require( '../world/loc.js');
 const Level = require( './level.js');
@@ -54,6 +54,9 @@ class Char extends actor.Actor {
 	get evil() { return this.baseStats.evil; }
 	set evil(v) { this.baseStats.evil = v;}
 
+	get talents() { return this._talents; }
+	set talents(v) { this._talents = v; }
+
 	/**
 	 * Notification for level up.
 	 * TODO: replace with event system.
@@ -95,6 +98,7 @@ class Char extends actor.Actor {
 
 		char.owner = json.owner;
 
+		if ( json.talents ) char.talents = json.talents;
 		if (json.history ) Object.assign( char.history, json.history );
 		if ( json.home) char._home = new Loc.Coord( json.home.x, json.home.y );
 
@@ -155,6 +159,10 @@ class Char extends actor.Actor {
 
 	}
 
+	hasTalent(t) {
+		return (this._talents && this._talents.includes(t)) || this.charClass.hasTalent(t) || this.race.hasTalent(t);
+	}
+
 	addHistory( evt ) {
 		let v = this._history[evt] || 0;
 		this._history[evt] = v + 1;
@@ -198,6 +206,10 @@ class Char extends actor.Actor {
 		return resp;
 	}
 
+	/**
+	 * 
+	 * @param {Item|number|string} what - what to cook.
+	 */
 	cook( what ) {
 
 		let item = this._inv.get( what );
@@ -207,7 +219,7 @@ class Char extends actor.Actor {
 
 		this.addHistory( 'cook');
 		Item.Item.Cook( item);
-		return this.name + ' cooks \'' + item.name + '\'';
+		return `${this.name} cooks '${item.name}'`;
 
 	}
 
@@ -382,8 +394,14 @@ class Char extends actor.Actor {
 	applyClass() {
 
 		if ( !this._charClass ) return;
+		//if ( this._charClass.talents ) this.talents = this._charClass.talents.concat( this._talents );
+
 		super.applyBaseMods( this._charClass.statMods );
 
+	}
+
+	getTalents() {
+		return this._talents ? `${this.name}'s Talents:\n${this._talents.join('\n')}` : `${this.name} has no talents.`;
 	}
 
 	getWeapons() { return this._equip.getWeapons(); }
