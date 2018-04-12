@@ -82,13 +82,20 @@ module.exports = class Party {
 
 	async rest() {
 
+		let hp = 0;
+		let max = 0;
+
 		for( let i = this._names.length-1; i >= 0; i-- ) {
 
 			var char = await this._cache.fetch( this._names[i]);
-			if ( char && char.isAlive() ) char.rest();
+			if ( !char) continue;
+			if ( char.isAlive() ) char.rest();
+			hp += char.curHp;
+			max += char.maxHp;
 
 		} //
 
+		return hp/max;
 	}
 
 	async recover() {
@@ -97,7 +104,7 @@ module.exports = class Party {
 
 			var char = await this._cache.fetch( this._names[i]);
 			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
-			if ( char && char.isAlive() ) return;
+			if ( char && char.isAlive() ) char.recover();
 
 		} //
 
