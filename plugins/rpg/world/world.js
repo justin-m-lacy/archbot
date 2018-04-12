@@ -84,6 +84,35 @@ module.exports = class World {
 			`${char.name} took ${it.name}. (${ind})`;
 	}
 
+	async hike( char, dir ) {
+
+		let coord = char.loc;
+		if ( !coord ) coord = new Loc.Coord(0,0);
+		let loc;
+
+		switch ( dir ) {
+			case 'north':
+			loc = await this.getLoc( coord.x, coord.y+1);
+			break;
+			case 'south':
+			loc = await this.getLoc( coord.x, coord.y-1);
+			break;
+			case 'east':
+			loc = await this.getLoc( coord.x+1, coord.y);
+			break;
+			case 'west':
+			loc = await this.getLoc( coord.x-1, coord.y+1);
+			break;
+			default:
+			return;
+			break;
+		}
+
+		char.loc = loc.coord;
+		return loc;
+
+	}
+
 	async move( char, dir ) {
 
 		if ( !dir ) return 'Must specify movement direction.';
@@ -94,7 +123,7 @@ module.exports = class World {
 			loc = new Loc.Coord(0,0);
 		}
 
-		loc = await this.getMoveLoc( loc, dir, char );
+		loc = await this.tryMove( loc, dir, char );
 		if ( typeof(loc) === 'string') return loc;
 
 		char.loc = loc.coord;
@@ -227,9 +256,9 @@ module.exports = class World {
 	 * Return the new location after moving from the given coordinate.
 	 * @param {Loc.Coord} coord - current coordinate.
 	 * @param {string} dir - move direction.
-	 * @returns New Loc or error string.
+	 * @returns {Loc|string} - new Loc or error string.
 	 */
-	async getMoveLoc( coord, dir, char ) {
+	async tryMove( coord, dir, char ) {
 
 		let from = await this.getLoc( coord.x, coord.y );
 		if ( !from ){

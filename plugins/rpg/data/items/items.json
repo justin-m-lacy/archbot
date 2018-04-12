@@ -1,7 +1,10 @@
 {
     "misc":[
     { "name":"Pickle", "desc":"I wonder what kind of plant they come from?"},
-    { "name":"Ear of Elfroid", "desc":"The trophy of a harmless creature."},
+    { "name":"Ear of Elfroid", "desc":"The trophy of a harmless creature.","type":"ing"},
+    { "name":"Spine of Elfroid", "desc":"It's bendy.", "type":"ing"},
+    { "name":"Nose of Elfroid", "desc":"Elfroid noses don't work because they never bathe.", "type":"ing"},
+    { "name":"Eye of Elfroid", "desc":"Can't spot the rush.", "type":"ing"},
     { "name":"Derpy Hooves", "desc":"Put them on your feet." },
     { "name":"Potato Peeler", "desc":"For peeling potatoes." },
     { "name":"Stone Tablet", "desc":"For writing commandments." },

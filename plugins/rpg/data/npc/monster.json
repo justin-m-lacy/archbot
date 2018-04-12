@@ -11,7 +11,7 @@
             "type":"noob",
             "dmg":"1d1"
         }, "biome":["town","plains"],
-        "drops":["newbie beer", "ear of elfroid"]
+        "drops":["elfroid beer", "ear of elfroid", "spine of elfroid", "nose of elfroid", "eye of elfroid"]
 
     },
     {
@@ -1187,7 +1187,7 @@
             "name":"longsword",
             "type":"slash",
             "dmg":"1d8+4"
-        }, "drops":{"bone":10}
+        }, "drops":{"bone":10, "potion of moderate agony":10}
 
     },
     {

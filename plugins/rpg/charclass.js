@@ -26,17 +26,14 @@ let CharClass = module.exports = class {
 
 		let o = new CharClass();
 
-		o._ver = json.ver || 1;
+		if ( json.hasOwnProperty('name')) o._name = json.name;
 
-		if ( json.hasOwnProperty('name')) {
-			o._name = json.name;
-		}
 		if ( json.hasOwnProperty('hitdice')) {
 			o._hitdice = json.hitdice;
 		}
-		if ( json.hasOwnProperty('baseMods')){
-			o._baseMods = json.baseMods;
-		}
+		if ( json.hasOwnProperty('baseMods'))o._baseMods = json.baseMods;
+
+		if ( json.talents ) o._talents = json.talents;
 
 		o._desc = json.desc;
 
@@ -47,6 +44,10 @@ let CharClass = module.exports = class {
 		}
 		return o;
 
+	}
+
+	hasTalent(t) {
+		return this._talents && this._talents.includes(t);
 	}
 
 	get desc() { return this._desc; }

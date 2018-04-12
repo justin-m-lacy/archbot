@@ -1,12 +1,13 @@
 const Race = require('./race.js');
 const Class = require('./charclass.js');
-const Party = require( './party.js');
+const Party = require( './social/party.js');
 const Combat = require('./combat.js');
 const dice = require( './dice.js');
-const Guild = require( './world/guild.js');
+const Guild = require( './social/guild.js');
 const util = require( '../../jsutils.js');
 const Trade = require( './trade.js');
 const item = require( './items/item.js');
+const itgen = require( './items/itemgen.js');
 
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
@@ -26,8 +27,8 @@ exports.getLore = (wot) => {
  * actions not allowed per player state.
 */
 var illegal_acts = {
-	"dead":{
-		"take":1,"attack":1,"drop":1, "equip":1, "unequip":1, "steal":1, "craft":1,
+	"dead":{ "brew":1, "map":1,
+		"take":1,"attack":1,"drop":1, "equip":1, "unequip":1, "steal":1, "craft":1, "track":1, "quaff":1,
 		"give":1,"eat":1,"cook":1, "sell":1, "destroy":1, "inscribe":1, "revive":1
 	}
 };
@@ -69,6 +70,8 @@ exports.Game = class Game {
 
 	}
 
+	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ); }
+
 	actionErr( char, act ) {
 		let illegal = illegal_acts[ char.state ];
 		if ( illegal && illegal.hasOwnProperty(act)) return `Cannot ${act} while ${char.state}.`;
@@ -89,6 +92,21 @@ exports.Game = class Game {
 
 		} else char.recover();
 		return res;
+
+	}
+
+	async hike( char, dir ) {
+
+		let loc = await this.world.hike( char, dir );
+
+		let p = this.getParty( char );
+		if ( p && p.leader === char.name ) {
+
+			//console.log('Moving party to: ' + char.loc.toString() );
+			await p.move( char.loc );
+
+		} else char.recover();
+		return `${char.name}: ${loc.look()}`;
 
 	}
 
@@ -114,10 +132,10 @@ exports.Game = class Game {
 		return `Could not set ${tar.name} to party leader.`;
 	}
 
-	party( char, t ) {
+	async party( char, t ) {
 
 		let party = this.getParty( char );
-		if ( !t ) return party ? party.getList() : "You are not in a party.";
+		if ( !t ) return party ? await party.getStatus() : "You are not in a party.";
 
 		let other = this.getParty( t );
 
@@ -325,6 +343,29 @@ exports.Game = class Game {
 
 	}
 
+	brew( char, itemName, imgURL=null ) {
+
+		let res = this.actionErr( char, 'brew');
+		if ( res) return res;
+
+		if ( !char.hasTalent('brew')) return `${char.name} does not know how to brew potions.`;
+
+		let pot = itgen.genPot( itemName );
+		if (!pot) return `${char.name} does not know how to brew ${itemName}.`;
+
+		let s = this.skillRoll( char ) + char.getModifier('wis');
+		if ( s < 10*pot.level ) {
+			return `${char.name} failed to brew ${itemName}.`;
+		}
+
+		char.addExp( 2*pot.level );
+		char.addHistory( 'brew');
+		let ind = char.addItem( pot );
+
+		return `${char.name} brewed ${itemName}. (${ind})`;
+
+	}
+
 	craft( char, itemName, desc, imgURL=null ) {
 
 		let res = this.actionErr( char, 'craft');
@@ -341,7 +382,7 @@ exports.Game = class Game {
 		let err = this.actionErr( char, 'unequip');
 		if ( err ) return err;
 	
-		if ( !slot ) return 'You must specify an equip slot to remove.';
+		if ( !slot ) return 'Specify an equip slot to remove.';
 
 		if ( char.unequip(slot) ) return 'Removed.';
 		return 'Cannot unequip from ' + slot;
@@ -394,8 +435,6 @@ exports.Game = class Game {
 		}
 
 	}
-
-	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ); }
 
 	revive( char, targ ) {
 

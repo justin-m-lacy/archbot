@@ -1,6 +1,6 @@
 const Inv = require( '../inventory.js');
 const Char = require( '../char/char.js');
-const Loc = require( './loc.js');
+const Loc = require( '../world/loc.js');
 
 module.exports = class Guild {
 

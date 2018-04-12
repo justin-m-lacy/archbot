@@ -1,4 +1,4 @@
-const loc = require( './world/loc.js');
+const loc = require( '../world/loc.js');
 module.exports = class Party {
 
 	static FromJSON(json) {
@@ -38,7 +38,7 @@ module.exports = class Party {
 		for( let i = this._names.length-1; i >= 0; i-- ) {
 
 			char = await this._cache.fetch( this._names[i]);
-			if ( char && char.state === 'alive' ) return 'alive';
+			if ( char && char.isAlive() ) return 'alive';
 
 		} //
 		return 'dead';
@@ -85,7 +85,7 @@ module.exports = class Party {
 		for( let i = this._names.length-1; i >= 0; i-- ) {
 
 			var char = await this._cache.fetch( this._names[i]);
-			if ( char ) char.rest();
+			if ( char && char.isAlive() ) char.rest();
 
 		} //
 
@@ -97,9 +97,22 @@ module.exports = class Party {
 
 			var char = await this._cache.fetch( this._names[i]);
 			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
-			if ( char ) char.loc = coord;
+			if ( char && char.isAlive() ) return;
 
 		} //
+
+	}
+
+	async getStatus() {
+		let res = this._leader + "'s Party:";
+
+		let len = this._names.length;
+		for( let i = 0; i < len; i++ ) {
+			var char = await this._cache.fetch( this._names[i] );
+			res += `\n${char.name}  ${char.getStatus()}`;
+		}
+
+		return res;
 
 	}
 
