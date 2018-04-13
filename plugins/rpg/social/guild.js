@@ -2,12 +2,17 @@ const Inv = require( '../inventory.js');
 const Char = require( '../char/char.js');
 const Loc = require( '../world/loc.js');
 
-module.exports = class Guild {
+/**
+ * Can't use statics because static variables from
+ * different servers are shared.
+ */
+class Manager {
 
-	static GuildCache() { return this.cache; }
-	static SetCache(v) { this.cache = v; }
+	constructor( cache ) {
+		this.cache = cache;
+	}
 
-	static async GetGuild( name ) {
+	async GetGuild( name ) {
 
 		let data = this.cache.get( name );
 		if ( data ) return data;
@@ -17,14 +22,14 @@ module.exports = class Guild {
 
 		if ( data instanceof Guild ) return data;
 	
-		data = this.FromJSON( data );
+		data = Guild.FromJSON( data );
 		this.cache.cache( name, data );
 
 		return data;
 
 	}
 
-	static async MakeGuild( name, leader ) {
+	async MakeGuild( name, leader ) {
 
 		let g = new Guild(name);
 		g.leader = leader.name;
@@ -35,6 +40,10 @@ module.exports = class Guild {
 		return g;
 
 	}
+
+}
+
+class Guild {
 
 	static FromJSON( json ) {
 
@@ -168,3 +177,6 @@ module.exports = class Guild {
 	}
 
 }
+
+exports.Guild = Guild;
+exports.Manager = Manager;

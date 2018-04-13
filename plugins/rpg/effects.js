@@ -3,12 +3,15 @@ const forms = require( './formulas.js');
 // effect types.
 const effects = {};
 
+loadEffects();
+
 function loadEffects() {
 
-	let efx = require( './data/effects.json' );
+	let efx = require( './data/magic/effects.json' );
 	for( let i = efx.length-1; i>=0;i--){
 
 		var e = efx[i];
+		effects[e.name] = e;
 
 	} //for
 
@@ -40,7 +43,12 @@ class Effect {
 	set mods(v) { this._mods = v; }
 
 	get dot() { return this._dot; }
-	set dot(v) { this._dot = v;}
+	set dot(v) {
+
+		if ( typeof(v) === 'string') this._dot = forms.Formula.TryParse( data.dot );
+		else this._dot = v;
+
+	}
 
 	get time() { return this._time; }
 	set time(v) { this._time = v;}
@@ -48,10 +56,7 @@ class Effect {
 	static FromJSON( json ) {
 
 		let e = new Effect();
-		if ( data.dot ) e._dot = forms.Formula.TryParse( data.dot );
-		if ( data.mods ) e._mods = data.mods;
-
-		return e;
+		return Object.assign( e, json );
 
 	}
 
@@ -91,25 +96,27 @@ class CharEffect {
 
 	static FromJSON( json ) {
 
-		let e = effects[json. name];
+		let e = json.effect;
+		if ( typeof(e) === string ) e = effects[e];
+		else e = Effect.FromJSON(e);
 		if ( !e ) return null;
 
-		return new CharEffect( e, json.time || e.time );
+		return new CharEffect( e, json.time );
 	}
  
 	toJSON() {
 
 		return {
-			name:this._effect.name,
+			effect:this._effect.name,
 			time:this._time
 		};
 
 	}
 
-	constructor( effect ) {
+	constructor( effect, time ) {
 
 		this._effect = effect;
-		this._time = this._effect.time;
+		this._time = time || this._effect.time;
 
 	}
 
@@ -161,6 +168,8 @@ class CharEffect {
 	}
 
 }
+
+exports.getEffect = (s)=>effects[s];
 
 exports.CharEffect = CharEffect;
 exports.Effect = Effect;

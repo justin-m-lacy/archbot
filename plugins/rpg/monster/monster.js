@@ -181,16 +181,6 @@ class Monster {
 	get armor() { return this._armor; }
 	set armor(v ) { this._armor = v;}
 
-	get dmg() { return this._dmg; }
-	set dmg( v ) { this._dmg = v; }
-
-	get attacks() {
-		return this._attacks;
-	}
-	set attacks( v) {
-		this._attacks = v;
-	}
-
 	get curHp() { return this._curHp; }
 	set curHp( v ) { this._curHp = v; }
 	get maxHp() { return this._maxHp;}
@@ -200,6 +190,12 @@ class Monster {
 
 	get desc() { return this._desc; }
 	set desc( v ) { this._desc = v; }
+
+	get dmg() { return this._dmg; }
+	set dmg( v ) { this._dmg = v; }
+
+	get attacks() { return this._attacks; }
+	set attacks(v) { this._attacks = v; }
 
 	get weap() { return this._weap;}
 	set weap(v) { this._weap = v; }

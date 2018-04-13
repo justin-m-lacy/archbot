@@ -401,7 +401,17 @@ class Char extends actor.Actor {
 	}
 
 	getTalents() {
-		return this._talents ? `${this.name}'s Talents:\n${this._talents.join('\n')}` : `${this.name} has no talents.`;
+
+		console.log('this: ' + this._talents );
+		console.log('class: ' + this.charClass.name );
+		console.log('race: ' + this.race.name );
+		
+		let talents = this._talents || [];
+		talents = talents.concat( this.charClass.talents, this.race.talents );
+	
+		if ( !talents || talents.length === 0 ) return `${this.name} has no talents.`;
+		return `${this.name}'s Talents:\n${talents.join('\n')}`;
+
 	}
 
 	getWeapons() { return this._equip.getWeapons(); }
@@ -455,6 +465,8 @@ class Char extends actor.Actor {
 
 	log( str) { this._log += str +'\n'; }
 	getLog() { return this._log;}
+	output( str='') { return this._log + str; }
+
 	clearLog() { this._log = ''; }
 
 	getHistory() {

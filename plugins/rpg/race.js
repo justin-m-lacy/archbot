@@ -67,6 +67,8 @@ class Race {
 		return this._talents && this._talents.includes(t);
 	}
 
+	get talents() { return this._talents; }
+
 	get desc() { return this._desc; }
 	get infoMods() { return this._infoMods; }
 	get ver(){ return this._ver; }

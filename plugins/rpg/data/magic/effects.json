@@ -1,14 +1,108 @@
-{
-    "revive":{
+[
+    {
+        "name":"minor str",
+        "mods":{
+            "str":1
+        },
+        "time":15
 
+    },
+    {
+        "name":"minor con",
+        "mods":{
+            "con":1
+        },
+        "time":15
+
+    },
+    {
+        "name":"minor dex",
+        "mods":{
+            "dex":1
+        },
+        "time":15
+
+    },
+    {
+        "name":"minor wis",
+        "mods":{
+            "wis":1
+        },
+        "time":15
+
+    },
+    {
+        "name":"minor int",
+        "mods":{
+            "int":1
+        },
+        "time":15
+
+    },
+    {
+        "name":"minor cha",
+        "mods":{
+            "cha":1
+        },
+        "time":15
+
+    },
+    {
+        "name":"light dex",
+        "mods":{
+            "dex":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light str",
+        "mods":{
+            "str":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light con",
+        "mods":{
+            "con":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light int",
+        "mods":{
+            "int":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light wis",
+        "mods":{
+            "wis":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light cha",
+        "mods":{
+            "cha":2
+        },
+        "time":25
+
+    },
+    {
+
+        "name":"revive",
         "require":{"state":"dead"},
         "apply":{
             "curHp":1,
             "state":"alive"
         }
 
-    },
-    "cure light wounds":{
     }
-
-}
+]

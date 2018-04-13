@@ -74,7 +74,10 @@ module.exports = class Party {
 		for( let i = this._names.length-1; i >= 0; i-- ) {
 
 			var char = await this._cache.fetch( this._names[i]);
-			if ( char ) { char.loc = coord; char.recover(); }
+			if ( char ) {
+				char.loc = coord;
+				if ( char.isAlive() ) char.recover();
+			}
 
 		} //
 
