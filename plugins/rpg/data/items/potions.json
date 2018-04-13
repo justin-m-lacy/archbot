@@ -11,6 +11,36 @@
         "cost":1,"level":0
     },
     {
+        "name":"minor str potion",
+        "effect":"minor str",
+        "cost":1,"level":0
+    },
+    {
+        "name":"minor con potion",
+        "effect":"minor con",
+        "cost":1,"level":0
+    },
+    {
+        "name":"minor dex potion",
+        "effect":"minor dex",
+        "cost":1,"level":0
+    },
+    {
+        "name":"minor int potion",
+        "effect":"minor int",
+        "cost":1,"level":0
+    },
+    {
+        "name":"minor wis potion",
+        "effect":"minor wis",
+        "cost":1,"level":0
+    },
+    {
+        "name":"minor cha potion",
+        "effect":"minor cha",
+        "cost":1,"level":0
+    },
+    {
         "name":"potion of cure minor wounds",
         "effect":"hp=hp+1d4+2",
         "cost":1,

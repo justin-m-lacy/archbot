@@ -91,17 +91,21 @@ module.exports = class World {
 		let loc;
 
 		switch ( dir ) {
+			case 'n':
 			case 'north':
-			loc = await this.getLoc( coord.x, coord.y+1);
+			loc = await this.getOrGen( new Loc.Coord( coord.x, coord.y+1), char );
 			break;
+			case 's':
 			case 'south':
-			loc = await this.getLoc( coord.x, coord.y-1);
+			loc = await this.getOrGen( new Loc.Coord(  coord.x, coord.y-1), char );
 			break;
+			case 'e':
 			case 'east':
-			loc = await this.getLoc( coord.x+1, coord.y);
+			loc = await this.getOrGen(  new Loc.Coord( coord.x+1, coord.y), char );
 			break;
+			case 'w':
 			case 'west':
-			loc = await this.getLoc( coord.x-1, coord.y+1);
+			loc = await this.getOrGen(  new Loc.Coord( coord.x-1, coord.y), char );
 			break;
 			default:
 			return;
@@ -418,7 +422,7 @@ module.exports = class World {
 			// no exits lead from existing location in this direction.
 			return null;
 		}
-		else if (Math.random() < 0.8) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
+		else if (Math.random() < 0.25) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
 		return null;
 	}
 

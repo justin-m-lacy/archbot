@@ -50,6 +50,8 @@ let CharClass = module.exports = class {
 		return this._talents && this._talents.includes(t);
 	}
 
+	get talents() { return this._talents; }
+
 	get desc() { return this._desc; }
 	get baseMods() { return this._baseMods; }
 	get infoMods() { return this._infoMods; } 

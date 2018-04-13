@@ -226,9 +226,7 @@ class RPG {
 
 	}
 
-	async cmdLore( m, wot ) {
-		return display.sendBlock( m, gamejs.getLore(wot) );
-	}
+	async cmdLore( m, wot ) { return display.sendBlock( m, gamejs.getLore(wot) ); }
 
 	async cmdTake( m, first, end ){
 
@@ -344,12 +342,7 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
-		try {
-
-			await display.sendBlock( msg, Trade.rollWeap( char ) );
-			return this.saveChar( char, true );
-
-		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
+		await display.sendBlock( msg, Trade.rollWeap( char ) );
 
 	}
 
@@ -362,12 +355,7 @@ class RPG {
 		let char = await this.userCharOrErr( msg, msg.author )
 		if (!char) return;
 
-		try {
-
-			await display.sendBlock( msg, Trade.rollArmor( char, slot ) );
-			return this.saveChar( char, true );
-
-		} catch ( e) { await msg.reply( 'Massive unknown error!!!'); console.log(e);}
+		await display.sendBlock( msg, Trade.rollArmor( char, slot ) );
 
 	}
 
@@ -847,9 +835,7 @@ class RPG {
 
 	getCharKey( charname ) { return charname; }
 
-	cacheChar( char ) {
-		this.charCache.cache( this.getCharKey( char.name ), char );
-	}
+	cacheChar( char ) {this.charCache.cache( this.getCharKey( char.name ), char );}
 
 	async saveChar( char, forceSave=false ) {
 
@@ -861,7 +847,6 @@ class RPG {
 	async uniqueName( race, sex ) {
 
 		let namegen = require( './namegen.js');
-
 		do {
 			var name = namegen.genName( race.name, sex );
 		} while ( await this.charExists(name) )
