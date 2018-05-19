@@ -1,7 +1,7 @@
 var initialized = false;
 
 // includes after init.
-var Char, Race, CharClass, CharGen, Trade, World;
+var Char, Race, CharClass, CharGen, Trade, World, ItemGen;
 const gamejs = require( './game.js');
 const formula = require( './formulas.js');
 const display = require( './display');
@@ -19,6 +19,7 @@ function initData() {
 	CharGen = require( './chargen.js' );
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
+	ItemGen = require( './items/itemgen.js');
 
 }
 
@@ -446,6 +447,13 @@ class RPG {
 
 	}
 
+	cmdPotList( m, level ) {
+
+		if ( !level) return m.reply( 'List potions for which level?');
+		return m.reply( ItemGen.potsList(level) );
+
+	}
+
 	async cmdInscribe( m, wot, inscrip ) {
 
 		let char = await this.userCharOrErr( m, m.author )
@@ -859,6 +867,7 @@ class RPG {
 
 exports.init = function( bot ){
 
+	console.log('INIT RPG');
 	var proto = RPG.prototype;
 
 	// CHAR MANAGEMENT
@@ -882,8 +891,7 @@ exports.init = function( bot ){
 	//bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
 	// PVP
-	bot.addContextCmd( 'attack', '!attack [who]', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1});
-	bot.addContextCmd( 'a', '!a [who] - attack something.', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1});
+	bot.addContextCmd( 'attack', '!attack [who] - attack something.', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1, alias:'a'} );
 	bot.addContextCmd( 'track', '!track who', proto.cmdTrack, RPG, {minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'steal', '!steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
 
@@ -927,6 +935,7 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'craft', '!craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
 	bot.addContextCmd( 'brew', '!brew <potion> - brew a potion.', proto.cmdBrew, RPG, {maxArgs:1, group:"right"} );
 	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
+	bot.addContextCmd( 'potlist', '!potlist <level> - list of potions by level.', proto.cmdPotList, RPG, {minArgs:1, maxArgs:1} );
 
 	// DOWNTIME
 	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
@@ -961,15 +970,11 @@ exports.init = function( bot ){
 
 	// MOVE
 	bot.addContextCmd( 'move', '!move <direction>', proto.cmdMove, RPG, {maxArgs:1});
-	bot.addContextCmd( 'north', '!north', proto.cmdMove, RPG, { maxArgs:0, args:['north'] } );
-	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
-	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
-	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
+	bot.addContextCmd( 'north', '!north', proto.cmdMove, RPG, { maxArgs:0, args:['north'], alias:'n' } );
+	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'], alias:'s' } );
+	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'], alias:'e' } );
+	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'], alias:'w' } );
 	bot.addContextCmd( 'hike', '!hike <direction>', proto.cmdHike, RPG, { minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'n', '!n', proto.cmdMove, RPG, { maxArgs:0, args:['north'] } );
-	bot.addContextCmd( 's', '!s', proto.cmdMove, RPG, { maxArgs:0, args:['south'] } );
-	bot.addContextCmd( 'e', '!e', proto.cmdMove, RPG, { maxArgs:0, args:['east'] } );
-	bot.addContextCmd( 'w', '!w', proto.cmdMove, RPG, { maxArgs:0, args:['west'] } );
 
 }
 

@@ -12,6 +12,7 @@
 
     { "name":"dwarf", "hitdice":10,
         "desc":"Mountain dwarves have stumpy bodies with brawny chests and arms, while the smaller hill dwarves are closer to gnomes in appearance. Mining jewels and precious metals, working at the smith, and brewing ales are the chief occupations of most dwarves, for which purposes they are rarely called to leave their delven abodes. A dwarf on the road was likely forced from his home by a greedy dragon, an army of goblins, or a terror from the mountain deeps.",
+        "talents":["appraise"],
         "infoMods":{ "age":"20d20+100" },
         "baseMods":{"con":2, "wis":2, "dex":-2, "maxMp":1} },
 
@@ -44,6 +45,7 @@
  
     { "name":"troll", "hitdice":20,
         "desc":"",
+        "talents":["hike"],
         "infoMods":{ "age":"9d10+10" },
         "baseMods":{ "str":5, "con":4, "int":-4, "wis":-4, "chr":-4 } },
 
@@ -69,7 +71,6 @@
 
     { "name":"minotaur", "hitdice":14,
         "desc":"",
-        "talents":["track"],
         "infoMods":{ "age":"10d20+30" },
         "baseMods":{ "str":2, "con":2, "int":-2, "dex":-2, "wis":2, "chr":-2, "maxMp":4 } },
 
@@ -92,6 +93,7 @@
 
     { "name":"demigod", "hitdice":14,
         "desc":"",
+        "talents":["revive"],
         "infoMods":{ "age":"30d500+250" },
         "baseMods":{ "str":4, "con":4, "dex":4, "int":4, "wis":4, "chr":4, "maxMp":10 }  }
 ]

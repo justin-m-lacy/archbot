@@ -112,18 +112,21 @@ exports.Game = class Game {
 
 		if ( this.tick( char, 'hike') === false ) return char.getLog();
 
+		let d = char.loc.abs();
+
 		let r = this.skillRoll( char ) + char.getModifier('dex') + char.getModifier('wis');
 		let p = this.getParty( char );
+
+		r -= d/10;
 		if ( p && p.isLeader(char ) ) r -= 5;
 		if ( !char.hasTalent('hike')) r -= 20;
 
 		if ( r < 0 ) {
-			char.hp -= 5;
-			return char.output( 'You got hurt during the hike: ' + char.hp );
+			char.hp -= Math.floor( Math.random()*d );
+			return char.output( `${char.name} was hurt trying to hike. hp: (${char.hp}/${char.maxHp})` );
 		}
 		else if ( r < 10 ) return char.output('You failed to find your way.');
 	
-		
 		let loc = await this.world.hike( char, dir );
 		if ( !loc ) return char.output( 'You failed to find your way.' );
 		
@@ -301,7 +304,7 @@ exports.Game = class Game {
 
 		if ( this.tick( char, 'equip') === false ) return char.getLog();
 		
-		res = char.equip(wot);
+		let res = char.equip(wot);
 		if ( res === true ) res = char.name + ' equips ' + wot;	// TODO,echo slot used.
 		else if ( typeof(res) === 'string');// return res;
 		else res = char.name + ' does not have ' + wot;
@@ -439,6 +442,7 @@ exports.Game = class Game {
 		if ( this.tick( char, 'revive' ) === false ) return char.output();
 
 		let roll = this.skillRoll(char) + char.getModifier('wis') + 2*targ.curHp - 5*targ.level;
+		if ( !char.hasTalent('revive')) roll -= 20;
 		if ( roll < 10 ) return char.output( `You failed to revive ${targ.name}.` );
 
 		char.addHistory('revived');
@@ -483,7 +487,6 @@ exports.Game = class Game {
 
 	}
 
-
 	tickEffects( char, action ) {
 
 		let efx = char.effects;
@@ -496,8 +499,9 @@ exports.Game = class Game {
 			let e = efx[i];
 			if ( e.tick( char ) ) {
 				// efx end.
+				console.log('EFFECT END: ' + e.name );
 				util.fastCut( efx, i );
-				e.end();
+				e.end( char );
 
 			}
 
@@ -547,10 +551,10 @@ exports.Game = class Game {
 
 		if( this.tick( src, 'attack') === false ) return src.output();
 
-		let p = this.getParty( src );
-		if ( p && p.isLeader(src) ) src = p;
+		let p1 = this.getParty( src );
+		if ( !p1 || !p1.isLeader(src) ) p1 = src;
 
-		let com = new Combat( src, npc, this.world );
+		let com = new Combat( p1, npc, this.world );
 		await com.fightNpc();
 
 		return src.output( com.getText() );
@@ -594,6 +598,7 @@ exports.Game = class Game {
 
 		// remove the potion.
 		char.takeItem( p );
+		char.addHistory( 'quaff');
 		p.quaff( char );
 
 		return char.output( `${char.name} quaffs ${p.name}.` );

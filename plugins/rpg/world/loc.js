@@ -38,9 +38,9 @@ class Coord {
 		this.y = coord.y;
 	}
 
-	dist( c ) {
-		return Math.abs( c.x - this.x ) + Math.abs(c.y - this.y );
-	}
+	abs() { return Math.abs(this.x) + Math.abs(this.y); }
+
+	dist( c ) { return Math.abs( c.x - this.x ) + Math.abs(c.y - this.y ); }
 
 	equals( c ) {
 		return c.x === this.x && c.y === this.y; }
@@ -114,11 +114,11 @@ exports.Loc = class Loc {
 
 		}
 
-		if ( json.features ) loc._features = Inv.FromJSON( json.features );
+		if ( json.features ) Inv.FromJSON( json.features, loc._features );
 		if ( json.attach ) loc._attach = json.attach;
 
 		if ( json.inv ) {
-			loc._inv = Inv.FromJSON( json.inv );
+			Inv.FromJSON( json.inv, loc._inv );
 		} else if ( json.items ) {
 			// legacy
 			loc._inv = Inv.FromJSON( {"items":json.items});
@@ -331,7 +331,7 @@ exports.Loc = class Loc {
 	 * 
 	 * @param {string} what 
 	 */
-	take( what ) { return this._inv.remove( what ); }
+	take( what ) { return this._inv.take( what ); }
 
 	getNpc( wot ) {
 

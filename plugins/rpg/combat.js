@@ -5,7 +5,8 @@ const Monster = require( './monster/monster.js');
 const itemgen = require( './items/itemgen.js');
 const dice = require( './dice.js');
 const Party = require( './social/party.js');
-const effects = require( './effects.js');
+const effects = require( './magic/effects.js');
+const Grave = require( './items/grave.js');
 
 const fist = new Weapon( 'fists', 'Just plain fists.');
 fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
@@ -131,6 +132,15 @@ module.exports = class Combat {
 				atk.defender.updateState();
 				this.resp += ` ${atk.defender.name} was slain.`;
 
+				if ( atk.defender instanceof Char ) {
+					
+					try {
+						let g = Grave.MakeGrave( atk.defender, atk.attacker );
+						this.resp += await this.world.put( atk.defender, g );
+					} catch(e) {console.log(e);}
+
+				}
+
 				if ( atk.attacker instanceof Char ) {
 
 					console.log( 'Char killed defender.');
@@ -199,6 +209,8 @@ module.exports = class Combat {
 
 		let atk = this.attacker.skillRoll() + this.attacker.getModifier('dex') + this.attacker.getModifier('wis');
 		let def = this.defender.skillRoll() + this.defender.getModifier('dex') + this.defender.getModifier('wis');
+
+		if ( !this.attack.hasTalent('steal')) atk -= 20;
 
 		let del = atk - def;
 		if ( wot ) del -= 5;

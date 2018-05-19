@@ -8,18 +8,19 @@ module.exports = class Inventory {
 
 	get length() { return this._items.length; }
 
-	static FromJSON( json ) {
+	static FromJSON( json, inv=null ) {
 
 		let arr = json.items;
 		let len = arr.length;
 
-		let inv = new Inventory();
+		if ( !inv ) inv = new Inventory();
 		let items = inv.items;
 
 		for( let i = 0; i < len; i++ ) {
 
 			var it = ItemGen.fromJSON( arr[i]);
 			if ( it ) items.push( it );
+			else console.log('Inventory.js: ERR PARSING: ' + arr[i]);
 
 		}
 
@@ -74,18 +75,19 @@ module.exports = class Inventory {
 
 	/**
 	 * Retrieves an item by name or index.
-	 * @param {<string>|<number>} wot
+	 * @param {<string>|<number>} start
 	 * @returns Item found, or null on failure.
 	 */
-	get( wot ) {
+	get( start, sub ) {
 
-		if ( !wot ) return null;
+		if ( sub ) return this.getSub( start, sub );
+		if ( !start ) return null;
 
-		let num = parseInt( wot );
+		let num = parseInt( start );
+
 		if ( Number.isNaN(num) ) {
 
-			let it = this.findItem( wot );
-			if ( it != null ) return it;
+			return this.findItem( start );
 	
 		} else {
 
@@ -94,6 +96,26 @@ module.exports = class Inventory {
 
 		}
 		return null;
+
+	}
+
+	getSub( base, sub ) {
+
+		let it = this.get(base);
+		if ( !it) return null;
+
+		if ( it.type === 'chest') return it.get(sub);
+		else return this.takeRange( base, sub );
+
+	}
+
+	takeSub( base, sub ) {
+		
+		let it = this.take(base);
+		if ( !it) return null;
+
+		if ( it.type === 'chest') return it.take(sub);
+		else return this.takeRange( base, sub );
 
 	}
 
@@ -113,9 +135,11 @@ module.exports = class Inventory {
 	 * @param {number|string|Item} which
 	 * @returns The item removed, or null if none found. 
 	 */
-	remove( which ) {
+	take( which, sub ) {
 
-		if ( which == null ) return null;
+		if ( sub ) return this.takeSub( which, sub );
+		if ( !which ) return null;
+
 		if ( which instanceof itemjs.Item ) {
 
 			let ind = this._items.indexOf( which ); 
@@ -124,22 +148,25 @@ module.exports = class Inventory {
 
 		}
 
-		let num = parseInt( which );
-		if ( Number.isNaN(num) ) {
+		let ind = parseInt( which );
+		if ( Number.isNaN(ind) ) {
 
 			which = which.toLowerCase();
 			for( let i = this._items.length-1; i>= 0; i-- ) {
+
 				var item = this._items[i];
-				if ( item == null ) continue;
+				if ( !item ) continue;
 				if ( item.name.toLowerCase() === which ) return this._items.splice( i, 1 )[0];
+
 			}
 	
 		} else {
 
-			num--
-			if ( num >= 0 && num < this._items.length ) return this._items.splice( num, 1 )[0];
-
+			ind--
+			if ( ind >= 0 && ind < this._items.length ) return this._items.splice( ind, 1 )[0];
+	
 		}
+
 		return null;
 
 	}

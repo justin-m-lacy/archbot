@@ -4,8 +4,8 @@ var auth = require('./auth.json');
 const DateFormat = require( './datedisplay.js' );
 const dice = require( 'archdice' );
 const jsutils = require( './jsutils.js' );
-const cmd = require( './commands.js');
-const DiscordBot = require( './discordbot.js');
+const cmd = require( './bot/command.js');
+const DiscordBot = require( './bot/discordbot.js');
 
 // init bot
 var client = new Discord.Client(
@@ -14,8 +14,12 @@ var client = new Discord.Client(
 
 console.log( 'client created.');
 
-var bot = DiscordBot.InitBot( client, auth.master );
-console.log( 'bot created.');
+try {
+	var bot = DiscordBot.InitBot( client, auth.master );
+	console.log( 'bot created.');
+} catch (e ) {
+	console.log(e);
+}
 
 initCmds();
 

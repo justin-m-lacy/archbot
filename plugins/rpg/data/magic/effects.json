@@ -1,5 +1,15 @@
 [
     {
+        "name":"minor poison",
+        "dot":"hp=hp-1d2",
+        "time":4
+    },
+    {
+        "name":"minor regeneration",
+        "dot":"hp=hp+1d2",
+        "time":4
+    },
+    {
         "name":"minor str",
         "mods":{
             "str":1
@@ -48,12 +58,9 @@
 
     },
     {
-        "name":"light dex",
-        "mods":{
-            "dex":2
-        },
-        "time":25
-
+        "name":"light regeneration",
+        "dot":"hp=hp+1d6",
+        "time":5
     },
     {
         "name":"light str",
@@ -67,6 +74,14 @@
         "name":"light con",
         "mods":{
             "con":2
+        },
+        "time":25
+
+    },
+    {
+        "name":"light dex",
+        "mods":{
+            "dex":2
         },
         "time":25
 
@@ -94,6 +109,74 @@
         },
         "time":25
 
+    },
+    {
+        "name":"medium str",
+        "mods":{
+            "str":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"medium con",
+        "mods":{
+            "con":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"medium dex",
+        "mods":{
+            "dex":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"medium int",
+        "mods":{
+            "int":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"medium wis",
+        "mods":{
+            "wis":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"medium cha",
+        "mods":{
+            "cha":4
+        },
+        "time":30
+
+    },
+    {
+        "name":"regeneration",
+        "dot":"hp=hp+3d4+4",
+        "time":10
+    },
+    {
+        "name":"strong regeneration",
+        "dot":"hp=hp+3d6+8",
+        "time":15
+    },
+    {
+        "name":"major regeneration",
+        "dot":"hp=hp+3d8+10",
+        "time":15
+    },
+    {
+        "name":"insane regeneration",
+        "dot":"hp=hp+5d8+15",
+        "time":15
     },
     {
 

@@ -25,6 +25,7 @@ module.exports = class {
 
 			if ( part.indexOf( ':' ) > 0 ) {
 				parseTime( part );
+				continue;
 			}
 
 			num = parseInt( part );

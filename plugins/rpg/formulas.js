@@ -63,9 +63,17 @@ class Formula {
 		return new FormulaParser( str ).parse();
 	}
 
+	/**
+	 * Properties set by this formula.
+	 */
+	get setProps() { return this._setProps; }
+
 	constructor( str, queue=null) {
+
 		this._str = str;
 		this.queue = queue || Formula.TryParse(str);
+
+		this._setProps = new Map();
 
 		for( let i = this.queue.length-1; i >= 0; i-- ) {
 			console.log('stack: ' + this.queue[i].value);
@@ -108,7 +116,9 @@ class Formula {
 
 
 				if ( cur.op === '=') {
+
 					vals.push( this.assign( tar, tx, ty ) );
+
 				} else vals.push( this.doOp( cur.op, tar, tx, ty ) );
 
 			} else vals.push( cur );
@@ -126,7 +136,9 @@ class Formula {
 		if ( x instanceof Token ) x = x.value;	// string value.
 		if ( y instanceof Token ) y = y.eval(tar);
 
-		console.log( 'assinging Val to: ' + x );
+		console.log( 'setting prop: ' + x );
+		this._setProps.set( x, true );
+
 		return tar[x] = y;
 
 	}

@@ -73,7 +73,7 @@ module.exports = class World {
 	async take( char, first, end ) {
 
 		let loc = await this.getOrGen( char.loc, char );
-		let it = end ? loc.takeRange(first, end) : loc.take( first );
+		let it = loc.take( first, end );
 		if ( !it ) return 'Item not found.';
 
 		let ind = char.addItem( it );
@@ -198,6 +198,21 @@ module.exports = class World {
 			return it.getDetails();
 
 		} else return char.name + ' is' + loc.look();
+
+	}
+
+	/**
+	 * 
+	 * @param {*} char 
+	 * @param {Item} what 
+	 */
+	async put( char, what ) {
+	
+		let loc = await this.getOrGen( char.loc, char );
+		let ind = loc.drop( what );
+		this.quickSave( loc );
+
+		return `${char.name} dropped ${what.name}. (${ind})`;
 
 	}
 

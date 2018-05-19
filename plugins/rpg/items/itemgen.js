@@ -4,6 +4,8 @@ const Item = require( './item.js');
 const Material = require( './material.js');
 const Potion= require('./potion.js');
 const Feature = require( '../world/feature.js');
+const Chest = require( './chest.js');
+const Grave = require( './grave.js');
 
 exports.fromJSON = fromJSON;
 exports.genWeapon = genWeapon;
@@ -12,11 +14,12 @@ exports.genItem = genItem;
 exports.genFeature = randFeature;
 exports.genLoot = genLoot;
 exports.genPot = genPot;
+exports.potsList = potsList;
 
 exports.miscItem = miscItem;
 
 var miscItems, allItems;
-var allPots;
+var allPots, potsByLevel;
 
 var featureByName;
 var featureList;
@@ -30,6 +33,7 @@ initItems();
 initArmors();
 initPots();
 initScrolls();
+initChests();
 
 initFeatures();
 
@@ -56,15 +60,39 @@ function initItems() {
 function initPots() {
 
 	allPots = {};
+	potsByLevel = [];
+
 	let pots = require( '../data/items/potions.json' );
 
-	let p, name;
+	let p, name,a;
 	for( let i = pots.length-1; i>=0; i-- ) {
 
 		p = pots[i];
 		p.type = 'potion';	// assign type.
+
 		name = p.name.toLowerCase();
 		allItems[name] = allPots[name ] = p;
+
+		a = potsByLevel[p.level];
+		if ( !a ) potsByLevel[ p.level ] = a = [];
+		a.push( p);
+
+	}
+
+}
+
+function initChests() {
+
+	let packs = require( '../data/items/chests.json' );
+
+	let p, name,a;
+	for( let i = packs.length-1; i>=0; i-- ) {
+
+		p = packs[i];
+		p.type = 'chest';	// assign type.
+
+		name = p.name.toLowerCase();
+		allItems[name] = p;
 
 	}
 
@@ -114,6 +142,14 @@ function fromJSON( json ) {
 
 		case 'feature':
 		return Feature.FromJSON(json);
+		break;
+
+		case 'grave':
+		return Grave.FromJSON(json);
+		break;
+
+		case 'chest':
+		return Chest.FromJSON(json);
 		break;
 
 		default:
@@ -284,5 +320,20 @@ function initFeatures() {
 		featureByName[ featureList[i].name ] = featureList[i]; 
 	}
 	console.log('INIT FEATURES DONE');
+
+}
+
+function potsList( level ) {
+
+	let a = potsByLevel[level];
+	if ( !a ) return 'No potions of level ' + level + '.';
+
+	let len = a.length;
+	//let p = a[0];
+	let s = `${a[0].name}`;
+	for( let i = 1; i < len; i++ ) s += `, ${a[i].name}`;
+	s += '.';
+
+	return s;
 
 }
