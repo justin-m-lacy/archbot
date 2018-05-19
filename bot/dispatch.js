@@ -1,46 +1,6 @@
+const Command = require( './command.js');
 
-const Command = exports.Command = class {
-
-	/**
-	 * maxArgs: max arguments to form from command line.
-	 * minArgs: not implemented.
-	 * group: 'left' or 'right' when using maxArgs, determines
-	 * how remainder args are grouped together.
-	 */
-	get opts() { return this._opts;}
-	set opts( o ) { this._opts = o; }
-
-	get name() { return this._name; }
-
-	// whether the cmd calls a function directly.
-	get isDirect() { return this._instClass == null; }
-	get isContext() { return this._instClass != null; }
-
-	get instClass() { return this._instClass; }
-
-	get func() { return this._func };
-	get usage() { return this._usage ? this._usage : 'Unknown.'; }
-	get group() { return this._opts ? this._opts.group : null; }
-
-	// hidden commands not displayed in help list.
-	get hidden() { return this._opts? this._opts.hidden : false; }
-
-	get args() { return this._opts? this._opts.args : null; }
-
-	get maxArgs() { return this._opts ? this._opts.maxArgs : null; }
-
-	constructor( name, usage, func, instClass=null ) {
-
-		this._name = name;
-		this._func = func;
-		this._usage = usage;
-		this._instClass = instClass;
-
-	}
-
-}
-
-exports.Dispatch = class CmdDispatch {
+module.exports = class CmdDispatch {
 
 	constructor( cmdPrefix='!') {
 
@@ -83,27 +43,51 @@ exports.Dispatch = class CmdDispatch {
 	 */
 	addContextCmd( name, usage, func, cmdClass, opts=null ) {
 
-		let cmd = new Command( name, usage, func, cmdClass );
-		cmd.opts = opts;
-		this.cmdLine.commands[name] = cmd;
+		console.log('ADDING CONTEXT COMAND: ' + name );
+		try {
+			let cmd = new Command( name, func, opts );
+			cmd.usage = usage;
+			cmd.instClass = cmdClass;
+			this.regCmd( cmd );
+		} catch(e) { console.log(e); }
 
 	}
 
 	// group - group arguments on right or left
 	add( name, usage, func, opts=null ) {
 
-		//console.log( 'static command: ' + name );
-		let cmd = new Command( name, usage, func );
-		cmd.opts = opts;
+		try {
+			//console.log( 'static command: ' + name );
+			let cmd = new Command( name, func, opts );
+			cmd.usage = usage;
+			this.regCmd( cmd );
+		} catch(e) { console.log(e); }
 
-		this.cmdLine.commands[name] = cmd;
+	}
+
+	/**
+	 * 
+	 * @param {Command} cmd 
+	 */
+	regCmd( cmd ) {
+
+		console.log('reg comd: ' + cmd.name );
+	
+		this.cmdLine.commands[ cmd.name ] = cmd;
+		let alias = cmd.alias;
+		if ( alias ) {
+
+			if ( typeof(alias) === 'string') this.cmdLine.commands[ alias ] = cmd;
+			else if ( alias instanceof Array )
+				for( let i = alias.length-1; i >= 0; i-- ) this.cmdLine.commands[ alias[i] ] = cmd;
+
+		}
 
 	}
 
 	get commands() { return this.cmdLine.commands; }
 	getCmd( name ) { return this._cmds[name]; }
 	clearCmd( name ) { delete this._cmds[name];	}
-	clear() { this._cmds = {}; }
 
 }
 

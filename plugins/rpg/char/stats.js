@@ -1,3 +1,4 @@
+// Currently Unused.
 class StatMods {
 
 	static FromJSON(json){
@@ -98,7 +99,6 @@ class StatBlock {
 
 	get evil() { return this._evil; }
 	set evil(v) { this._evil = v;}
-
 
 	get maxHp() { return this._maxHp; }
 	set maxHp( v) {
@@ -219,5 +219,73 @@ class StatBlock {
 	}
 
 }
-exports.StatMod = StatMods;
+
+class CharStats {
+
+	static FromJSON( json ) {
+		let s = new CharStats();
+		return s;
+	}
+
+	toJSON() {
+		return this;
+	}
+
+	get evil() { return this._cur.evil; }
+	set evil(v) { this._cur.evil = v;}
+
+	get maxHp() { return this._maxHp; }
+	set maxHp( v) {
+		this._max.hp = v;
+		if ( this._cur.hp > v ) this._cur.hp = v;
+	}
+
+	get curHp() { return this._cur.hp; }
+	set curHp( v) {
+		this._cur.hp = v > this._max.hp ? this._max.hp : v;
+	}
+	
+	get maxMp() { return this._max.mp; }
+	set maxMp(v) { this._max.mp = v; }
+
+	get curMp() { return this._cur.mp; }
+	set curMp(v) { this._cur.mp = v > this._max.mp ? this._max.mp : v; }
+
+	get level() { return this._cur.level; }
+	set level( n ) { this._cur.level = n; }
+
+	get armor() { return this._cur.armor; }
+	set armor(v) { this._cur.armor = v; }
+
+	// damage reduction.
+	get dr() { return this._cur.dr || 0; }
+	set dr(v) { this._cur.dr = v;}
+
+	// resistances
+	get resist() { return this._cur.resist || null; }
+	set resist(v) { this._cur.resist = v; }
+
+	get str() { return this._cur.str; }
+	set str(v) { this._cur.str = v; }
+	get con() { return this._cur.con; }
+	set con(v) { this._cur.con = v; }
+	get dex() { return this._cur.dex; }
+	set dex(v) { this._cur.dex = v; }
+	get int() { return this._cur.int; }
+	set int(v) { this._cur.int = v; }
+	get wis() { return this._cur.wis; }
+	set wis(v) { this._cur.wis = v; }
+	get cha() { return this._cur.cha; }
+	set cha(v) { this._cur.cha = v; }
+
+	constructor() {
+
+		this._base = {};
+		this._max = {};
+		this._cur = {};
+
+	}
+
+}
+
 exports.StatBlock = StatBlock;

@@ -1,9 +1,9 @@
-const fsys = require( './botfs.js');
-const cmd = require( './commands.js');
-const cacher = require( './cache.js' );
+const fsys = require( '../botfs.js');
+const Dispatch = require( './dispatch.js');
+const cacher = require( '../cache.js' );
 const Discord = require ( 'discord.js');
 
-const Contexts = exports.Context = require( './botcontext.js');
+const Contexts = exports.Context = require( '../botcontext.js');
 
 var Bot;
 exports.InitBot = ( client, master ) => {
@@ -44,7 +44,7 @@ class DiscordBot {
 
 		this.loadConfig();
 
-		this._dispatch = new cmd.Dispatch( this._cmdPrefix );
+		this._dispatch = new Dispatch( this._cmdPrefix );
 
 		this.loadPlugins();
 
@@ -69,7 +69,7 @@ class DiscordBot {
 
 		try {
 
-			let config = require( './archconfig.json');
+			let config = require( '../archconfig.json');
 			this._spamblock = config.spamblock || {};
 			this._cmdPrefix = config.cmdprefix || '!';
 			this._plugsdir = config.pluginsdir;
@@ -84,9 +84,10 @@ class DiscordBot {
 	loadPlugins(){
 
 		if ( !this._plugsdir) return;
+
 		try {
 
-			var plugins = require( './plugsupport.js' ).loadPlugins( this._plugsdir );
+			var plugins = require( '../plugsupport.js' ).loadPlugins( this._plugsdir );
 			this.addPlugins( plugins );
 
 		} catch(e) { console.log(e);}

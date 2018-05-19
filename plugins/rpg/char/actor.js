@@ -1,7 +1,7 @@
 const dice = require( '../dice.js');
 const Loc = require( '../world/loc.js');
 const stats = require( './stats.js');
-const effects = require( '../effects.js');
+const effects = require( '../magic/effects.js');
 
 exports.Alive = 'alive';
 exports.Dead = 'dead';
@@ -61,7 +61,7 @@ exports.Actor = class Actor {
 	set baseLevel( v ) {  this._baseStats._level = v; }
 
 	get gold() { return this._info.gold; }
-	set gold( g ) { this._info.gold = g; }
+	set gold( g ) { this._info.gold = g < 0 ? 0 : g; }
 
 	get guild() { return this._guild; }
 	set guild(v) { this._guild = v; }
@@ -78,17 +78,24 @@ exports.Actor = class Actor {
 	get armor() { return this._curStats._armor; }
 
 	get str() { return this._curStats._str; }
-	set str(v) { this._curStats._str = v; }
+	set str(v) { this._curStats.str = v; }
 	get con() { return this._curStats._con; }
-	set con(v) { this._curStats._con = v; }
+
+	set con(v) {
+
+		this._curStats.con = v;
+		this.computeHp();
+
+	}
+
 	get dex() { return this._curStats._dex; }
-	set dex(v) { this._curStats._dex = v; }
+	set dex(v) { this._curStats.dex = v; }
 	get int() { return this._curStats._int; }
-	set int(v) { this._curStats._int = v; }
+	set int(v) { this._curStats.int = v; }
 	get wis() { return this._curStats._wis; }
-	set wis(v) { this._curStats._wis = v; }
+	set wis(v) { this._curStats.wis = v; }
 	get cha() { return this._curStats._cha; }
-	set cha(v) { this._curStats._cha = v; }
+	set cha(v) { this._curStats.cha = v; }
 
 	get HD() { return this._charClass ? Math.floor( (this._charClass.HD + this._race.HD)/2 ) : this._race.HD; }
 
@@ -113,9 +120,6 @@ exports.Actor = class Actor {
 	get info() { return this._info; }
 	set info( v ) { this._info = v; }
 
-	get curMods() { return this._curMods; }
-	set curMods(v) { this._curMods = v; }
-
 	get toHit() { return this.getModifier('dex'); }
 
 	// Loc.Coord
@@ -135,7 +139,7 @@ exports.Actor = class Actor {
 		this._loc = new Loc.Coord( 0,0);
 
 		this._state = exports.Alive;
-		this._curMods = [];
+		this._effects = [];
 
 	}
 
@@ -177,17 +181,15 @@ exports.Actor = class Actor {
 
 	addEffect( e ) {
 
-		let a = new effects.CharEffect( e, 10 );
-		this._effects.push( a );
-		a.start( this );
+		if ( e instanceof effects.Effect ) {
+			e = new effects.CharEffect( e );
+		}
+		this._effects.push( e );
+		e.start( this );
 
 	}
 
-	rmEffect( i ) {
-
-		let e = (isNaN(i)) ? i : this._effects[i];
-
-	}
+	rmEffect( e ) {}
 
 	addGold( amt ) { this._info.gold += amt; }
 
@@ -226,12 +228,8 @@ exports.Actor = class Actor {
 	*/
 	computeHp() {
 
-		let hd = this.HD;
 		let level = this._curStats.level;
 		let hp = this._baseStats.maxHp + level*this.getModifier('con');
-
-		console.log('con:' + this.getModifier('con') );
-		// todo: temp levels?
 
 		if ( hp < 1 ) hp = 1;
 		this.maxHp = hp;
@@ -290,28 +288,6 @@ exports.Actor = class Actor {
 		let amt = this.getModifier('con') + this.getModifier('wis') + this.level;
 		if ( amt < 0 ) amt = 1;
 		return this.heal( amt );
-	}
-
-	/**
-	 * 
-	 * @param {stats.StatMod} mod 
-	 */
-	addMod( mod ) {
-
-		this._statMods.add( mod );
-		mod.apply( this._curStats );
-	}
-
-	/**
-	 * 
-	 * @param {stats.StatMod} mod 
-	 */
-	removeMod( mod ) {
-		let i = this._statMods.indexOf( mod );
-		if ( i >= 0 ) {
-			this._statMods.splice( i, 1 );
-			mod.remove( this._curStats );
-		}
 	}
 
 	applyBaseMods( mods ) {

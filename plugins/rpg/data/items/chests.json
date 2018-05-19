@@ -1,0 +1,41 @@
+[
+
+    {
+        "name":"pouch",
+        "desc":"A trusty pouch",
+        "size":3,
+        "cost":5
+    },
+    {
+        "name":"sack",
+        "desc":"What's in the sack?!?",
+        "size":5,
+        "cost":10
+    },
+    {
+        "name":"satchel",
+        "desc":"Good for storing dispatches.",
+        "size":8,
+        "cos":15
+    },
+    {
+        "name":"pack",
+        "desc":"Put things in here.",
+        "size":12,
+        "cost":30
+    },
+    {
+        "name":"chest",
+        "desc":"May be filled with treasure.",
+        "size":25,
+        "cost":100
+    },
+    {
+        "name":"cart",
+        "desc":"Put the horse before it.",
+        "size":50,
+        "cost":500
+    }
+
+
+]

@@ -1,5 +1,5 @@
 const statTypes = [ 'str', 'dex', 'con', 'int', 'wis', 'cha'];
-const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats',
+const saveProps = [ 'name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
 					'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'talents' ];
 
 const Loc = require( '../world/loc.js');
@@ -7,6 +7,7 @@ const Level = require( './level.js');
 
 const Inv = require( '../inventory.js');
 const actor = require( './actor.js');
+const effects = require( '../magic/effects.js');
 const dice = require( '../dice.js' );
 const Equip = require( './equip.js');
 const Item = require( '../items/item.js');
@@ -99,7 +100,7 @@ class Char extends actor.Actor {
 		char.owner = json.owner;
 
 		if ( json.talents ) char.talents = json.talents;
-		if (json.history ) Object.assign( char.history, json.history );
+		if ( json.history ) Object.assign( char.history, json.history );
 		if ( json.home) char._home = new Loc.Coord( json.home.x, json.home.y );
 
 		if ( json.baseStats ) Object.assign( char._baseStats, json.baseStats );
@@ -111,9 +112,17 @@ class Char extends actor.Actor {
 		char.statPoints = json.statPoints || char._baseStats.level;
 		char.spentPoints = json.spentPoints || 0;
 
-		if ( json.inv ) char._inv = Inv.FromJSON( json.inv );
+		if ( json.inv ) Inv.FromJSON( json.inv, char._inv );
 
 		char.setBaseStats( char._baseStats );
+
+		// SET AFTER BASE STATS.
+		if ( json.effects ) {
+			let a = json.effects;
+			for( let i = a.length-1; i>=0; i-- ) {
+				char.addEffect( effects.CharEffect.FromJSON(a[i]) );
+			}
+		}
 
 		if ( json.equip) char.setEquip( Equip.FromJSON( json.equip ) );
 
@@ -191,7 +200,7 @@ class Char extends actor.Actor {
 
 		if ( item.type !== Item.FOOD ) return item.name + ' isn\'t food!';
 
-		this._inv.remove( item );
+		this._inv.take( item );
 
 		let cook = require( '../data/cooking.json');
 		this.addHistory( 'eat');
@@ -238,7 +247,7 @@ class Char extends actor.Actor {
 		if ( typeof(removed) !== 'string') {
 
 			this.applyEquip(item);
-			this._inv.remove( item );
+			this._inv.take( item );
 			if ( removed ) {
 				this.removeEquip( removed );
 				this._inv.add(removed);
@@ -324,45 +333,33 @@ class Char extends actor.Actor {
 	 * Returns the item in the given equipment slot.
 	 * @param {Item} slot 
 	 */
-	getEquip( slot ) {
-		return this._equip.get(slot);
-	}
+	getEquip( slot ) { return this._equip.get(slot); }
 
-	listEquip() {
-		return this._equip.getList();
-	}
+	listEquip() { return this._equip.getList(); }
 
 	/**
 	 * Removes and returns a random item, or null.
 	 */
-	randItem() {
-		return this._inv.randItem();
-	}
+	randItem() { return this._inv.randItem(); }
 
 	/**
 	 * Get an item from inventory without removing it.
-	 * @param {number|string|Item} whichItem 
+	 * @param {number|string|Item} which 
 	 */
-	getItem( whichItem ) {
-		return this._inv.get( whichItem);
-	}
+	getItem( which, sub ) { return this._inv.get( which, sub ); }
 
 	/**
 	 * Add an item to inventory.
 	 * @param {Item|Item[]} it 
 	 */
-	addItem( it ) {
-		return this._inv.add( it );
-	}
+	addItem( it ) { return this._inv.add( it ); }
 
 	/**
 	 * Remove an item from inventory and return it.
 	 * @param {number|string|Item} which
 	 * @returns {Item} Item removed or null. 
 	 */
-	takeItem( which ) {
-		return this._inv.remove(which);
-	}
+	takeItem( which, sub ) { return this._inv.take(which, sub); }
 
 	takeRange( start, end ){ return this._inv.takeRange( start, end); }
 
@@ -402,15 +399,16 @@ class Char extends actor.Actor {
 
 	getTalents() {
 
-		console.log('this: ' + this._talents );
-		console.log('class: ' + this.charClass.name );
-		console.log('race: ' + this.race.name );
-		
-		let talents = this._talents || [];
-		talents = talents.concat( this.charClass.talents, this.race.talents );
-	
-		if ( !talents || talents.length === 0 ) return `${this.name} has no talents.`;
-		return `${this.name}'s Talents:\n${talents.join('\n')}`;
+		let s = new Set( this._talents );
+		if ( this.charClass.talents ) this.charClass.talents.forEach( (v)=>s.add(v) );
+		if ( this.race.talents ) this.race.talents.forEach( (v)=>s.add(v) );
+
+		if ( s.size === 0 ) return `${this.name} has no talents.`;
+
+		let res = this.name + "'s Talents:";
+		for( let t of s ) res += '\n' + t;
+
+		return res;
 
 	}
 
@@ -475,7 +473,13 @@ class Char extends actor.Actor {
 		resp += ( this._history.crafted || 0 ) + ' items crafted.\n';
 		resp += ( this._history.slay || 0 ) + ' monsters slain.\n';
 		resp += ( this._history.pk || 0 ) + ' players killed.\n';
-		resp += ( this.history.stolen || 0 ) + ' items stolen.'
+		resp += ( this.history.stolen || 0 ) + ' items stolen.\n'
+		resp += ( this._history.cook || 0 ) + ' objects cooked.\n';
+		resp += ( this._history.inscribe || 0 ) + ' items inscribed.\n';
+		resp += ( this._history.eat || 0 ) + ' things eaten.\n';
+		resp += ( this._history.quaff || 0 ) + ' potions quaffed.\n';
+		resp += ( this._history.brew || 0 ) + ' potions brewed.';
+
 		return resp;
 
 	}
