@@ -133,21 +133,21 @@ class CmdLine {
 		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
 		if ( !this._cmd ) return;
 
-		this.readArgs( str.slice( ind ), this._cmd.opts );
+		this.readArgs( str.slice( ind ), this._cmd );
 
 
 		return this._cmd;
 
 	}
 
-	readArgs( argstr, opts ) {
+	readArgs( argstr, cmd ) {
 		
 		argstr = argstr.replace( /“|”/g, '\"');
 
-		if ( !opts || !opts.maxArgs ) this._args = this.splitArgs( argstr );
+		if ( !cmd.maxArgs ) this._args = this.splitArgs( argstr );
 		else {
-			if ( opts.group === 'right') this._args = this.groupRight( argstr, opts.maxArgs );
-			else this._args = this.groupLeft( argstr, opts.maxArgs );
+			if ( cmd.group === 'right') this._args = this.groupRight( argstr, cmd.maxArgs );
+			else this._args = this.groupLeft( argstr, cmd.maxArgs );
 		}
 
 	}
