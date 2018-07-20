@@ -194,7 +194,7 @@ module.exports = class World {
 	/**
 	 * 
 	 * @param {Char} char 
-	 * @param {string|number|Item} what 
+	 * @param {string|Number|Item} what 
 	 */
 	async look( char, what ) {
 
@@ -365,14 +365,17 @@ module.exports = class World {
 	/**
 	 * Retrieves the location at x,y. This is a legacy function
 	 * before locations were stored in blocks.
-	 * @param {string} key - cache key of location.
 	 */
-	async legacyLoc( key ) {
+	async legacyLoc( x,y ) {
 
+		let key = this.legacyKey( x,y );
+
+		console.log('GETTING LEGACY LOC');
 		let loc = await this.cache.fetch( key );
 		if ( !loc ) return null;
 
-		if ( !loc instanceof Loc.Loc ) loc = Loc.Loc.FromJSON( loc );
+		console.log('REVIVING LEGACY LOC');
+		if ( !(loc instanceof Loc.Loc) ) loc = Loc.Loc.FromJSON( loc );
 
 		// save the location in the new block system.
 		await this.forceSave(loc);
@@ -387,8 +390,6 @@ module.exports = class World {
 	async getLoc( x,y ) {
 
 		let bkey = this.getBKey(x,y);
-		let key = this.getKey(x,y);
-
 		let block = await this.cache.fetch( bkey );
 
 		if ( block ) {
@@ -396,13 +397,14 @@ module.exports = class World {
 			if ( !(block instanceof Block) ){
 				block = new Block( block );
 				this.cache.cache( bkey, block );
-			}		
-			let loc = block.getLoc( key );
+			}
+
+			let loc = block.getLoc( this.locKey(x,y) );
 			if ( loc ) return loc;
 		}
 
 		// no block location found. search legacy loc storage.
-		return this.legacyLoc( key );
+		return this.legacyLoc( x,y );
 
 	}
 
@@ -415,7 +417,7 @@ module.exports = class World {
 
 		if ( !(block instanceof Block) ){
 			block = new Block( block );
-			await this.cache.store( bkey, block );
+			this.cache.cache( bkey, block );
 		}
 
 		return block;
@@ -432,28 +434,43 @@ module.exports = class World {
 
 	async forceSave( loc ) {
 
+		console.log( 'loc vars: ' + loc.x + ' , ' + loc.y );
+
 		let block = await this.getBlock( loc.x, loc.y, true );
 
 		block.setLoc( this.coordKey(loc.coord), loc );
 
-		await this.cache.store( block.key, block )
+		console.log('STORING NEW BLOCK: ' + block.key );
+
+		return this.cache.store( block.key, block )
 
 	}
 
+	locKey( x,y ) {
+		return x + ',' + y;
+	}
 
 	/**
 	 * 
-	 * @param {Loc.Coord} coord 
+	 * @param {Number} x 
+	 * @param {Number} y 
 	 */
-	coordKey( coord ) { return 'rpg/locs/' + coord.x + ',' + coord.y }
+	coordKey( coord ) {
+		return coord.x + ',' + coord.y;
+	}
+
+	/**
+	 * Keys for legacy locations.
+	 */
+	legacyKey( x,y ) { return 'rpg/locs/' + x + ',' + y }
 
 	/**
 	 * Get the key for a location's block file.
 	 * @param {Loc.Coord} coord 
 	 */
-	blockKey( coord ) {
+	/*blockKey( coord ) {
 		return 'rpg/blocks/' + Math.floor(coord.x/BLOCK_SIZE) + ',' + Math.floor(coord.y/BLOCK_SIZE);
-	}
+	}*/
 
 	/**
 	 * 
@@ -464,14 +481,6 @@ module.exports = class World {
 		return 'rpg/blocks/' + Math.floor(x/BLOCK_SIZE) + ',' + Math.floor(y/BLOCK_SIZE);
 	}
 
-	/**
-	 * 
-	 * @param {Number} x 
-	 * @param {Number} y 
-	 */
-	getKey( x,y ) {
-		return 'rpg/locs/' + x + ',' + y;
-	}
 
 	/**
 	 * 
