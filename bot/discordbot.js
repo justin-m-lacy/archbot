@@ -63,6 +63,7 @@ class DiscordBot {
 		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
 		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
+		this.addCmd( 'perm', '!perm cmd roles', (m)=>this.cmdPerm(m), { minArgs:2 } );
 	}
 
 	loadConfig() {
@@ -261,6 +262,9 @@ class DiscordBot {
 		this.setProxy( m.author, context );
 		m.author.send( 'Proxy created.');
 
+	}
+
+	cmdPerm( m ) {
 	}
 
 	setProxy( user, context ) {

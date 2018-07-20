@@ -1,6 +1,9 @@
 var globalReactions;
 
-
+/**
+ * Class which handles reactions for a single guild.
+ * Instantiated for each Discord Context.
+ */
 class GuildReactions {
 
 	constructor( context ) {
@@ -243,7 +246,10 @@ class GuildReactions {
 
 }
 
-
+/**
+ * Initialize the archbot plugin.
+ * @param {DiscordBot} bot 
+ */
 exports.init = function( bot ) {
 
 	console.log( 'loading Global reactions.');

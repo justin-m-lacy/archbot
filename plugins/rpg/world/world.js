@@ -1,10 +1,19 @@
 const Gen = require( './worldgen.js');
 const Loc = require( './loc.js');
+const Block = require( './block.js');
+
 const Mons = require( '../monster/monster.js');
-//const game = require( '../game.js');
+
+// Locations are merged into blocks of width/block_size, height/block_size.
+// WARNING: Changing block size will break the fetching of existing world data.
+const BLOCK_SIZE = 8;
 
 module.exports = class World {
 
+	/**
+	 * Note that the World is using the Context cache, not a special rpg cache.
+	 * @param {} fcache 
+	 */
 	constructor( fcache ) {
 
 		this.cache = fcache;
@@ -31,7 +40,7 @@ module.exports = class World {
 
 		if ( desc ) loc.desc = desc;
 
-		this.quickSave( loc );
+		await this.quickSave( loc );
 
 	}
 
@@ -78,7 +87,7 @@ module.exports = class World {
 
 		let ind = char.addItem( it );
 
-		this.quickSave( loc );
+		await this.quickSave( loc );
 
 		return end ? `${char.name} took ${it.length} items.` :
 			`${char.name} took ${it.name}. (${ind})`;
@@ -210,7 +219,7 @@ module.exports = class World {
 	
 		let loc = await this.getOrGen( char.loc, char );
 		let ind = loc.drop( what );
-		this.quickSave( loc );
+		await this.quickSave( loc );
 
 		return `${char.name} dropped ${what.name}. (${ind})`;
 
@@ -228,7 +237,7 @@ module.exports = class World {
 
 		let loc = await this.getOrGen( char.loc, char );
 		let ind = loc.drop( it );
-		this.quickSave( loc );
+		await this.quickSave( loc );
 
 		if ( it instanceof Array ) return it.length + ' items dropped.';
 		return `${char.name} dropped ${it.name}. (${ind})`;
@@ -263,14 +272,6 @@ module.exports = class World {
 
 	}
 
-	quickSave( loc ) {
-		this.cache.cache( this.coordKey(loc.coord), loc );
-	}
-
-	async forceSave( loc ) {
-		await this.cache.store( this.coordKey(loc.coord), loc )
-	}
-
 	/**
 	 * Return the new location after moving from the given coordinate.
 	 * @param {Loc.Coord} coord - current coordinate.
@@ -296,7 +297,7 @@ module.exports = class World {
 
 		let dest = await this.getLoc( x, y );
 
-		if ( !dest ) {
+		if ( dest === null ) {
 
 			let exits = await this.getRandExits(x,y);
 			// must use NEW coord so avoid references.
@@ -306,65 +307,13 @@ module.exports = class World {
 			char.addHistory( 'explored' );
 			char.addExp( 2 );
 
-			this.cache.cache( this.coordKey(destCoord), dest );
+			this.quickSave( dest );
 
 		}
 
 		this.trySpawn( dest );
 
 		return dest;
-
-	}
-
-	async getOrGen( coord, char=null ) {
-
-		let key = this.coordKey(coord );
-		let loc = await this.cache.fetch( key );
-
-		if ( !loc ) {
-
-			console.log( coord + ' NOT FOUND. GENERATING NEW');
-			loc = Gen.genNew( coord );
-
-			if ( char ) loc.setMaker( char.name );
-
-			this.cache.cache( key, loc );
-
-
-		} else if ( loc instanceof Loc.Loc ) return loc;
-		else {
-
-			console.log('REVIVING LOC OBJECT');
-			// instantiate json object.
-			loc = Loc.Loc.FromJSON( loc );
-			// store instance in cache.
-			this.cache.cache( key, loc );
-
-		}
-
-		return loc;
-
-	}
-
-	/**
-	 * Retrieves the location at x,y.
-	 * @param {number} x - x-coord of location.
-	 * @param {number} y - y-coord of location.
-	 */
-	async getLoc( x, y ) {
-
-		let key = this.getKey(x,y);
-		let loc = await this.cache.fetch( key );
-		if ( !loc ) return null;
-		if ( loc instanceof Loc.Loc ) return loc;
-
-		// instantiate json object.
-		loc = Loc.Loc.FromJSON( loc );
-
-		// store instance in cache.
-		await this.cache.store( key, loc );
-
-		return loc;
 
 	}
 
@@ -394,6 +343,104 @@ module.exports = class World {
 
 	}
 
+	async getOrGen( coord, char=null ) {
+
+		let loc = await this.getLoc( coord.x, coord.y );
+
+		if ( loc === null ) {
+
+			console.log( coord + ' NOT FOUND. GENERATING NEW');
+			loc = Gen.genNew( coord );
+
+			if ( char ) loc.setMaker( char.name );
+
+			await this.quickSave( loc );
+
+		}
+
+		return loc;
+
+	}
+
+	/**
+	 * Retrieves the location at x,y. This is a legacy function
+	 * before locations were stored in blocks.
+	 * @param {string} key - cache key of location.
+	 */
+	async legacyLoc( key ) {
+
+		let loc = await this.cache.fetch( key );
+		if ( !loc ) return null;
+
+		if ( !loc instanceof Loc.Loc ) loc = Loc.Loc.FromJSON( loc );
+
+		// save the location in the new block system.
+		await this.forceSave(loc);
+
+		// delete legacy location file.
+		await this.cache.delete( key );
+
+		return loc;
+
+	}
+
+	async getLoc( x,y ) {
+
+		let bkey = this.getBKey(x,y);
+		let key = this.getKey(x,y);
+
+		let block = await this.cache.fetch( bkey );
+
+		if ( block ) {
+
+			if ( !(block instanceof Block) ){
+				block = new Block( block );
+				this.cache.cache( bkey, block );
+			}		
+			let loc = block.getLoc( key );
+			if ( loc ) return loc;
+		}
+
+		// no block location found. search legacy loc storage.
+		return this.legacyLoc( key );
+
+	}
+
+	async getBlock( x,y, create=false ) {
+
+		let bkey = this.getBKey(x,y);
+		let block = await this.cache.fetch( bkey );
+
+		if ( !block ) return ( create === true ) ? new Block( {key:bkey} ) : null;
+
+		if ( !(block instanceof Block) ){
+			block = new Block( block );
+			await this.cache.store( bkey, block );
+		}
+
+		return block;
+
+	}
+
+	async quickSave( loc ) {
+
+		let block = await this.getBlock( loc.x, loc.y, true );
+		block.setLoc( this.coordKey(loc.coord), loc );
+
+		this.cache.cache( block.key, block );
+	}
+
+	async forceSave( loc ) {
+
+		let block = await this.getBlock( loc.x, loc.y, true );
+
+		block.setLoc( this.coordKey(loc.coord), loc );
+
+		await this.cache.store( block.key, block )
+
+	}
+
+
 	/**
 	 * 
 	 * @param {Loc.Coord} coord 
@@ -401,9 +448,26 @@ module.exports = class World {
 	coordKey( coord ) { return 'rpg/locs/' + coord.x + ',' + coord.y }
 
 	/**
+	 * Get the key for a location's block file.
+	 * @param {Loc.Coord} coord 
+	 */
+	blockKey( coord ) {
+		return 'rpg/blocks/' + Math.floor(coord.x/BLOCK_SIZE) + ',' + Math.floor(coord.y/BLOCK_SIZE);
+	}
+
+	/**
 	 * 
-	 * @param {number} x 
-	 * @param {number} y 
+	 * @param {Number} x 
+	 * @param {Number} y 
+	 */
+	getBKey( x,y ) {
+		return 'rpg/blocks/' + Math.floor(x/BLOCK_SIZE) + ',' + Math.floor(y/BLOCK_SIZE);
+	}
+
+	/**
+	 * 
+	 * @param {Number} x 
+	 * @param {Number} y 
 	 */
 	getKey( x,y ) {
 		return 'rpg/locs/' + x + ',' + y;
@@ -448,18 +512,9 @@ module.exports = class World {
 	*/
 	async getNear( x,y ) {
 
-		return [ await this.locOrNull(x-1, y), await this.locOrNull(x+1,y),
-			await this.locOrNull(x,y-1), await this.locOrNull(x,y+1) ].filter( v => v!=null );
+		return [ await this.getLoc(x-1, y), await this.getLoc(x+1,y),
+			await this.getLoc(x,y-1), await this.getLoc(x,y+1) ].filter( v => v!=null );
 
 	}
-
-	/**
-	 * Attempts to retrieve a location, but does not generate
-	 * if it does not already exist.
-	 * @param {number} x 
-	 * @param {number} y
-	 * @returns Loc found or null.
-	 */
-	async locOrNull(x,y) { return this.cache.fetch( this.getKey(x,y) ); }
 
 }

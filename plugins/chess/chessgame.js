@@ -31,26 +31,32 @@ module.exports = class ChessGame extends Game {
 
 	static FromJSON( data ) {
 
-		if ( data.p1 == null ) {
-			return "White player not known.";
-		}
-		if ( data.p2 == null ) {
-			return "Black player not known.";
-		}
-		if ( data.fen == null ) {
-			return "Game state not found."
-		}
+		if ( !data.p1 ) return "White player not known.";
+		if ( !data.p2 ) return "Black player not known.";
+
+		if ( !data.fen ) return "Game state not found."
 		
 		//console.log( 'fen: ' + data.fen );
 
 		let state = Chess.fenToPosition( data.fen );
 	
-		let game = new ChessGame( data.p1, data.p2, data.time, state );
+		let game = new ChessGame( data.p1, data.p2, data.time, state, json.status );
 
 		Export.readPGN( data.pgn, game );
 
 		return game;
 	
+	}
+
+	toJSON(){
+
+		let json = super.toJSON();
+		json.pgn = Export.toPGN(this);
+		json.fen = Chess.positionToFen( this._gameState );
+		json.status = this._status;
+
+		return json;
+
 	}
 
 	/**
@@ -60,7 +66,7 @@ module.exports = class ChessGame extends Game {
 	 * @param {number} createTime Timestamp when game began.
 	 * @param {object} state Current chess-rules position of game.
 	 */
-	constructor( w, b, createTime, state ) {
+	constructor( w, b, createTime, state, status=null) {
 
 		super( w, b, createTime );
 
@@ -74,7 +80,7 @@ module.exports = class ChessGame extends Game {
 
 		this._history = [];
 
-		this._status = Chess.getGameStatus( state );
+		this._status = status || Chess.getGameStatus( state );
 
 		this._lastMove = null;
 
@@ -106,11 +112,9 @@ module.exports = class ChessGame extends Game {
 
 		if ( this._status != OPEN ) return false;
 
-		if ( uid === this.p1 ) {
-			this._status = BLACKWON;
-		} else if ( uid === this.p2 ) {
-			this._status = WHITEWON;
-		} else return false;
+		if ( uid === this.p1 ) this._status = BLACKWON;
+		else if ( uid === this.p2 ) this._status = WHITEWON;
+		else return false;
 
 		return true;
 
@@ -148,24 +152,11 @@ module.exports = class ChessGame extends Game {
 
 		let str = this._status;
 
-		if ( str === WHITEWON) {
-			return 'White has won the game.';
-		} else if ( str === BLACKWON) {
-			return 'Black has won the game.';
-		} else if ( str === DRAW) {
-			return 'The game is a stalemate.';
-		}
+		if ( str === WHITEWON) return 'White has won the game.';
+		else if ( str === BLACKWON) return 'Black has won the game.';
+		else if ( str === DRAW ) return 'The game is a stalemate.';
+
 		return ( this._gameState.turn === 'W') ? 'White to move.' : 'Black to move.';
-
-	}
-
-	toJSON(){
-
-		let json = super.toJSON();
-		json.pgn = Export.toPGN(this);
-		json.fen = Chess.positionToFen( this._gameState );
-
-		return json;
 
 	}
 }

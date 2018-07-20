@@ -5,7 +5,9 @@ const afs = require( './afs');
 // base Context.
 const Context = class {
 
-	// 'guild', 'user', 'dm', 'group', 'channel'
+	/**
+	 * {string} 'guild', 'user', 'dm', 'group', 'channel'\
+	 */
 	get type() { return 'unknown'; }
 
 	// discord obj with id that serves as context base.
@@ -35,6 +37,10 @@ const Context = class {
 
 	}
 
+	/**
+	 * Tests if a file name or cache-key is illegal.
+	 * @param {string} s 
+	 */
 	illegalName( s) {
 
 		let a = fsys.illegalChars;
@@ -102,11 +108,9 @@ const Context = class {
 	 */
 	showUserNotFound( obj, user ) {
 
-		if ( obj instanceof Discord.Message ) {
-			obj.reply( 'User \'' + user + '\' not found.');
-		} else {
-			obj.send( 'User \'' + user + '\' not found.');
-		}
+		if ( obj instanceof Discord.Message ) obj.reply( 'User \'' + user + '\' not found.');
+		else obj.send( 'User \'' + user + '\' not found.');
+
 	}
 
 	/**
@@ -131,6 +135,10 @@ const Context = class {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} id - discord user id.
+	 */
 	async displayName( id ) {
 
 		if ( !id ) return 'Invalid ID';
@@ -154,6 +162,11 @@ const Context = class {
 		return o.id;
 	}
 
+	/**
+	 * Override in botcontext subclasses to find named user
+	 * within context.
+	 * @param {string} name 
+	 */
 	findUser( name ) { return null; }
 
 	/**
