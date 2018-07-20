@@ -51,6 +51,10 @@ const Context = class {
 
 	}
 
+	/**
+	 * Returns true if the given discord user is the bot owner.
+	 * @param {Discord.User|string} u 
+	*/
 	isMaster( u) { return this._bot.isMaster(u); }
 
 	/**

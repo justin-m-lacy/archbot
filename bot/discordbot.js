@@ -216,6 +216,10 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Returns true if the given discord user is the bot owner.
+	 * @param {Discord.User|string} u 
+	 */
 	isMaster( u ) {
 
 		if ( u instanceof Discord.User ) return u.id === this._master;

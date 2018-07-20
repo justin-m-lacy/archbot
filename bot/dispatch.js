@@ -43,7 +43,7 @@ module.exports = class CmdDispatch {
 	 */
 	addContextCmd( name, usage, func, cmdClass, opts=null ) {
 
-		console.log('ADDING CONTEXT COMAND: ' + name );
+		//console.log('ADDING CONTEXT COMAND: ' + name );
 		try {
 			let cmd = new Command( name, func, opts );
 			cmd.usage = usage;
