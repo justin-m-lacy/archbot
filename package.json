@@ -4,7 +4,7 @@
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
-    "test": "node archbot.js"
+    "run": "node archbot.js"
   },
   "repository": {
     "type": "git",

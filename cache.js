@@ -1,3 +1,6 @@
+/**
+ * Item within the Cache.
+ */
 class Item {
 
 	constructor( key, data, dirty=true ) {
@@ -132,8 +135,7 @@ exports.Cache = class {
 	}
 
 	/**
-	 * Deletes object from local cache and from
-	 * the backing store.
+	 * Deletes object from local cache and from the backing store.
 	 * @param {string} key 
 	 */
 	async delete( key ) {

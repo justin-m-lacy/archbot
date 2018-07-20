@@ -70,8 +70,6 @@ module.exports = class CmdDispatch {
 	 * @param {Command} cmd 
 	 */
 	regCmd( cmd ) {
-
-		console.log('reg comd: ' + cmd.name );
 	
 		this.cmdLine.commands[ cmd.name ] = cmd;
 		let alias = cmd.alias;

@@ -12,13 +12,10 @@ class Room {
 
 	constructor( context ) {
 
-		try {
 		this._context = context;
 		this.activeGames = {};
 
 		this.gcache = new GameCache( context, game_dir, ChessGame.FromJSON );
-
-		} catch ( e) { console.log(e);}
 
 	}
 
@@ -26,15 +23,15 @@ class Room {
 
 		try {
 
-			if ( p1 == null ) p1 = m.author;
+			if ( !p1 ) p1 = m.author;
 			else {
 				p1 = this._context.userOrShowErr( m, p1 );
-				if ( p1 == null) return;
+				if ( !p1 ) return;
 			}
 
-			if ( p2 != null ) {
+			if ( p2 ) {
 				p2 = this._context.userOrShowErr( m, p2 );
-				if ( p2 == null ) return;
+				if ( !p2 ) return;
 			}
 
 			await this.gcache.printGames( m, p1, p2 );
@@ -79,27 +76,23 @@ class Room {
 		if ( opp == null) return;
 
 		let game = this.gcache.getGame( m.author.id, opp.id, gnum );
-		if ( game == null ) {
-			m.reply( 'Game not found.');
-		} else {
-			m.reply( 'Game loaded.');
-		}
-
+		if ( !game ) return m.reply( 'Game not found.');
+		else return m.reply( 'Game loaded.');
 
 	}
 
 	async cmdPGN( m, opp1, opp2, gnum ) {
 
-		if ( opp1 == null ) opp1 = m.author;
-		else if ( opp2 == null ) opp2 = m.author;
+		if ( !opp1 ) opp1 = m.author;
+		else if ( !opp2 ) opp2 = m.author;
 
 		let game = await this.gcache.gameOrShowErr( m, opp1, opp2, gnum );
-		if ( game == null ) return;
+		if ( !game ) return;
 
 		try {
 
 			let str = Export.toPGN( game );
-			m.channel.send( str );
+			return m.channel.send( str );
 
 		} catch ( e) { console.log(e); }
 
@@ -108,7 +101,7 @@ class Room {
 	async cmdResign( m, oppName, gnum ) {
 
 		let game = await this.gcache.gameOrShowErr( m, m.author, oppName, gnum);
-		if ( game == null ) return;
+		if ( !game ) return;
 
 		if ( !game.tryResign() ) {
 			m.channel.send( 'The game is already over.');
@@ -139,12 +132,8 @@ class Room {
 
 		let len = args.length;
 		let game, moveStr;
-		if ( len == 0 ) {
-
-			m.reply( 'Must specify a move.');
-			return;
-
-		} else if ( len === 1 ) {
+		if ( len === 0 ) return m.reply( 'Must specify a move.');
+		else if ( len === 1 ) {
 
 			// !move moveStr
 			game = await this.gcache.gameOrShowErr( m, m.author, null );
@@ -155,12 +144,11 @@ class Room {
 			game = await this.gcache.gameOrShowErr( m, m.author, args[0]);
 			moveStr = args[1];
 		} else {
-			m.reply( 'Unexpected move input.' );
-			return;
+			return m.reply( 'Unexpected move input.' );
 		}
-		if ( game == null ) return;
+		if ( !game ) return;
 
-		this.moveOrShowErr( m, game, moveStr );
+		return this.moveOrShowErr( m, game, moveStr );
 		
 	}
 
@@ -168,7 +156,7 @@ class Room {
 
 		if ( !game.isOpen() ) {
 
-			this.showGameStatus( m.channel, game );
+			return this.showGameStatus( m.channel, game );
 
 		} else if ( game.turn === m.author.id ){
 
@@ -181,13 +169,9 @@ class Room {
 					await this.gcache.completeGame( game );
 				}
 
-			} else {
-				m.reply( moveStr + ' is not a legal move.');
-			}
+			} else m.reply( moveStr + ' is not a legal move.');
 
-		} else {
-			m.reply( 'It is not your turn to move.' );
-		}
+		} else return m.reply( 'It is not your turn to move.' );
 
 	}
 
@@ -196,8 +180,8 @@ class Room {
 	 * @param {Channel} chan 
 	 * @param {Game} game 
 	 */
-	showGameStatus( chan, game ) {
-		chan.send( game.getStatusString() );
+	async showGameStatus( chan, game ) {
+		return chan.send( game.getStatusString() );
 	}
 
 	async startGame( w_user, b_user ) {

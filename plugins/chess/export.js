@@ -29,10 +29,10 @@ function toPGN( game ) {
 	if ( len % 2 != 0 ) fullMoves.push(turnStr);
 
 	let status = game.status;
-	if ( status == 'OPEN' ) fullMoves.push( '*');
-	else if ( status == 'WHITEWON') fullMoves.push('1-0');
-	else if ( status == 'BLACKWON') fullMoves.push('0-1');
-	else if ( status == 'PAT') fullMoves.push('1/2-1/2');
+	if ( status === 'OPEN' ) fullMoves.push( '*');
+	else if ( status === 'WHITEWON') fullMoves.push('1-0');
+	else if ( status === 'BLACKWON') fullMoves.push('0-1');
+	else if ( status === 'PAT') fullMoves.push('1/2-1/2');
 
 	let pgnStr = fullMoves.join( ' ' );
 
@@ -56,12 +56,11 @@ function getTagsStr( game ) {
  */
 function readPGN( pgn, game ) {
 
-	if ( pgn == null) return;
+	if ( !pgn) return;
 
 	// parsing tags.
 	let regex = /\[(\w+)\s\"([\w\d\s\\\/,\.\-]+)\"\]/g;
 	var results;
-	var len;
 
 	let tags = {};
 
