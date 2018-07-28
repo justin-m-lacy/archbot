@@ -370,11 +370,10 @@ module.exports = class World {
 
 		let key = this.legacyKey( x,y );
 
-		console.log('GETTING LEGACY LOC');
 		let loc = await this.cache.fetch( key );
 		if ( !loc ) return null;
 
-		console.log('REVIVING LEGACY LOC');
+		//console.log('REVIVING LEGACY LOC');
 		if ( !(loc instanceof Loc.Loc) ) loc = Loc.Loc.FromJSON( loc );
 
 		// save the location in the new block system.
@@ -434,14 +433,9 @@ module.exports = class World {
 
 	async forceSave( loc ) {
 
-		console.log( 'loc vars: ' + loc.x + ' , ' + loc.y );
-
 		let block = await this.getBlock( loc.x, loc.y, true );
 
 		block.setLoc( this.coordKey(loc.coord), loc );
-
-		console.log('STORING NEW BLOCK: ' + block.key );
-
 		return this.cache.store( block.key, block )
 
 	}
@@ -463,14 +457,6 @@ module.exports = class World {
 	 * Keys for legacy locations.
 	 */
 	legacyKey( x,y ) { return 'rpg/locs/' + x + ',' + y }
-
-	/**
-	 * Get the key for a location's block file.
-	 * @param {Loc.Coord} coord 
-	 */
-	/*blockKey( coord ) {
-		return 'rpg/blocks/' + Math.floor(coord.x/BLOCK_SIZE) + ',' + Math.floor(coord.y/BLOCK_SIZE);
-	}*/
 
 	/**
 	 * 

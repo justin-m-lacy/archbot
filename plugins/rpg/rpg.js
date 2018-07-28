@@ -1,3 +1,6 @@
+/**
+ * Whether global RPG data has been initialized.
+ */
 var initialized = false;
 
 // includes after init.
@@ -227,7 +230,13 @@ class RPG {
 
 	}
 
-	async cmdLore( m, wot ) { return display.sendBlock( m, gamejs.getLore(wot) ); }
+	async cmdLore( m, wot ) {
+
+		if( !wot ) return m.reply( 'What do you want to know about?');
+
+		return display.sendBlock( m, gamejs.getLore(wot) );
+
+	}
 
 	async cmdTake( m, first, end ){
 
