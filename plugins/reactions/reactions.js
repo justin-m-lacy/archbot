@@ -30,60 +30,85 @@ class GuildReactions {
 
 	}
 
+	/**
+	 * 
+	 * @param {Message} m 
+	 * @param {string} trig 
+	 * @param {string} react 
+	 */
 	async cmdAddReaction( m, trig, react ) {
 
-		if ( trig == null || react == null ) {
-			m.channel.send( 'Usage: !react "string" "response"' );
-			return;
-		}
+		if ( !trig || !react ) return m.channel.send( 'Usage: !react "string" "response"' );
 
 		await this.addReactData( trig, react, m.author.id );
-		m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
+
+		return m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
 
 	}
 
+	/**
+	 * 
+	 * @param {Message} m 
+	 * @param {string} trig 
+	 * @param {string|null|undefined} which 
+	 */
 	async cmdRmReact( m, trig, which ) {
 
-		if ( !trig || !which ) return m.channel.send( 'Usage: !rmreact "string" ["reaction"]' );
+		if ( trig ) {
 
-		let res = await this.rmReact( trig, which );
-		if ( res ) return m.channel.send('Reaction removed.');
+			let res = await this.rmReact( trig, which );
+			if ( res === true ) return m.channel.send('Reaction removed.');
+			else if ( res === false ) return m.channel.send('Reaction not found.');
+			return m.channel.send( `${res} reactions found for trigger: ${trig}`);
 
-		return m.channel.send('Reaction not found.');
-
-	}
-
-	async cmdReactInfo( m, trig, which ) {
-
-		let info = this.reactInfo( trig, which );
-		if ( !info ) return m.channel.send( 'No reaction found.');
-		if ( typeof info === 'string') return m.channel.send( 'No information about this reaction.');
-		if ( info instanceof Array ) return m.channel.send( `Multiple reactions found for trigger ${trig}.`);
-
-		if ( info.uid ) {
-			let name = await this._context.displayName( info.uid );
-			let resp = name ?  `Reaction created by ${name} (id:${info.uid})` : `Reaction created by user id: ${info.uid}`;
-
-			if ( info.t ) resp += ` @ ${new Date(info.t)}`;
-			return m.channel.send( resp );
 		}
 
-		return m.channel.send( 'No information about this reaction.');
+		return m.channel.send( 'Usage: !rmreact "string" ["reaction"]' );
+
 	}
 
-	async rmReact( trig, which ) {
+	/**
+	 * Command to display information about a given Trigger/Reaction combination.
+	 * @param {Message} m 
+	 * @param {string} trig 
+	 * @param {string|null|undefined} which 
+	 */
+	async cmdReactInfo( m, trig, which ) {
+
+		let reacts = this.getReactions( trig, which );
+		if ( !reacts ) return m.channel.send( 'No reaction found.');
+
+		let resp = await this.infoString( reacts );
+
+		return m.channel.send( resp );
+	}
+
+	/**
+	 * Removes the given reaction string from the given reaction trigger. If no reaction
+	 * string is specified, the reaction trigger will be removed if the given trigger
+	 * has only a single reaction entry.
+	 * @param {string} trig - The reaction trigger to remove a reaction from.
+	 * @param {string|null|undefined} reaction - The reaction string to remove.
+	 * @returns {bool|number} Returns true if a reaction is successfully removed.
+	 * If no reaction string is specified, and multiple reactions are found,
+	 * the number of reactions is returned.
+	 * If no matching trigger/reaction pair is found, false is returned.
+	 */
+	async rmReact( trig, reaction ) {
 
 		trig = trig.toLowerCase();
 		let cur = this.reactions[trig];
 		if ( !cur ) return false;
 
-		if ( !which ) delete this.reactions[trig];
-		else {
+		if ( !reaction ) {
 
-			if ( !this.tryRemove(cur,which) ) return false;
-			if ( !cur.r ) delete this.reactions[trig];
+			// single reaction.
+			if ( cur.r && (cur.r instanceof Array) && cur.r.length > 1 ) return cur.r.length;
+			cur.r = null;
 
-		}
+		} else if ( !this.tryRemove(cur,reaction) ) return false;
+
+		if ( !cur.r ) delete this.reactions[trig];	// no reactions remaining.
 
 		await this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
 
@@ -94,7 +119,7 @@ class GuildReactions {
 	/**
 	 * 
 	 * @param {Object} obj - reaction information object. 
-	 * @param {*} which - string reaction to match.
+	 * @param {string} which - reaction to match.
 	 */
 	tryRemove( obj, which ) {
 
@@ -157,6 +182,7 @@ class GuildReactions {
 				this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
 	
 		} catch ( e ) { console.log(e); }
+
 	}
 
 	async loadReactions() {
@@ -168,6 +194,10 @@ class GuildReactions {
 
 	}
 
+	/**
+	 * Attempt to react to the given message content.
+	 * @param {string} content 
+	 */
 	react( content ) {
 
 		let now = Date.now();
@@ -219,28 +249,77 @@ class GuildReactions {
 
 	}
 
-	reactInfo( trig, which ) {
+	/**
+	 * Return a string of information for the given reaction object.
+	 * @param {string|object|Array} react 
+	 */
+	async infoString( react ) {
+
+		if ( react === null || react === undefined ) return '';
+		if ( typeof react === 'string' ) return react + ' ( Creator unknown )';
+
+		var resp = '';
+
+		if ( react instanceof Array ) {
+
+			let len = react.length;
+			for( let i = 0; i < len; i++ ) {
+				resp += (i+1) + ') ' + ( await this.infoString( react[i]) + '\n\n' );
+			}
+			return resp;
+
+		} else if ( react instanceof Object ) {
+
+			resp = react.r;
+
+			if ( react.uid ) {
+	
+				let name = await this._context.displayName( react.uid );
+				resp += name ?  `\nCreated by ${name} (id:${react.uid})` : `\nCreated by user id: ${react.uid}`;
+
+				if ( react.t ) resp += ` @ ${new Date(react.t)}`;
+
+			}
+			return resp;
+
+		}
+
+		return 'Unknown Reaction';
+
+	}
+
+	/**
+	 * 
+	 * @param {string} trig 
+	 * @param {string|null} reactStr - the reaction string to return.
+	 * @returns {string|object|Array|bool} False is returned if the given trigger/reaction string
+	 * combination could not be found.
+	 */
+	getReactions( trig, reactStr=null ) {
 
 		trig = trig.toLowerCase();
 		let obj = this.reactions[trig] || globalReactions[trig];
-		if ( !obj ) return;
-		if ( !which ) return obj.r;
+		if ( !obj ) return false;
 
-		which = which.toLowerCase();
+		// return all reactions.
+		if ( !reactStr ) return obj.r;
+
+		reactStr = reactStr.toLowerCase();
 		let r = obj.r;
 		if ( typeof r === 'string') {
 
-			if ( which === r.toLowerCase() ) return r;
+			if ( reactStr === r.toLowerCase() ) return r;
 
 		} else if ( r instanceof Array ) {
 
 			return r.find( (elm)=>{
-				if ( typeof elm === 'string') return elm.toLowerCase() === which;
-				else return ( typeof elm.r === 'string' && elm.r.toLowerCase() === which );
+				if ( typeof elm === 'string') return elm.toLowerCase() === reactStr;
+				else return ( typeof elm.r === 'string' && elm.r.toLowerCase() === reactStr );
 			});
 
-		} else if ( typeof r.r === 'string' && r.r.toLowerCase() === which ) return r;
+		} else if ( typeof r.r === 'string' && r.r.toLowerCase() === reactStr ) return r;
 
+		return false;
 
 	}
 

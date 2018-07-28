@@ -62,6 +62,7 @@ class DiscordBot {
 
 		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
+		this.addCmd( 'archquit', '!archquit', m=>this.cmdBotQuit(m), {} );
 		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
 		this.addCmd( 'perm', '!perm cmd roles', (m)=>this.cmdPerm(m), { minArgs:2 } );
 	}
@@ -231,6 +232,14 @@ class DiscordBot {
 		if ( this.isMaster( m.author.id ) ) {
 			await this._cache.backup();
 			await m.reply( 'backup complete.');
+		}
+
+	}
+
+	cmdBotQuit(m) {
+
+		if ( this.isMaster(m.author.id) ) {
+			this.client.destroy();
 		}
 
 	}
