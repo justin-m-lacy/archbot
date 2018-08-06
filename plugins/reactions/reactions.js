@@ -202,7 +202,7 @@ class GuildReactions {
 
 		} );
 
-		this.minWait = 20*1000;
+		this.minWait = 3*1000;
 		this.gWait = 3000;
 		// time last message was recieved.
 		this.msgTime = 0;
@@ -242,8 +242,8 @@ class GuildReactions {
 
 			var res;
 
-			if ( isRegEx(trig) === true ) res = await this.rmRegEx( trig, which );
-			else res = await this.rmString( trig, which );
+			if ( isRegEx(trig) === true ) res = this.rmRegEx( trig, which );
+			else res = this.rmString( trig, which );
 	
 			if ( res === true ) {
 
@@ -304,14 +304,21 @@ class GuildReactions {
 
 	rmRegEx( trig, react ) {
 
+		console.log('removing regex');
+
 		trig = toRegEx( trig );
 		if ( trig === false ) return false;
 
-		let rset = this.reMap.get( trig );
-		if ( rset === undefined ) return false;
+		console.log('searching pair');
+		let pair = this.reMapPair( this.reMap, trig );
+
+		if ( pair === undefined ) return false;
+
+		let rset = pair[1];
+		if ( !rset ) return false;
 
 		let res = rset.tryRemove( react );
-		if ( res === true && rset.isEmpty() ) this.reMap.delete(trig);
+		if ( res === true && rset.isEmpty() ) this.reMap.delete( pair[0] );
 	
 		return res;
 
@@ -332,7 +339,7 @@ class GuildReactions {
 		let rset = this.reMap.get( regex );
 
 		if ( rset === undefined ) {
-			rset = new ReactSet( trig );
+			rset = new ReactSet( regex );
 			this.reMap.set( regex, rset );
 		}
 		rset.add( react, uid );
@@ -347,10 +354,14 @@ class GuildReactions {
 	 */
 	async addString( trig, react, uid ) {
 
-		trig = trig.toLowerCase();
-		let rset = this.reactions[ trig ];
+		console.log('adding string');
 
-		if ( rset === undefined ) rset = this.reactions[ trig ] = new ReactSet( trig );
+		trig = trig.toLowerCase();
+		let rset = this.reactions.get(trig);
+		if ( rset === undefined ) {
+			rset = new ReactSet( trig );
+			this.reactions.set( trig, rset );
+		}
 		rset.add( react, uid );
 
 	}
@@ -370,7 +381,7 @@ class GuildReactions {
 		if ( resp !== null ) return resp;
 
 		content = content.toLowerCase();
-		let resp = this.tryStrings( this.reactions, content );
+		resp = this.tryStrings( this.reactions, content );
 		if ( resp !== null ) return resp;
 
 		resp = this.tryStrings( globalReacts, content );
@@ -486,12 +497,49 @@ class GuildReactions {
 	getReactions( trig, reactStr=null ) {
 
 		let regex = toRegEx( trig ), rset;
-		if ( regex === true ) rset = this.reMap.get( regex );
+		if ( regex !== false ) rset = this.reMapFind( this.reMap, regex );
 		else rset = this.reactions.get( trig.toLowerCase() );
 
 		if ( rset === undefined ) return false;
 
 		return rset.getReactions( reactStr );
+
+	}
+
+	/**
+	 * Returns key,value pair for regex->value stored in map.
+	 * @param {*} map 
+	 * @param {*} regex 
+	 */
+	reMapPair( map, regex ) {
+
+		let reStr = regex.toString();
+
+		for( let a of map ) {
+			if ( a[0].toString() === reStr ) return a;
+		}
+		return undefined;
+
+	}
+
+	/**
+	 * 
+	 * @param {Map} map 
+	 * @param {} reStr - string describing a regular expression.
+	 */
+	reMapFind( map, regex ) {
+
+		let reStr = regex.toString();
+
+		console.log('searching: ' + reStr );
+
+		for( let k of map.keys() ) {
+
+			console.log('testing: ' + k.toString() );
+
+			if ( k.toString() === reStr ) return map.get( k );
+		}
+		return undefined;
 
 	}
 
@@ -576,7 +624,7 @@ function toRegEx( s ) {
 	if ( s.charAt(0) === '/' && s.charAt( s.length-1 ) === '/') {
 
 		try {
-			return new RegExp( s );
+			return new RegExp( s.slice(1,s.length-1) );
 		} catch (e) {}
 
 	}
