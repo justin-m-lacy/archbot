@@ -116,8 +116,18 @@ class ReactSet {
 		if ( resp instanceof Object ) resp = resp.r;
 
 		// should be string now.
+		if ( typeof resp !== 'string') return resp.toString();
 		return resp;
 
+	}
+
+	/**
+	 * Get a regex reaction, using substring matches to perform
+	 * replacements in react text.
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+	 */
+	regExReact( text ) {
+		return text.replace( this._trigger, this.getReact() );
 	}
 
 	isEmpty() {
@@ -432,7 +442,7 @@ class GuildReactions {
 				if ( last && (this.msgTime - last ) < this.minWait ) continue;
 				rset.lastUsed = this.msgTime;
 
-				return rset.getReact();
+				return rset.regExReact( str );
 
 			}
 
