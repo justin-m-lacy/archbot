@@ -1,4 +1,166 @@
-var globalReactions;
+var globalReacts, globalRegEx;
+
+class ReactSet {
+
+	toJSON(){
+		return this._reacts;
+	}
+
+	get trigger() { return this._trigger; }
+	set trigger(v) { this._trigger = v; }
+
+	get reacts() { return this._reacts; }
+	set reacts(v) { this._reacts = v; }
+
+	get lastUsed() { return this._lastUsed; }
+	set lastUsed(v) { this._lastUsed = v; }
+
+	constructor( trig, reacts=null ) {
+
+		//console.log('building react for: ' + trig );
+		this._trigger = trig;	// not actually used.
+
+		if ( reacts !== null ) {
+
+			// compatibility with old react versions.
+			if ( reacts instanceof Object && !(reacts instanceof Array )) {
+				// old response save.
+				if ( reacts.r && typeof reacts.r !== 'string' ) {
+					//console.log('using oldstyle react: ' + trig + ' -> ' + reacts.r );
+					reacts = reacts.r;
+				}
+			}
+
+		}
+		this._reacts = reacts;
+
+	}
+
+	/**
+	 * 
+	 * @param {string|null} [reactStr=null] - React string to match, or null if
+	 * all reactions should be returned.
+	 * @returns {false|string|Object|Array} - String or Object information matched,
+	 * or Array of all Reactions of reactStr is null, or false if no reaction
+	 * matching the string is found.
+	 */
+	getReactions( reactStr=null ) {
+
+		if ( reactStr === null || reactStr === undefined ) return this._reacts;
+
+		reactStr = reactStr.toLowerCase();
+
+		let obj = this._reacts;
+
+		if ( typeof obj === 'string') {
+
+			if ( reactStr === obj.toLowerCase() ) return obj;
+
+		} else if ( obj instanceof Array ) {
+
+			return obj.find( (elm)=>{
+				if ( typeof elm === 'string') return elm.toLowerCase() === reactStr;
+				else return ( typeof elm.r === 'string' && elm.r.toLowerCase() === reactStr );
+			});
+
+		} else if ( typeof obj.r === 'string' && obj.r.toLowerCase() === reactStr ) return obj;
+
+		return false;
+
+	}
+
+	/**
+	 * 
+	 * @param {string|RegEx} react - reaction to remove, or null to remove a single reaction,
+	 * if only one reaction exists.
+	 * @returns {Number|boolean} If no matching reaction is found, returns false.
+	 * If a reaction is removed, returns true.
+	 * If no match term is specified, and multiple reactions exist, returns the
+	 * number of reactions in the set.
+	 */
+	tryRemove( react=null ) {
+
+		if ( react === null ) {
+			
+			// removing any single react.
+			if ( !(this._reacts instanceof Array) || this._reacts.length === 0 ) this._reacts = null;
+			else return this._reacts.length;
+
+		} else {
+
+			if ( this._reacts instanceof Array ) {
+
+				for( let i = this._reacts.length-1; i >= 0; i-- ) {
+
+					if ( this._isMatch( react, this._reacts[i]) === true ) {
+						this._splice( this._reacts, i );
+						return true;
+					}
+
+				}
+				return false;
+
+			} else if ( this._isMatch( react, this._reacts ) === true ) this._reacts = null;
+
+		}
+		return true;
+
+	}
+
+	/**
+	 * @returns {string} A reaction string from the set.
+	 */
+	getReact() {
+
+		let resp = this._reacts;
+		if ( resp instanceof Array ) resp = resp[ Math.floor( resp.length*Math.random())];
+		if ( resp instanceof Object ) resp = resp.r;
+
+		// should be string now.
+		return resp;
+
+	}
+
+	isEmpty() {
+		return this._reacts === null || 
+		((this._reacts instanceof Array ) && this._reacts.length === 0);
+	}
+
+	add( react, uid ) {
+
+		react = { r:react, uid:uid, t:Date.now() };
+
+		if ( this._reacts === null ) this._reacts = react;
+		else if ( this._reacts instanceof Array ) this._reacts.push( react );
+		else this._reacts = [ this._reacts, react ];
+
+	}
+
+	_splice( a, i ) {
+
+		if ( i === a.length-1 ) a.pop();
+		else a[i] = a.pop();
+
+	}
+
+	/**
+	 * Tests whether the react string matches the Reaction.
+	 * @param {string|RegEx} str 
+	 * @param {string|RegEx|Object} react
+	 * @returns {bool} Whether the react object matches the string.
+	 */
+	_isMatch( str, react ) {
+
+		if ( typeof react === string ) return str === react;
+		if ( react instanceof Object ) {
+			return react.r === str;
+		}
+
+		return false;
+
+	}
+
+}
 
 /**
  * Class which handles reactions for a single guild.
@@ -8,25 +170,42 @@ class GuildReactions {
 
 	constructor( context ) {
 
-		this.reactions = {};
+		this.allReacts = {};
+
+		/**
+		 * String->ReactSet
+		 */
+		this.reactions = new Map();
+
+		/**
+		 * RegEx->ReactSet - Reactions based on regular expressions.
+		 */
+		this.reMap = new Map();
 
 		this._context = context;
-		this._context.onMsg( (m)=>{
+
+		this.loadReactions();
+
+		this._context.onMsg( m=>{
 
 			try {
+				// global timeout wait.
+				let now = Date.now();
+				if ( now - this.gTime < this.gWait ) return;
+
+				this.msgTime = now;
+
 				let resp = this.react(m.content);
-				if ( resp != null ) m.channel.send( resp );
-			} catch(e){
-				console.log(e);
-			}
+				if ( resp !== null ) return m.channel.send( resp );
+
+			} catch(e) { console.log(e); }
 
 		} );
 
-		this.minWait = 0*5*60*1000;
+		this.minWait = 20*1000;
 		this.gWait = 3000;
-		this.lastMsg = 0;
-
-		this.loadReactions();
+		// time last message was recieved.
+		this.msgTime = 0;
 
 	}
 
@@ -36,11 +215,16 @@ class GuildReactions {
 	 * @param {string} trig 
 	 * @param {string} react 
 	 */
-	async cmdAddReaction( m, trig, react ) {
+	async cmdAddReact( m, trig, react ) {
 
 		if ( !trig || !react ) return m.channel.send( 'Usage: !react "string" "response"' );
 
-		await this.addReactData( trig, react, m.author.id );
+		let regex = toRegEx( trig );
+		if ( regex !== false ) await this.addRegEx( regex, react, m.author.id );
+		else await this.addString( trig, react, m.author.id );
+
+		await this._context.storeKeyData(
+			this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
 
 		return m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
 
@@ -49,16 +233,25 @@ class GuildReactions {
 	/**
 	 * 
 	 * @param {Message} m 
-	 * @param {string} trig 
+	 * @param {string} trig - reaction trigger.
 	 * @param {string|null|undefined} which 
 	 */
 	async cmdRmReact( m, trig, which ) {
 
 		if ( trig ) {
 
-			let res = await this.rmReact( trig, which );
-			if ( res === true ) return m.channel.send('Reaction removed.');
-			else if ( res === false ) return m.channel.send('Reaction not found.');
+			var res;
+
+			if ( isRegEx(trig) === true ) res = await this.rmRegEx( trig, which );
+			else res = await this.rmString( trig, which );
+	
+			if ( res === true ) {
+
+				await this.storeReacts();
+				return m.channel.send('Reaction removed.');
+
+			} else if ( res === false ) return m.channel.send('Reaction not found.');
+
 			return m.channel.send( `${res} reactions found for trigger: ${trig}`);
 
 		}
@@ -70,8 +263,9 @@ class GuildReactions {
 	/**
 	 * Command to display information about a given Trigger/Reaction combination.
 	 * @param {Message} m 
-	 * @param {string} trig 
-	 * @param {string|null|undefined} which 
+	 * @param {string} trig - Reaction trigger.
+	 * @param {string|null|undefined} which - The specific reaction for the given trigger
+	 * to get information for.
 	 */
 	async cmdReactInfo( m, trig, which ) {
 
@@ -94,158 +288,150 @@ class GuildReactions {
 	 * the number of reactions is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
-	async rmReact( trig, reaction ) {
+	async rmString( trig, reaction ) {
 
 		trig = trig.toLowerCase();
-		let cur = this.reactions[trig];
-		if ( !cur ) return false;
+		let rset = this.reactions.get( trig );
 
-		if ( !reaction ) {
+		if ( rset === undefined ) return false;
 
-			// single reaction.
-			if ( cur.r && (cur.r instanceof Array) && cur.r.length > 1 ) return cur.r.length;
-			cur.r = null;
+		let res = rset.tryRemove( reaction );
+		if ( res === true && rset.isEmpty()) this.reactions.delete( trig );
 
-		} else if ( !this.tryRemove(cur,reaction) ) return false;
+		return res;
 
-		if ( !cur.r ) delete this.reactions[trig];	// no reactions remaining.
+	}
 
-		await this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+	rmRegEx( trig, react ) {
 
-		return true;
+		trig = toRegEx( trig );
+		if ( trig === false ) return false;
+
+		let rset = this.reMap.get( trig );
+		if ( rset === undefined ) return false;
+
+		let res = rset.tryRemove( react );
+		if ( res === true && rset.isEmpty() ) this.reMap.delete(trig);
+	
+		return res;
+
+	}
+
+	async storeReacts() {
+		return this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+	}
+
+	/**
+	 * 
+	 * @param {RegEx} regex - regular expression which triggers the reaction. 
+	 * @param {string} react 
+	 * @param {string} uid - discord id of creator.
+	 */
+	async addRegEx( regex, react, uid ) {
+
+		let rset = this.reMap.get( regex );
+
+		if ( rset === undefined ) {
+			rset = new ReactSet( trig );
+			this.reMap.set( regex, rset );
+		}
+		rset.add( react, uid );
 
 	}
 
 	/**
 	 * 
-	 * @param {Object} obj - reaction information object. 
-	 * @param {string} which - reaction to match.
+	 * @param {string} trig - substring which triggers the reaction.
+	 * @param {string} react 
+	 * @param {string} uid 
 	 */
-	tryRemove( obj, which ) {
+	async addString( trig, react, uid ) {
 
-		let r = obj.r;
+		trig = trig.toLowerCase();
+		let rset = this.reactions[ trig ];
 
-		which = which.toLowerCase();
-
-		if ( typeof r === 'string') {
-
-			if ( r.toLowerCase() === which ) {
-				obj.r = null;
-				return true;
-			}
-
-		} else if ( r instanceof Array ) {
-
-			let ind = r.findIndex( (elm)=>{
-				if ( typeof elm === 'string' ) return elm.toLowerCase() === which;
-				return ( typeof elm.r === 'string') && elm.r.toLowerCase() === which;
-			});
-
-			if ( ind >= 0 ) {
-				r.splice( ind, 1 );
-				return true;
-			}
-
-		} else if ( typeof r.r === 'string' && r.r.toLowerCase() === which ) {
-			obj.r = null;
-			return true;
-		}
-
-		return false;
-	}
-
-	async addReactData( trig, react, uid ) {
-
-		try {
-
-			trig = trig.toLowerCase();
-			let cur = this.reactions[ trig ];
-
-			react = { r:react, uid:uid, t:Date.now() };
-
-			if ( cur ) {
-
-				// merge with existing react.
-				let r = cur.r;
-				if ( (r instanceof Array )) {
-					r.push( react );
-				} else {
-					cur.r = [ r, react ];
-				}
-
-			} else {
-
-				this.reactions[ trig ] = { "r":react };
-			}
-
-			await this._context.storeKeyData(
-				this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
-	
-		} catch ( e ) { console.log(e); }
-
-	}
-
-	async loadReactions() {
-
-		try {
-			let reactData = await this._context.fetchKeyData( this._context.getDataKey( 'reactions', 'reactions' ) );
-			if ( reactData != null ) this.reactions = reactData;
-		} catch ( e ) { console.log(e);}
+		if ( rset === undefined ) rset = this.reactions[ trig ] = new ReactSet( trig );
+		rset.add( react, uid );
 
 	}
 
 	/**
-	 * Attempt to react to the given message content.
-	 * @param {string} content 
+	 * Attempt to react to the given string message.
+	 * @param {string} content - Message to react to.
+	 * @returns {string|null} Reaction string for the message, or null
+	 * if no match found.
 	 */
 	react( content ) {
 
-		let now = Date.now();
-		if ( now - this.gTime < this.gWait ) return null;
-		this.lastMsg = now;
+		/*let resp = this.tryRegExs( this.reMap, content );
+		if ( resp !== null ) return resp;
 
-		let lower = content.toLowerCase();
-		let resp;
+		resp = this.tryRegExs( globalRegEx, content );
+		if ( resp !== null ) return resp;*/
 
-		for( let k in this.reactions ) {
+		content = content.toLowerCase();
+		let resp = this.tryStrings( this.reactions, content );
+		if ( resp !== null ) return resp;
 
-			if ( lower.indexOf(k) >= 0 ) {
-
-				resp = this.tryReact( this.reactions[k] );
-				if ( resp ) return resp;
-
-			}
-		}
-
-		for( let k in globalReactions ) {
-
-			if ( lower.indexOf(k) >= 0 ) {
-
-				resp = this.tryReact( globalReactions[k] );
-				if ( resp ) return resp;
-
-			}
-
-		}
-
-		return null;
+		resp = this.tryStrings( globalReacts, content );
+		return resp;
 
 	}
 
-	tryReact( obj ) {
+	/**
+	 * 
+	 * @param {Map( string->ReactSet )} map 
+	 * @param {string} str - input string to test.
+	 * @returns {string|null} string reaction or null.
+	 */
+	tryStrings( map, str ) {
 
-		if ( !(obj instanceof Object) ) return;
+		for( let k of map.keys() ) {
 
-		let last = obj.last;
-		if ( last && (this.lastMsg - last) < this.minWait ) return null;
-		obj.last = this.lastMsg;
+			if ( str.indexOf(k) >= 0 ) {
 
-		let r = obj.r;
-		if ( r instanceof Array ) {
-			r = r[ Math.floor( r.length*Math.random() )];
+				var rset = map.get(k);
+				if ( rset === undefined ) {
+					continue;
+				}
+
+				var last = rset.lastUsed;
+				if ( last && (this.msgTime - last ) < this.minWait ) continue;
+				rset.lastUsed = this.msgTime;
+
+				return rset.getReact();
+
+			}
+
 		}
-		if ( typeof r === 'string') return r;
-		return r.r;
+		return null;
+	}
+
+	/**
+	 * Attempt to find a regular expression trigger match.
+	 * @param {Map( RegEx -> Reaction)} reMap - Map of regular expressions being tested.
+	 * @param {string} str - string being tested.
+	 * @returns {Object|Array|string|null}
+	 */
+	tryRegExs( map, str ) {
+
+		for( let p in map.keys() ) {
+
+			if ( p.test( str ) === true ) {
+
+				var rset = map.get(p);
+				if ( rset === undefined ) continue;
+
+				var last = rset.lastUsed;
+				if ( last && (this.msgTime - last ) < this.minWait ) continue;
+				rset.lastUsed = this.msgTime;
+
+				return rset.getReact();
+
+			}
+
+		} //
+		return null;
 
 	}
 
@@ -290,39 +476,125 @@ class GuildReactions {
 
 	/**
 	 * 
-	 * @param {string} trig 
-	 * @param {string|null} reactStr - the reaction string to return.
-	 * @returns {string|object|Array|bool} False is returned if the given trigger/reaction string
-	 * combination could not be found.
+	 * @param {string|regEx} trig - trigger for the reaction.
+	 * @param {string|null} reactStr - the reaction string to return, or null to return all reactions for
+	 * the given trigger.
+	 * @returns {string|object|Array|bool} Returns the single reaction found, or an array of reactions
+	 * if no reactStr is specified.
+	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */
 	getReactions( trig, reactStr=null ) {
 
-		trig = trig.toLowerCase();
-		let obj = this.reactions[trig] || globalReactions[trig];
-		if ( !obj ) return false;
+		let regex = toRegEx( trig ), rset;
+		if ( regex === true ) rset = this.reMap.get( regex );
+		else rset = this.reactions.get( trig.toLowerCase() );
 
-		// return all reactions.
-		if ( !reactStr ) return obj.r;
+		if ( rset === undefined ) return false;
 
-		reactStr = reactStr.toLowerCase();
-		let r = obj.r;
-		if ( typeof r === 'string') {
-
-			if ( reactStr === r.toLowerCase() ) return r;
-
-		} else if ( r instanceof Array ) {
-
-			return r.find( (elm)=>{
-				if ( typeof elm === 'string') return elm.toLowerCase() === reactStr;
-				else return ( typeof elm.r === 'string' && elm.r.toLowerCase() === reactStr );
-			});
-
-		} else if ( typeof r.r === 'string' && r.r.toLowerCase() === reactStr ) return r;
-
-		return false;
+		return rset.getReactions( reactStr );
 
 	}
 
+	async loadReactions() {
+
+		try {
+
+			let reactData = await this._context.fetchKeyData( this._context.getDataKey( 'reactions', 'reactions' ) );
+
+			if ( !reactData ) return null;
+	
+			this.allReacts = parseReacts( reactData );
+			this.reactions = this.allReacts.reacts;
+			this.reMap = this.allReacts.reMap;
+
+		} catch ( e ) { console.log(e);}
+
+	}
+
+} //
+
+/**
+ * 
+ * @param {Object} reactData - reaction data.
+ * @returns {Object}
+ */
+function parseReacts( reactData ) {
+	return { reacts:parseStrings( reactData.string||reactData ), reMap:parseRe(reactData.regEx) };
+}
+
+/**
+ * 
+ * @param {*} data
+ * @returns {Map} - Reaction map.
+ */
+function parseStrings( data ) {
+
+	let map = new Map();
+
+	for( let p in data ) {
+		map.set( p, new ReactSet(p, data[p] ) );
+	}
+
+	return map;
+
+}
+
+/**
+ * 
+ * @param {Object|null} data
+ * @returns {Map} - Reaction map.
+ */
+function parseRe( data ) {
+
+	let map = new Map();
+
+	if ( data ) {
+
+		for( let p in data ) {
+
+			p = toRegEx( p );
+			if ( p !== false ) map.set( p, new ReactSet(p, data[p] ) );
+
+		}
+
+	}
+
+	return map;
+
+}
+
+/**
+ * Tests if a string represents a valid regular expression.
+ * If if does, the regular expression is returned.
+ * If not, false is returned.
+ * @param {string} s 
+ */
+function toRegEx( s ) {
+
+	if ( s === null || s === undefined || s === '' || s.length < 3 ) return false;
+
+	if ( s.charAt(0) === '/' && s.charAt( s.length-1 ) === '/') {
+
+		try {
+			return new RegExp( s );
+		} catch (e) {}
+
+	}
+
+	return false;
+}
+
+/**
+ * Function tests if the string is formatted as a regular expression in / / notation.
+ * It does not test if the string forms a valid regular expression.
+ * @param {string} s 
+ */
+function isRegEx(s) {
+
+	if ( s === null || s === undefined || s === '' || s.length < 3 ) return false;
+	if ( s.charAt(0) === '/' && s.charAt( s.length-1 ) === '/') return true;
+
+	return false;
 }
 
 /**
@@ -332,12 +604,16 @@ class GuildReactions {
 exports.init = function( bot ) {
 
 	console.log( 'loading Global reactions.');
+
 	let reactData = require('./reactions.json');
-	globalReactions = reactData;
+	reactData = parseReacts( reactData );
+
+	globalReacts = reactData.reacts;
+	globalRegEx = reactData.reMap;
 
 	bot.addContextClass( GuildReactions );
 	bot.addContextCmd( 'react', '!react <\"search trigger\"> <\"response string\">',
-		GuildReactions.prototype.cmdAddReaction, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
+		GuildReactions.prototype.cmdAddReact, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
 	bot.addContextCmd( 'reactinfo', '!reactinfo <\"trigger"\"> [response]',
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, { minArgs:1, maxArgs:2, group:'right'});
 
