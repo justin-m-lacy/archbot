@@ -363,11 +363,11 @@ class GuildReactions {
 	 */
 	react( content ) {
 
-		/*let resp = this.tryRegExs( this.reMap, content );
+		let resp = this.tryRegExs( this.reMap, content );
 		if ( resp !== null ) return resp;
 
 		resp = this.tryRegExs( globalRegEx, content );
-		if ( resp !== null ) return resp;*/
+		if ( resp !== null ) return resp;
 
 		content = content.toLowerCase();
 		let resp = this.tryStrings( this.reactions, content );
@@ -415,7 +415,7 @@ class GuildReactions {
 	 */
 	tryRegExs( map, str ) {
 
-		for( let p in map.keys() ) {
+		for( let p of map.keys() ) {
 
 			if ( p.test( str ) === true ) {
 
