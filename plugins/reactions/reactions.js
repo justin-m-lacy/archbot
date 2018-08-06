@@ -17,7 +17,6 @@ class ReactSet {
 
 	constructor( trig, reacts=null ) {
 
-		//console.log('building react for: ' + trig );
 		this._trigger = trig;	// not actually used.
 
 		if ( reacts !== null ) {
@@ -151,7 +150,7 @@ class ReactSet {
 	 */
 	_isMatch( str, react ) {
 
-		if ( typeof react === string ) return str === react;
+		if ( typeof react === 'string' ) return str === react;
 		if ( react instanceof Object ) {
 			return react.r === str;
 		}
@@ -202,8 +201,8 @@ class GuildReactions {
 
 		} );
 
-		this.minWait = 3*1000;
-		this.gWait = 3000;
+		this.minWait = 1000;
+		this.gWait = 500;
 		// time last message was recieved.
 		this.msgTime = 0;
 
@@ -223,8 +222,7 @@ class GuildReactions {
 		if ( regex !== false ) await this.addRegEx( regex, react, m.author.id );
 		else await this.addString( trig, react, m.author.id );
 
-		await this._context.storeKeyData(
-			this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+		await this.storeReacts();
 
 		return m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
 
@@ -288,7 +286,7 @@ class GuildReactions {
 	 * the number of reactions is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
-	async rmString( trig, reaction ) {
+	rmString( trig, reaction ) {
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get( trig );
@@ -304,12 +302,9 @@ class GuildReactions {
 
 	rmRegEx( trig, react ) {
 
-		console.log('removing regex');
-
 		trig = toRegEx( trig );
 		if ( trig === false ) return false;
 
-		console.log('searching pair');
 		let pair = this.reMapPair( this.reMap, trig );
 
 		if ( pair === undefined ) return false;
@@ -325,7 +320,9 @@ class GuildReactions {
 	}
 
 	async storeReacts() {
-		return this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.reactions );
+
+		return this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.allReacts, true );
+
 	}
 
 	/**
@@ -353,8 +350,6 @@ class GuildReactions {
 	 * @param {string} uid 
 	 */
 	async addString( trig, react, uid ) {
-
-		console.log('adding string');
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get(trig);
@@ -531,11 +526,9 @@ class GuildReactions {
 
 		let reStr = regex.toString();
 
-		console.log('searching: ' + reStr );
-
 		for( let k of map.keys() ) {
 
-			console.log('testing: ' + k.toString() );
+			//console.log('testing: ' + k.toString() );
 
 			if ( k.toString() === reStr ) return map.get( k );
 		}
@@ -552,8 +545,9 @@ class GuildReactions {
 			if ( !reactData ) return null;
 	
 			this.allReacts = parseReacts( reactData );
-			this.reactions = this.allReacts.reacts;
-			this.reMap = this.allReacts.reMap;
+
+			this.reactions = this.allReacts.strings;
+			this.reMap = this.allReacts.regex;
 
 		} catch ( e ) { console.log(e);}
 
@@ -567,7 +561,17 @@ class GuildReactions {
  * @returns {Object}
  */
 function parseReacts( reactData ) {
-	return { reacts:parseStrings( reactData.string||reactData ), reMap:parseRe(reactData.regEx) };
+	return {
+		toJSON(){
+
+			return {
+				strings:mapToJSON( this.strings ),
+				regex:mapToJSON( this.regex )
+			}
+
+		},
+		strings:parseStrings( reactData.strings||reactData ), regex:parseRe(reactData.regex)
+	};
 }
 
 /**
@@ -609,6 +613,15 @@ function parseRe( data ) {
 
 	return map;
 
+}
+
+function mapToJSON( map ){
+
+	let o = {};
+	for( let [k,v] of map ) {
+		o[ k ] = v;
+	}
+	return o;
 }
 
 /**
@@ -656,8 +669,8 @@ exports.init = function( bot ) {
 	let reactData = require('./reactions.json');
 	reactData = parseReacts( reactData );
 
-	globalReacts = reactData.reacts;
-	globalRegEx = reactData.reMap;
+	globalReacts = reactData.strings;
+	globalRegEx = reactData.regex;
 
 	bot.addContextClass( GuildReactions );
 	bot.addContextCmd( 'react', '!react <\"search trigger\"> <\"response string\">',
