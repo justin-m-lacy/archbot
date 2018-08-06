@@ -1,4 +1,8 @@
 var globalReacts, globalRegEx;
+/**
+ * {RegEx} Regex to test if a string defines a regex.
+ */
+var regExTest = /^\/(.+)\/([gim]{0,3})$/;
 
 class ReactSet {
 
@@ -250,7 +254,7 @@ class GuildReactions {
 
 			var res;
 
-			if ( isRegEx(trig) === true ) res = this.rmRegEx( trig, which );
+			if ( regExTest.test(trig) === true ) res = this.rmRegEx( trig, which );
 			else res = this.rmString( trig, which );
 	
 			if ( res === true ) {
@@ -642,15 +646,12 @@ function mapToJSON( map ){
  */
 function toRegEx( s ) {
 
-	if ( s === null || s === undefined || s === '' || s.length < 3 ) return false;
+	let res = regExTest.exec( s );
+	if ( res === null ) return false;
 
-	if ( s.charAt(0) === '/' && s.charAt( s.length-1 ) === '/') {
-
-		try {
-			return new RegExp( s.slice(1,s.length-1) );
-		} catch (e) {}
-
-	}
+	try {
+		return new RegExp( res[1], res[2] );
+	} catch (e) {}
 
 	return false;
 }
@@ -661,11 +662,7 @@ function toRegEx( s ) {
  * @param {string} s 
  */
 function isRegEx(s) {
-
-	if ( s === null || s === undefined || s === '' || s.length < 3 ) return false;
-	if ( s.charAt(0) === '/' && s.charAt( s.length-1 ) === '/') return true;
-
-	return false;
+	return regExTest.test(s);
 }
 
 /**
