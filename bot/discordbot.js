@@ -301,9 +301,9 @@ class DiscordBot {
 		} else {
 			console.log('proxies file not found.')
 		}
-		for( let k in this._proxies ) {
+		/*for( let k in this._proxies ) {
 			console.log('proxy found for: ' + k );
-		}
+		}*/
 
 	}
 

@@ -3,6 +3,7 @@ var globalReacts, globalRegEx;
  * {RegEx} Regex to test if a string defines a regex.
  */
 var regExTest = /^\/(.+)\/([gim]{0,3})$/;
+var stubReplace = /\$(\d+|[&'`])/g;
 
 class ReactSet {
 
@@ -126,11 +127,49 @@ class ReactSet {
 	}
 
 	/**
+	 * Replace the reaction text with $ groups replaced from
+	 * groups from the original trigger regex.
+	 * @param {string} text 
+	 */
+	replaceReact( text ) {
+
+		var res, resLen;
+		let resp = this.getReact();		// react template.
+
+		this._trigger.lastIndex = 0;	// reset from test()
+
+		// TODO: Global option?
+		if ( ( res = this._trigger.exec(text)) !== null ) {
+
+			resLen = res.length;
+			// replace $ stubs.
+			resp = resp.replace( stubReplace, function( match, p1, ){
+
+				let n = Number( p1 );
+				if ( Number.isNaN(n) === true ) {
+
+					if ( p1 === '`') return text.slice(0, res.index );
+					else if ( p1 === "'") return text.slice( this._trigger.lastIndex );	// TODO: Wrong.
+					else if ( p1 === '&') return res[0];
+
+				} else if ( n < resLen ) return res[n];
+
+				return match;
+
+			});
+
+		}
+
+		return resp;
+
+	}
+
+	/**
 	 * Get a regex reaction, using substring matches to perform
 	 * replacements in react text.
 	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 	 */
-	regExReact( text ) {
+	textReplace( text ) {
 		return text.replace( this._trigger, this.getReact() );
 	}
 
@@ -224,17 +263,17 @@ class GuildReactions {
 
 	/**
 	 * 
-	 * @param {Message} m 
-	 * @param {string} trig 
-	 * @param {string} react 
+	 * @param {Message} m - User message.
+	 * @param {string} trig - string or regex string to react to.
+	 * @param {string} react - the reaction or reaction template to respond with.
 	 */
 	async cmdAddReact( m, trig, react ) {
 
 		if ( !trig || !react ) return m.channel.send( 'Usage: !react "string" "response"' );
 
 		let regex = toRegEx( trig );
-		if ( regex !== false ) await this.addRegEx( regex, react, m.author.id );
-		else await this.addString( trig, react, m.author.id );
+		if ( regex !== false ) this.addRegEx( regex, react, m.author.id );
+		else this.addString( trig, react, m.author.id );
 
 		await this.storeReacts();
 
@@ -345,7 +384,7 @@ class GuildReactions {
 	 * @param {string} react 
 	 * @param {string} uid - discord id of creator.
 	 */
-	async addRegEx( regex, react, uid ) {
+	addRegEx( regex, react, uid ) {
 
 		let rset = this.reMap.get( regex );
 
@@ -363,7 +402,7 @@ class GuildReactions {
 	 * @param {string} react 
 	 * @param {string} uid 
 	 */
-	async addString( trig, react, uid ) {
+	addString( trig, react, uid ) {
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get(trig);
@@ -446,7 +485,7 @@ class GuildReactions {
 				if ( last && (this.msgTime - last ) < this.minWait ) continue;
 				rset.lastUsed = this.msgTime;
 
-				return rset.regExReact( str );
+				return p.global === true ? rset.textReplace(str) : rset.replaceReact( str );
 
 			}
 
@@ -618,8 +657,7 @@ function parseRe( data ) {
 
 		for( let p in data ) {
 
-			p = toRegEx( p );
-			if ( p !== false ) map.set( p, new ReactSet(p, data[p] ) );
+			if ( (p = toRegEx(p)) !== false ) map.set( p, new ReactSet(p, data[p] ) );
 
 		}
 
