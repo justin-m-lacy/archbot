@@ -46,7 +46,7 @@ class GuildReactions {
 
 					if ( resp instanceof Object ) {
 
-						Embed.replyEmbed( resp.r, resp.embed );
+						Embeds.replyEmbed( m, resp.r, resp.embed );
 
 					} else return m.channel.send( resp );
 
@@ -71,7 +71,7 @@ class GuildReactions {
 	 */
 	async cmdAddReact( m, trig, react ) {
 
-		let embedUrl = Embed.getSingle(m);
+		let embedUrl = Embeds.getSingle(m);
 		if ( !trig || ( !react && !embedUrl ) ) return m.channel.send( 'Usage: !react "string" "response"' );
 
 		let regex = toRegEx( trig );
@@ -206,8 +206,9 @@ class GuildReactions {
 	 * @param {string} trig - substring which triggers the reaction.
 	 * @param {string} react 
 	 * @param {string} uid - discord id of reaction creator.
+	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addString( trig, react, uid ) {
+	addString( trig, react, uid, embedUrl=null ) {
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get(trig);
@@ -215,7 +216,8 @@ class GuildReactions {
 			rset = new ReactSet( trig );
 			this.reactions.set( trig, rset );
 		}
-		rset.add( react, uid );
+
+		rset.add( react, uid, embedUrl );
 
 	}
 
