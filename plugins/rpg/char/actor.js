@@ -1,7 +1,7 @@
-const dice = require( '../dice.js');
-const Loc = require( '../world/loc.js');
-const stats = require( './stats.js');
-const effects = require( '../magic/effects.js');
+const dice = require( '../dice');
+const Loc = require( '../world/loc');
+const stats = require( './stats');
+const effects = require( '../magic/effects');
 
 exports.Alive = 'alive';
 exports.Dead = 'dead';

@@ -45,7 +45,7 @@ exports.genderfy = function( gender, str ) {
 		if ( !s ) return match;
 
 		if ( match[0] === match[0].toUpperCase() ) {
-			return s.slice(0,1).toUpperCase() + s.slice(1);
+			return s[0].toUpperCase() + s.slice(1);
 		}
 		return s;
 

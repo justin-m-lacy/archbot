@@ -1,4 +1,4 @@
-const form = require( '../formulas.js');
+const form = require( 'formulas');
 const dice = require( '../dice.js');
 const Weapon = require( '../items/weapon.js');
 const stats = require('../char/stats.js');

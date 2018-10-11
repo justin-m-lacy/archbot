@@ -227,29 +227,44 @@ class DiscordBot {
 		return u === this._master;
 	}
 
+	/**
+	 * Backup unsaved Archbot cache items.
+	 * @param {Message} m 
+	 */
 	async cmdBackup( m ) {
 
 		if ( this.isMaster( m.author.id ) ) {
-			await this._cache.backup();
-			await m.reply( 'backup complete.');
+			await this._cache.backup( 0 );
+			return m.reply( 'backup complete.');
 		}
+		return this.sendNoPerm(m);
 
 	}
 
-	cmdBotQuit(m) {
+	/**
+	 * Close the running Archbot program. Owner only.
+	 * @param {Message} m 
+	 */
+	async cmdBotQuit(m) {
 
 		if ( this.isMaster(m.author.id) ) {
 			this.client.destroy();
 		}
+		return this.sendNoPerm(m);
 
 	}
 
-	cmdLeaveGuild( m ) {
+	/**
+	 * Make Archbot leave the current guild.
+	 * @param {Message} m 
+	 */
+	async cmdLeaveGuild( m ) {
 
 		if ( this.isMaster( m.author.id ) && m.guild ) {
 			m.guild.leave();
 			console.log('leaving guild: ' + m.guild.name );
 		}
+		return this.sendNoPerm(m);
 
 	}
 
@@ -267,17 +282,25 @@ class DiscordBot {
 	 * Proxy the given context through the user's DM.
 	 * @param {Message} m 
 	 */
-	cmdProxy( m ) {
+	async cmdProxy( m ) {
 
 		// get context of the guild/channel to be proxied to user.
 		let context = this.getMsgContext(m);
 	
 		this.setProxy( m.author, context );
-		m.author.send( 'Proxy created.');
+		return m.author.send( 'Proxy created.');
 
 	}
 
 	cmdPerm( m ) {
+	}
+
+	/**
+	 * Send a no-permission message.
+	 * @param {Message} m 
+	 */
+	async sendNoPerm( m ) {
+		return m.reply( 'You do not have permission to use that command.');
 	}
 
 	setProxy( user, context ) {
@@ -289,7 +312,7 @@ class DiscordBot {
 	}
 
 	async saveProxies() {
-		await this.storeKeyData( 'proxies', this._proxies );
+		return this.storeKeyData( 'proxies', this._proxies );
 	}
 
 	async restoreProxies() {
@@ -298,8 +321,6 @@ class DiscordBot {
 		let loaded = await this.fetchKeyData( 'proxies' );
 		if ( loaded ) {
 			this._proxies = Object.assign( this._proxies, loaded );
-		} else {
-			console.log('proxies file not found.')
 		}
 		/*for( let k in this._proxies ) {
 			console.log('proxy found for: ' + k );
@@ -391,6 +412,11 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Gets a displayName for a discord user.
+	 * @param {GuildMember|User} uObject
+	 * @returns {string}
+	 */
 	displayName( uObject ){
 		if ( uObject instanceof Discord.GuildMember ){
 			return uObject.displayName;
@@ -399,6 +425,11 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Get the sender of a Message.
+	 * @param {Message} msg
+	 * @returns {GuildMember|User}
+	 */
 	getSender( msg ) {
 
 		if ( msg.member ) return msg.member;
@@ -408,32 +439,39 @@ class DiscordBot {
 
 	// fetch data for abitrary key.
 	async fetchKeyData( key ) {
-		return await this._cache.fetch(key);
+		return this._cache.fetch(key);
 	}
 
 	// associate data with key.
 	async storeKeyData( key, data ){
-		await this._cache.cache( key, data );
+		return this._cache.cache( key, data );
 	}
 
 	// get a key to associate with the
 	// given chain of data objects.
 	getDataKey( baseObj, ...subs ) {
 
-		if ( baseObj instanceof Discord.Channel ) {
-			return fsys.channelPath( baseObj, subs );
-		} else if ( baseObj instanceof Discord.GuildMember ){
-			return fsys.guildPath( baseObj.guild, subs );
-		} else if ( baseObj instanceof Discord.Guild ){
-			return fsys.guildPath( baseObj, subs );
-		}
+		if ( baseObj instanceof Discord.Channel ) return fsys.channelPath( baseObj, subs );
+		else if ( baseObj instanceof Discord.GuildMember ) return fsys.guildPath( baseObj.guild, subs );
+		else if ( baseObj instanceof Discord.Guild ) return fsys.guildPath( baseObj, subs );
+
+		return '';
 
 	}
 
+	/**
+	 * 
+	 * @param {string} key 
+	 * @param {*} data 
+	 */
 	cacheKeyData( key, data ) {
 		this._cache.cache( key, data );
 	}
 
+	/**
+	 * 
+	 * @param {GuildMember|User} uObject 
+	 */
 	async fetchUserData( uObject ){
 
 		let objPath;
@@ -442,10 +480,15 @@ class DiscordBot {
 		} else {
 			objPath = fsys.getUserDir( uObject );
 		}
-		return await this._cache.fetch( objPath );
+		return this._cache.fetch( objPath );
 
 	}
 
+	/**
+	 * 
+	 * @param {Discord.User|Discord.GuildMember} uObject 
+	 * @param {*} data - user data to store.
+	 */
 	async storeUserData( uObject, data ){
 
 		let objPath;
@@ -455,32 +498,34 @@ class DiscordBot {
 		} else {
 			objPath = fsys.getUserDir( uObject );
 		}
-		await this._cache.cache( objPath, data );
+		return this._cache.cache( objPath, data );
 
-	}
-
-	showUserNotFound( chan, user ) {
-		chan.send( 'User \'' + user + '\' not found.');
 	}
 
 	/**
 	 * Finds and returns the named user in the channel,
 	 * or replies with an error message.
-	 * @param {*} channel 
+	 * @param {Channel} channel 
 	 * @param {*} name 
 	 */
-	userOrShowErr( channel, name ) {
+	async userOrShowErr( channel, name ) {
 
 		if ( !name ) {
-			channel.send( 'User name expected.');
+			await channel.send( 'User name expected.');
 			return null;
 		}
 		let member = this.findUser( channel, name );
-		if ( !member ) channel.send( 'User \'' + name + '\' not found.');
+		if ( !member ) await channel.send( 'User \'' + name + '\' not found.');
 		return member;
 
 	}
 
+	/**
+	 * 
+	 * @param {Channel} channel 
+	 * @param {string} name
+	 * @returns {GuildMember|User}
+	 */
 	findUser( channel, name ) {
 
 		if ( !channel ) return null;
@@ -491,33 +536,41 @@ class DiscordBot {
 			case 'text':
 			case 'voice':
 
-				let user = channel.guild.members.find( gm => gm.displayName.toLowerCase() === name );
-				return user;
+				return channel.guild.members.find(
+					gm => gm.displayName.toLowerCase() === name || gm.nickname.toLowerCase() === name );
+
 			case 'dm':
 				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
 				return null;
 			case 'group':
-				return channel.nicks.find( val => val.toLowerCase() === name );
+
+				for( let id of channel.nicks.keys() ) {
+					if ( channel.nicks.get(id).toLowerCase() === name ) return channel.recipients.get(id);
+				}
+				return channel.recipients.find( u=>u.username.toLowerCase() === name );
+
 		}
+
+		return null;
 
 	}
 
-	printCommand( chan, cmdname ) {
+	async printCommand( chan, cmdname ) {
 
 		let cmds = this._dispatch.commands;
 		if ( cmds && cmds.hasOwnProperty( cmdname ) ) {
 
 			let cmdInfo = cmds[cmdname];
 			let usage = cmdInfo.usage;
-			if ( !usage ) chan.send( 'No usage information found for command \'' + cmdname + '\'.');
-			else chan.send( cmdname + ' usage: ' + cmdInfo.usage );
+			if ( !usage ) return chan.send( 'No usage information found for command \'' + cmdname + '\'.');
+			else return chan.send( cmdname + ' usage: ' + cmdInfo.usage );
 
 
-		} else chan.send( 'Command \'' + cmdname + '\' not found.' );
+		} else return chan.send( 'Command \'' + cmdname + '\' not found.' );
 
 	}
 
-	printCommands( chan ) {
+	async printCommands( chan ) {
 
 		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
 		let cmds = this._dispatch.commands;
@@ -534,12 +587,17 @@ class DiscordBot {
 			str += a.join(', ');
 
 		}
-		chan.send( str );
+		return chan.send( str );
 
 	}
 
 } // class
 
+/**
+ * 
+ * @param {GuildMember} oldGM 
+ * @param {GuildMember} newGM 
+ */
 function onPresence( oldGM, newGM ) {
 
 	if ( newGM.id === Bot.client.user.id ) {

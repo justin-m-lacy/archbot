@@ -8,7 +8,6 @@ const Level = require( './level.js');
 const Inv = require( '../inventory.js');
 const actor = require( './actor.js');
 const effects = require( '../magic/effects.js');
-const dice = require( '../dice.js' );
 const Equip = require( './equip.js');
 const Item = require( '../items/item.js');
 const Race = require( '../race.js');
@@ -150,8 +149,9 @@ class Char extends actor.Actor {
 	}
 
 	/**
-	 * 
+	 * Add a single point to the given stat.
 	 * @param {string} stat 
+	 * @returns {string|bool} error message, or true.
 	 */
 	addStat( stat ) {
 
@@ -191,7 +191,8 @@ class Char extends actor.Actor {
 
 	/**
 	 * Eat an item from inventory.
-	 * @param {number|string|Item} what 
+	 * @param {number|string|Item} what
+	 * @returns {string} result message.
 	 */
 	eat( what ) {
 
@@ -461,11 +462,11 @@ class Char extends actor.Actor {
 
 	}
 
-	log( str) { this._log += str +'\n'; }
-	getLog() { return this._log;}
-	output( str='') { return this._log + str; }
+	log( str) { this._log.log(str); }
+	getLog() { return this._log.text;}
+	output( str='') { return this._log.output(str); }
 
-	clearLog() { this._log = ''; }
+	clearLog() { this._log.clear(); }
 
 	getHistory() {
 

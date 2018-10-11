@@ -1,13 +1,13 @@
-const Race = require('./race.js');
-const Class = require('./charclass.js');
-const Party = require( './social/party.js');
-const Combat = require('./combat.js');
-const dice = require( './dice.js');
-const Guild = require( './social/guild.js');
-const util = require( '../../jsutils.js');
-const Trade = require( './trade.js');
-const item = require( './items/item.js');
-const itgen = require( './items/itemgen.js');
+const Race = require('./race');
+const Class = require('./charclass');
+const Party = require( './social/party');
+const Combat = require('./combat');
+const dice = require( './dice');
+const Guild = require( './social/guild');
+const util = require( '../../jsutils');
+const Trade = require( './trade');
+const item = require( './items/item');
+const itgen = require( './items/itemgen');
 
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
@@ -24,7 +24,7 @@ exports.getLore = (wot) => {
 }
 
 /**
- * actions not allowed per player state.
+ * actions not allowed for each player state.
 */
 var illegal_acts = {
 	"dead":{ 'brew':1, 'map':1, 'hike':1, 'scout':1,
@@ -52,7 +52,9 @@ exports.Game = class Game {
 
 	/**
 	 * 
-	 * @param {RPG} rpg 
+	 * @param {RPG} rpg
+	 * @param {Cache} charCache character cache.
+	 * @param {World} world RPG world
 	 */
 	constructor( rpg, charCache, world ) {
 
@@ -71,6 +73,12 @@ exports.Game = class Game {
 
 	skillRoll( act ) { return dice.roll( 1, 5*( act.level+4) ); }
 
+	/**
+	 * Determines whether a character can perform a given action
+	 * in their current state.
+	 * @param {Character} char 
+	 * @param {string} act - action to attempt to perform. 
+	 */
 	canAct( char, act ) {
 		let illegal = illegal_acts[ char.state ];
 		if ( illegal && illegal.hasOwnProperty(act)) {

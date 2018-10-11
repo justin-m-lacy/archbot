@@ -3,9 +3,15 @@ const ItemGen = require( './items/itemgen.js');
 
 module.exports = class Inventory {
 
+	/**
+	 * {[Item]}
+	 */
 	get items() { return this._items; }
 	set items(v) { this._items = v;}
 
+	/**
+	 * {Number}
+	 */
 	get length() { return this._items.length; }
 
 	static FromJSON( json, inv=null ) {
@@ -32,9 +38,7 @@ module.exports = class Inventory {
 		this._items = [];
 	}
 
-	toJSON() {
-		return { items:this._items };
-	}
+	toJSON() { return { items:this._items }; }
 
 	randItem() {
 
@@ -51,7 +55,7 @@ module.exports = class Inventory {
 	}
 
 	/**
-	 * @returns string list of all items in inventory.
+	 * @returns {string} list of all items in inventory.
 	*/
 	getMenu() {
 
@@ -75,8 +79,8 @@ module.exports = class Inventory {
 
 	/**
 	 * Retrieves an item by name or index.
-	 * @param {<string>|<number>} start
-	 * @returns Item found, or null on failure.
+	 * @param {string|Number} start
+	 * @returns {Item|null} Item found, or null on failure.
 	 */
 	get( start, sub ) {
 
@@ -99,6 +103,14 @@ module.exports = class Inventory {
 
 	}
 
+	/**
+	 * Returns an item from a sub-inventory, or a range of items
+	 * if the base item is not an inventory, and the second param
+	 * is a number.
+	 * @param {string|Number} base 
+	 * @param {string|Number} sub
+	 * @returns {Item|[Item]|null}
+	 */
 	getSub( base, sub ) {
 
 		let it = this.get(base);
@@ -109,6 +121,14 @@ module.exports = class Inventory {
 
 	}
 
+	/**
+	 * Takes an item from a sub-inventory, or a range of items
+	 * if the base item is not an inventory, and the second param
+	 * is a number.
+	 * @param {*} base 
+	 * @param {*} sub
+	 * @returns {Item|[Item]|null}
+	 */
 	takeSub( base, sub ) {
 		
 		let it = this.take(base);
@@ -119,6 +139,12 @@ module.exports = class Inventory {
 
 	}
 
+	/**
+	 * 
+	 * @param {Number} start - start number of items to take.
+	 * @param {Number} finish - end number of items to take.
+	 * @returns {[Item]|null} - Range of items found.
+	 */
 	takeRange( start, finish ) {
 
 		if ( isNaN(start) || isNaN(finish)) return null;
@@ -133,7 +159,7 @@ module.exports = class Inventory {
 	/**
 	 * Attempts to remove an item by name or index.
 	 * @param {number|string|Item} which
-	 * @returns The item removed, or null if none found. 
+	 * @returns {Item|null} item removed, or null if none found. 
 	 */
 	take( which, sub ) {
 
@@ -171,6 +197,10 @@ module.exports = class Inventory {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} name 
+	 */
 	findItem( name ) {
 
 		name = name.toLowerCase();
@@ -185,7 +215,7 @@ module.exports = class Inventory {
 
 	/**
 	 * 
-	 * @param {Item|Item[]} it
+	 * @param {Item|[Item]} it
 	 * @returns {number} - starting 1-index where items were added.
 	 */
 	add( it ) {

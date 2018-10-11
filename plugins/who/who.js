@@ -6,11 +6,15 @@ exports.init = function( bot ) {
 
 }
 
+/**
+ * 
+ * @param {Message} m 
+ * @param {string} msg - ignored question.
+ */
 function cmdWho( m, msg ) {
 
-	if ( responses == null ){
-		responses = require( './responses.json');
-	}
+	if ( !responses ) responses = require( './responses.json');
+	if ( responses.length === 0 ) return;
 
 	let resp = getResponse();
 	let t = m.channel.type;
@@ -26,12 +30,9 @@ function cmdWho( m, msg ) {
 		u = m.channel.recipients.random();
 		name = u.username;
 
-	} else {
-		m.channel.send( 'It\'s you, moron.' );
-		return;
-	}
+	} else return m.channel.send( 'It\'s you, moron.' );
 
-	m.channel.send( resp.replace( /%t/g, name ));
+	return m.channel.send( resp.replace( /%t/g, name ));
 
 }
 
