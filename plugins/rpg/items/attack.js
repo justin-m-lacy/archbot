@@ -1,4 +1,4 @@
-const forms = require( '../formulas.js');
+const forms = require( 'formulas');
 
 class Attack {
 

@@ -1,5 +1,3 @@
-const Discord = require( 'discord.js' );
-
 var results;
 var bot;
 
@@ -12,31 +10,26 @@ exports.init = function( mainbot ) {
 
 function cmdFight( msg, uname ) {
 
-	if ( results == null ) results = require( './results.json');
+	if ( !results ) results = require( './results.json');
+	if ( !uname ) return msg.channel.send( 'You attack the darkness!');
 
-	if ( uname == null ) {
-		msg.channel.send( 'You attack the darkness!');
-		return;
-	}
 
 	let target = bot.findUser( msg.channel, uname );
 	let attacker = msg.hasOwnProperty( 'member' ) ? msg.member.displayName : msg.author.username;
 
-	if ( target == null ) {
+	if ( !target )
+		return msg.channel.send( 'I don\'t see ' + uname + ' here. So you must be talking to me. Are you talking to me?');
 
-		msg.channel.send( 'I don\'t see ' + uname + ' here. So you must be talking to me. Are you talking to me?');
+	else if ( target.presence.status == 'offline')
+		return msg.channel.send( attacker + ' is only brave enough to fight ' + uname + ' when they aren\'t here. How sad.' );
 
-	} else if ( target.presence.status == 'offline') {
-		msg.channel.send( attacker + ' is only brave enough to fight ' + uname + ' when they aren\'t here. How sad.' );
+	else if ( target.id === msg.author.id )
+		return msg.channel.send( attacker + ' self flagellates in public.' );
 
-	} else if ( target.id == msg.author.id ) {
-		
-		msg.channel.send( attacker + ' self flagellates in public.' );
+	else if ( target.id === bot.client.user.id )
+		return msg.channel.send( bot.client.user.username + ' throws down ' + attacker + ' and smites his ruin upon the mountainside.');
 
-	} else if ( target.id == bot.client.user.id ) {
-		msg.channel.send( bot.client.user.username + ' throws down ' + attacker + ' and smites his ruin upon the mountainside.');
-
-	} else {
+	else {
 
 		let ind = Math.floor(results.length*Math.random() );
 		let result = results[ind];
@@ -44,7 +37,7 @@ function cmdFight( msg, uname ) {
 		result = result.replace( /%t/g, uname );
 		result = result.replace( /%a/g, attacker );
 
-		msg.channel.send( result );
+		return msg.channel.send( result );
 
 	}
 

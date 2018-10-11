@@ -74,19 +74,19 @@ function doError( err ) {
 	console.log( 'Connection error: ' + err.message );
 }
 
-function cmdRanking( m ) {
-	m.channel.send( 'Last place: garnish.');
+async function cmdRanking( m ) {
+	return m.channel.send( 'Last place: garnish.');
 }
 
-function cmdUptime( m ) {
-	m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
+async function cmdUptime( m ) {
+	return m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
 }
 
 function cmdUName( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
-	msg.channel.send( name + ' user name: ' + gMember.user.username )
+	return msg.channel.send( name + ' user name: ' + gMember.user.username )
 
 }
 
@@ -94,7 +94,7 @@ function cmdNick( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
-	msg.channel.send( name + ' nickname: ' + gMember.nickname )
+	return msg.channel.send( name + ' nickname: ' + gMember.nickname )
 
 }
 
@@ -108,20 +108,30 @@ function cmdHelp( msg, cmd ) {
 
 }
 
-function cmdUid( msg, name ) {
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
+async function cmdUid( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
-	msg.channel.send( name + ' uid: ' + gMember.user.id )
+	return msg.channel.send( name + ' uid: ' + gMember.user.id )
 
 }
 
-function cmdRoll( msg, dicestr ) {
+/**
+ * 
+ * @param {Discord.Message} msg 
+ * @param {string} dicestr - roll formatted string.
+ */
+async function cmdRoll( msg, dicestr ) {
 
 	let sender = bot.getSender( msg );
 
 	let total = dice.parseRoll( dicestr );
-	msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
+	return msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
 
 }
 
@@ -129,21 +139,21 @@ function cmdSleep( msg, when ) {
 	let sender = bot.getSender(msg);
 	setSchedule( sender, 'sleep', when );
 }
+
 function cmdSchedule( msg, activity, when ) {
 
-	console.log( 'scheduling: ' + activity + ' at: ' + when );
 	let sender = bot.getSender(msg);
 	setSchedule( sender, activity, when );
-	msg.channel.send( 'Scheduled ' + activity + ' for ' + bot.displayName(sender) );
+	return msg.channel.send( 'Scheduled ' + activity + ' for ' + bot.displayName(sender) );
 
 }
 
 function cmdWhen( msg, who, activity ) {
-	sendSchedule( msg.channel, who, activity );
+	return sendSchedule( msg.channel, who, activity );
 }
 
 function cmdLastPlay( msg, who, game ){
-	sendGameTime( msg.channel, who, game );
+	return sendGameTime( msg.channel, who, game );
 }
 
 function cmdLastOn( msg, who ){
@@ -175,8 +185,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 	if ( !uObject ) return;
 
 	if ( uObject.presence.game && uObject.presence.game.name === gameName ) {
-		await channel.send( displayName + ' is playing ' + gameName );
-		return;
+		return channel.send( displayName + ' is playing ' + gameName );
 	}
 
 	try {
@@ -185,7 +194,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 		let games = data.games;
 
 		let dateStr = DateFormat.dateString( games[gameName] );
-		await channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
+		return channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
 		console.log(err);
@@ -200,10 +209,7 @@ async function cmdPlayTime( msg, name ){
 	let gMember = bot.userOrShowErr( chan, name );
 	if (!gMember) return;
 
-	if ( !gMember.presence.game ) {
-		await chan.send( name + ' is not playing a game.');
-		return;
-	}
+	if ( !gMember.presence.game ) return chan.send( name + ' is not playing a game.');
 
 	let gameName = gMember.presence.game.name;
 
@@ -212,14 +218,13 @@ async function cmdPlayTime( msg, name ){
 		let data = await bot.fetchUserData( gMember );
 		if ( data.hasOwnProperty('games') && data.games.hasOwnProperty( gameName )) {
 			let lastTime = data.games[gameName];
-			await chan.send( name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime) );
-			return;
+			return chan.send( name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime) );
 		}
 
 	} catch ( err ) {
 		console.log(err);
 	}
-	await chan.send( 'I do not know when ' + name + '\'s game started.');
+	return chan.send( 'I do not know when ' + name + '\'s game started.');
 
 }
 
@@ -229,10 +234,7 @@ async function cmdIdleTime( msg, name ){
 	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
-	if ( !hasStatus( gMember, 'idle')){
-		await chan.send( name + ' is not currently idle.');
-		return;
-	}
+	if ( !hasStatus( gMember, 'idle')) return chan.send( name + ' is not idle.');
 
 	try {
 
@@ -241,10 +243,7 @@ async function cmdIdleTime( msg, name ){
 
 			let lastTime = latestStatus( history, ['offline','dnd','online'] );
 
-			if ( lastTime ){
-				await chan.send( name + ' has been idle for ' + DateFormat.elapsed( lastTime ) );
-				return;
-			}
+			if ( lastTime ) return chan.send( name + ' has been idle for ' + DateFormat.elapsed( lastTime ) );
 
 		}
 
@@ -253,7 +252,7 @@ async function cmdIdleTime( msg, name ){
 		console.log( err );
 	}
 
-	await chan.send( 'I do not know when ' + name + ' went idle.' );
+	return chan.send( 'I do not know when ' + name + ' went idle.' );
 
 }
 
@@ -264,9 +263,7 @@ async function cmdOnTime( msg, name ) {
 	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
-	if ( hasStatus(gMember, 'offline') ) {
-		return await chan.send( name + ' is not online.' );
-	}
+	if ( hasStatus(gMember, 'offline') ) return chan.send( name + ' is not online.' );
 
 	try {
 
@@ -276,10 +273,7 @@ async function cmdOnTime( msg, name ) {
 
 			let lastTime = latestStatus( history, 'offline' );
 
-			if ( lastTime ){
-				await chan.send( name + ' has been online for ' + DateFormat.elapsed( lastTime ) );
-				return;
-			}
+			if ( lastTime ) return chan.send( name + ' has been online for ' + DateFormat.elapsed( lastTime ) );
 
 		}
 
@@ -288,7 +282,7 @@ async function cmdOnTime( msg, name ) {
 		console.log( err );
 	}
 
-	await chan.send( 'I do not know when ' + name + ' came online.' );
+	return chan.send( 'I do not know when ' + name + ' came online.' );
 
 }
 
@@ -298,10 +292,7 @@ async function cmdOffTime( msg, name ) {
 	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
-	if ( !hasStatus(gMember, 'offline') ) {
-		await chan.send( name + ' is not offline.' );
-		return;
-	}
+	if ( !hasStatus(gMember, 'offline') ) return chan.send( name + ' is not offline.' );
 
 	try {
 
@@ -310,10 +301,7 @@ async function cmdOffTime( msg, name ) {
 
 			let lastTime = latestStatus( history, 'offline' );
 
-			if ( lastTime ){
-				await chan.send( name + ' has been offline for ' + DateFormat.elapsed( lastTime ) );
-				return;
-			}
+			if ( lastTime ) return chan.send( name + ' has been offline for ' + DateFormat.elapsed( lastTime ) );
 
 		}
 
@@ -321,7 +309,7 @@ async function cmdOffTime( msg, name ) {
 
 		console.log( err );
 	}
-	chan.send( 'I do not know when ' + name + ' went offline.' );
+	return chan.send( 'I do not know when ' + name + ' went offline.' );
 
 }
 
@@ -335,12 +323,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 	if ( !statusName ) statusName = statuses;
 
-	if ( hasStatus(gMember, statuses ) ) {
-
-		channel.send( name + ' is now ' + statusName + '.' );
-		return;
-
-	}
+	if ( hasStatus(gMember, statuses ) ) return channel.send( name + ' is now ' + statusName + '.' );
 
 	try {
 
@@ -349,10 +332,10 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 		let dateStr = DateFormat.dateString( lastTime );
 		
-		channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
+		return channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
-		channel.send( 'I haven\'t seen ' + name + ' ' + statusName + '.' );
+		return channel.send( 'I haven\'t seen ' + name + ' ' + statusName + '.' );
 	}
 
 }
@@ -394,29 +377,32 @@ function latestStatus( history, statuses ) {
 		return statusTime;
 	
 	} else {
-		if ( history.hasOwnProperty( statuses ) ) {
-			return history[statuses];
-		}
+
+		if ( history.hasOwnProperty( statuses ) ) return history[statuses];
+
 	}
 	return null;
 }
 
 // send schedule message to channel, for user with displayName
-async function sendSchedule( channel, name, activity ) {
+async function sendSchedule( chan, name, activity ) {
 
-	let gMember = bot.userOrShowErr( channel, name );
+	let gMember = bot.userOrShowErr( chan, name );
 	if ( !gMember ) return;
 
 	let sched = await readSchedule( gMember, activity );
-	if ( sched ) {
-		await channel.send( name + ' ' + activity + ': ' + sched );
-	} else {
-		await channel.send( 'No ' + activity + ' schedule found for ' +  name + '.' );
-	}
+	if ( sched ) return chan.send( name + ' ' + activity + ': ' + sched );
+
+	return chan.send( 'No ' + activity + ' schedule found for ' +  name + '.' );
 
 }
 
-// return members history object.
+
+/**
+ * Get the history object of a guild member.
+ * @param {GuildMember} gMember
+ * @returns {Object|null} 
+ */
 async function readHistory( gMember ){
 
 	let data = await bot.fetchUserData( gMember );
@@ -425,37 +411,34 @@ async function readHistory( gMember ){
 
 }
 
-// guild member to find schedule for.
-// type of schedule being checked.
-// cb( scheduleString ) - string is null or empty on error
+/**
+ * 
+ * @param {GuildMember} gMember - guild member to get schedule for.
+ * @param {string} schedType 
+ */
 async function readSchedule( gMember, schedType ) {
 
 	try {
 
 		let data = await bot.fetchUserData( gMember );
-		if ( data && data.hasOwnProperty('schedule') ) {
-			return data.schedule[schedType];
-		}
-		return null;
+		if ( data && data.hasOwnProperty('schedule') ) return data.schedule[schedType];
 
 	} catch ( err ){
 		console.log( err );
-		return null;
 	}
+	return null;
 
 }
 
-/// sets the schedule of a given guild member, for a given schedule type.
-async function setSchedule( uobject, scheduleType, scheduleString ) {
+/**
+ * Sets the schedule of a guild member, for a given schedule type.
+ * @param {GuildMember|User} uObject - Discord user.
+ * @param {string} scheduleType - type of activity to schedule.
+ * @param {string} scheduleString - schedule description.
+ */
+async function setSchedule( uObject, scheduleType, scheduleString ) {
 
-	try {
-
-		let newData = { schedule: { [scheduleType]:scheduleString } };
-		await mergeMember( uobject, newData );
-
-	} catch ( err ) {
-		console.log( 'could not set schedule.');
-	}
+	return mergeMember( uObject, { schedule: { [scheduleType]:scheduleString } } );
 
 }
 
@@ -469,13 +452,8 @@ function presenceChanged( oldMember, newMember ) {
 	let oldStatus = oldMember.presence.status;
 	let newStatus = newMember.presence.status;
 
-	if ( newStatus !== oldStatus ) {
-
-		/// statuses: 'offline', 'online', 'idle', 'dnd'
-		logHistory( oldMember, [oldStatus, newStatus] );
-		//console.log( newMember.displayName + ' status changed: ' + newStatus );
-
-	}
+	/// statuses: 'offline', 'online', 'idle', 'dnd'
+	if ( newStatus !== oldStatus ) logHistory( oldMember, [oldStatus, newStatus] );
 
 	let oldGame = oldMember.presence.game;
 	let newGame = newMember.presence.game;
@@ -486,9 +464,9 @@ function presenceChanged( oldMember, newMember ) {
 
 		logGames( oldMember, oldGame, newGame );
 
-		if ( newGame ) {
+		/*if ( newGame ) {
 			console.log( newMember.displayName + ' game changed: ' + newGame.name );
-		}
+		}*/
 
 	}
 
@@ -502,7 +480,7 @@ function logGames( guildMember, prevGame, curGame ) {
 	if ( prevGame ) gameData[prevGame.name] = now;
 	if ( curGame ) gameData[curGame.name] = now;
 	
-	mergeMember( guildMember, {games:gameData} );
+	return mergeMember( guildMember, {games:gameData} );
 
 }
 
@@ -516,12 +494,15 @@ function logHistory( guildMember, statuses ) {
 		history[ statuses[i] ] = now;
 	}
 
-	mergeMember( guildMember, { history:history } );
+	return mergeMember( guildMember, { history:history } );
 
 }
 
-// merge existing data.
-// uobject could be a GuildMember or a User.
+/**
+ * Merge existing user data.
+ * @param {GuildMember|User} uObject 
+ * @param {Object} newData - data to merge into existing data.
+ */
 async function mergeMember( uObject, newData ){
 
 	let data = await bot.fetchUserData( uObject );
@@ -530,6 +511,6 @@ async function mergeMember( uObject, newData ){
 		newData = data;
 	}
 
-	await bot.storeUserData( uObject, newData );
+	return bot.storeUserData( uObject, newData );
 
 }

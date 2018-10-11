@@ -51,7 +51,8 @@ class Room {
 			if ( game && game.isOpen() ) {
 
 				console.log( 'playing existing game.');
-				return await this.moveOrShowErr( m, game, firstMove );
+				return this.moveOrShowErr( m, game, firstMove );
+
 			}
 
 			if ( firstMove == null ) game = await this.startGame( opp, m.author );
@@ -59,7 +60,7 @@ class Room {
 
 				game = await this.startGame( m.author, opp );
 				if ( !game.tryMove( firstMove) ) {
-					m.reply( firstMove + ' is not a legal move.');
+					await m.reply( firstMove + ' is not a legal move.');
 				}
 
 			}
@@ -122,9 +123,8 @@ class Room {
 		}
 
 		let game = await this.gcache.gameOrShowErr( m, opp1, opp2 );
-		if ( game ) {
-			Display.showBoard( m.channel, game );
-		} else console.log('GAME IS NULL');
+		if ( game ) return Display.showBoard( m.channel, game );
+		else console.log('GAME IS NULL');
 
 	}
 
@@ -143,9 +143,8 @@ class Room {
 			// !move opponent moveStr
 			game = await this.gcache.gameOrShowErr( m, m.author, args[0]);
 			moveStr = args[1];
-		} else {
-			return m.reply( 'Unexpected move input.' );
-		}
+		} else return m.reply( 'Unexpected move input.' );
+
 		if ( !game ) return;
 
 		return this.moveOrShowErr( m, game, moveStr );

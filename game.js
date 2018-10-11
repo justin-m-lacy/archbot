@@ -82,6 +82,7 @@ module.exports = class Game {
 
 	/**
 	 * Override in subclasses.
+	 * @returns {Boolean} returns true if game is still open; else false.
 	*/
 	isOpen() { return true; }
 
@@ -89,6 +90,7 @@ module.exports = class Game {
 	 * Returns true if the player with the given id is playing this game.
 	 * false otherwise.
 	 * @param {string} uid - user id of player to check.
+	 * @returns {boolean} true if the user is a player in this game, false otherwise.
 	 */
 	hasPlayer( uid ) {
 		return ( this.p1 === uid || this.p2 === uid );

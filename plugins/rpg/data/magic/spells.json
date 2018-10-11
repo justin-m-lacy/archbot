@@ -17,7 +17,8 @@
         "mage_armor":{
             "name":"Mage Armor",
             "target":"self",
-            "duration":"1hr"
+			"duration":"1hr",
+			"effect":""
         }
 
     }

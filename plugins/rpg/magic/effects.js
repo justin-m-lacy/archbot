@@ -1,4 +1,4 @@
-const forms = require( '../formulas.js');
+const forms = require( 'formulas');
 
 // effect types. loading at bottom.
 const effects = {};

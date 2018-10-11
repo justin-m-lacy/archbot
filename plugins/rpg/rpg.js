@@ -1,3 +1,7 @@
+const formula = require( 'formulas');
+const gamejs = require( './game.js');
+const display = require( './display');
+
 /**
  * Whether global RPG data has been initialized.
  */
@@ -5,9 +9,7 @@ var initialized = false;
 
 // includes after init.
 var Char, Race, CharClass, CharGen, Trade, World, ItemGen;
-const gamejs = require( './game.js');
-const formula = require( './formulas.js');
-const display = require( './display');
+
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
 const LAST_CHARS = '`lastchars`';

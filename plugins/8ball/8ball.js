@@ -8,7 +8,8 @@ exports.init = function( bot ) {
 
 function cmd8Ball( msg, query ) {
 
-	if ( answers == null ) answers = require( './answers.json');
+	if ( !answers ) answers = require( './answers.json');
+	if ( answers.length === 0 ) return;
 
 	let ind = Math.floor(answers.length*Math.random() );
 	msg.channel.send( answers[ind] );
