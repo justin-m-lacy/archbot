@@ -82,7 +82,7 @@ async function cmdUptime( m ) {
 	return m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
 }
 
-function cmdUName( msg, name ) {
+async function cmdUName( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;
@@ -90,7 +90,7 @@ function cmdUName( msg, name ) {
 
 }
 
-function cmdNick( msg, name ) {
+async function cmdNick( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
 	if ( !gMember ) return;

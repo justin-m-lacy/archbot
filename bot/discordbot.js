@@ -505,17 +505,19 @@ class DiscordBot {
 	/**
 	 * Finds and returns the named user in the channel,
 	 * or replies with an error message.
+	 * Function is intentionally not async since there is no reason
+	 * to wait for the channel reply to go through.
 	 * @param {Channel} channel 
 	 * @param {*} name 
 	 */
-	async userOrShowErr( channel, name ) {
+	userOrShowErr( channel, name ) {
 
 		if ( !name ) {
-			await channel.send( 'User name expected.');
+			channel.send( 'User name expected.');
 			return null;
 		}
 		let member = this.findUser( channel, name );
-		if ( !member ) await channel.send( 'User \'' + name + '\' not found.');
+		if ( !member ) channel.send( 'User \'' + name + '\' not found.');
 		return member;
 
 	}
