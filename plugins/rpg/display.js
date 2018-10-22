@@ -26,7 +26,7 @@ exports.echoChar = async function( chan, char, prefix = '' ) {
 exports.Log = class Log {
 
 	get text(){ return this._text; }
-	get text(v) { this._text = v; }
+	set text(v) { this._text = v; }
 
 	constructor() {
 		this._text = '';

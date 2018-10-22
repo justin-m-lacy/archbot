@@ -1,4 +1,4 @@
-const forms = require( 'formulas');
+const forms = require( 'formulic');
 
 // effect types. loading at bottom.
 const effects = {};

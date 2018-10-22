@@ -1,4 +1,4 @@
-const formula = require( 'formulas');
+const formula = require( 'formulic');
 const gamejs = require( './game.js');
 const display = require( './display');
 

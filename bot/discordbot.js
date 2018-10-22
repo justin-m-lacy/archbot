@@ -537,7 +537,12 @@ class DiscordBot {
 			case 'voice':
 
 				return channel.guild.members.find(
-					gm => gm.displayName.toLowerCase() === name || gm.nickname.toLowerCase() === name );
+
+					gm =>
+						gm.displayName.toLowerCase() === name || (
+							gm.nickname && gm.nickname.toLowerCase() === name
+						)
+				);
 
 			case 'dm':
 				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;

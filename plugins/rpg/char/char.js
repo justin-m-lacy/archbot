@@ -13,6 +13,7 @@ const Item = require( '../items/item.js');
 const Race = require( '../race.js');
 const Class = require( '../charclass.js');
 const stats = require( './stats.js');
+const Log = require( '../display.js').Log;
 
 class Char extends actor.Actor {
 
@@ -142,6 +143,8 @@ class Char extends actor.Actor {
 		this._equip = new Equip();
 
 		this._history = { explored:0, crafted:0};
+
+		this._log = new Log();
 
 		this._exp = 0;
 		this._owner = owner;

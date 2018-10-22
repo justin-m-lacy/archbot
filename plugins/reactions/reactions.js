@@ -2,8 +2,7 @@ var globalReacts, globalRegEx;
 /**
  * {RegEx} Regex to test if a string defines a regex.
  */
-var regExTest = /^\s+\/(.+)\/([gim]{0,3})\s+$/;
-var stubReplace = /\$(\d+|[&'`])/g;
+const regExTest = /^\s*\/(.+)\/([gim]{0,3})\s*$/;
 
 const Embeds = require( 'djs-embed');
 const ReactSet = require( './reactset');

@@ -1,6 +1,6 @@
 const itemjs = require( './item.js');
 const effects = require( '../magic/effects.js');
-const forms = require( 'formulas');
+const forms = require( 'formulic');
 
 module.exports = class Potion extends itemjs.Item  {
 

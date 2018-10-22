@@ -1,3 +1,6 @@
+var stubReplace = /\$(\d+|[&'`])/g;
+
+
 class ReactSet {
 
 	toJSON(){
