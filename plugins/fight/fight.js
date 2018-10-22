@@ -8,7 +8,7 @@ exports.init = function( mainbot ) {
 
 }
 
-function cmdFight( msg, uname ) {
+async function cmdFight( msg, uname ) {
 
 	if ( !results ) results = require( './results.json');
 	if ( !uname ) return msg.channel.send( 'You attack the darkness!');

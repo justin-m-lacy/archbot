@@ -1,5 +1,5 @@
 const Weapon = require( './items/weapon.js');
-const forms = require( 'formulas');
+const forms = require( './formulas');
 const Char = require( './char/char.js');
 const Monster = require( './monster/monster.js');
 const itemgen = require( './items/itemgen.js');

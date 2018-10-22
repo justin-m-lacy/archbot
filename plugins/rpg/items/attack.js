@@ -1,4 +1,4 @@
-const forms = require( 'formulas');
+const forms = require( 'formulic');
 
 class Attack {
 
