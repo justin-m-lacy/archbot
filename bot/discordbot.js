@@ -1,9 +1,10 @@
-const fsys = require( '../botfs.js');
+const fsys = require( './botfs.js');
 const Dispatch = require( './dispatch.js');
 const cacher = require( '../cache.js' );
 const Discord = require ( 'discord.js');
+const path = require( 'path' );
 
-const Contexts = exports.Context = require( '../botcontext.js');
+const Contexts = exports.Context = require( './botcontext.js');
 
 var Bot;
 exports.InitBot = ( client, master ) => {
@@ -22,29 +23,37 @@ class DiscordBot {
 	get contextClasses() { return this._contextClasses; }
 	get cmdPrefix() { return this._cmdPrefix; }
 
+	get directory() { return this._directory; }
+	get saveDir() { return this._saveDir; }
+
 	/**
 	 * 
 	 * @param {Discord.Client} client
 	 * @param {string} masterid - id of master user.
-	 * @param {*} cmdPrefix 
+	 * @param {string} [mainDir=null] - the main directory of the archbot program. Defaults to the directory of the main script
+	 * being run.
 	 */
-	constructor( client, masterid ) {
+	constructor( client, masterid, mainDir=null ) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
+
+		this._directory = mainDir || path.dirname(  require.main.filename );
 
 		// classes to instantiate for each context.
 		this._contextClasses = [];
 
 		this._client = client;
+
+		this.loadConfig();
+		fsys.setBaseDir( this._saveDir );
+
 		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
+		
+		this._dispatch = new Dispatch( this._cmdPrefix );
 
 		// maps id->context id.
 		this.restoreProxies();
-
-		this.loadConfig();
-
-		this._dispatch = new Dispatch( this._cmdPrefix );
 
 		this.loadPlugins();
 
@@ -74,7 +83,8 @@ class DiscordBot {
 			let config = require( '../archconfig.json');
 			this._spamblock = config.spamblock || {};
 			this._cmdPrefix = config.cmdprefix || '!';
-			this._plugsdir = config.pluginsdir;
+			this._plugsdir = path.join( this._directory, config.pluginsdir );
+			this._saveDir = path.join( this._directory, config.savedir || '/savedata/');
 
 		} catch ( e) {
 			this._cmdPrefix = '!';
@@ -190,6 +200,18 @@ class DiscordBot {
 
 		if ( !command ) return;
 
+		// check permissions.
+		if ( command.permissions && m.member ) {
+
+
+			if ( !m.member.permissions.hasPermission( command.permissions ) ) {
+
+				m.reply( 'You do not have permission to use that command.');
+				return;
+
+			}
+
+		}
 
 		if ( command.isDirect ) {
 

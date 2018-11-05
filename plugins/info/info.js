@@ -39,6 +39,11 @@ class Info {
 
 	}
 
+	/**
+	 * 
+	 * @param {*} subj 
+	 * @param {*} which - Not yet implemented. 
+	 */
 	async rmInfo( subj, which ) {
 
 		subj = subj.toLowerCase();
@@ -63,7 +68,7 @@ class Info {
 		try {
 
 			subj = subj.toLowerCase();
-			let cur = this.infos[ subj ];
+			let cur = this.infos[ subj ];	//TODO: implement info lists?
 
 			info = { i:info, uid:uid, t:Date.now() };
 
@@ -72,16 +77,16 @@ class Info {
 			await this._context.storeKeyData( this.getKey(), this.infos );
 	
 		} catch ( e ) { console.log(e); }
+
 	}
 
 	async loadInfos() {
 
 		try {
+
 			let infoData = await this._context.fetchKeyData( this.getKey() );
 			if ( infoData ) this.infos = infoData;
-			else {
-
-			}
+			else console.log('Info data not found.');
 
 		} catch ( e ) { console.log(e);}
 
