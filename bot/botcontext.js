@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const fsys = require( './botfs.js');
-const afs = require( './afs');
+const afs = require( '../afs');
 
 // base Context.
 const Context = class {
@@ -34,6 +34,27 @@ const Context = class {
 		this._cache = cache;
 
 		console.log( 'cache key: ' + this._cache.cacheKey );
+
+	}
+
+	async setSetting( key, value=null ) {
+
+		let settings = await this.cache.fetch( 'settings');
+		if ( !settings ) {
+			settings = {};
+		}
+
+		settings[key] = value;
+		this.cache.cache( 'settings', value );
+
+	}
+
+	async getSetting( key ) {
+
+		let settings = await this.cache.fetch( 'settings');
+
+		if ( !settings || !settings.hasOwnProperty(key)) return undefined;
+		return settings[key];
 
 	}
 
@@ -224,7 +245,7 @@ const Context = class {
 	subcache( key ) { return this._cache.makeSubCache(key); }
 
 	/**
-	 * 
+	 * Returns the key which should be used to refer to a data path in the cache.
 	 * @param {*} objs - objs are idables or cache path strings.
 	 */
 	getDataKey( ...objs ) {

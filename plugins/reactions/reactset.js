@@ -81,29 +81,63 @@ class ReactSet {
 	tryRemove( react=null ) {
 
 		if ( react === null ) {
-			
-			// removing any single react.
-			if ( !(this._reacts instanceof Array) || this._reacts.length === 0 ) this._reacts = null;
-			else return this._reacts.length;
 
-		} else {
+			// ambiguous removal. return the number of reactions.
+			if ( this._reacts instanceof Array && this._reacts.length > 0 ) return this._reacts.length;
 
-			if ( this._reacts instanceof Array ) {
-
-				for( let i = this._reacts.length-1; i >= 0; i-- ) {
-
-					if ( this._isMatch( react, this._reacts[i]) === true ) {
-						this._splice( this._reacts, i );
-						return true;
-					}
-
-				}
-				return false;
-
-			} else if ( this._isMatch( react, this._reacts ) === true ) this._reacts = null;
+			this._reacts = null;
+			return true;
 
 		}
-		return true;
+
+		/**
+		 * Attempt to remove a numbered reaction.
+		 * Removal attemp continues on failure because a reaction could actually be a number.
+		 * The literaly reaction-is-number isn't tested first since it would allow users
+		 * to thwart numbered-removal by flooding number reactions.
+		 */
+		if ( isNaN(react) && this.removeIndex(react-1) ) return true;
+
+		if (this._reacts instanceof Array) {
+
+			for (let i = this._reacts.length - 1; i >= 0; i--) {
+
+				if (this._isMatch(react, this._reacts[i]) === true) {
+					this._splice(this._reacts, i);
+					return true;
+				}
+
+			}
+			return false;
+
+		} else if (this._isMatch(react, this._reacts) === true) this._reacts = null;
+
+	}
+
+	/**
+	 * Remove an indexed reaction.
+	 * @param {Number} index - the index to remove.
+	 * @returns {boolean} true if reaction removed, false otherwise.
+	 */
+	removeIndex( ind ) {
+
+		ind = Number(ind);
+		if ( ind < 0 ) return false;
+		if ( this._reacts instanceof Array ) {
+
+			if ( ind >= this._reacts.length ) return false;
+			this._reacts.splice( ind , 1 );
+			return true;
+
+		}
+
+		// if _reacts is a single item, removing index-0 will remove the item.
+		if ( this._reacts != null && ind === 0 ) {
+			this._reacts = null;
+			return true;
+		}
+
+		return false;
 
 	}
 

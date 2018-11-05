@@ -10,6 +10,10 @@ module.exports = class Command {
 
 	// whether the cmd calls a function directly.
 	get isDirect() { return this._instClass == null; }
+
+	/**
+	 * {Boolean} Whether the command is linked to a context class.
+	 */
 	get isContext() { return this._instClass != null; }
 
 	get instClass() { return this._instClass; }
@@ -39,6 +43,12 @@ module.exports = class Command {
 
 	get maxArgs() { return this._maxArgs || null; }
 	set maxArgs(v) {this._maxArgs = v;}
+
+	/**
+	 * {Number} Permissions required to use this command.
+	 */
+	get permissions() { return this._permissions; }
+	set permissions(v) { this._permissions = v;}
 
 	constructor( name, func, opts=null ) {
 

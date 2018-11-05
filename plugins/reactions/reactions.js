@@ -321,7 +321,7 @@ class GuildReactions {
 
 		} else if ( react instanceof Object ) {
 
-			resp = react.r;
+			if ( react.r ) resp = react.r;
 
 			if ( react.uid ) {
 	
@@ -331,6 +331,10 @@ class GuildReactions {
 				if ( react.t ) resp += ` @ ${new Date(react.t)}`;
 
 			}
+			if ( react.embed ) {
+				resp += `\nEmbedded URL: ${react.embed}`;
+			}
+
 			return resp;
 
 		}

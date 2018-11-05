@@ -1,6 +1,7 @@
 {
 
-    "pluginsdir":"./plugins/",
+	"pluginsdir":"./plugins/",
+	"savedir":"./savedata",
     "cmdprefix":"!",
     "spamblock":{
         "81384788765712384":{ "381896931724492800":true, "381896832399310868":true},
