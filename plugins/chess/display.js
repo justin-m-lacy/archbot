@@ -21,8 +21,8 @@ exports.loadImages = async function() {
 
 	try {
 
-		imgBoard = await jimp.read( './images/board.png' );
-		imgPieces = await jimp.read( './images/pieces.png');
+		imgBoard = await jimp.read( __dirname + '/images/board.png' );
+		imgPieces = await jimp.read( __dirname + '/images/pieces.png');
 
 		tSize = Math.floor( imgBoard.bitmap.width / 8 );
 
