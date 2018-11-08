@@ -38,7 +38,7 @@ class ReactSet {
 
 	/**
 	 * 
-	 * @param {string|null} [reactStr=null] - React string to match, or null if
+	 * @param {string|Number|null} [reactStr=null] - React string to match, or null if
 	 * all reactions should be returned.
 	 * @returns {false|string|Object|Array} - String or Object information matched,
 	 * or Array of all Reactions of reactStr is null, or false if no reaction
@@ -48,10 +48,17 @@ class ReactSet {
 
 		if ( reactStr === null || reactStr === undefined ) return this._reacts;
 
+		var obj;
+
+		if ( !isNaN(reactStr) ) {
+			obj = this.getIndex( reactStr - 1 );
+			if ( obj) return obj;
+
+		}
+
 		reactStr = reactStr.toLowerCase();
 
-		let obj = this._reacts;
-
+		obj = this._reacts;
 		if ( typeof obj === 'string') {
 
 			if ( reactStr === obj.toLowerCase() ) return obj;
@@ -96,7 +103,7 @@ class ReactSet {
 		 * The literaly reaction-is-number isn't tested first since it would allow users
 		 * to thwart numbered-removal by flooding number reactions.
 		 */
-		if ( isNaN(react) && this.removeIndex(react-1) ) return true;
+		if ( !isNaN(react) && this.removeIndex(react-1) ) return true;
 
 		if (this._reacts instanceof Array) {
 
@@ -111,6 +118,27 @@ class ReactSet {
 			return false;
 
 		} else if (this._isMatch(react, this._reacts) === true) this._reacts = null;
+
+	}
+
+	/**
+	 * Return a reaction based on index-number, or null if
+	 * the index is invalid.
+	 * @param {Number} ind - The zero-based index of the reaction.
+	 */
+	getIndex( ind ) {
+
+		if ( ind < 0 ) return null;
+		if ( this._reacts instanceof Array ) {
+
+			if ( ind >= this._reacts.length ) return null;
+			return this._reacts[ind];
+	
+		}
+
+		// if _reacts is a single item, removing index-0 will remove the item.
+		if ( this._reacts != null && ind === 0 ) return this._reacts;
+		return null;
 
 	}
 

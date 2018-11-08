@@ -2,11 +2,13 @@ const Discord = require('discord.js');
 const fsys = require( './botfs.js');
 const afs = require( '../afs');
 
+const Access = require( './access.js' );
+
 // base Context.
 const Context = class {
 
 	/**
-	 * {string} 'guild', 'user', 'dm', 'group', 'channel'\
+	 * {string} 'guild', 'user', 'dm', 'group', 'channel'
 	 */
 	get type() { return 'unknown'; }
 
@@ -17,6 +19,12 @@ const Context = class {
 	get bot() { return this._bot; }
 
 	get cache() { return this._cache; }
+
+	/**
+	 * {Access} - Information about access to settings and commands.
+	 */
+	get access() { return this._access; }
+	set access(v) { this._access = v; }
 
 	/**
 	 * @param {discord object} idobj - guild, channel, or user
@@ -33,8 +41,55 @@ const Context = class {
 
 		this._cache = cache;
 
-		console.log( 'cache key: ' + this._cache.cacheKey );
+		//console.log( 'cache key: ' + this._cache.cacheKey );
 
+	}
+
+	/**
+	 * Break a message text into pages, and send it to the required message channel.
+	 * @param {Discord.Message} m - Message whose channel is being used to send the text.
+	 * @param {string} text - text to paginate and send.
+	 * @param {Number} page - page of text to be sent.
+	 */
+	async sendPage( m, text, page ) {
+		return this.bot.sendPage( m, text, page );
+	}
+
+	/**
+	 * Break a message text into pages, and reply the page to the given message.
+	 * @param {Message} m - Message being replied to.
+	 * @param {string} text - text to paginate and reply.
+	 * @param {Number} page - page of text to reply.
+	 */
+	async replyPage( m, text, page ) {
+		return this.bot.replyPage( m, text, page );
+	}
+
+	unsetAccess( cmd ) {
+		this.access.unsetAccess( cmd );
+	}
+
+	setAccess( cmd, perm ) {
+		this.access.setAccess( cmd, perm );
+	}
+
+	getAccess( cmd ) {
+		return this.access.getAccess( cmd );
+	}
+
+	canAccess( cmd, gm ) {
+		return this._access.canAccess( cmd, gm );
+	}
+
+	async savePerms() {
+		await this.cache.store( 'access', this.access );
+	}
+
+	/**
+	 * Cache access without forcing write to disk.
+	 */
+	cachePerms() {
+		this.cache.cache( 'access', this.access );
 	}
 
 	async setSetting( key, value=null ) {
