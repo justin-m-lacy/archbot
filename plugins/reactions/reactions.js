@@ -13,6 +13,8 @@ const ReactSet = require( './reactset');
  */
 class GuildReactions {
 
+	get context() { return this._context; }
+
 	constructor( context ) {
 
 		this.allReacts = {};
@@ -118,18 +120,37 @@ class GuildReactions {
 	 * Command to display information about a given Trigger/Reaction combination.
 	 * @param {Message} m 
 	 * @param {string} trig - Reaction trigger.
-	 * @param {string|null|undefined} which - The specific reaction for the given trigger
+	 * @param {string|null|undefined} [which=null] - The specific reaction for the given trigger
 	 * to get information for.
 	 */
-	async cmdReactInfo( m, trig, which ) {
+	async cmdReactInfo( m, trig, which=null ) {
 
 		let reacts = this.getReactions( trig, which );
 		if ( !reacts ) return m.channel.send( 'No reaction found.');
 
 		let resp = await this.infoString( reacts );
 
-		return m.channel.send( resp );
+		return this.context.sendPage( m, resp, 1 );
+
 	}
+
+		/**
+	 * Command to display all information for a given reaction trigger.
+	 * @param {Message} m 
+	 * @param {string} trig - Reaction trigger.
+	 * @param {Number} [page=1] - The page of text.
+	 */
+	async cmdReacts( m, trig, page=1 ) {
+
+		let reacts = this.getReactions( trig );
+		if ( !reacts ) return m.channel.send( 'No reaction found.');
+
+		let resp = await this.infoString( reacts );
+
+		return this.context.sendPage( m, resp, page );
+
+	}
+
 
 	/**
 	 * Removes the given reaction string from the given reaction trigger. If no reaction
@@ -346,7 +367,7 @@ class GuildReactions {
 	/**
 	 * 
 	 * @param {string|regEx} trig - trigger for the reaction.
-	 * @param {string|null} reactStr - the reaction string to return, or null to return all reactions for
+	 * @param {string|null} [reactStr=null] - the reaction string to return, or null to return all reactions for
 	 * the given trigger.
 	 * @returns {string|object|Array|bool} Returns the single reaction found, or an array of reactions
 	 * if no reactStr is specified.
@@ -530,8 +551,11 @@ exports.init = function( bot ) {
 	bot.addContextClass( GuildReactions );
 	bot.addContextCmd( 'react', '!react <\"search trigger\"> <\"response string\">',
 		GuildReactions.prototype.cmdAddReact, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
-	bot.addContextCmd( 'reactinfo', '!reactinfo <\"trigger"\"> [response]',
-		GuildReactions.prototype.cmdReactInfo, GuildReactions, { minArgs:1, maxArgs:2, group:'right'});
+
+	bot.addContextCmd( 'reactinfo', '!reactinfo <\"trigger"\"> [which]',
+		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
+	bot.addContextCmd( 'reacts', '!reacts <\"trigger"\"> [page]',
+		GuildReactions.prototype.cmdReacts, GuildReactions, { minArgs:1, maxArgs:2, group:'left'});
 
 	bot.addContextCmd( 'rmreact', '!rmreact <\"react trigger\"> [response]', GuildReactions.prototype.cmdRmReact, GuildReactions,
 		{ minArgs:1, maxArgs:2, group:'right' } );

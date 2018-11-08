@@ -45,10 +45,11 @@ module.exports = class Command {
 	set maxArgs(v) {this._maxArgs = v;}
 
 	/**
-	 * {Number} Permissions required to use this command.
+	 * {Number} Default permissions required to use this command.
+	 * Overridden by BotContext Access.
 	 */
-	get permissions() { return this._permissions; }
-	set permissions(v) { this._permissions = v;}
+	get access() { return this._access; }
+	set access(v) { this._access = v;}
 
 	constructor( name, func, opts=null ) {
 

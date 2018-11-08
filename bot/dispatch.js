@@ -8,6 +8,13 @@ module.exports = class CmdDispatch {
 
 	}
 
+	/**
+	 * @returns {Object[string->Command]} - Map of all active commands.
+	 */
+	getCommands() {
+		return this.cmdLine.commands;
+	}
+
 	getCommand( input ) {
 		return this.cmdLine.setInput(input);
 	} //
@@ -91,6 +98,9 @@ module.exports = class CmdDispatch {
 
 class CmdLine {
 
+	/**
+	 * { Object[string->Command] } - All active commands.
+	 */
 	get commands() { return this._cmds; }
 
 	get args() { return this._args; }

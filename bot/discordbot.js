@@ -4,6 +4,9 @@ const cacher = require( '../cache.js' );
 const Discord = require ( 'discord.js');
 const path = require( 'path' );
 
+const CONTENT_MAX = 1986;
+exports.CONTENT_MAX = CONTENT_MAX;
+
 const Contexts = exports.Context = require( './botcontext.js');
 
 var Bot;
@@ -73,7 +76,15 @@ class DiscordBot {
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
 		this.addCmd( 'archquit', '!archquit', m=>this.cmdBotQuit(m), {} );
 		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
-		this.addCmd( 'perm', '!perm cmd roles', (m)=>this.cmdPerm(m), { minArgs:2 } );
+		this.addCmd( 'access', '!access cmd [permissions|roles]',
+			(m, cmd, perm)=>this.cmdAccess(m, cmd, perm),
+			{ minArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR }
+		);
+		this.addCmd( 'resetaccess', '!resetaccess cmd',
+			(m,cmd)=>this.cmdResetAccess(m,cmd),
+			{minArgs:1, maxArgs:1, acess:Discord.Permissions.FLAGS.ADMINISTRATOR}
+		);
+
 	}
 
 	loadConfig() {
@@ -200,18 +211,11 @@ class DiscordBot {
 
 		if ( !command ) return;
 
-		// check permissions.
-		if ( command.permissions && m.member ) {
-
-
-			if ( !m.member.permissions.hasPermission( command.permissions ) ) {
-
-				m.reply( 'You do not have permission to use that command.');
-				return;
-
-			}
-
-		}
+		// check command access.
+		let context = this.getMsgContext( m );
+		/*if ( m.member && !this.testAccess(m, command, context ) ) {
+			return m.reply( 'You do not have permission to use that command.');
+		}*/
 
 		if ( command.isDirect ) {
 
@@ -220,9 +224,6 @@ class DiscordBot {
 		} else {
 
 			// context command.
-			// get Context for cmd routing.
-
-			let context = this.getMsgContext( m );
 			let error = this._dispatch.routeCmd( context, command, [m] );
 
 			if ( !error ) return;
@@ -236,6 +237,22 @@ class DiscordBot {
 			}
 
 		}
+
+	}
+
+	testAccess( m, cmd, context ) {
+
+		let allowed = context.canAccess( command.name, m.member );
+		if ( allowed === undefined ) {
+
+			// check default access.
+			if ( command.access === undefined) return true;
+			return m.member.permissions.has( command.access );
+
+
+		}
+
+		return allowed;
 
 	}
 
@@ -314,7 +331,34 @@ class DiscordBot {
 
 	}
 
-	cmdPerm( m ) {
+	async cmdResetAccess( m, cmd ) {
+
+		// unset any custom access.
+		context.unsetAccess( cmd );
+
+	}
+
+	async cmdAccess( m, cmd, perm=undefined ) {
+
+		let context = this.getMsgContext( m );
+		if ( perm === undefined ) {
+
+		} else {
+
+			context.setAccess( cmd, perm );
+
+		}
+
+	}
+
+	getAccess( m, cmd ) {
+
+		let access = context.getAccess( cmd );
+		if ( access === undefined ) {
+			return cmd.access;
+		}
+		return access;
+
 	}
 
 	/**
@@ -375,7 +419,37 @@ class DiscordBot {
 		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
 
 	}
-	
+
+	/**
+	 * Break the text into pages based on the maximum content length,
+	 * and return the indicated page of text.
+	 * @param {string} text 
+	 * @param {Number} page - zero-based page index.
+	 */
+	getPageText( text, page ) {
+		return text.slice( CONTENT_MAX*page, CONTENT_MAX*(page+1) );
+	}
+
+	/**
+	 * Break a message text into pages, and send it to the required message channel.
+	 * @param {Discord.Message} m 
+	 * @param {string} text - text to paginate and send.
+	 * @param {Number} page - page of text to be sent.
+	 */
+	async sendPage( m, text, page ) {
+		return m.channel.send( this.getPageText(text,page-1) );
+	}
+
+	/**
+	 * Break a message text into pages, and reply the page to the given message.
+	 * @param {Message} m 
+	 * @param {string} text - text to paginate and reply.
+	 * @param {Number} page - page of text to reply.
+	 */
+	async replyPage( m, text, page ) {
+		return m.reply( this.getPageText(text, page-1 ) );
+	}
+
 	/**
 	 * 
 	 * @param {*} idobj 
