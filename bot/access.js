@@ -3,6 +3,10 @@
  */
 module.exports = class Access {
 
+	toJSON() {
+		return {perms:this._perms};
+	}
+
 	/**
 	 * {Object( string->permission ) } perms - maps command names to permissions required to use command.
 	 */
@@ -11,8 +15,8 @@ module.exports = class Access {
 
 	constructor( vars=null ) {
 
-		if ( vars ) Object.assign( this, vars );
 		this._perms = this._perms || {};
+		if ( vars ) this.perms = vars.perms || this._perms;
 
 	}
 
@@ -59,34 +63,39 @@ module.exports = class Access {
 
 		if ( !this.perms.hasOwnProperty(cmd) ) return undefined;
 
-		return this.checkPerms( gm, this.perms[cmd]);;
+		return this.checkPerms( gm, this.perms[cmd]);
 
 	}
 
 	checkPerms( gm, perm ){
 
-		if ( !isNaN(perm)) return gm.permissions.has( perm );
+		console.log('REQUIRED PERM: ' + perm );
 
-		else if ( perm instanceof Array ) {
+		try {
 
-			let a = perm;
-			for( let i = a.length-1; i >= 0; i-- ) {
+			if ( !isNaN(perm)) return gm.permissions.has( perm );
 
-				perm = a[i];
-				if ( !isNaN(perm) && gm.permissions.has(perm) ) return true;
-				else if ( gm.roles.some( role=>role.name === perm )) return true;
+			else if ( perm instanceof Array ) {
+
+				let a = perm;
+				for( let i = a.length-1; i >= 0; i-- ) {
+
+					perm = a[i];
+					if ( !isNaN(perm) && gm.permissions.has(perm) ) return true;
+					else if ( gm.roles.some( role=>role.name === perm )) return true;
+
+				}
+
+				return false;
+
+			} else {
+
+				// assume perm is a role string.
+				return gm.roles.some( role=>role.name === perm );
 
 			}
 
-			return false;
-
-		} else {
-
-			// assume perm is a role string.
-			return gm.roles.some( role=>role.name === perm );
-
-		}
-
+		} catch(e) { return false;}
 
 	}
 

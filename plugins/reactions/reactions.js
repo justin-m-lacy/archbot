@@ -1,4 +1,6 @@
-var globalReacts, globalRegEx;
+const Discord = require ( 'discord.js');
+const Display = require( '../../display');
+
 /**
  * {RegEx} Regex to test if a string defines a regex.
  */
@@ -6,6 +8,9 @@ const regExTest = /^\s*\/(.+)\/([gim]{0,3})\s*$/;
 
 const Embeds = require( 'djs-embed');
 const ReactSet = require( './reactset');
+
+var globalReacts, globalRegEx;
+
 
 /**
  * Class which handles reactions for a single guild.
@@ -128,13 +133,13 @@ class GuildReactions {
 		let reacts = this.getReactions( trig, which );
 		if ( !reacts ) return m.channel.send( 'No reaction found.');
 
-		let resp = await this.infoString( reacts );
+		let resp = await this.infoString( reacts, true );
 
-		return this.context.sendPage( m, resp, 1 );
+		return Display.sendPage( m, resp, 0 );
 
 	}
 
-		/**
+	/**
 	 * Command to display all information for a given reaction trigger.
 	 * @param {Message} m 
 	 * @param {string} trig - Reaction trigger.
@@ -147,7 +152,16 @@ class GuildReactions {
 
 		let resp = await this.infoString( reacts );
 
-		return this.context.sendPage( m, resp, page );
+		let pageText = Display.pageString( resp );
+
+		// get a single page of the response.
+		resp = Display.getPageText( resp, page-1 );
+
+		// append reaction count.
+		if ( reacts instanceof Array ) resp += `\n\n${reacts.length } total reactions`;
+		resp += '\n\n' + pageText;
+
+		return m.channel.send( resp );
 
 	}
 
@@ -158,7 +172,7 @@ class GuildReactions {
 	 * has only a single reaction entry.
 	 * @param {string} trig - The reaction trigger to remove a reaction from.
 	 * @param {string|null|undefined} reaction - The reaction string to remove.
-	 * @returns {bool|number} Returns true if a reaction is successfully removed.
+	 * @returns {bool|Number} Returns true if a reaction is successfully removed.
 	 * If no reaction string is specified, and multiple reactions are found,
 	 * the number of reactions is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
@@ -323,12 +337,13 @@ class GuildReactions {
 
 	/**
 	 * Return a string of information for the given reaction object.
-	 * @param {string|object|Array} react 
+	 * @param {string|object|Array} react
+	 * @param {boolean} [details=false] whether to include extended details about the reaction.
 	 */
-	async infoString( react ) {
+	async infoString( react, details=false ) {
 
 		if ( react === null || react === undefined ) return '';
-		if ( typeof react === 'string' ) return react + ' ( Creator unknown )';
+		if ( typeof react === 'string' ) return react + ( details ? ' ( Creator unknown )' : '' );
 
 		var resp = '';
 
@@ -336,7 +351,7 @@ class GuildReactions {
 
 			let len = react.length;
 			for( let i = 0; i < len; i++ ) {
-				resp += (i+1) + ') ' + ( await this.infoString( react[i]) + '\n\n' );
+				resp += '\n\n' + (i+1) + ') ' + ( await this.infoString( react[i], details ) );
 			}
 			return resp;
 
@@ -344,18 +359,22 @@ class GuildReactions {
 
 			if ( react.r ) resp = react.r;
 
+			if ( react.embed ) resp += '\nEmbedded URL: `' + react.embed + '`';
+
+
 			if ( react.uid ) {
 	
 				let name = await this._context.displayName( react.uid );
-				resp += name ?  `\nCreated by ${name} (id:${react.uid})` : `\nCreated by user id: ${react.uid}`;
+				if ( name ) {
 
-				if ( react.t ) resp += ` @ ${new Date(react.t)}`;
+					resp += `\nCreated by ${name}`;
+					if ( details ) resp += ` (id:${react.uid})`;
+	
+				} else resp += `\nCreated by user id: ${react.uid}`;
+
+				if ( details && react.t ) resp += ` @ ${new Date(react.t)}`;
 
 			}
-			if ( react.embed ) {
-				resp += `\nEmbedded URL: ${react.embed}`;
-			}
-
 			return resp;
 
 		}
@@ -555,9 +574,11 @@ exports.init = function( bot ) {
 	bot.addContextCmd( 'reactinfo', '!reactinfo <\"trigger"\"> [which]',
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
 	bot.addContextCmd( 'reacts', '!reacts <\"trigger"\"> [page]',
-		GuildReactions.prototype.cmdReacts, GuildReactions, { minArgs:1, maxArgs:2, group:'left'});
+		GuildReactions.prototype.cmdReacts, GuildReactions,
+		{ minArgs:1, maxArgs:2, group:'left' });
 
-	bot.addContextCmd( 'rmreact', '!rmreact <\"react trigger\"> [response]', GuildReactions.prototype.cmdRmReact, GuildReactions,
-		{ minArgs:1, maxArgs:2, group:'right' } );
+	bot.addContextCmd( 'rmreact', '!rmreact <\"react trigger\"> [response]',
+		GuildReactions.prototype.cmdRmReact, GuildReactions,
+		{ minArgs:1, maxArgs:2, group:'right', access:2 } );
 
 }
