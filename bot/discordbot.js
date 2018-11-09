@@ -3,8 +3,9 @@ const Dispatch = require( './dispatch.js');
 const cacher = require( '../cache.js' );
 const Discord = require ( 'discord.js');
 const path = require( 'path' );
+const display = require( '../display' );
 
-const CONTENT_MAX = 1986;
+const CONTENT_MAX = 1905;
 exports.CONTENT_MAX = CONTENT_MAX;
 
 const Contexts = exports.Context = require( './botcontext.js');
@@ -72,8 +73,11 @@ class DiscordBot {
 
 		this.initClient();
 
-		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m) );
-		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {} );
+		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m),
+		{ access:0} );
+		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {
+			access:Discord.Permissions.FLAGS.ADMINISTRATOR
+		} );
 		this.addCmd( 'archquit', '!archquit', m=>this.cmdBotQuit(m), {} );
 		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
 		this.addCmd( 'access', '!access cmd [permissions|roles]',
@@ -82,7 +86,7 @@ class DiscordBot {
 		);
 		this.addCmd( 'resetaccess', '!resetaccess cmd',
 			(m,cmd)=>this.cmdResetAccess(m,cmd),
-			{minArgs:1, maxArgs:1, acess:Discord.Permissions.FLAGS.ADMINISTRATOR}
+			{minArgs:1, maxArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR}
 		);
 
 	}
@@ -152,11 +156,16 @@ class DiscordBot {
 
 		// ensure context for every guild.
 		if ( this.client ) {
+
 			this.client.guilds.forEach( (g, id) => {
-				let c = this.getContext( g );
-				console.log('adding class: ' + cls.name )
-				c.addClass( cls );
+
+				this.getContext( g ).then( c=>{
+					console.log('adding class: ' + cls.name )
+					c.addClass(cls);
+				});
+
 			});
+
 		}
 
 	}
@@ -202,7 +211,7 @@ class DiscordBot {
 		this._dispatch.addContextCmd( name, usage, func, plugClass, opts );
 	}
 
-	onMessage( m ) {
+	async onMessage( m ) {
 
 		if ( m.author.id === this._client.user.id ) return;
 		if ( this.spamcheck(m) ) return;
@@ -212,10 +221,10 @@ class DiscordBot {
 		if ( !command ) return;
 
 		// check command access.
-		let context = this.getMsgContext( m );
-		/*if ( m.member && !this.testAccess(m, command, context ) ) {
+		let context = await this.getMsgContext( m );
+		if ( m.member && !this.testAccess(m, command, context ) ) {
 			return m.reply( 'You do not have permission to use that command.');
-		}*/
+		}
 
 		if ( command.isDirect ) {
 
@@ -242,12 +251,14 @@ class DiscordBot {
 
 	testAccess( m, cmd, context ) {
 
-		let allowed = context.canAccess( command.name, m.member );
+		let allowed = context.canAccess( cmd.name, m.member );
 		if ( allowed === undefined ) {
 
 			// check default access.
-			if ( command.access === undefined) return true;
-			return m.member.permissions.has( command.access );
+			if ( !cmd.access) return true;
+			console.log('TESTING PERMISSION: ' + cmd.access );
+
+			return m.member.permissions.has( cmd.access );
 
 
 		}
@@ -324,7 +335,7 @@ class DiscordBot {
 	async cmdProxy( m ) {
 
 		// get context of the guild/channel to be proxied to user.
-		let context = this.getMsgContext(m);
+		let context = await this.getMsgContext(m);
 	
 		this.setProxy( m.author, context );
 		return m.author.send( 'Proxy created.');
@@ -340,7 +351,7 @@ class DiscordBot {
 
 	async cmdAccess( m, cmd, perm=undefined ) {
 
-		let context = this.getMsgContext( m );
+		let context = await this.getMsgContext( m );
 		if ( perm === undefined ) {
 
 		} else {
@@ -398,7 +409,7 @@ class DiscordBot {
 	 * Return a Context associated with the message channel.
 	 * @param {Discord.Message} m 
 	 */
-	getMsgContext( m ) {
+	async getMsgContext( m ) {
 
 		let type = m.channel.type, idobj;
 
@@ -406,60 +417,30 @@ class DiscordBot {
 		else if ( type === 'group' ) {
 
 			idobj = m.channel;
-			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
+			if ( this._proxies[idobj.id] ) return await this.getProxy( idobj, this._proxies[idobj.id] );
 
 		} else {
 	
 			idobj = m.author;
 			//check proxy
-			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
+			if ( this._proxies[idobj.id] ) return await this.getProxy( idobj, this._proxies[idobj.id] );
 	
 		}
 
-		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
+		return this._contexts[ idobj.id ] || await this.makeContext( idobj, type );
 
-	}
-
-	/**
-	 * Break the text into pages based on the maximum content length,
-	 * and return the indicated page of text.
-	 * @param {string} text 
-	 * @param {Number} page - zero-based page index.
-	 */
-	getPageText( text, page ) {
-		return text.slice( CONTENT_MAX*page, CONTENT_MAX*(page+1) );
-	}
-
-	/**
-	 * Break a message text into pages, and send it to the required message channel.
-	 * @param {Discord.Message} m 
-	 * @param {string} text - text to paginate and send.
-	 * @param {Number} page - page of text to be sent.
-	 */
-	async sendPage( m, text, page ) {
-		return m.channel.send( this.getPageText(text,page-1) );
-	}
-
-	/**
-	 * Break a message text into pages, and reply the page to the given message.
-	 * @param {Message} m 
-	 * @param {string} text - text to paginate and reply.
-	 * @param {Number} page - page of text to reply.
-	 */
-	async replyPage( m, text, page ) {
-		return m.reply( this.getPageText(text, page-1 ) );
 	}
 
 	/**
 	 * 
 	 * @param {*} idobj 
 	 */
-	getContext( idobj, type ) {
+	async getContext( idobj, type ) {
 
 		let proxid = this._proxies[idobj.id];
-		if ( proxid ) return this.getProxy( idobj, proxid );
+		if ( proxid ) return await this.getProxy( idobj, proxid );
 
-		return this._contexts[idobj.id] || this.makeContext( idobj, type );
+		return this._contexts[idobj.id] || await this.makeContext( idobj, type );
 
 	}
 
@@ -469,17 +450,17 @@ class DiscordBot {
 	 * @param {*} destobj 
 	 * @param {*} srcid 
 	 */
-	getProxy( destobj, srcid ) {
+	async getProxy( destobj, srcid ) {
 
 		let con = this._contexts[srcid];
 		if ( con ) return con;
 
 		let proxob = this.findProxTarget( srcid );
-		if ( proxob) return this.makeContext( proxob );
+		if ( proxob) return await this.makeContext( proxob );
 
 		// proxy not found.
 		console.log( 'ERROR: Proxy not found: ' + srcid );
-		return this._contexts[destobj.id] || this.makeContext( destobj );
+		return this._contexts[destobj.id] || await this.makeContext( destobj );
 
 	}
 
@@ -487,7 +468,7 @@ class DiscordBot {
 		return this._client.guilds.get(id) || this.client.channels.get(id);
 	}
 
-	makeContext( idobj, type ) {
+	async makeContext( idobj, type ) {
 
 		console.log( 'creating context for: ' + idobj.id );
 		let context;
@@ -498,9 +479,7 @@ class DiscordBot {
 			context = new Contexts.GroupContext( this, idobj, this._cache.makeSubCache( fsys.getChannelDir(idobj) ) );
 		else  context = new Contexts.UserContext( this, idobj, this._cache.makeSubCache( fsys.getUserDir(idobj)) );
 
-		for( let i = this._contextClasses.length-1; i >= 0; i-- ) {
-			context.addClass( this._contextClasses[i]);
-		}
+		await context.init( this._contextClasses );
 
 		this._contexts[idobj.id] = context;
 

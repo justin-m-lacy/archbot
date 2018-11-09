@@ -46,23 +46,18 @@ const Context = class {
 	}
 
 	/**
-	 * Break a message text into pages, and send it to the required message channel.
-	 * @param {Discord.Message} m - Message whose channel is being used to send the text.
-	 * @param {string} text - text to paginate and send.
-	 * @param {Number} page - page of text to be sent.
+	 * Load Context preferences, init Context classes required
+	 * by plugins.
 	 */
-	async sendPage( m, text, page ) {
-		return this.bot.sendPage( m, text, page );
-	}
+	async init( plugClasses ) {
 
-	/**
-	 * Break a message text into pages, and reply the page to the given message.
-	 * @param {Message} m - Message being replied to.
-	 * @param {string} text - text to paginate and reply.
-	 * @param {Number} page - page of text to reply.
-	 */
-	async replyPage( m, text, page ) {
-		return this.bot.replyPage( m, text, page );
+		for( let i = plugClasses.length-1; i >= 0; i-- ) {
+			this.addClass( plugClasses[i]);
+		}
+
+		let roomPerms = await this.cache.fetch( 'access');
+		this.access = new Access( roomPerms );
+
 	}
 
 	unsetAccess( cmd ) {
