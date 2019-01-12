@@ -1,5 +1,5 @@
 const jimp = require( 'jimp' );
-const colorRE = /^(?:\#|0x)([a-f|\d]{1,6})/ig;
+const colorRE = /^(?:\#|0x)([a-f|\d]{1,6})\b/i;
 const Discord = require( 'discord.js');
 
 const IMG_SIZE = 16;

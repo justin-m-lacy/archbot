@@ -74,15 +74,15 @@ class DiscordBot {
 		this.initClient();
 
 		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m),
-		{ access:0} );
+		{ access:0, access:Discord.Permissions.FLAGS.ADMINISTRATOR, immutable:true } );
 		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {
 			access:Discord.Permissions.FLAGS.ADMINISTRATOR
 		} );
-		this.addCmd( 'archquit', '!archquit', m=>this.cmdBotQuit(m), {} );
+		this.addCmd( 'archkill', '!archkill', m=>this.cmdBotQuit(m), { immutable:true} );
 		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
 		this.addCmd( 'access', '!access cmd [permissions|roles]',
 			(m, cmd, perm)=>this.cmdAccess(m, cmd, perm),
-			{ minArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR }
+			{ minArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR, immutable:true }
 		);
 		this.addCmd( 'resetaccess', '!resetaccess cmd',
 			(m,cmd)=>this.cmdResetAccess(m,cmd),
@@ -216,14 +216,14 @@ class DiscordBot {
 		if ( m.author.id === this._client.user.id ) return;
 		if ( this.spamcheck(m) ) return;
 
-		let command = this._dispatch.getCommand( m.content );
+		let command = this._dispatch.parseLine( m.content );
 
 		if ( !command ) return;
 
 		// check command access.
 		let context = await this.getMsgContext( m );
 		if ( m.member && !this.testAccess(m, command, context ) ) {
-			return m.reply( 'You do not have permission to use that command.');
+			return this.sendNoPerm(m);
 		}
 
 		if ( command.isDirect ) {
@@ -238,10 +238,11 @@ class DiscordBot {
 			if ( !error ) return;
 			else if ( error instanceof Promise ) {
 
-				error.then( s=> {if ( s) m.channel.send(s);} );
+				error.then( s=> { if ( s) return m.channel.send(s); } );
 
 			} else if ( typeof(error) === 'string' ) {
-				m.channel.send( error );
+
+				return m.channel.send( error );
 
 			}
 
@@ -256,10 +257,7 @@ class DiscordBot {
 
 			// check default access.
 			if ( !cmd.access) return true;
-			console.log('TESTING PERMISSION: ' + cmd.access );
-
 			return m.member.permissions.has( cmd.access );
-
 
 		}
 
@@ -285,9 +283,12 @@ class DiscordBot {
 
 		if ( this.isMaster( m.author.id ) ) {
 			await this._cache.backup( 0 );
-			return m.reply( 'backup complete.');
+		} else {
+
+			let context = this.getMsgContext( m );
+			if ( context ) await this.context.doBackup();
 		}
-		return this.sendNoPerm(m);
+		return m.reply( 'backup complete.');
 
 	}
 
@@ -349,14 +350,18 @@ class DiscordBot {
 
 	}
 
-	async cmdAccess( m, cmd, perm=undefined ) {
+	async cmdAccess( m, cmdName, perm=undefined ) {
+
+		let cmd = this._dispatch.getCommand( cmdName );
+		if ( !cmd ) return m.reply( `Command '${cmdName}' not found.` );
+		else if ( cmd.immutable ) return m.reply( `The access level of Command '${cmdName}' is immutable.`);
 
 		let context = await this.getMsgContext( m );
 		if ( perm === undefined ) {
 
 		} else {
 
-			context.setAccess( cmd, perm );
+			context.setAccess( cmdName, perm );
 
 		}
 
@@ -365,9 +370,7 @@ class DiscordBot {
 	getAccess( m, cmd ) {
 
 		let access = context.getAccess( cmd );
-		if ( access === undefined ) {
-			return cmd.access;
-		}
+		if ( access === undefined || access === null ) return cmd.access;
 		return access;
 
 	}
@@ -654,7 +657,7 @@ class DiscordBot {
 
 	async printCommands( chan ) {
 
-		let str = 'Use help [cmd] for more information.\nAvailable commands:\n';
+		let str = 'Use help [command] for more information.\nAvailable commands:\n';
 		let cmds = this._dispatch.commands;
 		if ( cmds ) {
 

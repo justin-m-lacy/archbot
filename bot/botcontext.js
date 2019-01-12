@@ -16,6 +16,9 @@ const Context = class {
 	get idObject() { return this._idobj; }
 	get sourceID() { return this._idobj.id; }
 
+	/**
+	 * {DisordBot}
+	 */
 	get bot() { return this._bot; }
 
 	get cache() { return this._cache; }
@@ -48,6 +51,7 @@ const Context = class {
 	/**
 	 * Load Context preferences, init Context classes required
 	 * by plugins.
+	 * @param {Class[]} plugClasses
 	 */
 	async init( plugClasses ) {
 
@@ -60,18 +64,44 @@ const Context = class {
 
 	}
 
+	/**
+	 * Backup the Context's cache.
+	 * @param {Message} m 
+	 */
+	async doBackup() {
+		return await this._cache.backup( 0 );
+	}
+
+	/**
+	 * 
+	 * @param {string} cmd 
+	 */
 	unsetAccess( cmd ) {
 		this.access.unsetAccess( cmd );
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 * @param {Number|string} perm 
+	 */
 	setAccess( cmd, perm ) {
 		this.access.setAccess( cmd, perm );
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 */
 	getAccess( cmd ) {
 		return this.access.getAccess( cmd );
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 * @param {GuildMember} gm 
+	 */
 	canAccess( cmd, gm ) {
 		return this._access.canAccess( cmd, gm );
 	}
@@ -87,6 +117,11 @@ const Context = class {
 		this.cache.cache( 'access', this.access );
 	}
 
+	/**
+	 * 
+	 * @param {string} key 
+	 * @param {*} value 
+	 */
 	async setSetting( key, value=null ) {
 
 		let settings = await this.cache.fetch( 'settings');
@@ -99,6 +134,10 @@ const Context = class {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} key 
+	 */
 	async getSetting( key ) {
 
 		let settings = await this.cache.fetch( 'settings');
@@ -238,8 +277,7 @@ const Context = class {
 	}
 
 	/**
-	 * Override in botcontext subclasses to find named user
-	 * within context.
+	 * Override in botcontext subclasses to find named user within context.
 	 * @param {string} name 
 	 */
 	findUser( name ) { return null; }
@@ -268,11 +306,20 @@ const Context = class {
 
 	}
 
-	// add a context instance.
+
+	/**
+	 * Add a context instance.
+	 * @param {Object} inst - plugin instance for this context.
+	 */
 	addInstance( inst ) {
 		this._instances[ inst.constructor.name ] = inst;
 	}
 
+	/**
+	 * 
+	 * @param {Command} cmd 
+	 * @param {Array} args 
+	 */
 	async routeCommand( cmd, args ) {
 
 		console.time( cmd.name );
@@ -314,13 +361,17 @@ const Context = class {
 
 	}
 
+	/**
+	 * 
+	 * @param {*} key 
+	 */
 	async deleteKeyData( key ) {
 		await this._cache.delete(key);
 	}
 
 	/**
 	 * Caches data without writing to disk.
-	 * @param {string} key 
+	 * @param {*} key 
 	 * @param {*} data 
 	 */
 	cacheKeyData( key, data ) {
@@ -334,10 +385,18 @@ const Context = class {
 	 */
 	getKeyData( key ) { return this._cache.get(key); }
 	
-	// fetch data for abitrary key.
+	/**
+	 * Fetch keyed data.
+	 * @param {*} key 
+	 */
 	async fetchKeyData( key ) { return await this._cache.fetch(key); }
 
-	// associate data with key.
+	/**
+	 * Set keyed data.
+	 * @param {*} key 
+	 * @param {*} data 
+	 * @param {Boolean} [forceSave=false] Whether to force a save to the underlying data store. 
+	 */
 	async storeKeyData( key, data, forceSave=false ) {
 
 		if ( forceSave ) this._cache.store( key, data );
@@ -349,9 +408,20 @@ const Context = class {
 
 exports.UserContext = class extends Context {
 
+	/**
+	 * {string}
+	 */
 	get type() { return 'user'; }
+
+	/**
+	 * {string}
+	 */
 	get name() { return this._idobj.username; }
 
+	/**
+	 * 
+	 * @param {string} name 
+	 */
 	findUser( name ) {
 
 		if ( this._idobj.username.toLowerCase() === name.toLowerCase() ) {
@@ -365,10 +435,20 @@ exports.UserContext = class extends Context {
 
 //GroupDMChannel
 exports.GroupContext = class extends Context {
-
+	/**
+	 * {string}
+	 */
 	get type() { return 'group'; }
+	/**
+	 * {string}
+	 */
 	get name() { return this._idobj.name; }
 
+	/**
+	 * 
+	 * @param {string} name
+	 * @returns {} 
+	 */
 	findUser( name ){
 		name = name.toLowerCase();
 		return this._idobj.nicks.find( val => val.toLowerCase() === name );
@@ -377,10 +457,19 @@ exports.GroupContext = class extends Context {
 }
 
 exports.GuildContext = class extends Context {
-
+	/**
+	 * {string}
+	 */
 	get type() { return 'guild'; }
+	/**
+	 * {string}
+	 */
 	get name() { return this._idobj.name; }
-	
+
+	/**
+	 * 
+	 * @param {string} id 
+	 */
 	async displayName( id ) {
 
 		if ( !id ) return 'Invalid ID';
@@ -396,6 +485,10 @@ exports.GuildContext = class extends Context {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} name - GuildMember display name of user to find.
+	 */
 	findUser( name ) {
 
 		name = name.toLowerCase();

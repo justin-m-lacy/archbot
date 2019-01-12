@@ -51,6 +51,12 @@ module.exports = class Command {
 	get access() { return this._access; }
 	set access(v) { this._access = v;}
 
+	/**
+	 * {boolean} - immutable commands cannot have their access level changed.
+	 */
+	get immutable() { return this._immutable; }
+	set immutable(v) { this._immutable = v; }
+
 	constructor( name, func, opts=null ) {
 
 		this._name = name;

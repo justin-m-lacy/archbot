@@ -1,4 +1,6 @@
 const form = require( '../formulas');
+const formulic = require('formulic');
+
 const dice = require( '../dice.js');
 const Weapon = require( '../items/weapon.js');
 const stats = require('../char/stats.js');
@@ -70,7 +72,7 @@ function create( template ) {
 
 		// roll data formulas into concrete numbers.
 		var v = template[k];
-		if ( v instanceof form.Formula ) {
+		if ( v instanceof formulic.Formula ) {
 			m[k] = v.eval(m);
 		} else if ( v instanceof dice.Roller ) {
 			m[k] = v.roll();
