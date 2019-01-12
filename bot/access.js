@@ -13,6 +13,10 @@ module.exports = class Access {
 	get perms() { return this._perms; }
 	set perms( v ) { this._perms = v; }
 
+	/**
+	 * 
+	 * @param {Object} [vars=null] 
+	 */
 	constructor( vars=null ) {
 
 		this._perms = this._perms || {};
@@ -20,10 +24,19 @@ module.exports = class Access {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 */
 	unsetAccess( cmd ) {
 		delete this._perms[cmd];
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 * @param {Number|string} perm 
+	 */
 	setAccess( cmd, perm ) {
 
 		if ( !isNaN(perm )) this.perms[cmd] = Number( perm );
@@ -45,6 +58,10 @@ module.exports = class Access {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd 
+	 */
 	getAccess( cmd ) {
 
 		if ( !this.perms.hasOwnProperty(cmd) ) return undefined;
@@ -67,6 +84,11 @@ module.exports = class Access {
 
 	}
 
+	/**
+	 * 
+	 * @param {GuildMember} gm 
+	 * @param {Number|string} perm 
+	 */
 	checkPerms( gm, perm ){
 
 		console.log('REQUIRED PERM: ' + perm );

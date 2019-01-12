@@ -394,6 +394,8 @@ class GuildReactions {
 	 */
 	getReactions( trig, reactStr=null ) {
 
+		if ( !trig ) return false;
+
 		let regex = toRegEx( trig ), rset;
 		if ( regex !== false ) rset = this.reMapFind( this.reMap, regex );
 		else rset = this.reactions.get( trig.toLowerCase() );

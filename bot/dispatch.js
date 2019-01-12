@@ -11,14 +11,28 @@ module.exports = class CmdDispatch {
 	/**
 	 * @returns {Object[string->Command]} - Map of all active commands.
 	 */
-	getCommands() {
-		return this.cmdLine.commands;
-	}
+	getCommands() { return this.cmdLine.commands; }
 
-	getCommand( input ) {
+	/**
+	 * 
+	 * @param {string} name
+	 * @returns {Command|null}
+	 */
+	getCommand( name ) { return this.cmdLine.getCommand(name); }
+
+	/**
+	 * 
+	 * @param {string} input - command line input.
+	 */
+	parseLine( input ) {
 		return this.cmdLine.setInput(input);
 	} //
 
+	/**
+	 * 
+	 * @param {Command} cmd 
+	 * @param {Array} leadArgs 
+	 */
 	dispatch( cmd, leadArgs ) {
 
 		let lineArgs = this.cmdLine.args;
@@ -29,6 +43,12 @@ module.exports = class CmdDispatch {
 
 	}
 
+	/**
+	 * 
+	 * @param {BotContext} context 
+	 * @param {Command} cmd 
+	 * @param {Array} leadArgs 
+	 */
 	routeCmd( context, cmd, leadArgs ) {
 
 		let lineArgs = this.cmdLine.args;
@@ -60,7 +80,13 @@ module.exports = class CmdDispatch {
 
 	}
 
-	// group - group arguments on right or left
+	/**
+	 * 
+	 * @param {string} name 
+	 * @param {string} usage 
+	 * @param {Function} func 
+	 * @param {Object} [opts=null] 
+	 */
 	add( name, usage, func, opts=null ) {
 
 		try {
@@ -91,7 +117,17 @@ module.exports = class CmdDispatch {
 	}
 
 	get commands() { return this.cmdLine.commands; }
+
+	/**
+	 * 
+	 * @param {string} name 
+	 */
 	getCmd( name ) { return this._cmds[name]; }
+
+	/**
+	 * 
+	 * @param {string} name 
+	 */
 	clearCmd( name ) { delete this._cmds[name];	}
 
 }
@@ -108,6 +144,14 @@ class CmdLine {
 
 	get command() { return this._cmd; }
 
+	/**
+	 * 
+	 * @param {string} name 
+	 */
+	getCommand( name ) {
+		return this._cmds[name.toLowerCase()] || null;
+	}
+
 	constructor( cmdPrefix='!' ) {
 	
 		this._prefix = cmdPrefix;
@@ -117,6 +161,10 @@ class CmdLine {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} str 
+	 */
 	setInput( str ) {
 
 		str = str.trim();

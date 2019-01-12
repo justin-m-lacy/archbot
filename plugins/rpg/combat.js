@@ -210,7 +210,7 @@ module.exports = class Combat {
 		let atk = this.attacker.skillRoll() + this.attacker.getModifier('dex') + this.attacker.getModifier('wis');
 		let def = this.defender.skillRoll() + this.defender.getModifier('dex') + this.defender.getModifier('wis');
 
-		if ( !this.attack.hasTalent('steal')) atk -= 20;
+		if ( !this.attacker.hasTalent('steal')) atk -= 20;
 
 		let del = atk - def;
 		if ( wot ) del -= 5;

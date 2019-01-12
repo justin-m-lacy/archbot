@@ -82,6 +82,11 @@ async function cmdUptime( m ) {
 	return m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdUName( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
@@ -90,6 +95,11 @@ async function cmdUName( msg, name ) {
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdNick( msg, name ) {
 
 	let gMember = bot.userOrShowErr( msg.channel, name );
@@ -98,6 +108,11 @@ async function cmdNick( msg, name ) {
 
 }
 
+/**
+ * 
+ * @param {Message} msg
+ * @param {string} [cmd] command to get help for. 
+ */
 function cmdHelp( msg, cmd ) {
 
 	if ( !cmd ) {
@@ -156,21 +171,47 @@ function cmdLastPlay( msg, who, game ){
 	return sendGameTime( msg.channel, who, game );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} who - user whose information to query.
+ */
 function cmdLastOn( msg, who ){
 	sendHistory( msg.channel, who, ['online','idle','dnd'], 'online' );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} who - user whose information to query.
+ */
 function cmdLastIdle( msg, who){
 	sendHistory( msg.channel, who, 'idle');
 }
+
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} who - user whose information to query.
+ */
 function cmdLastActive( msg, who ){
 	sendHistory( msg.channel, who, 'online', 'active' );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} who - user whose information to query.
+ */
 function cmdLastOff( msg, who ){
 	sendHistory( msg.channel, who, 'offline' );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} reply 
+ */
 function cmdTest( msg, reply ){
 	if ( reply == null ) msg.channel.send( 'eh?' );
 	else msg.channel.send( reply + ' yourself, ' + msg.member.displayName );
@@ -203,6 +244,11 @@ async function sendGameTime( channel, displayName, gameName ) {
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdPlayTime( msg, name ){
 
 	let chan = msg.channel;
@@ -228,6 +274,11 @@ async function cmdPlayTime( msg, name ){
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdIdleTime( msg, name ){
 
 	let chan = msg.channel;
@@ -256,6 +307,11 @@ async function cmdIdleTime( msg, name ){
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
@@ -286,6 +342,11 @@ async function cmdOnTime( msg, name ) {
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} name 
+ */
 async function cmdOffTime( msg, name ) {
 
 	let chan = msg.channel;
@@ -340,6 +401,11 @@ async function sendHistory( channel, name, statuses, statusName ) {
 
 }
 
+/**
+ * 
+ * @param {GuildMember} gMember 
+ * @param {Array|string} statuses 
+ */
 function hasStatus( gMember, statuses ) {
 
 	let status = gMember.presence.status;
@@ -356,8 +422,12 @@ function hasStatus( gMember, statuses ) {
 
 }
 
-// checks json history object for last time in a given status
-// or in an array of statuses.
+/**
+ * checks history object for last time user was in a given status
+ * or in any of the statuses given in an array.
+ * @param {Object} history 
+ * @param {string|string[]} statuses 
+ */
 function latestStatus( history, statuses ) {
 
 	if ( statuses instanceof Array ) {
@@ -384,7 +454,12 @@ function latestStatus( history, statuses ) {
 	return null;
 }
 
-// send schedule message to channel, for user with displayName
+/**
+ * send schedule message to channel, for user with displayName
+ * @param {Channel} chan 
+ * @param {string} name 
+ * @param {string} activity 
+ */
 async function sendSchedule( chan, name, activity ) {
 
 	let gMember = bot.userOrShowErr( chan, name );
@@ -414,7 +489,7 @@ async function readHistory( gMember ){
 /**
  * 
  * @param {GuildMember} gMember - guild member to get schedule for.
- * @param {string} schedType 
+ * @param {string} schedType - activity to read schedule for.
  */
 async function readSchedule( gMember, schedType ) {
 
@@ -442,6 +517,11 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
 
 }
 
+/**
+ * 
+ * @param {GuildMember} oldMember 
+ * @param {GuildMember} newMember 
+ */
 function presenceChanged( oldMember, newMember ) {
 	
 	if ( oldMember.id === client.id ) {
@@ -472,6 +552,12 @@ function presenceChanged( oldMember, newMember ) {
 
 }
 
+/**
+ * 
+ * @param {GuildMember} guildMember 
+ * @param {*} prevGame 
+ * @param {*} curGame 
+ */
 function logGames( guildMember, prevGame, curGame ) {
 
 	let now = Date.now();
@@ -484,7 +570,11 @@ function logGames( guildMember, prevGame, curGame ) {
 
 }
 
-// Log a guild member's last status within the guild.
+/**
+ * Log a guild member's last status within the guild.
+ * @param {GuildMember} guildMember 
+ * @param {*} statuses 
+ */
 function logHistory( guildMember, statuses ) {
 
 	let now = Date.now();
