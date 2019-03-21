@@ -80,17 +80,17 @@ class ReactSet {
 	 * 
 	 * @param {string|RegEx} react - reaction to remove, or null to remove a single reaction,
 	 * if only one reaction exists.
-	 * @returns {Number|boolean} If no matching reaction is found, returns false.
+	 * @returns {number|boolean} If no matching reaction is found, returns false.
 	 * If a reaction is removed, returns true.
 	 * If no match term is specified, and multiple reactions exist, returns the
-	 * number of reactions in the set.
+	 * number of reactions found.
 	 */
 	tryRemove( react=null ) {
 
 		if ( react === null ) {
 
 			// ambiguous removal. return the number of reactions.
-			if ( this._reacts instanceof Array && this._reacts.length > 0 ) return this._reacts.length;
+			if ( this._reacts instanceof Array && this._reacts.length > 1 ) return this._reacts.length;
 
 			this._reacts = null;
 			return true;
@@ -122,9 +122,9 @@ class ReactSet {
 	}
 
 	/**
-	 * Return a reaction based on index-number, or null if
-	 * the index is invalid.
-	 * @param {Number} ind - The zero-based index of the reaction.
+	 * Returns a reaction based on index or null for invalid index.
+	 * @param {number} ind - The zero-based index of the reaction.
+	 * @returns {Object|null}
 	 */
 	getIndex( ind ) {
 
@@ -136,7 +136,6 @@ class ReactSet {
 	
 		}
 
-		// if _reacts is a single item, removing index-0 will remove the item.
 		if ( this._reacts != null && ind === 0 ) return this._reacts;
 		return null;
 
@@ -144,7 +143,7 @@ class ReactSet {
 
 	/**
 	 * Remove an indexed reaction.
-	 * @param {Number} index - the index to remove.
+	 * @param {number} index - the index to remove.
 	 * @returns {boolean} true if reaction removed, false otherwise.
 	 */
 	removeIndex( ind ) {
@@ -192,8 +191,7 @@ class ReactSet {
 	}
 
 	/**
-	 * Replace the reaction text with $ groups replaced from
-	 * groups from the original trigger regex.
+	 * Substitute regex $groups in the reaction text.
 	 * @param {string} text 
 	 */
 	replaceReact( text ) {
@@ -230,14 +228,16 @@ class ReactSet {
 	}
 
 	/**
-	 * Get a regex reaction, using substring matches to perform
-	 * replacements in react text.
+	 * Get a regex reaction, using substring matches for replacements in text.
 	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 	 */
 	textReplace( text ) {
 		return text.replace( this._trigger, this.getReact() );
 	}
 
+	/**
+	 * returns {boolean}
+	 */
 	isEmpty() {
 		return this._reacts === null || 
 		((this._reacts instanceof Array ) && this._reacts.length === 0);

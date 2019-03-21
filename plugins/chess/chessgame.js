@@ -1,5 +1,4 @@
 const Chess = require( 'chess-rules');
-const Display = require( './display.js');
 const Export = require( './export.js');
 const Game = require( '../../game.js');
 
@@ -110,7 +109,7 @@ module.exports = class ChessGame extends Game {
 	 */
 	tryResign( uid ) {
 
-		if ( this._status != OPEN ) return false;
+		if ( this._status !== OPEN ) return false;
 
 		if ( uid === this.p1 ) this._status = BLACKWON;
 		else if ( uid === this.p2 ) this._status = WHITEWON;
@@ -131,7 +130,7 @@ module.exports = class ChessGame extends Game {
 
 		if ( newState.check ) {
 			// append check or mate symbols to move if necessary.
-			if ( this._status != OPEN ) moveStr += '#';
+			if ( this._status !== OPEN ) moveStr += '#';
 			else moveStr += '+';
 
 		}

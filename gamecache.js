@@ -2,7 +2,7 @@ const Game = require( './game.js');
 const dates = require( './datedisplay.js');
 
 /**
- * Handles retrieval, store, and listings of user games.
+ * @classdesc Handles retrieval, storing, and listings of user games.
 */
 module.exports = class GameCache {
 
@@ -20,25 +20,35 @@ module.exports = class GameCache {
 
 	}
 
+	/**
+	 * @async
+	 * @param {string} uid
+	 * @returns { Promise<{active:Array, completed:Array}> }
+	 */
 	async getUserLists( uid ) {
 
-		let info = await this.context.fetchKeyData( this.dir + uid );
+		let info = await this.context.fetchData( this.dir + uid );
 		if ( info ) return info;
 		let o = { active:[], completed:[]};
 
 		this.userLists[ uid ] = o;
-		this.context.storeKeyData( this.dir + uid, o, true );
+		this.context.storeData( this.dir + uid, o, true );
 
 		return o;
 
 	}
 
+	/**
+	 * @async
+	 * @param {User} u1 
+	 * @param {User} u2 
+	 */
 	async allGames( u1, u2 ) {
 
 		let lists = await this.getUserLists( u1.id );
 		let all = lists.active.concat( lists.completed );
 
-		all = this.filterList( all, u2.id );
+		all = this.filterList( all, u2 );
 		all.sort( this.cmpMatches );
 
 		return all;
@@ -47,23 +57,31 @@ module.exports = class GameCache {
 
 	/**
 	 * Returns an array of all active games for the user.
-	 * @param {Discord.User} user 
+	 * @async
+	 * @param {Discord.User} user
+	 * @returns {Promise<Array>}
 	 */
 	async activeGames( u1, u2 ) {
 
 		let list = await this.getUserLists( u1.id );
 
-		if ( u2 ) return this.filterList( list.active, u2.id );
+		if ( u2 ) return this.filterList( list.active, u2 );
 
 		return list.active;
 
 	}
 
-	async completedGames( u1, u2 ){
+	/**
+	 * Returns an array of complted games for a user.
+	 * @param {Discrd.User} u1
+	 * @param {Discord.User} [u2=null]
+	 * @returns {Promise<Array>}
+	 */
+	async completedGames( u1, u2=null ){
 
 		let list = await this.getUserLists( u1.id );
 
-		if (u2) return this.filterList( list.completed, u2.id );
+		if (u2) return this.filterList( list.completed, u2 );
 
 		return list.completed;
 
@@ -73,19 +91,17 @@ module.exports = class GameCache {
 	 * Attempts to retrieve a uniquely active user game.
 	 * Displays a message if multiple games are active.
 	 * @param {Discord.Message} m 
-	 * @param {Discord.User} u1 
+	 * @param {Discord.User} u1
+	 * @param {Discord.User} [u2=null]
+	 * @param {?number} [gnum=null]
+	 * @returns {Promise}
 	 */
 	async activeOrErr( m, u1, u2=null, gnum=null) {
 
 		//console.log( 'p1 not null. p2 null');
 		let games = await this.activeGames( u1 );
 
-		if ( u2 ) {
-			console.log( 'filtering active list.')
-			games = this.filterList( games, u2.id, gnum );
-		} else if ( gnum ) {
-			games = this.filterList( games, null, gnum );
-		}
+		if ( u2 || gnum ) games = this.filterList( games, u2, gnum );
 
 		if ( games.length === 0 ) {
 
@@ -93,41 +109,19 @@ module.exports = class GameCache {
 
 		} else if ( games.length > 1 ) {
 			m.reply( 'Multiple games for ' + this.context.userString(u1) +
-					' found.  Specify opponent in command.' );
+					' found. Include opponent in command.' );
 		} else return await this.loadGame( games[0][0] );
 
 	}
 
-	async filterList( list, uid, gnum ) {
 
-		let len = list.length;
-		var results;
-		var ginfo;
-
-		if ( uid != null ) {
-
-			results = [];
-			for( let i = 0; i < len; i++ ) {
-
-				ginfo = list[i];
-				if ( ginfo[1] == uid || ginfo[2] == uid ) results.push( ginfo );
-
-			}
-
-		} else results = list;
-
-		if ( gnum != null ) {
-
-			gnum--;
-			if ( gnum < 0 || gnum >= list.length ) return null;
-			return [ list[gnum] ];
-
-		}
-
-		return results;
-
-	}
-
+	/**
+	 * @async
+	 * @param {*} u1 
+	 * @param {*} u2 
+	 * @param {?number} num
+	 * @returns {Promise}
+	 */
 	async getGame( u1, u2, num=null ) {
 
 		try {
@@ -153,30 +147,38 @@ module.exports = class GameCache {
 	
 			return await this.loadGame( gname );
 
-		} catch ( e ) { console.log(e); }
+		} catch ( e ) { console.error(e); }
 
 	}
 
-	async gameOrShowErr( m, p1, p2, gnum=null ) {
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {*} p1 
+	 * @param {*} p2 
+	 * @param {*} gnum
+	 * @returns {Promise<Game|null>}
+	 */
+	async gameOrSendErr( m, p1, p2, gnum=null ) {
 
 		try {
 
-		if ( typeof(p1) === 'string' ) p1 = this.context.userOrShowErr( m, p1 );
+		if ( typeof(p1) === 'string' ) p1 = this.context.userOrSendErr( m, p1 );
 		if ( !p1 ) {
 			m.reply( 'Player not found.');
-			return;
+			return null;
 		}
 
 		if ( !p2 ) {
 
-			return await this.activeOrErr( m, p1 );
+			return this.activeOrErr( m, p1 );
 
 		} else {
 
-			if ( typeof(p2) === 'string' ) p2 = this.context.userOrShowErr( m, p2 );
+			if ( typeof(p2) === 'string' ) p2 = this.context.userOrSendErr( m, p2 );
 			if ( !p2 ) {
 				m.reply( 'Second player not found.');
-				return;
+				return null;
 			};
 
 			let game = await this.getGame( p1, p2, gnum );
@@ -190,26 +192,29 @@ module.exports = class GameCache {
 		}
 
 
-		} catch ( e ) {console.log(e); }
+		} catch ( e ) {console.error(e); }
 
+		return null;
 	}
 
 
 	/**
-	 * 
+	 * @async
 	 * @param {Game} game 
 	*/
 	async saveGame( game ) {
-		await this.context.storeKeyData( this.dir + game.saveID, game, true );
+		await this.context.storeData( this.dir + game.saveID, game, true );
 	}
 
 	/**
 	 * Load a game.
-	 * @param {string} saveid 
+	 * @async
+	 * @param {string} saveid
+	 * @returns {Promise<Game>}
 	*/
 	async loadGame( saveid ) {
 
-		let data = await this.context.fetchKeyData( this.dir + saveid );
+		let data = await this.context.fetchData( this.dir + saveid );
 
 		if ( data instanceof Game ) {
 			console.log('LOADED DATA ALREADY GAME');
@@ -217,10 +222,10 @@ module.exports = class GameCache {
 
 			let game = this.reviver( data );	//replace json with revived obj.
 
-			if ( game != null ) {
+			if ( game ) {
 
 				console.log('recaching parsed game.');
-				this.context.cacheKeyData( this.dir + saveid, game );
+				this.context.cacheData( this.dir + saveid, game );
 				return game;
 			}
 
@@ -230,17 +235,24 @@ module.exports = class GameCache {
 
 	}
 
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {*} u1 
+	 * @param {*} u2
+	 * @returns {Promise} 
+	 */
 	async printGames( m, u1, u2 ) {
 
 		let list = await this.activeGames( u1, u2 );
-
-		m.reply( listToString(list ) );
+		return m.reply( listToString(list ) );
 
 	}
 
 	/**
-	 * 
+	 * @async
 	 * @param {*} ginfos [fullid, p1_id,p2_id,time]
+	 * @returns {Promise}
 	*/
 	async listToString( ginfos ) {
 
@@ -262,6 +274,10 @@ module.exports = class GameCache {
 
 	}
 
+	/**
+	 * @async
+	 * @param {Game} game 
+	 */
 	async addNew( game ) {
 
 		let [ list1, list2 ] = await Promise.all( [this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
@@ -287,6 +303,47 @@ module.exports = class GameCache {
 
 	}
 
+	/**
+	 * @param {*} list 
+	 * @param {Discord.User} [user=null] 
+	 * @param {?number} [gnum=null] 
+	 */
+	filterList( list, user=null, gnum=null ) {
+
+		let len = list.length;
+		var results;
+		var ginfo;
+
+		if ( user != null ) {
+
+			let id = user.id;
+			results = [];
+			for( let i = 0; i < len; i++ ) {
+
+				ginfo = list[i];
+				if ( ginfo[1] === id || ginfo[2] === id ) results.push( ginfo );
+
+			}
+
+		} else results = list;
+
+		if ( gnum != null ) {
+
+			gnum--;
+			if ( gnum < 0 || gnum >= list.length ) return null;
+			return [ list[gnum] ];
+
+		}
+
+		return results;
+
+	}
+
+	/**
+	 * @async
+	 * @param {Game} game
+	 * @returns {Promise}
+	 */
 	async completeGame( game ) {
 
 		let [ list1, list2 ] = await Promise.all( [ this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
@@ -335,6 +392,11 @@ module.exports = class GameCache {
 
 	}
 
+	/**
+	 * Remove a game from a games list.
+	 * @param {Array[]} list 
+	 * @param {[string,string,string]} ginfo 
+	 */
 	removeGame( list, ginfo ) {
 
 		let min=0, max = list.length;
@@ -363,14 +425,15 @@ module.exports = class GameCache {
 
 		} //
 
-		console.log( 'GAME: ' + id  +' NOT REMOVED.');
+		console.error( 'GAME: ' + id  +' NOT REMOVED.');
 
 	}
 
 	/**
 	 * 
 	 * @param {RegExpMatchArray} a 
-	 * @param {RegExpMatchArray} b 
+	 * @param {RegExpMatchArray} b
+	 * @returns {number}
 	*/
 	cmpMatches( a,b ) {
 		let at = a[3], bt = b[3];

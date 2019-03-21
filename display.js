@@ -12,7 +12,8 @@ module.exports = {
 
 	/**
  	* Checks if the character is a vowel.
- 	* @param {string} c - character to test. 
+	* @param {string} c - character to test.
+	* @returns {boolean}
  	*/
 	isVowel:( c ) => {
 
@@ -38,7 +39,7 @@ module.exports = {
 	 * Gets the total number of pages that would be required to display
 	 * the text, given the maximum message size.
 	 * @param {string} text
-	 * @returns {Number} one-based page count.
+	 * @returns {number} one-based page count.
 	 */
 	pageCount( text ) {
 		return Math.floor( text.length / this.CONTENT_MAX ) + 1;
@@ -58,7 +59,7 @@ module.exports = {
 	 * Break the text into pages based on the maximum content length,
 	 * and return the indicated page of text.
 	 * @param {string} text 
-	 * @param {Number} page - zero-based page index.
+	 * @param {number} page - zero-based page index.
 	 * @returns {string} - a single page of text out of the total.
 	 */
 	getPageText( text, page ) {
@@ -69,7 +70,7 @@ module.exports = {
 	 * Break a message text into pages, and send it to the required message channel.
 	 * @param {Discord.Message} m 
 	 * @param {string} text - text to paginate and send.
-	 * @param {Number} page - zero-based page of text to be sent.
+	 * @param {number} page - zero-based page of text to be sent.
 	 */
 	async sendPage( m, text, page ) {
 		return m.channel.send( this.getPageText(text,page) + '\n\n' + this.pageString(text) );
@@ -79,7 +80,7 @@ module.exports = {
 	 * Break a message text into pages, and reply the page to the given message.
 	 * @param {Message} m 
 	 * @param {string} text - text to paginate and reply.
-	 * @param {Number} page - zero-based page of text to reply.
+	 * @param {number} page - zero-based page of text to reply.
 	 */
 	async replyPage( m, text, page ) {
 		return m.reply( this.getPageText(text, page) + '\n\n' + this.pageString(text) );
@@ -88,8 +89,8 @@ module.exports = {
 	/**
 	 * Paginates an array of text to only break between items.
 	 * @param {string[]} items 
-	 * @param {Number} [page=0] the zero-based index of the page of text to display.
-	 * @returns {string} text from the items representing the indicated page.
+	 * @param {number} [page=0] the zero-based index of the page of text to display.
+	 * @returns { {page:string, pages:number} } text of page and total page count.
 	 */
 	paginate( items, page=0 ) {
 

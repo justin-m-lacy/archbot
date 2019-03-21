@@ -446,8 +446,8 @@ module.exports = class World {
 
 	/**
 	 * 
-	 * @param {Number} x 
-	 * @param {Number} y 
+	 * @param {number} x 
+	 * @param {number} y 
 	 */
 	coordKey( coord ) {
 		return coord.x + ',' + coord.y;
@@ -460,8 +460,8 @@ module.exports = class World {
 
 	/**
 	 * 
-	 * @param {Number} x 
-	 * @param {Number} y 
+	 * @param {number} x 
+	 * @param {number} y 
 	 */
 	getBKey( x,y ) {
 		return 'rpg/blocks/' + Math.floor(x/BLOCK_SIZE) + ',' + Math.floor(y/BLOCK_SIZE);

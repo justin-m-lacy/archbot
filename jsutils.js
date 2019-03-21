@@ -3,8 +3,13 @@ exports.randElm = (arr)=>{
 	return arr[ind];
 }
 
+/**
+ * Returns a random between [min,max]
+ * @param {number} min
+ * @param {number} max
+ */
 exports.random = (min, max)=>{
-	return Math.round( Math.random()*(max-min)) + min;
+	return mind + Math.round( Math.random()*(max-min) );
 }
 
 /**

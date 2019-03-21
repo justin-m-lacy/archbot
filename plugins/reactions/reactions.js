@@ -1,4 +1,3 @@
-const Discord = require ( 'discord.js');
 const Display = require( '../../display');
 
 /**
@@ -18,8 +17,15 @@ var globalReacts, globalRegEx;
  */
 class GuildReactions {
 
+	/**
+	 * {BotContext}
+	 */
 	get context() { return this._context; }
 
+	/**
+	 * @constructor
+	 * @param {BotContext} context 
+	 */
 	constructor( context ) {
 
 		this.allReacts = {};
@@ -36,9 +42,18 @@ class GuildReactions {
 
 		this._context = context;
 
+		this._procPct = 0.15;
+
 		this.loadReactions();
+		
+		this.minWait = 1000;
+		this.gWait = 500;
+		// time last message was recieved.
+		this.msgTime = 0;
 
 		this._context.onMsg( m=>{
+
+			if ( Math.random() > this._procPct ) return;
 
 			try {
 				// global timeout wait.
@@ -62,18 +77,15 @@ class GuildReactions {
 
 		} );
 
-		this.minWait = 1000;
-		this.gWait = 500;
-		// time last message was recieved.
-		this.msgTime = 0;
-
 	}
 
 	/**
-	 * 
+	 * Command to add a reaction.
+	 * @async
 	 * @param {Message} m - User message.
 	 * @param {string} trig - string or regex string to react to.
 	 * @param {string} react - the reaction or reaction template to respond with.
+	 * @returns {Promise}
 	 */
 	async cmdAddReact( m, trig, react ) {
 
@@ -92,10 +104,12 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
+	 * Command to remove a reaction.
+	 * @async
 	 * @param {Message} m 
 	 * @param {string} trig - reaction trigger.
-	 * @param {string|null|undefined} which 
+	 * @param {string|null|undefined} which
+	 * @returns {Promise}
 	 */
 	async cmdRmReact( m, trig, which ) {
 
@@ -123,10 +137,12 @@ class GuildReactions {
 
 	/**
 	 * Command to display information about a given Trigger/Reaction combination.
+	 * @async
 	 * @param {Message} m 
 	 * @param {string} trig - Reaction trigger.
 	 * @param {string|null|undefined} [which=null] - The specific reaction for the given trigger
 	 * to get information for.
+	 * @returns {Promise}
 	 */
 	async cmdReactInfo( m, trig, which=null ) {
 
@@ -141,9 +157,11 @@ class GuildReactions {
 
 	/**
 	 * Command to display all information for a given reaction trigger.
+	 * @async
 	 * @param {Message} m 
 	 * @param {string} trig - Reaction trigger.
-	 * @param {Number} [page=1] - The page of text.
+	 * @param {number} [page=1] - The page of text.
+	 * @returns {Promise}
 	 */
 	async cmdReacts( m, trig, page=1 ) {
 
@@ -158,7 +176,7 @@ class GuildReactions {
 		resp = Display.getPageText( resp, page-1 );
 
 		// append reaction count.
-		if ( reacts instanceof Array ) resp += `\n\n${reacts.length } total reactions`;
+		if ( reacts instanceof Array ) resp += `\n\n${reacts.length} total reactions`;
 		resp += '\n\n' + pageText;
 
 		return m.channel.send( resp );
@@ -172,7 +190,7 @@ class GuildReactions {
 	 * has only a single reaction entry.
 	 * @param {string} trig - The reaction trigger to remove a reaction from.
 	 * @param {string|null|undefined} reaction - The reaction string to remove.
-	 * @returns {bool|Number} Returns true if a reaction is successfully removed.
+	 * @returns {bool|number} Returns true if a reaction is successfully removed.
 	 * If no reaction string is specified, and multiple reactions are found,
 	 * the number of reactions is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
@@ -191,6 +209,12 @@ class GuildReactions {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} trig - regex formatted string.
+	 * @param {*} react 
+	 * @returns {boolean|number} - true on success.
+	 */
 	rmRegEx( trig, react ) {
 
 		trig = toRegEx( trig );
@@ -210,9 +234,13 @@ class GuildReactions {
 
 	}
 
+	/**
+	 * @async
+	 * @returns {Promise}
+	 */
 	async storeReacts() {
 
-		return this._context.storeKeyData( this._context.getDataKey( 'reactions', 'reactions'), this.allReacts, true );
+		return this._context.storeData( this._context.getDataKey( 'reactions', 'reactions'), this.allReacts, true );
 
 	}
 
@@ -337,8 +365,10 @@ class GuildReactions {
 
 	/**
 	 * Return a string of information for the given reaction object.
+	 * @async
 	 * @param {string|object|Array} react
 	 * @param {boolean} [details=false] whether to include extended details about the reaction.
+	 * @returns {string}
 	 */
 	async infoString( react, details=false ) {
 
@@ -407,9 +437,10 @@ class GuildReactions {
 	}
 
 	/**
-	 * Returns key,value pair for regex->value stored in map.
+	 * Returns [key,value] array pair for regex->value stored in map.
 	 * @param {*} map 
-	 * @param {*} regex 
+	 * @param {*} regex
+	 * @returns {Array|undefined}
 	 */
 	reMapPair( map, regex ) {
 
@@ -425,7 +456,8 @@ class GuildReactions {
 	/**
 	 * 
 	 * @param {Map} map 
-	 * @param {} reStr - string describing a regular expression.
+	 * @param {string} reStr - regex string.
+	 * @returns {ReactSet|undefined}
 	 */
 	reMapFind( map, regex ) {
 
@@ -441,11 +473,14 @@ class GuildReactions {
 
 	}
 
+	/**
+	 * @async
+	 */
 	async loadReactions() {
 
 		try {
 
-			let reactData = await this._context.fetchKeyData( this._context.getDataKey( 'reactions', 'reactions' ) );
+			let reactData = await this._context.fetchData( this._context.getDataKey( 'reactions', 'reactions' ) );
 
 			if ( !reactData ) return null;
 	
@@ -454,6 +489,7 @@ class GuildReactions {
 			this.reactions = this.allReacts.strings;
 			this.reMap = this.allReacts.regex;
 
+			this._procPct = this._context.getSetting( 'reactPct') || 0.15;
 		} catch ( e ) { console.log(e);}
 
 	}
@@ -519,6 +555,11 @@ function parseRe( data ) {
 
 }
 
+/**
+ * 
+ * @param {Map} map
+ * @returns {Object} 
+ */
 function mapToJSON( map ){
 
 	let o = {};
@@ -532,7 +573,8 @@ function mapToJSON( map ){
  * Tests if a string represents a valid regular expression.
  * If if does, the regular expression is returned.
  * If not, false is returned.
- * @param {string} s 
+ * @param {string} s
+ * @returns {RegExp|false}
  */
 function toRegEx( s ) {
 
@@ -547,21 +589,12 @@ function toRegEx( s ) {
 }
 
 /**
- * Function tests if the string is formatted as a regular expression in / / notation.
- * It does not test if the string forms a valid regular expression.
- * @param {string} s 
- */
-function isRegEx(s) {
-	return regExTest.test(s);
-}
-
-/**
  * Initialize the archbot plugin.
  * @param {DiscordBot} bot 
  */
 exports.init = function( bot ) {
 
-	console.log( 'loading Global reactions.');
+	console.log( 'loading reactions.');
 
 	let reactData = require('./reactions.json');
 	reactData = parseReacts( reactData );

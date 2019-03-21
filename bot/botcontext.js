@@ -4,7 +4,9 @@ const afs = require( '../afs');
 
 const Access = require( './access.js' );
 
-// base Context.
+/**
+ * Base class for a BotContext.
+ */
 const Context = class {
 
 	/**
@@ -12,8 +14,15 @@ const Context = class {
 	 */
 	get type() { return 'unknown'; }
 
-	// discord obj with id that serves as context base.
+	/**
+	 * 
+	 * {object} discord obj whose id serves as context base.
+	 */
 	get idObject() { return this._idobj; }
+
+	/**
+	 * {string} id of the discord object associated with this context.
+	 */
 	get sourceID() { return this._idobj.id; }
 
 	/**
@@ -21,6 +30,9 @@ const Context = class {
 	 */
 	get bot() { return this._bot; }
 
+	/**
+	 * {Cache}
+	 */
 	get cache() { return this._cache; }
 
 	/**
@@ -30,8 +42,10 @@ const Context = class {
 	set access(v) { this._access = v; }
 
 	/**
+	 * @param {DiscordBot} bot
 	 * @param {discord object} idobj - guild, channel, or user
 	 * that acts as the basis for the context.
+	 * @param {Cache} cache
 	 */
 	constructor( bot, idobj, cache ) {
 
@@ -51,7 +65,9 @@ const Context = class {
 	/**
 	 * Load Context preferences, init Context classes required
 	 * by plugins.
+	 * @async
 	 * @param {Class[]} plugClasses
+	 * @returns {Promise}
 	 */
 	async init( plugClasses ) {
 
@@ -66,10 +82,21 @@ const Context = class {
 
 	/**
 	 * Backup the Context's cache.
-	 * @param {Message} m 
+	 * @async
+	 * @param {Message} m
+	 * @returns {Promise}
 	 */
 	async doBackup() {
 		return await this._cache.backup( 0 );
+	}
+
+	/**
+	 * Return access permission string for the given command.
+	 * @param {string} cmd 
+	 * @returns {string}
+	 */
+	accessInfo(cmd) {
+		return this.access.accessInfo(cmd);
 	}
 
 	/**
@@ -83,10 +110,11 @@ const Context = class {
 	/**
 	 * 
 	 * @param {string} cmd 
-	 * @param {Number|string} perm 
+	 * @param {number|string} perm
+	 * @returns {boolean}
 	 */
 	setAccess( cmd, perm ) {
-		this.access.setAccess( cmd, perm );
+		return this.access.setAccess( cmd, perm );
 	}
 
 	/**
@@ -101,11 +129,17 @@ const Context = class {
 	 * 
 	 * @param {string} cmd 
 	 * @param {GuildMember} gm 
+	 * @returns {boolean}
 	 */
 	canAccess( cmd, gm ) {
 		return this._access.canAccess( cmd, gm );
 	}
 
+	/**
+	 * Save this context's command permissions.
+	 * @async
+	 * @returns {Promise}
+	 */
 	async savePerms() {
 		await this.cache.store( 'access', this.access );
 	}
@@ -118,9 +152,10 @@ const Context = class {
 	}
 
 	/**
-	 * 
+	 * @async
 	 * @param {string} key 
-	 * @param {*} value 
+	 * @param {*} value
+	 * @returns {Promise<*>} 
 	 */
 	async setSetting( key, value=null ) {
 
@@ -135,8 +170,9 @@ const Context = class {
 	}
 
 	/**
-	 * 
-	 * @param {string} key 
+	 * @async
+	 * @param {string} key
+	 * @returns {Promise<*|undefined>}
 	 */
 	async getSetting( key ) {
 
@@ -149,21 +185,23 @@ const Context = class {
 
 	/**
 	 * Tests if a file name or cache-key is illegal.
-	 * @param {string} s 
+	 * @param {string} s
+	 * @returns {boolean}
 	 */
-	illegalName( s) {
+	validKey( s) {
 
 		let a = fsys.illegalChars;
 		for( let i = a.length-1; i>=0; i--) {
-			if ( s.indexOf( a[i]) >= 0) return true;
+			if ( s.indexOf( a[i]) >= 0) return false;
 		}
-		return false;
+		return true;
 
 	}
 
 	/**
 	 * Returns true if the given discord user is the bot owner.
-	 * @param {Discord.User|string} u 
+	 * @param {Discord.User|string} u
+	 * @returns {boolean}
 	*/
 	isMaster( u) { return this._bot.isMaster(u); }
 
@@ -195,10 +233,12 @@ const Context = class {
 	}
 
 	/**
-	 * Returns a list of all files stored at the given data path.
-	 * ( path is relative to this context's save directory. )
-	 * File extensions are removed before returning.
+	 * Returns an array of all files stored at the given data path.
+	 * ( path is relative to the context's save directory. )
+	 * File extensions are not included.
+	 * @async
 	 * @param {string} path 
+	 * @returns {Promise<string[]>}
 	 */
 	async getDataList( path ) {
 
@@ -220,7 +260,7 @@ const Context = class {
 	 * @param {Discord.Channel|Discord.Message} obj 
 	 * @param {string} user 
 	 */
-	showUserNotFound( obj, user ) {
+	sendUserNotFound( obj, user ) {
 
 		if ( obj instanceof Discord.Message ) obj.reply( 'User \'' + user + '\' not found.');
 		else obj.send( 'User \'' + user + '\' not found.');
@@ -228,12 +268,13 @@ const Context = class {
 	}
 
 	/**
-	 * Attempts to find a user in the given Context. If a user
-	 * is not found, an error message is displayed.
+	 * Attempts to find a user in the given Context.
+	 * An error message is sent on failure.
 	 * @param {Discord.Channel|Discord.Message} resp 
-	 * @param {string} name 
+	 * @param {string} name
+	 * @returns {GuildMember|null}
 	 */
-	userOrShowErr( resp, name ) {
+	userOrSendErr( resp, name ) {
 
 		if ( !name ) {
 			( resp instanceof Discord.Channel ) ? resp.send( 'User name expected.') : resp.reply( 'User name expected.' );
@@ -250,8 +291,9 @@ const Context = class {
 	}
 
 	/**
-	 * 
+	 * @async
 	 * @param {string} id - discord user id.
+	 * @return {Promise<string>}
 	 */
 	async displayName( id ) {
 
@@ -266,7 +308,8 @@ const Context = class {
 
 	/**
 	 * Returns a name to display for the given user.
-	 * @param {string|Discord.User|Discord.GuildMember} o 
+	 * @param {string|Discord.User|Discord.GuildMember} o
+	 * @returns {string}
 	 */
 	userString( o ) {
 
@@ -278,14 +321,17 @@ const Context = class {
 
 	/**
 	 * Override in botcontext subclasses to find named user within context.
-	 * @param {string} name 
+	 * @param {string} name
+	 * @returns {null} overridden in subclasses.
 	 */
 	findUser( name ) { return null; }
 
 	/**
 	 * Adds a class to be instantiated for the given context,
 	 * if an instance does not already exists.
+	 * @async
 	 * @param {class} cls
+	 * @returns {Promise<Object>}
 	 */
 	async addClass( cls ) {
 
@@ -316,9 +362,10 @@ const Context = class {
 	}
 
 	/**
-	 * 
+	 * @async
 	 * @param {Command} cmd 
-	 * @param {Array} args 
+	 * @param {Array} args
+	 * @returns {Promise}
 	 */
 	async routeCommand( cmd, args ) {
 
@@ -336,14 +383,15 @@ const Context = class {
 
 	/**
 	 * Creates a context subcache mapped by key.
-	 * @param {*} key
-	 * @returns - The Cache object.
+	 * @param {string} key
+	 * @returns {Cache} - The Cache object.
 	 */
-	subcache( key ) { return this._cache.makeSubCache(key); }
+	subcache( key ) { return this._cache.subcache(key); }
 
 	/**
 	 * Returns the key which should be used to refer to a data path in the cache.
-	 * @param {*} objs - objs are idables or cache path strings.
+	 * @param {*[]} objs - objs are idables or cache path strings.
+	 * @returns {string}
 	 */
 	getDataKey( ...objs ) {
 
@@ -362,45 +410,51 @@ const Context = class {
 	}
 
 	/**
-	 * 
-	 * @param {*} key 
+	 * @async
+	 * @param {string} key
+	 * @returns {Promise}
 	 */
-	async deleteKeyData( key ) {
+	async deleteData( key ) {
 		await this._cache.delete(key);
 	}
 
 	/**
 	 * Caches data without writing to disk.
-	 * @param {*} key 
+	 * @param {string} key 
 	 * @param {*} data 
 	 */
-	cacheKeyData( key, data ) {
+	cacheData( key, data ) {
 		this._cache.cache(key, data );
 	}
 
 	/**
 	 * Attempts to retrieve data from cache without
 	 * checking backing store.
-	 * @param {*} key 
+	 * @param {string} key
+	 * @returns {*}
 	 */
-	getKeyData( key ) { return this._cache.get(key); }
+	getData( key ) { return this._cache.get(key); }
 	
 	/**
 	 * Fetch keyed data.
-	 * @param {*} key 
+	 * @async
+	 * @param {string} key 
+	 * @returns {Promise<*>}
 	 */
-	async fetchKeyData( key ) { return await this._cache.fetch(key); }
+	async fetchData( key ) { return await this._cache.fetch(key); }
 
 	/**
 	 * Set keyed data.
-	 * @param {*} key 
+	 * @async
+	 * @param {string} key 
 	 * @param {*} data 
-	 * @param {Boolean} [forceSave=false] Whether to force a save to the underlying data store. 
+	 * @param {boolean} [forceSave=false] Whether to force a save to the underlying data store.
+	 * @returns {Promise}
 	 */
-	async storeKeyData( key, data, forceSave=false ) {
+	async storeData( key, data, forceSave=false ) {
 
-		if ( forceSave ) this._cache.store( key, data );
-		else this._cache.cache( key, data );
+		if ( forceSave ) return this._cache.store( key, data );
+		else return this._cache.cache( key, data );
 
 	}
 

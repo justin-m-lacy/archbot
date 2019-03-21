@@ -64,7 +64,7 @@ exports.Game = class Game {
 		this._cache = this.rpg.cache;
 		this.charCache = charCache;
 
-		this.guilds = new Guild.Manager( this._cache.makeSubCache('guilds') );
+		this.guilds = new Guild.Manager( this._cache.subcache('guilds') );
 
 		// parties by char name.
 		this._parties = {};
