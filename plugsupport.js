@@ -9,7 +9,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 		dirs = fs.readdirSync( plugins_dir );
 	
-		let plugs, dir, stats;
+		let plugs, stats;
 		for( let dir of dirs ) {
 
 			dir = path.resolve( plugins_dir, dir );
@@ -24,7 +24,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 		}
 
 	} catch ( err ) {
-		console.log(err);
+		console.error(err);
 	} 
 
 	return plugins;
@@ -117,7 +117,7 @@ function loadPlugin( plugDir, desc ){
 		return require( plugFile );
 
 	} catch ( err ){
-		console.log( err );
+		console.error( err );
 	}
 
 	return null;

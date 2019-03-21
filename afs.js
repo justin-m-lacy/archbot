@@ -1,5 +1,8 @@
 const fs = require( 'fs');
 
+/**
+ * {string}
+ */
 exports.deleteFile = ( path ) => new Promise( (res,rej)=> {
 
 	fs.unlink( path, (err)=>{
@@ -9,6 +12,9 @@ exports.deleteFile = ( path ) => new Promise( (res,rej)=> {
 
 });
 
+/**
+ * {string}
+ */
 exports.exists = ( path ) => new Promise( (res,rej)=>{
 	fs.access( path,
 		(err)=>{
@@ -93,6 +99,9 @@ exports.mkdir = path => new Promise( (res,rej)=> {
 
 });
 
+/**
+ * {string}
+ */
 exports.readJSON = path => new Promise( (res,rej)=>{
 
 	fs.readFile( path, (err,data)=>{

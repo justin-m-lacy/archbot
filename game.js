@@ -9,6 +9,12 @@ const allUserTmpl = "^(?:(U)\\" + ID_SEPARATOR + "(\\w+)|(\\w+)\\" + ID_SEPARATO
 
 module.exports = class Game {
 
+	/**
+	 * @static
+	 * @param {string} gid
+	 * @returns {Array} An array of game information in the form of
+	 * the two player ids, followed by a timestamp.
+	 */
 	static IdParts( gid ) {
 		let a = gid.split( ID_SEPARATOR );
 		a.unshift(gid);
@@ -16,19 +22,22 @@ module.exports = class Game {
 	}
 
 	/**
-	 * Creates a regex that matches any game id for
-	 * the given user.
-	 * @param {string} uid 
+	 * Creates a regex that matches any game id played
+	 * by the user.
+	 * @static
+	 * @param {string} uid
+	 * @returns {RegExp}
 	*/
 	static UserRegex( uid ){
 		return new RegExp( allUserTmpl.replace( /U/g, uid ) );
 	}
 
 	/**
-	 * Creates a regex that matches all game ids for games between
-	 * the given users.
+	 * Creates a regex that matches all game ids for the given users.
+	 * @static
 	 * @param {string} p1 
-	 * @param {string} p2 
+	 * @param {string} p2
+	 * @returns {RegExp}
 	 */
 	static VsRegex( p1, p2 ) {
 		return new RegExp( vsTmpl.replace( /U/g, p1).replace(/V/g,p2) );
@@ -37,39 +46,55 @@ module.exports = class Game {
 	/**
 	 * Id for a game still in progress. Once a game is over
 	 * the timestamp is appended to the id.
+	 * @static
 	 * @param {User} user1 
-	 * @param {User} user2 
+	 * @param {User} user2
+	 * @returns {string}
 	*/
-	static ActiveGameID( user1, user2 ) {
+	/*static ActiveGameID( user1, user2 ) {
 
 		let id1 = user1.id;
 		let id2 = user2.id;
 
 		return ( id1 <= id2) ? ( id1 + ID_SEPARATOR + id2 ) : (id2 + ID_SEPARATOR + id1 );
 
-	}
+	}*/
 
-	static GameID( id1, id2, time ) {
+	/**
+	 * @static
+	 * @param {string} id1 
+	 * @param {string} id2 
+	 * @param {number} time
+	 * @returns {string}
+	 */
+	/*static GameID( id1, id2, time ) {
 
-		return ( this.id1<= this.id2) ? ( this.id1 + ID_SEPARATOR + this.id2 + ID_SEPARATOR + time ) :
-		( this.id1 + ID_SEPARATOR + this.id2 + ID_SEPARATOR + time );
+		return ( id1<= this.id2) ? ( id1 + ID_SEPARATOR + id2 + ID_SEPARATOR + time ) :
+		( id1 + ID_SEPARATOR + id2 + ID_SEPARATOR + time );
 
-	}
+	}*/
 
+	/**
+	 * {string} id for storage.
+	 */
 	get saveID() { return this._saveID; }
+
+	/**
+	 * {string} id for cache.
+	 */
 	get shortID() { return this._gid; }
+
+	/**
+	 * {number} unix timestamp of game start.
+	 */
 	get timestamp() { return this._time; }
 
-	toJSON() {
-
-		return {
-			time:this._time,
-			p1:this.p1,
-			p2:this.p2
-		};
-
-	}
-
+	/**
+	 * 
+	 * @param {string} id1 
+	 * @param {string} id2 
+	 * @param {number} time - unix timestamp of game start.
+	 */
 	constructor( id1, id2, time ) {
 
 		this.p1 = id1;
@@ -77,36 +102,48 @@ module.exports = class Game {
 		this._time = time;
 
 		this._saveID = this.getSaveId();
-		this._gid = this.getActiveId();
+		this._gid = this.getShortId();
 	}
 
 	/**
 	 * Override in subclasses.
-	 * @returns {Boolean} returns true if game is still open; else false.
+	 * @returns {boolean} true if game is still in progress.
 	*/
 	isOpen() { return true; }
 
 	/**
-	 * Returns true if the player with the given id is playing this game.
-	 * false otherwise.
+	 * Check if a user id matches one of the players of the game.
 	 * @param {string} uid - user id of player to check.
-	 * @returns {boolean} true if the user is a player in this game, false otherwise.
+	 * @returns {boolean} true if one of the players has the given id.
 	 */
 	hasPlayer( uid ) {
 		return ( this.p1 === uid || this.p2 === uid );
 	}
 
-	getActiveId() {
+	/**
+	 * @returns {string}
+	 */
+	getShortId() {
 		return ( this.p1 <= this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 ) : (this.p2 + ID_SEPARATOR + this.p1 );
 	}
 
 	/**
-	 * Id for a game when saving to disk.
+	 * @returns {string} Id of game when saving to disk.
 	*/
 	getSaveId() {
 
 		return ( this.p1 <= this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time ) :
 				( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time );
+
+	}
+	
+	toJSON() {
+
+		return {
+			time:this._time,
+			p1:this.p1,
+			p2:this.p2
+		};
 
 	}
 

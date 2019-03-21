@@ -4,7 +4,6 @@ var auth = require('./auth.json');
 const DateFormat = require( './datedisplay.js' );
 const dice = require( 'archdice' );
 const jsutils = require( './jsutils.js' );
-const cmd = require( './bot/command.js');
 const DiscordBot = require( './bot/discordbot.js');
 
 // init bot
@@ -18,13 +17,15 @@ try {
 	var bot = DiscordBot.InitBot( client, auth.master );
 	console.log( 'bot created.');
 } catch (e ) {
-	console.log(e);
+	console.error(e);
 }
 
 initCmds();
 
 client.on( 'presenceUpdate', presenceChanged );
-client.on( 'error', doError );
+client.on( 'error', err=>{
+	console.error( 'Connection error: ' + err.message );
+});
 
 console.log( 'logging in...');
 client.login( auth.token );
@@ -34,75 +35,67 @@ function initCmds(){
 
 	let cmds = bot.dispatch;
 
-	console.log( 'adding default commands.');
+	cmds.add( 'help', '!help <cmd>', cmdHelp, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'help', '!help <cmd>', cmdHelp, {maxArgs:1} );
+	cmds.add( 'schedule', '!schedule <activity> <times>', cmdSchedule, { maxArgs:2, group:'right', module:'default'} );
 
-	cmds.add( 'schedule', '!schedule <activity> <times>', cmdSchedule, { maxArgs:2, group:'right'} );
+	cmds.add( 'sleep', '!sleep <sleep schedule>', cmdSleep, {maxArgs:1, module:'default'} );
+	cmds.add( 'when', '!when <userName> <activity>', cmdWhen, {maxArgs:2, module:'default'} );
+	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'sleep', '!sleep <sleep schedule>', cmdSleep, {maxArgs:1} );
-	cmds.add( 'when', '!when <userName> <activity>', cmdWhen, {maxArgs:2} );
-	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1} );
-
-	cmds.add( 'uid', '!uid <username>', cmdUid, {maxArgs:1}  );
-	cmds.add( 'uname', '!uname <nickname>', cmdUName, {maxArgs:1} );
-	cmds.add( 'nick', '!nick <displayName>', cmdNick, {maxArgs:1}  );
+	cmds.add( 'uid', '!uid <username>', cmdUid, {maxArgs:1, module:'default'}  );
+	cmds.add( 'uname', '!uname <nickname>', cmdUName, {maxArgs:1, module:'default'} );
+	cmds.add( 'nick', '!nick <displayName>', cmdNick, {maxArgs:1, module:'default'}  );
 	cmds.add( 'uptime', '!uptime', cmdUptime );
 
-	cmds.add( 'lastplay','!lastplay <userName> <gameName>', cmdLastPlay, {maxArgs:2} );
-	cmds.add( 'laston', '!laston <userName>', cmdLastOn, {maxArgs:1} );
-	cmds.add( 'lastidle', '!lastidle <userName>', cmdLastIdle, {maxArgs:1} );
-	cmds.add( 'lastactive', '!lastactive <userName>', cmdLastActive, {maxArgs:1} );
-	cmds.add( 'lastoff', '!lastoff <userName>', cmdLastOff, {maxArgs:1} );
+	cmds.add( 'lastplay','!lastplay <userName> <gameName>', cmdLastPlay, {maxArgs:2, module:'default'} );
+	cmds.add( 'laston', '!laston <userName>', cmdLastOn, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastidle', '!lastidle <userName>', cmdLastIdle, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastactive', '!lastactive <userName>', cmdLastActive, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastoff', '!lastoff <userName>', cmdLastOff, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'offtime', '!offtime <userName>', cmdOffTime, {maxArgs:1} );
-	cmds.add( 'ontime', '!ontime <username>', cmdOnTime, {maxArgs:1} );
-	cmds.add( 'idletime', '!idletime <username>', cmdIdleTime, {maxArgs:1} );
-	cmds.add( 'playtime', '!playtime <userName>', cmdPlayTime, {maxArgs:1} );
+	cmds.add( 'offtime', '!offtime <userName>', cmdOffTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'ontime', '!ontime <username>', cmdOnTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'idletime', '!idletime <username>', cmdIdleTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'playtime', '!playtime <userName>', cmdPlayTime, {maxArgs:1, module:'default'} );
 
 	cmds.add( 'magicmissile', 'You need material components for all of your spells.',
-		(m)=>m.channel.send( 'You attack the darkness.' ), {hidden:true} );
-	cmds.add( 'palantir', 'What does the Great Eye command?', (m)=>m.channel.send( 'Build me an army worthy of Mordor.'), {hidden:true} );
+		(m)=>m.channel.send( 'You attack the darkness.' ), {hidden:true, module:'magic'} );
+	cmds.add( 'palantir', 'What does the Great Eye command?', (m)=>m.channel.send( 'Build me an army worthy of Mordor.'), {hidden:true, module:'orthanc'} );
 	cmds.add( 'ranking', '!ranking', cmdRanking, { hidden:true, maxArgs:0});
-	cmds.add( 'fuck', null, cmdFuck, {hidden:true} );
+	cmds.add( 'fuck', null, cmdFuck, {hidden:true, module:'explicit'} );
 
-	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1} );
+	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1, module:'default'} );
 
 }
 
-function doError( err ) {
-	console.log( 'Connection error: ' + err.message );
-}
+async function cmdRanking( m ) { return m.channel.send( 'Last place: garnish.'); }
 
-async function cmdRanking( m ) {
-	return m.channel.send( 'Last place: garnish.');
-}
-
-async function cmdUptime( m ) {
-	return m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) );
-}
+async function cmdUptime( m ) { return m.channel.send( client.user.username + ' has reigned for ' + DateFormat.timespan( client.uptime ) ); }
 
 /**
- * 
+ * @async
  * @param {Message} msg 
- * @param {string} name 
+ * @param {string} name
+ * @returns {Promise}
  */
 async function cmdUName( msg, name ) {
 
-	let gMember = bot.userOrShowErr( msg.channel, name );
+	let gMember = bot.userOrSendErr( msg.channel, name );
 	if ( !gMember ) return;
 	return msg.channel.send( name + ' user name: ' + gMember.user.username )
 
 }
 
 /**
- * 
+ * @async
  * @param {Message} msg 
- * @param {string} name 
+ * @param {string} name
+ * @returns {Promise}
  */
 async function cmdNick( msg, name ) {
 
-	let gMember = bot.userOrShowErr( msg.channel, name );
+	let gMember = bot.userOrSendErr( msg.channel, name );
 	if ( !gMember ) return;
 	return msg.channel.send( name + ' nickname: ' + gMember.nickname )
 
@@ -115,46 +108,55 @@ async function cmdNick( msg, name ) {
  */
 function cmdHelp( msg, cmd ) {
 
-	if ( !cmd ) {
-		bot.printCommands( msg.channel );
-	} else {
-		bot.printCommand( msg.channel, cmd);
-	}
+	if ( !cmd ) bot.printCommands( msg.channel );
+	else bot.printCommand( msg.channel, cmd);
 
 }
 
 /**
- * 
+ * @async
  * @param {Message} msg 
  * @param {string} name 
+ * @returns {Promise}
  */
 async function cmdUid( msg, name ) {
 
-	let gMember = bot.userOrShowErr( msg.channel, name );
+	let gMember = bot.userOrSendErr( msg.channel, name );
 	if ( !gMember ) return;
 	return msg.channel.send( name + ' uid: ' + gMember.user.id )
 
 }
 
 /**
- * 
+ * @async
  * @param {Discord.Message} msg 
  * @param {string} dicestr - roll formatted string.
+ * @returns {Promise}
  */
 async function cmdRoll( msg, dicestr ) {
 
 	let sender = bot.getSender( msg );
-
 	let total = dice.parseRoll( dicestr );
 	return msg.channel.send( bot.displayName(sender) + ' rolled ' + total );
 
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} when 
+ */
 function cmdSleep( msg, when ) {
 	let sender = bot.getSender(msg);
 	setSchedule( sender, 'sleep', when );
 }
 
+/**
+ * 
+ * @param {Message} msg 
+ * @param {string} activity 
+ * @param {string} when 
+ */
 function cmdSchedule( msg, activity, when ) {
 
 	let sender = bot.getSender(msg);
@@ -174,7 +176,7 @@ function cmdLastPlay( msg, who, game ){
 /**
  * 
  * @param {Message} msg 
- * @param {string} who - user whose information to query.
+ * @param {string} who - user to check.
  */
 function cmdLastOn( msg, who ){
 	sendHistory( msg.channel, who, ['online','idle','dnd'], 'online' );
@@ -183,7 +185,7 @@ function cmdLastOn( msg, who ){
 /**
  * 
  * @param {Message} msg 
- * @param {string} who - user whose information to query.
+ * @param {string} who - user to check.
  */
 function cmdLastIdle( msg, who){
 	sendHistory( msg.channel, who, 'idle');
@@ -192,7 +194,7 @@ function cmdLastIdle( msg, who){
 /**
  * 
  * @param {Message} msg 
- * @param {string} who - user whose information to query.
+ * @param {string} who - user to check.
  */
 function cmdLastActive( msg, who ){
 	sendHistory( msg.channel, who, 'online', 'active' );
@@ -201,7 +203,7 @@ function cmdLastActive( msg, who ){
 /**
  * 
  * @param {Message} msg 
- * @param {string} who - user whose information to query.
+ * @param {string} who - user to check.
  */
 function cmdLastOff( msg, who ){
 	sendHistory( msg.channel, who, 'offline' );
@@ -216,13 +218,12 @@ function cmdTest( msg, reply ){
 	if ( reply == null ) msg.channel.send( 'eh?' );
 	else msg.channel.send( reply + ' yourself, ' + msg.member.displayName );
 }
-function cmdFuck( m ) {
-	m.channel.send( m.content.slice(1) + ' yourself, ' + m.member.displayName );
-}
+
+function cmdFuck( m ) { m.channel.send( m.content.slice(1) + ' yourself, ' + m.member.displayName ); }
 
 async function sendGameTime( channel, displayName, gameName ) {
 	
-	let uObject = bot.userOrShowErr( channel, displayName );
+	let uObject = bot.userOrSendErr( channel, displayName );
 	if ( !uObject ) return;
 
 	if ( uObject.presence.game && uObject.presence.game.name === gameName ) {
@@ -252,7 +253,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 async function cmdPlayTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = bot.userOrShowErr( chan, name );
+	let gMember = bot.userOrSendErr( chan, name );
 	if (!gMember) return;
 
 	if ( !gMember.presence.game ) return chan.send( name + ' is not playing a game.');
@@ -282,7 +283,7 @@ async function cmdPlayTime( msg, name ){
 async function cmdIdleTime( msg, name ){
 
 	let chan = msg.channel;
-	let gMember = bot.userOrShowErr( chan, name );
+	let gMember = bot.userOrSendErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus( gMember, 'idle')) return chan.send( name + ' is not idle.');
@@ -316,7 +317,7 @@ async function cmdOnTime( msg, name ) {
 
 	let chan = msg.channel;
 
-	let gMember = bot.userOrShowErr( chan, name );
+	let gMember = bot.userOrSendErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( hasStatus(gMember, 'offline') ) return chan.send( name + ' is not online.' );
@@ -343,14 +344,15 @@ async function cmdOnTime( msg, name ) {
 }
 
 /**
- * 
+ * @async
  * @param {Message} msg 
- * @param {string} name 
+ * @param {string} name
+ * @returns {Promise}
  */
 async function cmdOffTime( msg, name ) {
 
 	let chan = msg.channel;
-	let gMember = bot.userOrShowErr( chan, name );
+	let gMember = bot.userOrSendErr( chan, name );
 	if ( !gMember ) return;
 
 	if ( !hasStatus(gMember, 'offline') ) return chan.send( name + ' is not offline.' );
@@ -368,18 +370,23 @@ async function cmdOffTime( msg, name ) {
 
 	} catch ( err ){
 
-		console.log( err );
+		console.error( err );
 	}
 	return chan.send( 'I do not know when ' + name + ' went offline.' );
 
 }
 
-// send status history of user to channel.
-// statuses is a single status string or array of valid statuses
-// statusName is the status to display in channel.
+/**
+ * Send status history of user to channel.
+ * @async
+ * @param {Channel} channel 
+ * @param {string} name - name of user to check.
+ * @param {(string|string[])} statuses - status name or list of statuses to check.
+ * @param {string} statusName - status to display.
+ */
 async function sendHistory( channel, name, statuses, statusName ) {
 
-	let gMember = bot.userOrShowErr( channel, name );
+	let gMember = bot.userOrSendErr( channel, name );
 	if ( !gMember ) return;
 
 	if ( !statusName ) statusName = statuses;
@@ -404,7 +411,8 @@ async function sendHistory( channel, name, statuses, statusName ) {
 /**
  * 
  * @param {GuildMember} gMember 
- * @param {Array|string} statuses 
+ * @param {string[]|string} statuses
+ * @returns {boolean}
  */
 function hasStatus( gMember, statuses ) {
 
@@ -439,7 +447,7 @@ function latestStatus( history, statuses ) {
 		for( let i = statuses.length-1; i >= 0; i-- ) {
 
 			status = statuses[i];
-			if ( history.hasOwnProperty(status) ) {
+			if ( history.hasOwnProperty(status) === true ) {
 				statusTime = ( !statusTime ? history[status] : Math.max( history[status], statusTime ) );
 			}
 
@@ -448,7 +456,7 @@ function latestStatus( history, statuses ) {
 	
 	} else {
 
-		if ( history.hasOwnProperty( statuses ) ) return history[statuses];
+		if ( history.hasOwnProperty( statuses ) === true ) return history[statuses];
 
 	}
 	return null;
@@ -456,13 +464,15 @@ function latestStatus( history, statuses ) {
 
 /**
  * send schedule message to channel, for user with displayName
+ * @async
  * @param {Channel} chan 
  * @param {string} name 
- * @param {string} activity 
+ * @param {string} activity
+ * @returns {Promise}
  */
 async function sendSchedule( chan, name, activity ) {
 
-	let gMember = bot.userOrShowErr( chan, name );
+	let gMember = bot.userOrSendErr( chan, name );
 	if ( !gMember ) return;
 
 	let sched = await readSchedule( gMember, activity );
@@ -475,8 +485,9 @@ async function sendSchedule( chan, name, activity ) {
 
 /**
  * Get the history object of a guild member.
+ * @async
  * @param {GuildMember} gMember
- * @returns {Object|null} 
+ * @returns {Promise<Object|null>} 
  */
 async function readHistory( gMember ){
 
@@ -487,9 +498,10 @@ async function readHistory( gMember ){
 }
 
 /**
- * 
+ * @async
  * @param {GuildMember} gMember - guild member to get schedule for.
  * @param {string} schedType - activity to read schedule for.
+ * @returns {Promise}
  */
 async function readSchedule( gMember, schedType ) {
 
@@ -499,7 +511,7 @@ async function readSchedule( gMember, schedType ) {
 		if ( data && data.hasOwnProperty('schedule') ) return data.schedule[schedType];
 
 	} catch ( err ){
-		console.log( err );
+		console.error( err );
 	}
 	return null;
 
@@ -507,14 +519,14 @@ async function readSchedule( gMember, schedType ) {
 
 /**
  * Sets the schedule of a guild member, for a given schedule type.
+ * @async
  * @param {GuildMember|User} uObject - Discord user.
  * @param {string} scheduleType - type of activity to schedule.
  * @param {string} scheduleString - schedule description.
+ * @returns {Promise}
  */
 async function setSchedule( uObject, scheduleType, scheduleString ) {
-
 	return mergeMember( uObject, { schedule: { [scheduleType]:scheduleString } } );
-
 }
 
 /**
@@ -523,11 +535,9 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
  * @param {GuildMember} newMember 
  */
 function presenceChanged( oldMember, newMember ) {
-	
-	if ( oldMember.id === client.id ) {
-		// ignore bot events.
-		return;
-	}
+
+	// ignore bot events.
+	if ( oldMember.id === client.id ) return;
 
 	let oldStatus = oldMember.presence.status;
 	let newStatus = newMember.presence.status;
@@ -540,23 +550,15 @@ function presenceChanged( oldMember, newMember ) {
 	let oldGameName = oldGame ? oldGame.name : null;
 	let newGameName = newGame ? newGame.name : null;
 
-	if ( oldGameName !== newGameName ){
-
-		logGames( oldMember, oldGame, newGame );
-
-		/*if ( newGame ) {
-			console.log( newMember.displayName + ' game changed: ' + newGame.name );
-		}*/
-
-	}
+	if ( oldGameName !== newGameName ) logGames( oldMember, oldGame, newGame );
 
 }
 
 /**
  * 
  * @param {GuildMember} guildMember 
- * @param {*} prevGame 
- * @param {*} curGame 
+ * @param {Discord.Game} prevGame 
+ * @param {Discord.Game} curGame 
  */
 function logGames( guildMember, prevGame, curGame ) {
 
@@ -573,7 +575,7 @@ function logGames( guildMember, prevGame, curGame ) {
 /**
  * Log a guild member's last status within the guild.
  * @param {GuildMember} guildMember 
- * @param {*} statuses 
+ * @param {string[]} statuses 
  */
 function logHistory( guildMember, statuses ) {
 
@@ -590,8 +592,10 @@ function logHistory( guildMember, statuses ) {
 
 /**
  * Merge existing user data.
+ * @async
  * @param {GuildMember|User} uObject 
  * @param {Object} newData - data to merge into existing data.
+ * @returns {Promise}
  */
 async function mergeMember( uObject, newData ){
 

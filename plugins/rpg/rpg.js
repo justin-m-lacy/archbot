@@ -45,7 +45,7 @@ class RPG {
 		if ( !initialized) initData();
 		this._cache = this._context.subcache( RPG_DIR );
 
-		this.charCache = this._cache.makeSubCache( CHAR_DIR, Char.FromJSON );
+		this.charCache = this._cache.subcache( CHAR_DIR, Char.FromJSON );
 
 		this.world = new World( this._context.cache );
 		this.game = new gamejs.Game( this, this.charCache, this.world );
@@ -657,7 +657,7 @@ class RPG {
 
 			if ( !char.owner || char.owner === msg.author.id ) {
 
-				this.charCache.delete( this.getCharKey( charname ) );
+				await this.charCache.delete( this.getCharKey( charname ) );
 
 				// TODO: REMOVE LAST LOADED NAME. etc.
 				if ( this.lastChars[char.owner] === charname ) this.clearUserChar( char.owner );
@@ -776,7 +776,7 @@ class RPG {
 
 			if ( charname ) {
 
-				if ( this._context.illegalName(charname)) return m.reply( `'${charname}' contains illegal characters.`);
+				if ( !this._context.validKey(charname)) return m.reply( `'${charname}' contains illegal characters.`);
 				if ( await this.charExists(charname) ) return m.reply( `Character '${charname}' already exists.` );
 
 			} else charname = await this.uniqueName( race, sex );

@@ -7,11 +7,12 @@ exports.init = function( bot ) {
 }
 
 /**
- * 
+ * @async
  * @param {Message} m 
  * @param {string} msg - ignored question.
+ * @returns {Promise}
  */
-function cmdWho( m, msg ) {
+async function cmdWho( m, msg ) {
 
 	if ( !responses ) responses = require( './responses.json');
 	if ( responses.length === 0 ) return;
@@ -20,12 +21,12 @@ function cmdWho( m, msg ) {
 	let t = m.channel.type;
 	let u, name;
 
-	if ( t == 'text' || t == 'voice') {
+	if ( t === 'text' || t === 'voice') {
 
 		u = m.guild.members.random();
 		name = u.displayName;
 
-	} else if ( t == 'group') {
+	} else if ( t === 'group') {
 
 		u = m.channel.recipients.random();
 		name = u.username;

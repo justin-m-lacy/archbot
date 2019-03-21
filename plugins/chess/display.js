@@ -1,22 +1,32 @@
 const jimp = require( 'jimp' );
 const Discord = require( 'discord.js');
 
-// image manip.
+/**
+ * {Jimp}
+ */
 var imgBoard;
 var imgPieces;
 var tSize;
-var imagesLoaded;
+var imagesLoaded = false;
 
 // tiled piece positions.
-const teamRow = { 'W':1, 'B':0 };
+//const teamRow = { 'W':1, 'B':0 };
+
 const pieceCol = { 'Q':0, 'K':1, 'R':2, 'N':3, 'B':4, 'P': 5};
 
-// maps chess letters to unicode chess characters.
+/**
+ * Maps chess letters to unicode characters.
+ * Black pieces are lowercase.
+ */
 const to_unicode = { 'K':'\u2654', 'Q':'\u2655', 'R':'\u2656',
 						'B':'\u2657', 'N':'\u2658', 'P':'\u2659',
 						'k':'\u265A', 'q':'\u265B', 'r':'\u265C',
 						'b':'\u265D', 'n':'\u265E', 'p':'\u265F' };
 
+/**
+* @async
+* @returns {Promise}
+*/
 exports.loadImages = async function() {
 
 	try {
@@ -29,12 +39,17 @@ exports.loadImages = async function() {
 		imagesLoaded = true;
 
 	} catch(e) {
-		console.log(e);
-		imagesLoaded = false;
+		console.error(e);
 	}
 				
 }
 
+/**
+ * @async
+ * @param {Channel} chan
+ * @param {ChessGame} game
+ * @returns {Promise}
+ */
 exports.showBoard = async function( chan, game ) {
 
 	if ( imagesLoaded ) {
@@ -42,26 +57,27 @@ exports.showBoard = async function( chan, game ) {
 		try {
 
 			let buff = await getBoardImg(game);
-			if ( buff != null ) {
+			if ( buff ) {
 
 				let attach = new Discord.Attachment( buff );
-				chan.send( game.getStatusString(), attach );
-
-				return;
+				return chan.send( game.getStatusString(), attach );
 
 			}
 
 		} catch ( e ) {
-			console.log(e);
+			console.error(e);
 		}
 
 	}
 
-	chan.send( getBoardStr(game));
+	return chan.send( getBoardStr(game));
 
 }
 
-
+/**
+ * @asyn
+ * @param {Game} game 
+ */
 async function getBoardImg( game ) {
 
 	let img = imgBoard.clone();
@@ -84,7 +100,7 @@ async function getBoardImg( game ) {
 
 		}
 		destCol++; i++;
-		if ( destCol == 8 ) {
+		if ( destCol === 8 ) {
 			destCol=0;
 			destRow--;
 		}
@@ -97,11 +113,12 @@ async function getBoardImg( game ) {
 
 /**
  * Wraps image.getBuffer() in a promise to make awaitable.
- * @param {*} img 
+ * @param {Jimp} img 
+ * @returns {Promise<Buffer>}
  */
 async function imageBuffer( img ) {
 
-	return new Promise( (res,rej)=>{
+	return new Promise( (res)=>{
 		img.getBuffer( jimp.MIME_PNG, (err, buff)=>{
 			if ( err ) res(null);
 			else res( buff );
@@ -110,6 +127,11 @@ async function imageBuffer( img ) {
 
 }
 
+/**
+ * 
+ * @param {Game} game
+ * @returns {string} 
+ */
 function getBoardStr( game ) {
 
 	let b = game.getBoard();
@@ -134,7 +156,7 @@ function getBoardStr( game ) {
 		}
 
 		
-		if ( ++i % 8 == 0 ) {
+		if ( ++i % 8 === 0 ) {
 
 			rows.unshift( row.join(' ') );
 			row = [];

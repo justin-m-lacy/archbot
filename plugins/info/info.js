@@ -50,7 +50,7 @@ class Info {
 		let cur = this.infos[subj];
 		if ( cur ) {
 			delete this.infos[subj];
-			await this._context.storeKeyData( this.getKey(), this.infos );
+			await this._context.storeData( this.getKey(), this.infos );
 			return true;
 		}
 
@@ -74,7 +74,7 @@ class Info {
 
 			this.infos[subj] = info;
 
-			await this._context.storeKeyData( this.getKey(), this.infos );
+			await this._context.storeData( this.getKey(), this.infos );
 	
 		} catch ( e ) { console.log(e); }
 
@@ -84,7 +84,7 @@ class Info {
 
 		try {
 
-			let infoData = await this._context.fetchKeyData( this.getKey() );
+			let infoData = await this._context.fetchData( this.getKey() );
 			if ( infoData ) this.infos = infoData;
 			else console.log('Info data not found.');
 

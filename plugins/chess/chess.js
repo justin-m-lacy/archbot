@@ -1,5 +1,3 @@
-const Chess = require( 'chess-rules');
-const Discord = require( 'discord.js');
 const ChessGame = require( './chessgame.js');
 const Display = require( './display.js' );
 const Export = require( './export.js' );
@@ -10,41 +8,57 @@ const game_dir = 'chess/';
 
 class Room {
 
+	/**
+	 * 
+	 * @param {BotContext} context 
+	 */
 	constructor( context ) {
 
 		this._context = context;
-		this.activeGames = {};
-
 		this.gcache = new GameCache( context, game_dir, ChessGame.FromJSON );
 
 	}
 
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} [p1] 
+	 * @param {string} [p2]
+	 * @returns {Promise}
+	 */
 	async cmdShowGames( m, p1, p2 ) {
 
 		try {
 
 			if ( !p1 ) p1 = m.author;
 			else {
-				p1 = this._context.userOrShowErr( m, p1 );
+				p1 = this._context.userOrSendErr( m, p1 );
 				if ( !p1 ) return;
 			}
 
 			if ( p2 ) {
-				p2 = this._context.userOrShowErr( m, p2 );
+				p2 = this._context.userOrSendErr( m, p2 );
 				if ( !p2 ) return;
 			}
 
 			await this.gcache.printGames( m, p1, p2 );
 
-		} catch ( e ) { console.log(e);}
+		} catch ( e ) { console.error(e);}
 
 	}
 
-	async cmdNewGame( m, oppName, firstMove=null ) {
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} oppName 
+	 * @param {string} [firstMove] 
+	 * @returns {Promise}
+	 */
+	async cmdNewGame( m, oppName, firstMove ) {
 
 		try {
 
-			let opp = this._context.userOrShowErr( m.channel, oppName );
+			let opp = this._context.userOrSendErr( m.channel, oppName );
 			if ( !opp ) return;
 
 			let game = await this.gcache.getGame( m.author, opp );
@@ -55,39 +69,54 @@ class Room {
 
 			}
 
-			if ( firstMove == null ) game = await this.startGame( opp, m.author );
+			if ( !firstMove  ) game = await this.startGame( opp, m.author );
 			else {
 
 				game = await this.startGame( m.author, opp );
-				if ( !game.tryMove( firstMove) ) {
+				if ( !game.tryMove( firstMove) )
 					await m.reply( firstMove + ' is not a legal move.');
-				}
 
 			}
 
 			Display.showBoard( m.channel, game );
 
-		} catch( e) { console.log(e);}
+		} catch( e) { console.error(e);}
 
 	}
 
-	async cmdLoadGame( m, opp, gnum ) {
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} opp 
+	 * @param {?number} [gnum=null]
+	 * @returns {Promise}
+	 */
+	async cmdLoadGame( m, opp, gnum=null ) {
 
-		opp = this._context.userOrShowErr( m, opp )
-		if ( opp == null) return;
+		opp = this._context.userOrSendErr( m, opp )
+		if ( !opp ) return;
 
-		let game = this.gcache.getGame( m.author.id, opp.id, gnum );
+		let game = await this.gcache.getGame( m.author.id, opp.id, gnum );
 		if ( !game ) return m.reply( 'Game not found.');
 		else return m.reply( 'Game loaded.');
 
 	}
 
-	async cmdPGN( m, opp1, opp2, gnum ) {
+	/**
+	 * Display a PGN of a game.
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} [p1] 
+	 * @param {string} [p2] 
+	 * @param {?number} [gnum]
+	 * @returns {Promise}
+	 */
+	async cmdPGN( m, p1, p2, gnum ) {
 
-		if ( !opp1 ) opp1 = m.author;
-		else if ( !opp2 ) opp2 = m.author;
+		if ( !p1 ) p1 = m.author;
+		else if ( !p2 ) p2 = m.author;
 
-		let game = await this.gcache.gameOrShowErr( m, opp1, opp2, gnum );
+		let game = await this.gcache.gameOrSendErr( m, p1, p2, gnum );
 		if ( !game ) return;
 
 		try {
@@ -95,39 +124,57 @@ class Room {
 			let str = Export.toPGN( game );
 			return m.channel.send( str );
 
-		} catch ( e) { console.log(e); }
+		} catch ( e) { console.error(e); }
 
 	}
 
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} oppName 
+	 * @param {?number} [gnum]
+	 * @returns {Promise}
+	 */
 	async cmdResign( m, oppName, gnum ) {
 
-		let game = await this.gcache.gameOrShowErr( m, m.author, oppName, gnum);
+		let game = await this.gcache.gameOrSendErr( m, m.author, oppName, gnum);
 		if ( !game ) return;
 
-		if ( !game.tryResign() ) {
-			m.channel.send( 'The game is already over.');
-		}
+		if ( !game.tryResign() ) m.channel.send( 'The game is already over.');
 
-		this.showGameStatus( m.channel, game );
+		return this.sendGameStatus( m.channel, game );
 
 	}
 
-	async cmdViewBoard( m, opp1, opp2, gnum ) {
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {string} p1 
+	 * @param {string} p2 
+	 * @param {?number} [gnum]
+	 * @returns {Promise}
+	 */
+	async cmdViewBoard( m, p1, p2, gnum ) {
 
-		if ( !opp1 ) {
+		if ( !p1 ) {
 			//console.log('using author as opp1');
-			opp1 = m.author;
-		} else if ( !opp2 ) {
+			p1 = m.author;
+		} else if ( !p2 ) {
 			//console.log('using author as opp2');
-			opp2 = m.author;
+			p2 = m.author;
 		}
 
-		let game = await this.gcache.gameOrShowErr( m, opp1, opp2 );
+		let game = await this.gcache.gameOrSendErr( m, p1, p2, gnum );
 		if ( game ) return Display.showBoard( m.channel, game );
-		else console.log('GAME IS NULL');
 
 	}
 
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param  {...string[]} args
+	 * @returns {Promise}
+	 */
 	async cmdDoMove( m, ...args ) {
 
 		let len = args.length;
@@ -136,12 +183,12 @@ class Room {
 		else if ( len === 1 ) {
 
 			// !move moveStr
-			game = await this.gcache.gameOrShowErr( m, m.author, null );
+			game = await this.gcache.gameOrSendErr( m, m.author, null );
 			moveStr = args[0];
 
 		} else if ( len === 2 ) {
 			// !move opponent moveStr
-			game = await this.gcache.gameOrShowErr( m, m.author, args[0]);
+			game = await this.gcache.gameOrSendErr( m, m.author, args[0]);
 			moveStr = args[1];
 		} else return m.reply( 'Unexpected move input.' );
 
@@ -151,17 +198,22 @@ class Room {
 		
 	}
 
+	/**
+	 * @async
+	 * @param {Message} m 
+	 * @param {ChessGame} game 
+	 * @param {string} moveStr
+	 * @returns {Promise}
+	 */
 	async moveOrShowErr( m, game, moveStr ) {
 
-		if ( !game.isOpen() ) {
+		if ( !game.isOpen() ) return this.sendGameStatus( m.channel, game );
 
-			return this.showGameStatus( m.channel, game );
-
-		} else if ( game.turn === m.author.id ){
+		else if ( game.turn === m.author.id ){
 
 			if ( game.tryMove( moveStr ) ) {
 
-				this.showGameStatus( m.channel, game );
+				this.sendGameStatus( m.channel, game );
 
 				/// check game ended this turn.
 				if ( !game.isOpen() ) {
@@ -175,26 +227,35 @@ class Room {
 	}
 
 	/**
-	 * 
+	 * @async
 	 * @param {Channel} chan 
 	 * @param {Game} game 
 	 */
-	async showGameStatus( chan, game ) {
+	async sendGameStatus( chan, game ) {
 		return chan.send( game.getStatusString() );
 	}
 
+	/**
+	 * @async
+	 * @param {string} w_user - user id.
+	 * @param {string} b_user - user id.
+	 * @returns {ChessGame}
+	 */
 	async startGame( w_user, b_user ) {
 
 		let game = new ChessGame( w_user.id, b_user.id, Date.now() );
 
 		await this.gcache.addNew( game );
-		//console.log('creating game: ' + gid );
 		return game;
 
 	}
 
 } // class
 
+/**
+ * @async
+ * @param {BotContext} bot
+ */
 exports.init = async function( bot ) {
 
 	console.log( 'Chess INIT' );

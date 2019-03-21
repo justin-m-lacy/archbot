@@ -2,6 +2,10 @@ const Command = require( './command.js');
 
 module.exports = class CmdDispatch {
 
+	/**
+	 * 
+	 * @param {string} cmdPrefix 
+	 */
 	constructor( cmdPrefix='!') {
 
 		this.cmdLine = new CmdLine( cmdPrefix );
@@ -16,13 +20,14 @@ module.exports = class CmdDispatch {
 	/**
 	 * 
 	 * @param {string} name
-	 * @returns {Command|null}
+	 * @returns {(Command|null)}
 	 */
 	getCommand( name ) { return this.cmdLine.getCommand(name); }
 
 	/**
-	 * 
-	 * @param {string} input - command line input.
+	 * Parse a line of input.
+	 * @param {string} input - text input.
+	 * @returns {Command|null} - command found on input, or null.
 	 */
 	parseLine( input ) {
 		return this.cmdLine.setInput(input);
@@ -48,6 +53,7 @@ module.exports = class CmdDispatch {
 	 * @param {BotContext} context 
 	 * @param {Command} cmd 
 	 * @param {Array} leadArgs 
+	 * @returns {Promise}
 	 */
 	routeCmd( context, cmd, leadArgs ) {
 
@@ -61,40 +67,41 @@ module.exports = class CmdDispatch {
 	/**
 	 * 
 	 * @param {string} name - Name of command.
-	 * @param {string} usage - Command Usage details.
+	 * @param {string} desc - Command Usage details.
 	 * @param {function} func - Function to call.
 	 * @param {Class} cmdClass - Class which owns the function.
 	 * @param {Object} opts - Command options.
 	 * @param {number} [opts.minArgs] @param {number} [opts.maxArgs] @param {bool}[opts.hidden] @param {string}[opts.group]
 	 * @param {*[]} [opts.args] - Arguments to pass after all other arguments to command.
 	 */
-	addContextCmd( name, usage, func, cmdClass, opts=null ) {
+	addContextCmd( name, desc, func, cmdClass, opts=null ) {
 
-		//console.log('ADDING CONTEXT COMAND: ' + name );
 		try {
 			let cmd = new Command( name, func, opts );
-			cmd.usage = usage;
+			cmd.desc = desc;
 			cmd.instClass = cmdClass;
 			this.regCmd( cmd );
-		} catch(e) { console.log(e); }
+		} catch(e) { console.error(e); }
 
 	}
 
 	/**
 	 * 
 	 * @param {string} name 
-	 * @param {string} usage 
+	 * @param {string} desc 
 	 * @param {Function} func 
 	 * @param {Object} [opts=null] 
 	 */
-	add( name, usage, func, opts=null ) {
+	add( name, desc, func, opts=null ) {
 
 		try {
+
 			//console.log( 'static command: ' + name );
 			let cmd = new Command( name, func, opts );
-			cmd.usage = usage;
+			cmd.desc = desc;
 			this.regCmd( cmd );
-		} catch(e) { console.log(e); }
+
+		} catch(e) { console.error(e); }
 
 	}
 
@@ -116,6 +123,9 @@ module.exports = class CmdDispatch {
 
 	}
 
+	/**
+	 * {Object[string->command]}
+	 */
 	get commands() { return this.cmdLine.commands; }
 
 	/**
@@ -142,8 +152,6 @@ class CmdLine {
 	get args() { return this._args; }
 	get prefix() { return this._prefix; }
 
-	get command() { return this._cmd; }
-
 	/**
 	 * 
 	 * @param {string} name 
@@ -163,36 +171,32 @@ class CmdLine {
 
 	/**
 	 * 
-	 * @param {string} str 
+	 * @param {string} str
+	 * @returns {Command|null} The command found on the input line.
 	 */
 	setInput( str ) {
 
 		str = str.trim();
 
 		// cmd prefix.
-		if ( str.slice( 0, this._prefixLen ) !== this._prefix ) {
-
-			this._cmd = null;
-			return;
-
-		}
+		if ( str.slice( 0, this._prefixLen ) !== this._prefix ) return null;
 		
-		let ind = str.indexOf( ' ', this._prefixLen );
+		let cmd, ind = str.indexOf( ' ', this._prefixLen );
 		if ( ind < 0 ){
 
-			this._cmd = this._cmds[ str.slice( this._prefixLen ).toLowerCase() ];
+			cmd = this._cmds[ str.slice( this._prefixLen ).toLowerCase() ];
 			this._args = null;
-			return this._cmd;
+		
+		} else {
+
+			cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
+			if ( !cmd ) return null;
+
+			this.readArgs( str.slice( ind ), cmd );
 
 		}
 
-		this._cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
-		if ( !this._cmd ) return;
-
-		this.readArgs( str.slice( ind ), this._cmd );
-
-
-		return this._cmd;
+		return cmd;
 
 	}
 

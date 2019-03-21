@@ -10,7 +10,7 @@ module.exports = class Inventory {
 	set items(v) { this._items = v;}
 
 	/**
-	 * {Number}
+	 * {number}
 	 */
 	get length() { return this._items.length; }
 
@@ -79,7 +79,7 @@ module.exports = class Inventory {
 
 	/**
 	 * Retrieves an item by name or index.
-	 * @param {string|Number} start
+	 * @param {string|number} start
 	 * @returns {Item|null} Item found, or null on failure.
 	 */
 	get( start, sub ) {
@@ -107,8 +107,8 @@ module.exports = class Inventory {
 	 * Returns an item from a sub-inventory, or a range of items
 	 * if the base item is not an inventory, and the second param
 	 * is a number.
-	 * @param {string|Number} base 
-	 * @param {string|Number} sub
+	 * @param {string|number} base 
+	 * @param {string|number} sub
 	 * @returns {Item|[Item]|null}
 	 */
 	getSub( base, sub ) {
@@ -141,8 +141,8 @@ module.exports = class Inventory {
 
 	/**
 	 * 
-	 * @param {Number} start - start number of items to take.
-	 * @param {Number} finish - end number of items to take.
+	 * @param {number} start - start number of items to take.
+	 * @param {number} finish - end number of items to take.
 	 * @returns {[Item]|null} - Range of items found.
 	 */
 	takeRange( start, finish ) {

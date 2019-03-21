@@ -75,7 +75,7 @@ module.exports = {
 	/**
 	 * Attempts to get a day of the week.
 	 * @param {string} str
-	 * @returns {Number} zero-based day of week, or -1 on failure.
+	 * @returns {number} zero-based day of week, or -1 on failure.
 	 */
 	tryGetDay( str ) {
 
@@ -89,7 +89,7 @@ module.exports = {
 	/**
 	 * Get a numeric month of the year based on a month string.
 	 * @param {string} str
-	 * @returns {Number} zero-based month of the year, or -1 on failure.
+	 * @returns {number} zero-based month of the year, or -1 on failure.
 	 */
 	tryGetMonth( str ) {
 
@@ -102,7 +102,7 @@ module.exports = {
 
 	/**
 	 * 
-	 * @param {Number} since - timestamp of the starting Date.
+	 * @param {number} since - timestamp of the starting Date.
 	 * @returns {string} Description of time elapsed.
 	 */
 	elapsed( since ) {
@@ -114,7 +114,7 @@ module.exports = {
 
 	/**
 	 * Gets a string describing a span of time.
-	 * @param {Number} dt - span of time in milliseconds.
+	 * @param {number} dt - span of time in milliseconds.
 	 * @returns {string} - description of the time span. 
 	 */
 	timespan( dt ) {
@@ -125,7 +125,7 @@ module.exports = {
 	/**
 	 * Returns a date string formatted for a date/time appropriate
 	 * to the intervening time scale.
-	 * @param {Date|Number} date
+	 * @param {Date|number} date
 	 * @returns {string} 
 	 */
 	dateString( date ) {
@@ -185,8 +185,8 @@ module.exports = {
 
 	/**
 	 * Determines if the elapsed milliseconds is under a day.
-	 * @param {Number} dt - elapsed period if time in milliseconds.
-	 * @returns {Boolean} - true if the elapsed time is less than a day. 
+	 * @param {number} dt - elapsed period if time in milliseconds.
+	 * @returns {boolean} - true if the elapsed time is less than a day. 
 	 */
 	inDay( dt ) {
 		return Math.abs(dt) < ms_per_day;
@@ -194,8 +194,8 @@ module.exports = {
 
 	/**
 	 * Determines if the elapsed milliseconds is under a week.
-	 * @param {Number} dt - elapsed period if time in milliseconds.
-	 * @returns {Boolean} - true if the elapsed time is less than a week. 
+	 * @param {number} dt - elapsed period if time in milliseconds.
+	 * @returns {boolean} - true if the elapsed time is less than a week. 
 	 */
 	inWeek( dt ) {
 		return Math.abs(dt) < 7*ms_per_day;
@@ -203,8 +203,8 @@ module.exports = {
 
 	/**
 	 * Determines if the elapsed milliseconds is under a month.
-	 * @param {Number} dt - elapsed period if time in milliseconds.
-	 * @returns {Boolean} - true if the elapsed time is less than a month. 
+	 * @param {number} dt - elapsed period if time in milliseconds.
+	 * @returns {boolean} - true if the elapsed time is less than a month. 
 	 */
 	inMonth( dt ) {
 		return Math.abs(dt) < 31*ms_per_day;
@@ -212,8 +212,8 @@ module.exports = {
 
 	/**
 	 * Determines if the elapsed milliseconds is under a year.
-	 * @param {Number} dt - elapsed period if time in milliseconds.
-	 * @returns {Boolean} - true if the elapsed time is less than a year. 
+	 * @param {number} dt - elapsed period if time in milliseconds.
+	 * @returns {boolean} - true if the elapsed time is less than a year. 
 	 */
 	inYear( dt ) {
 		return Math.abs(dt) < ms_per_year;

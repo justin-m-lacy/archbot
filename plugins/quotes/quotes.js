@@ -28,14 +28,14 @@ class Quoter {
 
 		this.quotes.push( q );
 
-		this._context.storeKeyData( 'quoter/quotes', this.quotes );
+		this._context.storeData( 'quoter/quotes', this.quotes );
 
 	}
 
 	async loadQuotes() {
 
 		try {
-			let q = await this._context.fetchKeyData( 'quoter/quotes' );
+			let q = await this._context.fetchData( 'quoter/quotes' );
 
 			if ( q != null ) {
 

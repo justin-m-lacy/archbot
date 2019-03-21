@@ -11,7 +11,7 @@ module.exports = {
 	/**
 	 * Parse a string to get a number of game turns.
 	 * @param {string} str - time string.
-	 * @returns {Number} duration in number of turns.
+	 * @returns {number} duration in number of turns.
 	 */
 	getTurns( str ) {
 
@@ -41,7 +41,7 @@ module.exports = {
 
 	/**
 	 * Converts a number of turns into a string duration.
-	 * @param {Number} turns - number of turns.
+	 * @param {number} turns - number of turns.
 	 * @returns {string} - human readable duration.
 	 */
 	getDuration( turns ){
