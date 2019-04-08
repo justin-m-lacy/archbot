@@ -76,7 +76,7 @@ class Info {
 
 			await this._context.storeData( this.getKey(), this.infos );
 	
-		} catch ( e ) { console.log(e); }
+		} catch ( e ) { console.error(e); }
 
 	}
 
@@ -86,9 +86,9 @@ class Info {
 
 			let infoData = await this._context.fetchData( this.getKey() );
 			if ( infoData ) this.infos = infoData;
-			else console.log('Info data not found.');
+			else console.warn('Info data not found.');
 
-		} catch ( e ) { console.log(e);}
+		} catch ( e ) { console.error(e);}
 
 	}
 
@@ -97,9 +97,9 @@ class Info {
 
 exports.init = function( bot ) {
 
-	bot.addContextCmd( 'info', '!info <subject> [definition]',
+	bot.addContextCmd( 'info', 'info <subject> [definition]',
 		Info.prototype.cmdInfo, Info, { minArgs:1, maxArgs:2, group:'right'} );
-	bot.addContextCmd( 'rminfo', '!rminfo <subject> [definition]',
+	bot.addContextCmd( 'rminfo', 'rminfo <subject> [definition]',
 		Info.prototype.cmdRmInfo, Info, { minArgs:1, maxArgs:1, group:'right'} );
 
 }

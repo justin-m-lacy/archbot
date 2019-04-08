@@ -4,7 +4,7 @@ var bot;
 exports.init = function( mainbot ) {
 
 	bot = mainbot;
-	mainbot.dispatch.add( 'fight', '!fight [user]', cmdFight, {maxArgs:1}  );
+	mainbot.dispatch.add( 'fight', 'fight [user]', cmdFight, {maxArgs:1}  );
 
 }
 

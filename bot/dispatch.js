@@ -3,6 +3,11 @@ const Command = require( './command.js');
 module.exports = class CmdDispatch {
 
 	/**
+	 * {string}
+	 */
+	get prefix() { return this.cmdLine.prefix; }
+
+	/**
 	 * 
 	 * @param {string} cmdPrefix 
 	 */

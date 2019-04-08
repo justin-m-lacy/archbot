@@ -109,7 +109,7 @@ module.exports = class Game {
 	 * Override in subclasses.
 	 * @returns {boolean} true if game is still in progress.
 	*/
-	isOpen() { return true; }
+	inProgress() { return true; }
 
 	/**
 	 * Check if a user id matches one of the players of the game.

@@ -35,37 +35,37 @@ function initCmds(){
 
 	let cmds = bot.dispatch;
 
-	cmds.add( 'help', '!help <cmd>', cmdHelp, {maxArgs:1, module:'default'} );
+	cmds.add( 'help', 'help <cmd>', cmdHelp, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'schedule', '!schedule <activity> <times>', cmdSchedule, { maxArgs:2, group:'right', module:'default'} );
+	cmds.add( 'schedule', 'schedule <activity> <times>', cmdSchedule, { maxArgs:2, group:'right', module:'default'} );
 
-	cmds.add( 'sleep', '!sleep <sleep schedule>', cmdSleep, {maxArgs:1, module:'default'} );
-	cmds.add( 'when', '!when <userName> <activity>', cmdWhen, {maxArgs:2, module:'default'} );
+	cmds.add( 'sleep', 'sleep <sleep schedule>', cmdSleep, {maxArgs:1, module:'default'} );
+	cmds.add( 'when', 'when <userName> <activity>', cmdWhen, {maxArgs:2, module:'default'} );
 	cmds.add( 'roll','!roll [n]d[s]', cmdRoll, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'uid', '!uid <username>', cmdUid, {maxArgs:1, module:'default'}  );
-	cmds.add( 'uname', '!uname <nickname>', cmdUName, {maxArgs:1, module:'default'} );
-	cmds.add( 'nick', '!nick <displayName>', cmdNick, {maxArgs:1, module:'default'}  );
-	cmds.add( 'uptime', '!uptime', cmdUptime );
+	cmds.add( 'uid', 'uid <username>', cmdUid, {maxArgs:1, module:'default'}  );
+	cmds.add( 'uname', 'uname <nickname>', cmdUName, {maxArgs:1, module:'default'} );
+	cmds.add( 'nick', 'nick <displayName>', cmdNick, {maxArgs:1, module:'default'}  );
+	cmds.add( 'uptime', 'uptime', cmdUptime );
 
 	cmds.add( 'lastplay','!lastplay <userName> <gameName>', cmdLastPlay, {maxArgs:2, module:'default'} );
-	cmds.add( 'laston', '!laston <userName>', cmdLastOn, {maxArgs:1, module:'default'} );
-	cmds.add( 'lastidle', '!lastidle <userName>', cmdLastIdle, {maxArgs:1, module:'default'} );
-	cmds.add( 'lastactive', '!lastactive <userName>', cmdLastActive, {maxArgs:1, module:'default'} );
-	cmds.add( 'lastoff', '!lastoff <userName>', cmdLastOff, {maxArgs:1, module:'default'} );
+	cmds.add( 'laston', 'laston <userName>', cmdLastOn, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastidle', 'lastidle <userName>', cmdLastIdle, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastactive', 'lastactive <userName>', cmdLastActive, {maxArgs:1, module:'default'} );
+	cmds.add( 'lastoff', 'lastoff <userName>', cmdLastOff, {maxArgs:1, module:'default'} );
 
-	cmds.add( 'offtime', '!offtime <userName>', cmdOffTime, {maxArgs:1, module:'default'} );
-	cmds.add( 'ontime', '!ontime <username>', cmdOnTime, {maxArgs:1, module:'default'} );
-	cmds.add( 'idletime', '!idletime <username>', cmdIdleTime, {maxArgs:1, module:'default'} );
-	cmds.add( 'playtime', '!playtime <userName>', cmdPlayTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'offtime', 'offtime <userName>', cmdOffTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'ontime', 'ontime <username>', cmdOnTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'idletime', 'idletime <username>', cmdIdleTime, {maxArgs:1, module:'default'} );
+	cmds.add( 'playtime', 'playtime <userName>', cmdPlayTime, {maxArgs:1, module:'default'} );
 
 	cmds.add( 'magicmissile', 'You need material components for all of your spells.',
 		(m)=>m.channel.send( 'You attack the darkness.' ), {hidden:true, module:'magic'} );
 	cmds.add( 'palantir', 'What does the Great Eye command?', (m)=>m.channel.send( 'Build me an army worthy of Mordor.'), {hidden:true, module:'orthanc'} );
-	cmds.add( 'ranking', '!ranking', cmdRanking, { hidden:true, maxArgs:0});
+	cmds.add( 'ranking', 'ranking', cmdRanking, { hidden:true, maxArgs:0});
 	cmds.add( 'fuck', null, cmdFuck, {hidden:true, module:'explicit'} );
 
-	cmds.add( 'test', '!test [ping message]', cmdTest, {maxArgs:1, module:'default'} );
+	cmds.add( 'test', 'test [ping message]', cmdTest, {maxArgs:1, module:'default'} );
 
 }
 
@@ -239,7 +239,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 		return channel.send( displayName + ' last played ' + gameName + ' ' + dateStr );
 
 	} catch ( err ) {
-		console.log(err);
+		console.error(err);
 		await channel.send( gameName + ': No record for ' + displayName + ' found.' );
 	}
 
@@ -269,7 +269,7 @@ async function cmdPlayTime( msg, name ){
 		}
 
 	} catch ( err ) {
-		console.log(err);
+		console.error(err);
 	}
 	return chan.send( 'I do not know when ' + name + '\'s game started.');
 
@@ -301,7 +301,7 @@ async function cmdIdleTime( msg, name ){
 
 	} catch ( err ){
 		
-		console.log( err );
+		console.error( err );
 	}
 
 	return chan.send( 'I do not know when ' + name + ' went idle.' );
@@ -336,7 +336,7 @@ async function cmdOnTime( msg, name ) {
 
 	} catch ( err ){
 		
-		console.log( err );
+		console.error( err );
 	}
 
 	return chan.send( 'I do not know when ' + name + ' came online.' );

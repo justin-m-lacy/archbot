@@ -62,7 +62,7 @@ class Room {
 			if ( !opp ) return;
 
 			let game = await this.gcache.getGame( m.author, opp );
-			if ( game && game.isOpen() ) {
+			if ( game && game.inProgress() ) {
 
 				console.log( 'playing existing game.');
 				return this.moveOrShowErr( m, game, firstMove );
@@ -207,7 +207,7 @@ class Room {
 	 */
 	async moveOrShowErr( m, game, moveStr ) {
 
-		if ( !game.isOpen() ) return this.sendGameStatus( m.channel, game );
+		if ( !game.inProgress() ) return this.sendGameStatus( m.channel, game );
 
 		else if ( game.turn === m.author.id ){
 
@@ -216,7 +216,7 @@ class Room {
 				this.sendGameStatus( m.channel, game );
 
 				/// check game ended this turn.
-				if ( !game.isOpen() ) {
+				if ( !game.inProgress() ) {
 					await this.gcache.completeGame( game );
 				}
 
@@ -262,22 +262,22 @@ exports.init = async function( bot ) {
 
 	await Display.loadImages();
 
-	bot.addContextCmd( 'chessgames', '!chessgames [player1] [player2]', Room.prototype.cmdShowGames, Room, {maxArgs:2} );
+	bot.addContextCmd( 'chessgames', 'chessgames [player1] [player2]', Room.prototype.cmdShowGames, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'loadchess', '!loadchess [opp] [game num]\nLoad a game to be your currently played game.',
+	bot.addContextCmd( 'loadchess', 'loadchess [opp] [game num]\nLoad a game to be your currently played game.',
 		Room.prototype.cmdLoadGame, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'chess', '!chess <opponentName> [firstMove]',
+	bot.addContextCmd( 'chess', 'chess <opponentName> [firstMove]',
 		Room.prototype.cmdNewGame, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'chessmove', '!chessmove [opponentName] <moveString>',
+	bot.addContextCmd( 'chessmove', 'chessmove [opponentName] <moveString>',
 		Room.prototype.cmdDoMove, Room, {maxArgs:2} );
-	bot.addContextCmd( 'chessboard', '!chessboard [opponentName]',
+	bot.addContextCmd( 'chessboard', 'chessboard [opponentName]',
 		Room.prototype.cmdViewBoard, Room, {maxArgs:2} );
 
-	bot.addContextCmd( 'resign', '!resign [opponentName] [game number]',
+	bot.addContextCmd( 'resign', 'resign [opponentName] [game number]',
 		Room.prototype.cmdResign, Room, { maxArgs:1} );
 
-	bot.addContextCmd( 'pgn', '!pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:2} );
+	bot.addContextCmd( 'pgn', 'pgn [opponentName]', Room.prototype.cmdPGN, Room, {maxArgs:2} );
 
 } // init()

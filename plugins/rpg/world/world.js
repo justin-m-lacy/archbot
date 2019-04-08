@@ -132,7 +132,7 @@ module.exports = class World {
 
 		let loc = char.loc;
 		if ( !loc ) {
-			console.log('Error: char loc is null');
+			console.error('Char loc is null');
 			loc = new Loc.Coord(0,0);
 		}
 
@@ -199,7 +199,7 @@ module.exports = class World {
 	async look( char, what ) {
 
 		let loc = await this.getOrGen( char.loc );
-		//console.log('LOOKING at: ' + char.loc );
+
 		if ( what ) {
 
 			let it = loc.get( what );
@@ -282,7 +282,7 @@ module.exports = class World {
 
 		let from = await this.getLoc( coord.x, coord.y );
 		if ( !from ){
-			console.log( 'error: starting loc null.');
+			console.warn( 'error: starting loc null.');
 			return 'Error: Not in a starting location.'
 		} 
 

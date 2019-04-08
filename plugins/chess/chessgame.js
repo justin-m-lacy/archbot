@@ -85,7 +85,7 @@ module.exports = class ChessGame extends Game {
 
 	}
 
-	isOpen() {
+	inProgress() {
 		return this._status === OPEN;
 	}
 

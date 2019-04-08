@@ -10,36 +10,39 @@ const Access = require( './access.js' );
 const Context = class {
 
 	/**
-	 * {string} 'guild', 'user', 'dm', 'group', 'channel'
+	 * @property {string} type - 'guild', 'user', 'dm', 'group', 'channel'
 	 */
 	get type() { return 'unknown'; }
 
 	/**
 	 * 
-	 * {object} discord obj whose id serves as context base.
+	 * @property {object} idObject - discord obj whose id serves as context base.
 	 */
 	get idObject() { return this._idobj; }
 
 	/**
-	 * {string} id of the discord object associated with this context.
+	 * @property {string} sourceID - id of the discord object associated with this context.
 	 */
 	get sourceID() { return this._idobj.id; }
 
 	/**
-	 * {DisordBot}
+	 * @property {DisordBot} bot
 	 */
 	get bot() { return this._bot; }
 
 	/**
-	 * {Cache}
+	 * @property {Cache} cache
 	 */
 	get cache() { return this._cache; }
 
 	/**
-	 * {Access} - Information about access to settings and commands.
+	 * @property {Access} access - Information about access to settings and commands.
 	 */
 	get access() { return this._access; }
 	set access(v) { this._access = v; }
+
+	get afs() { return afs; }
+	get botfs() { return fsys; }
 
 	/**
 	 * @param {DiscordBot} bot
@@ -160,9 +163,7 @@ const Context = class {
 	async setSetting( key, value=null ) {
 
 		let settings = await this.cache.fetch( 'settings');
-		if ( !settings ) {
-			settings = {};
-		}
+		if ( !settings ) settings = {};
 
 		settings[key] = value;
 		this.cache.cache( 'settings', value );
@@ -172,13 +173,14 @@ const Context = class {
 	/**
 	 * @async
 	 * @param {string} key
+	 * @param {string} defaultset - value to return if setting not found.
 	 * @returns {Promise<*|undefined>}
 	 */
-	async getSetting( key ) {
+	async getSetting( key, defaultset=undefined ) {
 
 		let settings = await this.cache.fetch( 'settings');
 
-		if ( !settings || !settings.hasOwnProperty(key)) return undefined;
+		if ( !settings || !settings.hasOwnProperty(key)) return defaultset;
 		return settings[key];
 
 	}
@@ -308,7 +310,7 @@ const Context = class {
 
 	/**
 	 * Returns a name to display for the given user.
-	 * @param {string|Discord.User|Discord.GuildMember} o
+	 * @param {(string|Discord.User|Discord.GuildMember)} o
 	 * @returns {string}
 	 */
 	userString( o ) {
@@ -325,6 +327,12 @@ const Context = class {
 	 * @returns {null} overridden in subclasses.
 	 */
 	findUser( name ) { return null; }
+
+	/**
+	 * Override in subclass.
+	 * @param {string} name 
+	 */
+	findChannel( name ) { return null; }
 
 	/**
 	 * Adds a class to be instantiated for the given context,
@@ -369,7 +377,7 @@ const Context = class {
 	 */
 	async routeCommand( cmd, args ) {
 
-		console.time( cmd.name );
+		//console.time( cmd.name );
 
 		let target = this._instances[ cmd.instClass.name ];
 		if ( !target ) target = await this.addClass( cmd.instClass );
@@ -377,7 +385,7 @@ const Context = class {
 
 		cmd.func.apply( target, args );
 
-		console.timeEnd( cmd.name );
+		//console.timeEnd( cmd.name );
 
 	}
 
@@ -537,6 +545,12 @@ exports.GuildContext = class extends Context {
 
 		return 'Unknown User';
 
+	}
+
+	findChannel( name ) {
+
+		name = name.toLowerCase();
+		return this.channels.find( c=> c.name.toLowerCase() === name );
 	}
 
 	/**

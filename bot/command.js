@@ -1,35 +1,35 @@
 module.exports = class Command {
 
 	/**
-	 * {number}
+	 * @property {string}
 	 */
 	get name() { return this._name; }
 
 	/**
-	 * {string|string[]}
+	 * @property {string|string[]}
 	 */
 	get alias() { return this._alias || null; }
 	set alias(v) { this._alias = v; }
 
 	
 	/**
-	 * {boolean} Whether the command is implemented as a direction function call.
+	 * @property {boolean} Whether the command is implemented as a direction function call.
 	 */
 	get isDirect() { return this._instClass == null; }
 
 	/**
-	 * {boolean} Whether the command is linked to a context class.
+	 * @property {boolean} Whether the command is linked to a context class.
 	 */
 	get isContext() { return this._instClass != null; }
 
 	/**
-	 * {Object} Object class to instantiate for every bot context.
+	 * @property {Object} Object class to instantiate for every bot context.
 	 */
 	get instClass() { return this._instClass; }
 	set instClass(v) { this._instClass =v;}
 
 	/**
-	 * {string} name of module that the command belongs to.
+	 * @property {string} name of module that the command belongs to.
 	 */
 	get module(){
 		return this._module || this._instClass ? this._instClass.constructor.name : 'unknown';
@@ -37,60 +37,63 @@ module.exports = class Command {
 	set module(v) { this._module = v;}
 
 	/**
-	 * {function}
+	 * @property {function}
 	 */
 	get func() { return this._func };
 	set func(v) { this._func =v; }
 
 	/**
-	 * {string} Detailed command usage information.
+	 * @property {string} Detailed command usage information.
 	 */
 	get usage() { return this._usage || this.desc; }
 	set usage(v) { this._usage = v; }
 
 	/**
-	 * {string} short description of command.
+	 * @property {string} short description of command.
 	 */
 	get desc() { return this._desc || 'Unknown'; }
 	set desc(v) { this._desc=v;}
 
 	/**
-	 * {string} The way command line words are grouped into commmand arguments.
+	 * @property {string} The way command line words are grouped into commmand arguments.
 	 * Valid options are 'left' or 'right'.
 	 */
 	get group() { return this._group || null; }
 	set group(v) { this._group = v;}
 
 	/**
-	 * {boolean} Hidden commands are not displayed in the help list.
+	 * @property {boolean} Hidden commands are not displayed in the help list.
 	 */
 	get hidden() { return this._hidden || false; }
 	set hidden(v) { this._hidden = v;}
 
+	/**
+	 * @property 
+	 */
 	get args() { return this._args || null; }
 	set args(v) { this._args = v;}
 
 	/**
-	 * {number} minimum arguments which must be supplied with the command.
+	 * @property {number} minimum arguments which must be supplied with the command.
 	 */
 	get minArgs() { return this._minArgs || 0; }
 	set minArgs(v) { this._minArgs = v;}
 
 	/**
-	 * {number} maximum number of arguments that can be supplied to the command.
+	 * @property {number} maximum number of arguments that can be supplied to the command.
 	 */
 	get maxArgs() { return this._maxArgs || null; }
 	set maxArgs(v) {this._maxArgs = v;}
 
 	/**
-	 * {number} Default permissions required to use this command.
+	 * @property {number} Default permissions required to use this command.
 	 * Can be overridden by BotContext Access.
 	 */
 	get access() { return this._access; }
 	set access(v) { this._access = v;}
 
 	/**
-	 * {boolean} - immutable commands cannot have their access level changed.
+	 * @property {boolean} - immutable commands cannot have their access level changed.
 	 */
 	get immutable() { return this._immutable; }
 	set immutable(v) { this._immutable = v; }
@@ -110,6 +113,11 @@ module.exports = class Command {
 
 	}
 
+	/**
+	 * 
+	 * @param {string} cmd
+	 * @returns {boolean}
+	 */
 	isMatch( cmd ) {
 
 		if ( this._name === cmd ) return true;

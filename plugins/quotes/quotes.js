@@ -52,7 +52,7 @@ class Quoter {
 
 exports.init = function( bot ) {
 
-	bot.addContextCmd( 'quote', '!quote', Quoter.prototype.cmdQuote, Quoter );
-	bot.addContextCmd( 'mkquote', '!mkquote ["stupid quote"]', Quoter.prototype.cmdNewQuote, Quoter );
+	bot.addContextCmd( 'quote', 'quote', Quoter.prototype.cmdQuote, Quoter );
+	bot.addContextCmd( 'mkquote', 'mkquote ["stupid quote"]', Quoter.prototype.cmdNewQuote, Quoter );
 
 }
