@@ -1,12 +1,12 @@
 const urlRe = /^https?\:\/\//i;
 
-export default class AudioSource {
+module.exports = class AudioSource {
 
 	constructor( path, title=null, type=null ){
 
 		this.path = path;
 		this.title = title;
-		this.type = type || findType(path);
+		this.type = type || this.findType(path);
 
 	}
 

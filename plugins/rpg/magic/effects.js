@@ -9,7 +9,7 @@ function loadEffects() {
 	for( let i = efx.length-1; i >=0; i-- ) {
 
 		var e = efx[i];
-		console.log('parsing effect: ' + e.name );
+		//console.log('parsing effect: ' + e.name );
 		effects[e.name] = Effect.FromJSON(e);
 
 	} //for
