@@ -10,7 +10,7 @@ const GUILDS_DIR = 'guilds/';
  * @constant {strnig} PLUGINS_DIR - directory for plugin-level savedata.
  * Data that is constant for all instances of a plugin.
  */
-const PLUGINS_DIR = 'plugins';
+const PLUGINS_DIR = 'plugins/';
 
 /**
  * @constant {string} CHANNELS_DIR
@@ -134,8 +134,8 @@ module.exports = {
 	 */
 	getPluginDir( plugin ) {
 
-		if ( !plugin ) return PLUGINS_DIR;
-		return PLUGINS_DIR + plugin + '/';
+		if ( !plugin ) return BASE_DIR + PLUGINS_DIR;
+		return BASE_DIR + PLUGINS_DIR + plugin + '/';
 
 	},
 
@@ -148,7 +148,7 @@ module.exports = {
 		return BASE_DIR;
 	},
 	setBaseDir(v) {
-		BASE_DIR = v;
+		BASE_DIR = v + '/';
 	},
 
 	fileExists:async (filePath) => {

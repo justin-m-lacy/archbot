@@ -36,9 +36,9 @@ function initTemplates() {
 
 	for( let k = byLevel.length-1; k >= 0; k-- ) {
 		a = byLevel[k];
-		if ( a ) console.log('Level ' + k + ' monsters: ' + a.length );
+		//if ( a ) console.log('Level ' + k + ' monsters: ' + a.length );
 	}
-	console.log( 'total monsters: ' + tot );
+	//console.log( 'total monsters: ' + tot );
 
 }
 

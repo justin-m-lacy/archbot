@@ -75,15 +75,6 @@ exports.readfiles = (path, options=null) => new Promise( (res,rej)=>{
 	let count;
 	let found = [];
 
-	const statRes = (e,stats) => {
-
-		if ( !e ) {
-			if( stats.isFile() ) found.push(f);
-		}
-		if ( --count <= 0 ) res(found);
-
-	}
-
 	readdir( path, options ).then(
 
 		files=>{
@@ -92,7 +83,14 @@ exports.readfiles = (path, options=null) => new Promise( (res,rej)=>{
 			for( let i = count-1; i>= 0;i-- ) {
 
 				let f = files[i];
-				fs.stat( path + f, statRes );
+				fs.stat( path + f, (e,stats)=>{
+
+					if ( !e ) {
+						if( stats.isFile() ) found.push(f);
+					}
+					if ( --count <= 0 ) res(found);
+
+				});
 
 			}
 

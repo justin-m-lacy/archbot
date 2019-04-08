@@ -1,7 +1,7 @@
-import Discord, { GuildMember } from 'discord.js';
-import AudioSource from './audioSource';
+const Discord = require( 'discord.js' );
+const AudioSource = require( './audioSource' );
 
-import path from 'path';
+const path = require( 'path' );
 
 /**
  * @constant {number} MAX_STREAMS - Maximum number of simultaneous audio streams.
@@ -74,6 +74,7 @@ class Juke {
 
 		context.bot.client.on( 'voiceStateUpdate', (o,n)=>this.voiceChanged(o,n) );
 
+		this.readFileSongs();
 	}
 
 	readFileSongs() {
@@ -83,7 +84,7 @@ class Juke {
 
 			files=>{
 
-				for( name of files ) {
+				for( let name of files ) {
 					this._allSongs.push( new AudioSource( name ) );
 				}
 
@@ -101,7 +102,7 @@ class Juke {
 
 	playNext() {
 
-		if ( !this.channel || !this.channel.connection || this.channel.members.size <= 1
+		if ( !this.channel || !this._connection || this.channel.members.size <= 1
 			|| this._queue.length <= 0 ) return;
 
 		let next = this._queue.shift();
@@ -128,7 +129,10 @@ class Juke {
 	tryJoinChannel() {
 
 		let channel = this._context.findChannel( this._channelName );
-		if ( !channel ) return false;
+		if ( !channel ) {
+			console.error('Channel not found: ' + channel );
+			return false;
+		}
 
 		if ( !(channel instanceof Discord.VoiceChannel )) return false;
 
@@ -140,6 +144,8 @@ class Juke {
 
 			this.playNext();
 
+		}, err=>{
+			console.error('Join Channel Failed: ' + err );
 		});
 
 	}
@@ -160,7 +166,7 @@ class Juke {
 		if ( this._connection.speaking ) {
 
 			if ( this._connection.dispatcher && this.channel.members.size <= 1 ) {
-				dispatcher.pause();
+				this._connection.dispatcher.pause();
 			}
 
 		} else {
@@ -260,11 +266,11 @@ class Juke {
 	}
 
 	async cmdSongs( m ) {
-		return m.send( 'Songs Available:\n' + this.displayList( this._allSongs ) );
+		return m.channel.send( 'Songs Available:\n' + this.displayList( this._allSongs ) );
 	}
 
 	async cmdPlaylist( m ) {
-		return m.send( 'Current Playlist:\n' + this.displayList( this._queue ) );
+		return m.channel.send( 'Current Playlist:\n' + this.displayList( this._queue ) );
 	}
 
 	/**

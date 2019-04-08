@@ -550,7 +550,7 @@ exports.GuildContext = class extends Context {
 	findChannel( name ) {
 
 		name = name.toLowerCase();
-		return this.channels.find( c=> c.name.toLowerCase() === name );
+		return this.idObject.channels.find( c=> c.name.toLowerCase() === name );
 	}
 
 	/**
