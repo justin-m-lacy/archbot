@@ -55,7 +55,6 @@ module.exports = class Combat {
 
 		if ( this.defender.state === 'dead') {
 	
-			console.log('NPC SLAIN');
 			this.world.removeNpc( this.attacker, this.defender );
 			await this.doLoot( this.attacker, itemgen.genLoot( this.defender ) );
 
@@ -63,6 +62,12 @@ module.exports = class Combat {
 
 	}
 
+	/**
+	 * @async
+	 * @param {Party} p 
+	 * @param {*} dest
+	 * @returns {Promise}
+	 */
 	async partyAttack( p, dest ) {
 
 		let destParty = dest instanceof Party;
@@ -86,7 +91,7 @@ module.exports = class Combat {
 
 				var destChar = dest.randTarget();
 				if ( !destChar ) {
-					console.log( 'WARNING: all opponents have 0 hp.');
+					console.warn( 'All opponents have 0 hp.');
 					break;	// no opponents with hp left.
 				}
 				await this.tryHit( c, destChar, p );
@@ -97,6 +102,10 @@ module.exports = class Combat {
 
 	}
 
+	/**
+	 * @async
+	 * @returns {Promise}
+	 */
 	async fight() {
 
 		if ( !(this.attacker.loc.equals(this.defender.loc)) ) {
@@ -120,6 +129,10 @@ module.exports = class Combat {
 	
 	}
 
+	/**
+	 * @async
+	 * @returns {Promise}
+	 */
 	async resolve() {
 
 		let len = this.attacks.length;
@@ -128,7 +141,7 @@ module.exports = class Combat {
 			var atk = this.attacks[i];
 			if ( atk.killed ) {
 
-				console.log('attack kills defender.')
+				//console.log('attack kills defender.')
 				atk.defender.updateState();
 				this.resp += ` ${atk.defender.name} was slain.`;
 
@@ -137,13 +150,13 @@ module.exports = class Combat {
 					try {
 						let g = Grave.MakeGrave( atk.defender, atk.attacker );
 						this.resp += await this.world.put( atk.defender, g );
-					} catch(e) {console.log(e);}
+					} catch(e) {console.error(e);}
 
 				}
 
 				if ( atk.attacker instanceof Char ) {
 
-					console.log( 'Char killed defender.');
+					//console.log( 'Char killed defender.');
 					return this.doKill( atk.attacker, atk.defender, atk.party );
 
 				}
@@ -157,9 +170,9 @@ module.exports = class Combat {
 
 	async tryHit( src, dest, srcParty ) {
 
-		if ( !src ) {console.log( 'tryHit() src is null'); return; }
+		if ( !src ) {console.warn( 'tryHit() src is null'); return; }
 		if ( dest instanceof Party ) dest = await dest.randTarget();
-		if ( !dest ) { console.log( 'tryHit() dest is null'); return; }
+		if ( !dest ) { console.warn( 'tryHit() dest is null'); return; }
 
 		let attack = new AttackInfo( src, dest, srcParty );
 

@@ -61,11 +61,11 @@ module.exports = class {
 
 		if ( biomeName == null) {
 			 biomeName = Loc.PLAINS;
-			 console.log('ERR: ' + biomeName + ' is not a valid biome.');
+			 console.warn( biomeName + ' is not a valid biome.');
 		}
 		let tmpl = biomes[biomeName];
 		if ( tmpl == null ) {
-			console.log( 'err: NO BIOME: ' + biomeName );
+			console.warn( 'NO BIOME: ' + biomeName );
 		}
 		let loc = new Loc.Loc( coord, biomeName );
 
@@ -86,7 +86,7 @@ function randBiome( prevBiome ) {
 	
 	let biome = biomes[ prevBiome ];
 	if ( biome == null ) {
-		console.log( 'error: unknown biome: ' + prevBiome );
+		console.warn( 'unknown biome: ' + prevBiome );
 		return Loc.TOWN;
 	}
 

@@ -63,7 +63,7 @@ function findAndLoad( dir, init_func=null ) {
 			}
 
 		} catch (err ){
-			console.log(err);
+			console.error(err);
 		}
 
 	}

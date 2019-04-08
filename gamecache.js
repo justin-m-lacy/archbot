@@ -245,7 +245,7 @@ module.exports = class GameCache {
 	async printGames( m, u1, u2 ) {
 
 		let list = await this.activeGames( u1, u2 );
-		return m.reply( listToString(list ) );
+		return m.reply( await this.listToString(list ) );
 
 	}
 
@@ -284,7 +284,7 @@ module.exports = class GameCache {
 		
 		let info = Game.IdParts(game.saveID);
 
-		if ( game.isOpen() ) {
+		if ( game.inProgress() ) {
 
 			console.log('GAME IS OPEN');
 			this.insertGame( list1.active, info );

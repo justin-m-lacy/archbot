@@ -2,7 +2,7 @@ var responses;
 
 exports.init = function( bot ) {
 
-	bot.addCmd( 'who', '!who <condition>', cmdWho, {maxArgs:1} );
+	bot.addCmd( 'who', 'who <condition>', cmdWho, {maxArgs:1} );
 
 }
 

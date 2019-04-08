@@ -6,7 +6,7 @@ const IMG_SIZE = 16;
 
 exports.init = function( bot ) {
 
-	bot.dispatch.add( 'color', '!color color', cmdColor, { minArgs:1, maxArgs:1} );
+	bot.dispatch.add( 'color', 'color color', cmdColor, { minArgs:1, maxArgs:1} );
 }
 
 async function cmdColor( msg, colorStr ) {

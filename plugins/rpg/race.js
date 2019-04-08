@@ -1,6 +1,5 @@
 var races, raceByName;
 
-
 class Race {
 
 	static GetRace( racename ) {
@@ -99,7 +98,7 @@ function initRaces() {
 		}
 
 	} catch (e){
-		console.log(e);
+		console.error(e);
 	}
 
 }

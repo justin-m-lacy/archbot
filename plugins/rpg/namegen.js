@@ -1,6 +1,6 @@
 exports.init = function( bot ) {
 
-	bot.addCmd( 'rollname', '!rollname [<race>] [m|f]', cmdRollName, {minArgs:0, maxArgs:2});
+	bot.addCmd( 'rollname', 'rollname [<race>] [m|f]', cmdRollName, {minArgs:0, maxArgs:2});
 
 }
 

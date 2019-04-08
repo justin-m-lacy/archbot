@@ -11,7 +11,7 @@ module.exports = class Access {
 	}
 
 	/**
-	 * {Object( string->permission ) } perms - maps command names to permissions required to use command.
+	 * @property {Object( string->permission ) } perms - maps command names to permissions required to use command.
 	 */
 	get perms() { return this._perms; }
 	set perms(v) { this._perms = v; }

@@ -2,7 +2,7 @@ var answers;
 
 exports.init = function( bot ) {
 
-	bot.dispatch.add( '8ball', '!8ball [question]', cmd8Ball, {maxArgs:1} );
+	bot.dispatch.add( '8ball', '8ball [question]', cmd8Ball, {maxArgs:1} );
 
 }
 

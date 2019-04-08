@@ -73,7 +73,7 @@ class GuildReactions {
 
 				}
 
-			} catch(e) { console.log(e); }
+			} catch(e) { console.error(e); }
 
 		} );
 
@@ -480,17 +480,20 @@ class GuildReactions {
 
 		try {
 
+			console.log('loading guild reactions.');
 			let reactData = await this._context.fetchData( this._context.getDataKey( 'reactions', 'reactions' ) );
 
+			console.log('guild reacts loaded');
 			if ( !reactData ) return null;
 	
+			console.log('parsing reactions');
 			this.allReacts = parseReacts( reactData );
 
 			this.reactions = this.allReacts.strings;
 			this.reMap = this.allReacts.regex;
 
 			this._procPct = this._context.getSetting( 'reactPct') || 0.15;
-		} catch ( e ) { console.log(e);}
+		} catch ( e ) { console.error(e);}
 
 	}
 
@@ -603,16 +606,16 @@ exports.init = function( bot ) {
 	globalRegEx = reactData.regex;
 
 	bot.addContextClass( GuildReactions );
-	bot.addContextCmd( 'react', '!react <\"search trigger\"> <\"response string\">',
+	bot.addContextCmd( 'react', 'react <\"search trigger\"> <\"response string\">',
 		GuildReactions.prototype.cmdAddReact, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
 
-	bot.addContextCmd( 'reactinfo', '!reactinfo <\"trigger"\"> [which]',
+	bot.addContextCmd( 'reactinfo', 'reactinfo <\"trigger"\"> [which]',
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
-	bot.addContextCmd( 'reacts', '!reacts <\"trigger"\"> [page]',
+	bot.addContextCmd( 'reacts', 'reacts <\"trigger"\"> [page]',
 		GuildReactions.prototype.cmdReacts, GuildReactions,
 		{ minArgs:1, maxArgs:2, group:'left' });
 
-	bot.addContextCmd( 'rmreact', '!rmreact <\"react trigger\"> [response]',
+	bot.addContextCmd( 'rmreact', 'rmreact <\"react trigger\"> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
 		{ minArgs:1, maxArgs:2, group:'right', access:2 } );
 

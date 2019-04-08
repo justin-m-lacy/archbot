@@ -1,9 +1,12 @@
 const fsys = require( './botfs.js');
 const Dispatch = require( './dispatch.js');
-const cacher = require( 'archcache' ).default;
+const Cache = require( 'archcache' );
 const Discord = require ( 'discord.js');
 const path = require( 'path' );
 
+/**
+ * @constant {number} CONTENT_MAX - maximum message size.
+ */
 const CONTENT_MAX = 1905;
 exports.CONTENT_MAX = CONTENT_MAX;
 
@@ -20,42 +23,42 @@ exports.GetBot = () => Bot;
 class DiscordBot {
 
 	/**
-	 * {DiscordClient}
+	 * @property {DiscordClient}
 	 */
 	get client() { return this._client;}
 
 	/**
-	 * {Cache}
+	 * @property {Cache}
 	 */
 	get cache() { return this._cache; }
 
 	/**
-	 * {Dispatch}
+	 * @property {Dispatch}
 	 */
 	get dispatch() { return this._dispatch;}
 
 	/**
-	 * {Object[string->BotContext]}
+	 * @property {Object[string->BotContext]}
 	 */
 	get contexts() { return this._contexts;}
 
 	/**
-	 * {object[]} plugin classes to instantiate for each context.
+	 * @property {object[]} plugin classes to instantiate for each context.
 	 */
 	get contextClasses() { return this._contextClasses; }
 
 	/**
-	 * {string}
+	 * @property {string}
 	 */
 	get cmdPrefix() { return this._cmdPrefix; }
 
 	/**
-	 * {string} the working directory of the program. defaults to the directory of the main script file.
+	 * @property {string} the working directory of the program. defaults to the directory of the main script file.
 	 */
 	get directory() { return this._directory; }
 
 	/**
-	 * {string} base save directory.
+	 * @property {string} base save directory.
 	 */
 	get saveDir() { return this._saveDir; }
 
@@ -81,7 +84,7 @@ class DiscordBot {
 		this.loadConfig();
 		fsys.setBaseDir( this._saveDir );
 
-		this._cache = new cacher.Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
+		this._cache = new Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
 		
 		this._dispatch = new Dispatch( this._cmdPrefix );
 
@@ -102,18 +105,18 @@ class DiscordBot {
 
 		this.initClient();
 
-		this.addCmd( 'backup', '!backup', (m)=>this.cmdBackup(m),
+		this.addCmd( 'backup', 'backup', (m)=>this.cmdBackup(m),
 		{ access:0, access:Discord.Permissions.FLAGS.ADMINISTRATOR, immutable:true, module:'default' } );
-		this.addCmd( 'archleave', '!archleave', (m)=>this.cmdLeaveGuild(m), {
+		this.addCmd( 'archleave', 'archleave', (m)=>this.cmdLeaveGuild(m), {
 			access:Discord.Permissions.FLAGS.ADMINISTRATOR
 		} );
-		this.addCmd( 'archkill', '!archkill', m=>this.cmdBotQuit(m), { immutable:true} );
-		this.addCmd( 'proxyme', '!proxyme', (m)=>this.cmdProxy(m) );
-		this.addCmd( 'access', '!access cmd [permissions|roles]',
+		this.addCmd( 'archkill', 'archkill', m=>this.cmdBotQuit(m), { immutable:true} );
+		this.addCmd( 'proxyme', 'proxyme', (m)=>this.cmdProxy(m) );
+		this.addCmd( 'access', 'access cmd [permissions|roles]',
 			(m, cmd, perm)=>this.cmdAccess(m, cmd, perm),
 			{ minArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR, immutable:true }
 		);
-		this.addCmd( 'resetaccess', '!resetaccess cmd',
+		this.addCmd( 'resetaccess', 'resetaccess cmd',
 			(m,cmd)=>this.cmdResetAccess(m,cmd),
 			{minArgs:1, maxArgs:1, access:Discord.Permissions.FLAGS.ADMINISTRATOR}
 		);
@@ -152,7 +155,7 @@ class DiscordBot {
 			var plugins = require( '../plugsupport.js' ).loadPlugins( this._plugsdir );
 			this.addPlugins( plugins );
 
-		} catch(e) { console.log(e);}
+		} catch(e) { console.error(e);}
 	}
 
 	/**
@@ -168,6 +171,10 @@ class DiscordBot {
 		process.exit(1);
 	}
 
+	/**
+	 * 
+	 * @param {Object[]} plug_files 
+	 */
 	addPlugins( plug_files ) {
 
 		let plug, init;
@@ -245,7 +252,7 @@ class DiscordBot {
 	 * @param {string} name 
 	 * @param {string} desc 
 	 * @param {Function} func 
-	 * @param {Object} opts 
+	 * @param {?Object} [opts=null] 
 	 */
 	addCmd( name, desc, func, opts=null ) {
 		this._dispatch.add( name, desc, func, opts );
@@ -257,12 +264,16 @@ class DiscordBot {
 	 * @param {string} desc 
 	 * @param {Function} func 
 	 * @param {Object} plugClass 
-	 * @param {Object} opts 
+	 * @param {?Object} [opts=null] 
 	 */
 	addContextCmd( name, desc, func, plugClass, opts=null ) {
 		this._dispatch.addContextCmd( name, desc, func, plugClass, opts );
 	}
 
+	/**
+	 * 
+	 * @param {Message} m 
+	 */
 	async onMessage( m ) {
 
 		if ( m.author.id === this._client.user.id ) return;
@@ -431,8 +442,8 @@ class DiscordBot {
 	/**
 	 * @async
 	 * @param {Message} m 
-	 * @param {string} cmdName -name of command. 
-	 * @param {string} perm
+	 * @param {string} cmdName - name of command. 
+	 * @param {string} [perm=undefined]
 	 * @returns {Promise}
 	 */
 	async cmdAccess( m, cmdName, perm=undefined ) {
@@ -470,7 +481,7 @@ class DiscordBot {
 	 * Send a no-permission message.
 	 * @async
 	 * @param {Message} m
-	 * @param {Command}
+	 * @param {Command} [cmd=null]
 	 * @returns {Promise}
 	 */
 	async sendNoPerm( m, cmd=null ) {
@@ -480,6 +491,11 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Proxy a Context to a user's PM.
+	 * @param {User} user 
+	 * @param {BotContext} context 
+	 */
 	setProxy( user, context ) {
 
 		this._contexts[user.id] = context;
@@ -491,7 +507,7 @@ class DiscordBot {
 	/**
 	 * Save information about proxied contexts.
 	 * @async
-	 * @returns {Promise}
+	 * @returns {Promise<*>}
 	 */
 	async saveProxies() {
 		return this.storeData( 'proxies', this._proxies );
@@ -577,6 +593,11 @@ class DiscordBot {
 
 	}
 
+	/**
+	 * Get the object associated with a Discord id.
+	 * @param {string} id
+	 * @returns {Guild|Channel}
+	 */
 	findProxTarget( id ) {
 		return this._client.guilds.get(id) || this.client.channels.get(id);
 	}
@@ -809,17 +830,21 @@ class DiscordBot {
 		if ( cmds ) {
 
 			let a = [];
+			let sep = ': ' + this._dispatch.prefix;
+
 			//let info;
 			for( let k in cmds ) {
 
-				if ( !cmds[k].hidden ) a.push( k + ': ' + cmds[k].desc );
+				if ( !cmds[k].hidden ) a.push( k + sep + cmds[k].desc );
 
 			} //
 
 			str += a.join('\n');
 
 		}
-		return chan.send( str );
+		return chan.send( str, { split:{
+			prepend:'Help cont...\n'
+		}} );
 
 	}
 

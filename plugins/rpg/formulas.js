@@ -15,7 +15,6 @@ exports.DamageSrc = class DamageSrc {
 			if ( json.dmg ) {
 				return new DamageSrc( dice.Roller.FromString( json.dmg ), json.type );
 			} else {
-				console.log('err damge source');
 				return new DamageSrc( new dice.Roller(json.count, json.sides, json.bonus), json.type );
 			}
 

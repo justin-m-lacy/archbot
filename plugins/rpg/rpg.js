@@ -882,110 +882,110 @@ exports.init = function( bot ){
 	var proto = RPG.prototype;
 
 	// CHAR MANAGEMENT
-	bot.addContextCmd( 'rollchar', '!rollchar [charname] [racename] [classname]', proto.cmdRollChar, RPG, { maxArgs:4} );
+	bot.addContextCmd( 'rollchar', 'rollchar [charname] [racename] [classname]', proto.cmdRollChar, RPG, { maxArgs:4} );
 
-	bot.addContextCmd( 'loadchar', '!loadchar <charname>', proto.cmdLoadChar, RPG, { maxArgs:1}  );
-	bot.addContextCmd( 'savechar', '!savechar', proto.cmdSaveChar, RPG, {maxArgs:0});
+	bot.addContextCmd( 'loadchar', 'loadchar <charname>', proto.cmdLoadChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'savechar', 'savechar', proto.cmdSaveChar, RPG, {maxArgs:0});
 
-	bot.addContextCmd( 'viewchar', '!viewchar <charname>', proto.cmdViewChar, RPG, { maxArgs:1}  );
-	bot.addContextCmd( 'rmchar', '!rmchar <charname>', proto.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'charstats', '!charstats [charname]', proto.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
-	bot.addContextCmd( 'talents', '!talents [charname]', proto.cmdTalents, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'viewchar', 'viewchar <charname>', proto.cmdViewChar, RPG, { maxArgs:1}  );
+	bot.addContextCmd( 'rmchar', 'rmchar <charname>', proto.cmdRmChar, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'charstats', 'charstats [charname]', proto.cmdCharStats, RPG, {minArgs:0, maxArgs:1} );
+	bot.addContextCmd( 'talents', 'talents [charname]', proto.cmdTalents, RPG, {minArgs:0, maxArgs:1} );
 
-	bot.addContextCmd( 'addstat', '!addstat [statname]', proto.cmdAddStat, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'addstat', 'addstat [statname]', proto.cmdAddStat, RPG, {minArgs:1, maxArgs:1} );
 
-	bot.addContextCmd( 'allchars', '!allchars\t\tList all character names on server.', proto.cmdAllChars,
+	bot.addContextCmd( 'allchars', 'allchars\t\tList all character names on server.', proto.cmdAllChars,
 			RPG, {maxArgs:0} );
 
 	// HELP
-	bot.addContextCmd( 'lore', '!lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
-	//bot.addContextCmd( 'rpgchanges', '!rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
+	bot.addContextCmd( 'lore', 'lore wot', proto.cmdLore, RPG, {minArgs:1, maxArgs:1} );
+	//bot.addContextCmd( 'rpgchanges', 'rpgchanges', proto.cmdChanges, RPG, {maxArgs:0});
 
 	// PVP
-	bot.addContextCmd( 'attack', '!attack [who] - attack something.', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1, alias:'a'} );
-	bot.addContextCmd( 'track', '!track who', proto.cmdTrack, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'steal', '!steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'attack', 'attack [who] - attack something.', proto.cmdAttack, RPG, {minArgs:0, maxArgs:1, alias:'a'} );
+	bot.addContextCmd( 'track', 'track who', proto.cmdTrack, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'steal', 'steal fromwho', proto.cmdSteal, RPG, {minArgs:1, maxArgs:2});
 
 	// PARTY
-	bot.addContextCmd( 'party', '!party [who] - join party, invite to party, or show current party.',
+	bot.addContextCmd( 'party', 'party [who] - join party, invite to party, or show current party.',
 		proto.cmdParty, RPG, {minArgs:0, maxArgs:1});
-	bot.addContextCmd( 'revive', '!revive [who] - revive a party member.',
+	bot.addContextCmd( 'revive', 'revive [who] - revive a party member.',
 		proto.cmdRevive, RPG, {minArgs:0, maxArgs:1});
-	bot.addContextCmd( 'leader', '!leader [who] - view or set party leader.',
+	bot.addContextCmd( 'leader', 'leader [who] - view or set party leader.',
 		proto.cmdLeader, RPG, {minArgs:0, maxArgs:1});
-	bot.addContextCmd( 'leaveparty', '!leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
+	bot.addContextCmd( 'leaveparty', 'leaveparty - leave current party', proto.cmdLeaveParty, RPG, {maxArgs:0});
 
 	// GUILD
-	bot.addContextCmd( 'mkguild', '!mkguild [name] - create a new guild', proto.cmdMkGuild, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'joinguild', '!joinguild [guild] - join a guild', proto.cmdJoinGuild, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'guildinv', '!guildinv [who] - invite to a guild', proto.cmdGuildInv, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'leaveguild', '!leaveguild - leave current guild', proto.cmdLeaveGuild, RPG, {maxArgs:0});
+	bot.addContextCmd( 'mkguild', 'mkguild [name] - create a new guild', proto.cmdMkGuild, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'joinguild', 'joinguild [guild] - join a guild', proto.cmdJoinGuild, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'guildinv', 'guildinv [who] - invite to a guild', proto.cmdGuildInv, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'leaveguild', 'leaveguild - leave current guild', proto.cmdLeaveGuild, RPG, {maxArgs:0});
 
 	// EQUIP
-	bot.addContextCmd( 'equip', '!equip [what]\t\tEquips item from inventory, or displays all worn items.',
+	bot.addContextCmd( 'equip', 'equip [what]\t\tEquips item from inventory, or displays all worn items.',
 			proto.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
-	bot.addContextCmd( 'wear', '!wear [what]\t\tEquips item from inventory, or displays all worn items.',
+	bot.addContextCmd( 'wear', 'wear [what]\t\tEquips item from inventory, or displays all worn items.',
 			proto.cmdEquip, RPG, {minArgs:0, maxArgs:1} );
 
-	bot.addContextCmd( 'unequip', '!unequip [equip slot]\t\tRemoves a worn item.',
+	bot.addContextCmd( 'unequip', 'unequip [equip slot]\t\tRemoves a worn item.',
 				proto.cmdUnequip, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'worn', '!worn [equip slot]\t\tInspect an equipped item.', proto.cmdWorn, RPG, {maxArgs:1});
-	bot.addContextCmd( 'compare', '!compare <pack item> - Compare inventory item to worn item.',
+	bot.addContextCmd( 'worn', 'worn [equip slot]\t\tInspect an equipped item.', proto.cmdWorn, RPG, {maxArgs:1});
+	bot.addContextCmd( 'compare', 'compare <pack item> - Compare inventory item to worn item.',
 		proto.cmdCompare, RPG, { minArgs:1, maxArgs:1});
 
 	// ITEMS
-	bot.addContextCmd( 'destroy', '!destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
+	bot.addContextCmd( 'destroy', 'destroy <item_number|item_name>\t\tDestroys an item. This action cannot be undone.',
 					proto.cmdDestroy, RPG, {minArgs:1, maxArgs:2});
-	bot.addContextCmd( 'inspect', '!inspect <item_number|item_name>', proto.cmdInspect, RPG, {maxArgs:1});
-	bot.addContextCmd( 'viewitem', '!viewitem <item_number|item_name> : View an item.', proto.cmdViewItem, RPG, {maxArgs:1} );
-	bot.addContextCmd( 'inv', '!inv [player]', proto.cmdInv, RPG, {maxArgs:1});
-	bot.addContextCmd( 'give', '!give <charname> <what>', proto.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
-	bot.addContextCmd( 'sell', '!sell <wot> OR !sell <start> <end>', proto.cmdSell, RPG, {minArgs:1, maxArgs:2} );
+	bot.addContextCmd( 'inspect', 'inspect <item_number|item_name>', proto.cmdInspect, RPG, {maxArgs:1});
+	bot.addContextCmd( 'viewitem', 'viewitem <item_number|item_name> : View an item.', proto.cmdViewItem, RPG, {maxArgs:1} );
+	bot.addContextCmd( 'inv', 'inv [player]', proto.cmdInv, RPG, {maxArgs:1});
+	bot.addContextCmd( 'give', 'give <charname> <what>', proto.cmdGive, RPG, { minArgs:2, maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'sell', 'sell <wot> OR !sell <start> <end>', proto.cmdSell, RPG, {minArgs:1, maxArgs:2} );
 
 	// CRAFT
-	bot.addContextCmd( 'craft', '!craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
-	bot.addContextCmd( 'brew', '!brew <potion> - brew a potion.', proto.cmdBrew, RPG, {maxArgs:1, group:"right"} );
-	bot.addContextCmd( 'inscribe', '!inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
-	bot.addContextCmd( 'potlist', '!potlist <level> - list of potions by level.', proto.cmdPotList, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'craft', 'craft <item_name> <description>', proto.cmdCraft, RPG, {maxArgs:2, group:"right"} );
+	bot.addContextCmd( 'brew', 'brew <potion> - brew a potion.', proto.cmdBrew, RPG, {maxArgs:1, group:"right"} );
+	bot.addContextCmd( 'inscribe', 'inscribe <item_number|item_name> <inscription>', proto.cmdInscribe, RPG, {maxArgs:2, group:"right"});
+	bot.addContextCmd( 'potlist', 'potlist <level> - list of potions by level.', proto.cmdPotList, RPG, {minArgs:1, maxArgs:1} );
 
 	// DOWNTIME
-	bot.addContextCmd( 'eat', '!eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'cook', '!cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'rest', '!rest', proto.cmdRest, RPG, {maxArgs:0} );
-	bot.addContextCmd( 'quaff', '!quaff <what>\t\tQuaff a potion.', proto.cmdQuaff, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'eat', 'eat <what>\t\tEat something from your inventory.', proto.cmdEat, RPG, {minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'cook', 'cook <what>\t\tCook an item in inventory.', proto.cmdCook, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'rest', 'rest', proto.cmdRest, RPG, {maxArgs:0} );
+	bot.addContextCmd( 'quaff', 'quaff <what>\t\tQuaff a potion.', proto.cmdQuaff, RPG, {minArgs:1, maxArgs:1});
 
-	bot.addContextCmd( 'rolldmg', '!rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
-	bot.addContextCmd( 'rollweap', '!rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
-	bot.addContextCmd( 'rollarmor', '!rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
+	bot.addContextCmd( 'rolldmg', 'rolldmg', proto.cmdRollDmg, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollweap', 'rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
+	bot.addContextCmd( 'rollarmor', 'rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
 
 	
 	// TESTING	
 	bot.addContextCmd( 'nerf', '', proto.cmdNerf, RPG, {hidden:true, minArgs:1, maxArgs:1});
-	bot.addContextCmd( 'form', '!form <formula>', proto.cmdFormula, RPG, {hidden:true, minArgs:1, maxArgs:1});
+	bot.addContextCmd( 'form', 'form <formula>', proto.cmdFormula, RPG, {hidden:true, minArgs:1, maxArgs:1});
 
 	// NPC
-	bot.addContextCmd( 'ex', '!ex [monster|npc]', proto.cmdExamine, RPG, { maxArgs:1 } );
+	bot.addContextCmd( 'ex', 'ex [monster|npc]', proto.cmdExamine, RPG, { maxArgs:1 } );
 
 	// LOCATION
-	bot.addContextCmd( 'look', '!look [item on ground]', proto.cmdLook, RPG, { maxArgs:1 } );
-	bot.addContextCmd( 'view', '!view <item_number|item_name>', proto.cmdViewLoc, RPG );
-	bot.addContextCmd( 'drop', '!drop <what> OR !drop <start> <end>', proto.cmdDrop, RPG, {minArgs:1, maxArgs:2});
-	bot.addContextCmd( 'take', '!take <what> OR !take <start> <end>', proto.cmdTake, RPG, {minArgs:1, maxArgs:2});
-	bot.addContextCmd( 'locdesc', '!locdesc <description>', proto.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
-	bot.addContextCmd( 'explored', '!explored', proto.cmdExplored, RPG, {maxArgs:0} );
-	bot.addContextCmd( 'sethome', '!sethome', proto.cmdSetHome, RPG, {maxArgs:0});
-	bot.addContextCmd( 'gohome', '!gohome', proto.cmdGoHome, RPG, {maxArgs:0});
-	//bot.addContextCmd( 'where', '!where [char]', proto.cmdWhere, RPG, {minArgs:1,maxArgs:1});
-	bot.addContextCmd( 'scout', '!scout', proto.cmdScout, RPG, {maxArgs:0});
-	bot.addContextCmd( 'useloc', '!useloc [feature]', proto.cmdUseLoc, RPG, {maxArgs:1});
+	bot.addContextCmd( 'look', 'look [item on ground]', proto.cmdLook, RPG, { maxArgs:1 } );
+	bot.addContextCmd( 'view', 'view <item_number|item_name>', proto.cmdViewLoc, RPG );
+	bot.addContextCmd( 'drop', 'drop <what> OR !drop <start> <end>', proto.cmdDrop, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'take', 'take <what> OR !take <start> <end>', proto.cmdTake, RPG, {minArgs:1, maxArgs:2});
+	bot.addContextCmd( 'locdesc', 'locdesc <description>', proto.cmdLocDesc, RPG, {minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'explored', 'explored', proto.cmdExplored, RPG, {maxArgs:0} );
+	bot.addContextCmd( 'sethome', 'sethome', proto.cmdSetHome, RPG, {maxArgs:0});
+	bot.addContextCmd( 'gohome', 'gohome', proto.cmdGoHome, RPG, {maxArgs:0});
+	//bot.addContextCmd( 'where', 'where [char]', proto.cmdWhere, RPG, {minArgs:1,maxArgs:1});
+	bot.addContextCmd( 'scout', 'scout', proto.cmdScout, RPG, {maxArgs:0});
+	bot.addContextCmd( 'useloc', 'useloc [feature]', proto.cmdUseLoc, RPG, {maxArgs:1});
 
 	// MOVE
-	bot.addContextCmd( 'move', '!move <direction>', proto.cmdMove, RPG, {maxArgs:1});
-	bot.addContextCmd( 'north', '!north', proto.cmdMove, RPG, { maxArgs:0, args:['north'], alias:'n' } );
-	bot.addContextCmd( 'south', '!south', proto.cmdMove, RPG, { maxArgs:0, args:['south'], alias:'s' } );
-	bot.addContextCmd( 'east', '!east', proto.cmdMove, RPG, { maxArgs:0, args:['east'], alias:'e' } );
-	bot.addContextCmd( 'west', '!west', proto.cmdMove, RPG, { maxArgs:0, args:['west'], alias:'w' } );
-	bot.addContextCmd( 'hike', '!hike <direction>', proto.cmdHike, RPG, { minArgs:1, maxArgs:1} );
+	bot.addContextCmd( 'move', 'move <direction>', proto.cmdMove, RPG, {maxArgs:1});
+	bot.addContextCmd( 'north', 'north', proto.cmdMove, RPG, { maxArgs:0, args:['north'], alias:'n' } );
+	bot.addContextCmd( 'south', 'south', proto.cmdMove, RPG, { maxArgs:0, args:['south'], alias:'s' } );
+	bot.addContextCmd( 'east', 'east', proto.cmdMove, RPG, { maxArgs:0, args:['east'], alias:'e' } );
+	bot.addContextCmd( 'west', 'west', proto.cmdMove, RPG, { maxArgs:0, args:['west'], alias:'w' } );
+	bot.addContextCmd( 'hike', 'hike <direction>', proto.cmdHike, RPG, { minArgs:1, maxArgs:1} );
 
 }
 
