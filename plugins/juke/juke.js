@@ -1,6 +1,7 @@
 const Discord = require( 'discord.js' );
 const AudioSource = require( './audioSource' );
 
+const ytdl = require( 'ytdl-core');
 const path = require( 'path' );
 
 /**
@@ -37,7 +38,7 @@ class Juke {
 	get queue() { return this._queue; }
 
 	/**
-	 * @property {boolean} playing - whether music is playing.
+	 * @property {AudioSource} playing - audio now playing.
 	 */
 	get playing() { return this._playing; }
 
@@ -108,8 +109,18 @@ class Juke {
 		let next = this._queue.shift();
 
 		var dispatcher;
-		if ( next.type === 'web') dispatcher = this._connection.playArbitraryInput( next.path );
-		else dispatcher = this._connection.playFile( path.normalize( this.savedir + '/' + next.path ) );
+		if ( next.type === 'web') {
+
+			if ( next.path.indexOf('youtube.com') >= 0 ) {
+
+				let stream = ytdl( next.path, {filter:'audioonly'});
+				dispatcher = this._connection.playStream( stream, {seek:0, volume:1} );
+
+			} else dispatcher = this._connection.playArbitraryInput( next.path );
+
+		} else dispatcher = this._connection.playFile( path.normalize( this.savedir + '/' + next.path ) );
+
+		this._playing = next;
 
 		dispatcher.on( 'error', ()=>{
 			console.error('STREAM ERROR');
@@ -118,6 +129,7 @@ class Juke {
 
 		dispatcher.on( 'end', ()=>{
 			console.log('play ended');
+			this._playing = null;
 			this.playNext();
 		});
 
@@ -161,20 +173,16 @@ class Juke {
 		if ( !this.channel || !this.channel.connection ) return;
 		if ( !( oldMember.voiceChannel == this.channel || newMember.voiceChannel == this.channel ) ) return;
 
-		console.log('VOICE STATUS CHANGED');
+		if ( this.channel.members.size <= 1 ) {
 
-		if ( this._connection.speaking ) {
-
-			if ( this._connection.dispatcher && this.channel.members.size <= 1 ) {
+			if ( this._connection.dispatcher ) {
 				this._connection.dispatcher.pause();
 			}
 
 		} else {
-
-			if ( this.channel.members.size > 1 ) {
-				if ( this._connection.dispatcher ) dispatcher.resume();
-				else this.playNext();
-			}
+	
+			if ( this._connection.dispatcher ) this._connection.dispatcher.resume();
+			else this.playNext();
 		}
 
 	}
@@ -211,7 +219,7 @@ class Juke {
 
 			which = which.toLowerCase();
 			return this._allSongs.find( v=>{
-				v.title.toLowerCase() === which || v.path.toLowerCase() === which;
+				(v.title && v.title.toLowerCase() === which ) || v.path.toLowerCase() === which;
 			});
 
 		} else {
@@ -259,7 +267,14 @@ class Juke {
 
 		if ( this._connection && !this._connection.speaking ) this.playNext();
 
-		return m.reply( 'Queued song ' + (title || which ) );
+		return m.reply( 'Queued song ' + src.toString() );
+	}
+
+	async cmdSkip( m ) {
+
+		if ( this._connection && this._connection.speaking ) {
+			this._connection.dispatcher.end();
+		}
 	}
 
 	async cmdRemove( m, which, title=null ) {
@@ -269,8 +284,14 @@ class Juke {
 		return m.channel.send( 'Songs Available:\n' + this.displayList( this._allSongs ) );
 	}
 
+	async cmdSongs( m ) {
+		if ( !this._playing ) return m.channel.send( 'No song currently playing.' );
+		return m.channel.send( 'Now Playing: ' + this._playing.toString() );
+	}
+
 	async cmdPlaylist( m ) {
-		return m.channel.send( 'Current Playlist:\n' + this.displayList( this._queue ) );
+		return m.channel.send( 'Current Playlist:\n' + 
+		( this._playing ? '* ' + this._playing.toString() + '\n' : '' ) + this.displayList( this._queue ) );
 	}
 
 	/**
@@ -295,6 +316,10 @@ exports.init = function( bot ) {
 		Juke.prototype.cmdRemove, Juke, { minArgs:1, maxArgs:1, group:'right'} );
 	bot.addContextCmd( 'jukeq', 'jukeq <song #|song title|song URI> [song title]',
 		Juke.prototype.cmdQueue, Juke, { minArgs:1, maxArgs:2, group:'left'} );
+
+	bot.addContextCmd( 'jukeskip', 'jukeskip', Juke.prototype.cmdSkip, Juke );
+
+	bot.addContextCmd( 'playing', 'playing', Juke.prototype.cmdPlaying, Juke );
 
 	bot.addContextCmd( 'playlist', 'playlist',
 		Juke.prototype.cmdPlaylist, Juke );
