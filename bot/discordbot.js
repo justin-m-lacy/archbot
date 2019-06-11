@@ -84,7 +84,14 @@ class DiscordBot {
 		this.loadConfig();
 		fsys.setBaseDir( this._saveDir );
 
-		this._cache = new Cache( fsys.readData, fsys.writeData, fsys.fileExists, fsys.deleteData );
+		this._cache = new Cache({
+			
+			loader:fsys.readData,
+			saver:fsys.writeData,
+			checker:fsys.fileExists,
+			deleter:fsys.deleteData
+
+		});
 		
 		this._dispatch = new Dispatch( this._cmdPrefix );
 
