@@ -482,8 +482,6 @@ class GuildReactions {
 
 			console.log('loading guild reactions.');
 			let reactData = await this._context.fetchData( this._context.getDataKey( 'reactions', 'reactions' ) );
-
-			console.log('guild reacts loaded');
 			if ( !reactData ) return null;
 	
 			console.log('parsing reactions');
