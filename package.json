@@ -1,6 +1,6 @@
 {
   "name": "archbot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
