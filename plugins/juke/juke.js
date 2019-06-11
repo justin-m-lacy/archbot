@@ -154,6 +154,15 @@ class Juke {
 			this._channel = channel;
 			this._connection = vc;
 
+			vc.on( 'error', err=>{
+
+				console.error(err);
+				this._connection = null;
+				if ( this._channel ) this._channel.leave();
+				this._channel = null;
+
+			});
+
 			this.playNext();
 
 		}, err=>{
@@ -254,7 +263,7 @@ class Juke {
 		let src = new AudioSource( uri, title );
 		this._allSongs.push( src );
 
-		return m.reply( 'Song added: ' + (title || uri) );
+		return m.reply( 'Song added: ' + (title || uri), {code:true} );
 
 	}
 
@@ -267,7 +276,7 @@ class Juke {
 
 		if ( this._connection && !this._connection.speaking ) this.playNext();
 
-		return m.reply( 'Queued song ' + src.toString() );
+		return m.reply( 'Queued song ' + src.toString(), {code:true} );
 	}
 
 	async cmdSkip( m ) {
@@ -281,17 +290,17 @@ class Juke {
 	}
 
 	async cmdSongs( m ) {
-		return m.channel.send( 'Songs Available:\n' + this.displayList( this._allSongs ) );
+		return m.channel.send( 'Songs Available:\n' + this.displayList( this._allSongs ), {code:true} );
 	}
 
-	async cmdSongs( m ) {
+	async cmdPlaying( m ) {
 		if ( !this._playing ) return m.channel.send( 'No song currently playing.' );
-		return m.channel.send( 'Now Playing: ' + this._playing.toString() );
+		return m.channel.send( 'Now Playing: ' + this._playing.toString(), {code:true} );
 	}
 
 	async cmdPlaylist( m ) {
 		return m.channel.send( 'Current Playlist:\n' + 
-		( this._playing ? '* ' + this._playing.toString() + '\n' : '' ) + this.displayList( this._queue ) );
+		( this._playing ? '* ' + this._playing.toString() + '\n' : '' ) + this.displayList( this._queue ), {code:true} );
 	}
 
 	/**
@@ -308,7 +317,7 @@ class Juke {
 
 exports.init = function( bot ) {
 
-	bot.addContextCmd( 'jukechannel', 'jukechannel [channel]',
+	bot.addContextCmd( 'jukechan', 'jukechan [channel]',
 		Juke.prototype.cmdChannel, Juke, { minArgs:0, maxArgs:1, group:'right'} );
 	bot.addContextCmd( 'jukeadd', 'jukeadd <song URI> [song title]',
 		Juke.prototype.cmdAdd, Juke, { minArgs:1, maxArgs:2, group:'right'} );

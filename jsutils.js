@@ -9,7 +9,7 @@ exports.randElm = (arr)=>{
  * @param {number} max
  */
 exports.random = (min, max)=>{
-	return mind + Math.round( Math.random()*(max-min) );
+	return min + Math.round( Math.random()*(max-min) );
 }
 
 /**

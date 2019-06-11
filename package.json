@@ -20,13 +20,13 @@
     "archdice": "^1.0.1",
     "bufferutil": "^4.0.1",
     "chess-rules": "^1.1.0",
-    "discord.js": "^11.4.2",
+    "discord.js": "^11.5.1",
     "djs-embed": "^0.1.4",
     "ffmpeg-binaries": "^4.0.0",
-    "formulic": "^1.1.0",
+    "formulic": "^1.1.2",
     "jimp": "^0.2.28",
-    "node-opus": "^0.3.1",
+    "node-opus": "^0.3.2",
     "uws": "^9.148.0",
-    "ytdl-core": "^0.29.1"
+    "ytdl-core": "^0.29.2"
   }
 }
