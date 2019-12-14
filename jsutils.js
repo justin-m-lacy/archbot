@@ -25,7 +25,10 @@ exports.fastCut = (a,i) =>{ a[i] = a[a.length-1]; a.pop(); }
 // Variables from src override variables in dest.
 exports.recurMerge = recurMerge;
 
-function recurMerge( src, dest ) {
+function recurMerge( dest, src ) {
+
+	if ( !(src instanceof Object) ) return dest;
+	if ( !(dest instanceof Object) ) return Object.assign({}, src);
 
 	for( var key in src ) {
 
@@ -37,7 +40,7 @@ function recurMerge( src, dest ) {
 		var oldVal = dest[key];
 		if ( oldVal != null && oldVal instanceof Object && newVal instanceof Object ) {
 
-			recurMerge( newVal, oldVal );
+			recurMerge( oldVal, newVal );
 
 		} else {
 			dest[key] = newVal;

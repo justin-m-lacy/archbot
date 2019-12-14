@@ -11,7 +11,7 @@ const fs = require( 'fs');
  * @returns {Promise<boolean,NodeJS.ErrnoException>}
  * @
  */
-exports.deleteFile = path => new Promise( res,rej=> {
+exports.deleteFile = path => new Promise( (res,rej)=> {
 
 	fs.unlink( path, (err)=>{
 
@@ -28,14 +28,14 @@ exports.deleteFile = path => new Promise( res,rej=> {
  * @param {string} path
  * @returns {Promise<boolean,NodeJS.ErrnoException>}
  */
-exports.exists = path => new Promise( res,rej=>{
+exports.exists = path => new Promise( (res,rej)=>{
 
 	fs.access( path,
 
 		(err)=>{
 
 			if ( !err ) res(true);
-			else rej( err );
+			else res( false );
 
 		});
 
@@ -64,7 +64,7 @@ exports.readdir = readdir;
 /**
  * @function
  * Read a list of names of all files at the given path, excluding directories.
- * @param {string} path 
+ * @param {string} path
  * @param {*} options
  * @returns {Promise<string[], NodeJS.ErrnoException>}
  */
@@ -157,16 +157,25 @@ exports.readFile = path => new Promise( (res,rej)=>{
  * @param {string} path
  * @returns {Promise<Object,Error>}
  */
-exports.readJSON = path => new Promise( (res,rej)=>{
+exports.readJSON = path=> new Promise( (res,rej)=>{
 
-	fs.readFile( path, (err,data)=>{
+		fs.readFile( path, 'utf8', (err,data)=>{
 
-		if ( err ) rej(err);
-		else res( JSON.parse( data ) );
+			if ( err || data === undefined || data === null ) rej(err);
+			else {
+
+				if ( data === '' ) res(null);
+
+				else {
+					data = JSON.parse(data);
+					res( data);
+				}
+			}
+
+		});
 
 	});
 
-});
 
 /**
  * @function

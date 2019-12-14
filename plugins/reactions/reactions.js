@@ -42,7 +42,7 @@ class GuildReactions {
 
 		this._context = context;
 
-		this._procPct = 0.15;
+		this._procPct = 0.25;
 
 		this.loadReactions();
 		
@@ -490,7 +490,7 @@ class GuildReactions {
 			this.reactions = this.allReacts.strings;
 			this.reMap = this.allReacts.regex;
 
-			this._procPct = this._context.getSetting( 'reactPct') || 0.15;
+			this._procPct = await this._context.getSetting( 'reactPct') || this._procPct;
 		} catch ( e ) { console.error(e);}
 
 	}

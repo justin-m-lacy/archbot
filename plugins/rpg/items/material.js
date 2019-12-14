@@ -13,7 +13,7 @@ module.exports = class Material {
 
 		if ( !Number.isNaN( maxLevel) ) {
 
-			let m, list;
+			let list;
 			while ( maxLevel >= 0 ) {
 
 				list = byLevel[maxLevel];

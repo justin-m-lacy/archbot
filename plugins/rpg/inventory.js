@@ -4,13 +4,13 @@ const ItemGen = require( './items/itemgen.js');
 module.exports = class Inventory {
 
 	/**
-	 * {[Item]}
+	 * @property {Item[]} items
 	 */
 	get items() { return this._items; }
 	set items(v) { this._items = v;}
 
 	/**
-	 * {number}
+	 * @property {number} length
 	 */
 	get length() { return this._items.length; }
 

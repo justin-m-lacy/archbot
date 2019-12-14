@@ -20,7 +20,7 @@ function initData() {
 
 	Char = require( './char/char.js');
 	Race = require( './race.js');
-	CharClass = require( './charclass.js' );	
+	CharClass = require( './charclass.js' );
 	CharGen = require( './chargen.js' );
 	Trade = require ( './trade.js' );
 	World = require( './world/world.js');
@@ -34,8 +34,8 @@ class RPG {
 	get cache() { return this._cache; }
 
 	/**
-	 * 
-	 * @param {botcontext.Context} context 
+	 *
+	 * @param {botcontext.Context} context
 	 */
 	constructor( context ) {
 
@@ -196,7 +196,7 @@ class RPG {
 		try {
 		let f = formula.Formula.TryParse( str );
 		if ( !f ) return m.reply( 'Formula could not parse.');
-	
+
 			let res = f.eval( char );
 			return m.reply( 'result: ' + res );
 
@@ -256,13 +256,13 @@ class RPG {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
-		
+
 		return m.channel.send( await this.game.drop( char, what, end ));
 
 	}
 
 	async cmdExplored( m ) {
-		
+
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
@@ -334,7 +334,7 @@ class RPG {
 
 	/**
 	 * Roll damage test with current weapon.
-	 * @param {*} msg 
+	 * @param {*} msg
 	 */
 	async cmdRollDmg( msg ) {
 
@@ -347,7 +347,7 @@ class RPG {
 
 	/**
 	 * Roll a new armor for testing.
-	 * @param {*} msg 
+	 * @param {*} msg
 	 */
 	async cmdRollWeap( msg ) {
 
@@ -360,7 +360,7 @@ class RPG {
 
 	/**
 	 * Roll a new armor for testing.
-	 * @param {Message} msg 
+	 * @param {Message} msg
 	 */
 	async cmdRollArmor( msg, slot=null ) {
 
@@ -384,7 +384,7 @@ class RPG {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if (!char) return;
-	
+
 		if ( !wot ) return display.sendBlock( m, `${char.name} equip:\n${char.listEquip()}` );
 
 		return display.sendBlock( m, this.game.equip( char, wot ) );
@@ -523,7 +523,7 @@ class RPG {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if ( !char ) return;
-		
+
 		let a = m.attachments.first();
 		let res = a ? this.game.craft( char, itemName, desc, a.proxyURL ) : this.game.craft( char, itemName, desc );
 
@@ -537,7 +537,7 @@ class RPG {
 
 		let char = await this.userCharOrErr( m, m.author )
 		if ( !char ) return;
-		
+
 		let a = m.attachments.first();
 		let res = a ? this.game.brew( char, potName, a.proxyURL ) : this.game.brew( char, potName );
 
@@ -577,7 +577,7 @@ class RPG {
 
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
-	
+
 		let dest = await this.loadChar( who );
 		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
@@ -619,26 +619,26 @@ class RPG {
 
 		if ( targ ) res = await this.game.attackNpc( src, targ );
 		else {
-		
+
 			targ = await this.loadChar( who );
 			if ( !targ ) return m.reply( `'${who}' not found.` );
 
 			res = await this.game.attack( src, targ );
 
 		}
-	
+
 
 		await display.sendBlock( m, res );
 
 		} catch (e) { console.log(e);}
-		
+
 	}
 
 	async cmdSteal( m, who, wot=null ) {
 
 		let src = await this.userCharOrErr( m, m.author );
 		if ( !src ) return;
-	
+
 		let dest = await this.loadChar( who );
 		if ( !dest ) return m.reply( `'${who}' not found on server.` );
 
@@ -667,11 +667,11 @@ class RPG {
 			} else return msg.reply( 'You do not have permission to delete ' + charname );
 
 		} catch ( e ) { console.log(e); }
-	
+
 	}
 
 	async cmdViewChar( m, charname=null ) {
-	
+
 		let char;
 
 		if ( !charname ) {
@@ -696,7 +696,7 @@ class RPG {
 	}
 
 	async cmdTalents( m, charname=null ) {
-	
+
 		let char;
 
 		if ( !charname ) {
@@ -712,7 +712,7 @@ class RPG {
 	}
 
 	async cmdCharStats( m, charname=null ) {
-	
+
 		let char;
 
 		if ( !charname ) {
@@ -740,9 +740,9 @@ class RPG {
 	async cmdLoadChar( msg, charname=null ) {
 
 		if ( !charname ) charname = msg.author.username;
-	
+
 		try {
-	
+
 			let char = await this.loadChar( charname );
 			if (!char) return msg.reply( charname + ' not found on server. D:' );
 
@@ -751,21 +751,21 @@ class RPG {
 			if ( char.owner !== msg.author.id ) {
 				prefix = 'This is NOT your character.\n';
 			} else {
-				
+
 				await this.setUserChar( msg.author, char );
 				prefix = 'Active character set.\n';
 			}
-	
+
 			return display.echoChar( msg.channel, char, prefix );
 
 		} catch(e) {console.log(e);}
-	
+
 	}
-	
+
 	async cmdRollChar( m, charname=null, racename=null, classname=null, sex=null ) {
 
 		try {
-			
+
 			let race = Race.RandRace( racename );
 			if ( !race ) return await m.reply( 'Race ' + racename + ' not found.' );
 
@@ -791,7 +791,7 @@ class RPG {
 		} catch ( e ){ console.log(e); }
 
 	}
-	
+
 	async charExists( charname ) { return this.charCache.exists( this.getCharKey( charname ) ); }
 
 	async userCharOrErr( m, user ) {
@@ -816,7 +816,7 @@ class RPG {
 	}
 
 	async loadChar( charname ) {
-	
+
 		let key = this.getCharKey( charname );
 
 		let data = this.charCache.get(key);
@@ -958,8 +958,8 @@ exports.init = function( bot ){
 	bot.addContextCmd( 'rollweap', 'rollweap', proto.cmdRollWeap, RPG, {hidden:true, maxArgs:0} );
 	bot.addContextCmd( 'rollarmor', 'rollarmor [slot]', proto.cmdRollArmor, RPG, {hidden:true, maxArgs:1});
 
-	
-	// TESTING	
+
+	// TESTING
 	bot.addContextCmd( 'nerf', '', proto.cmdNerf, RPG, {hidden:true, minArgs:1, maxArgs:1});
 	bot.addContextCmd( 'form', 'form <formula>', proto.cmdFormula, RPG, {hidden:true, minArgs:1, maxArgs:1});
 

@@ -37,7 +37,7 @@ class Quoter {
 		try {
 			let q = await this._context.fetchData( 'quoter/quotes' );
 
-			if ( q != null ) {
+			if ( q ) {
 
 				if ( this.quotes == null ) this.quotes = q;
 				else this.quotes = this.quotes.concat(q);

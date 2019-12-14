@@ -25,36 +25,36 @@ const USERS_DIR = 'users/';
 /**
  * @var {string} BASE_DIR - base directory for all data saves.
  */
-var BASE_DIR = './savedata/';
+var BASE_DIR = './savedata';
 
 
 /**
- * 
+ *
  * @param {string} relPath
  * @returns {Promise<boolean>}
  */
 async function deleteData( relPath ) {
-	return afs.deleteFile( BASE_DIR + '/' + relPath + '.json');
+	return afs.deleteFile( path.join( BASE_DIR, relPath + '.json' ) );
 }
 
 /**
- * 
+ *
  * @param {string} relPath
- * @returns {Promise<*>} 
+ * @returns {Promise<*>}
  */
 async function readData( relPath ) {
 	return afs.readJSON( path.join( BASE_DIR, relPath + '.json' ) );
 }
 
 /**
- * 
- * @param {string} relPath 
+ *
+ * @param {string} relPath
  * @param {*} data - data to be JSON-encoded.
  * @returns {Promise<*>}
  */
 async function writeData( relPath, data ) {
 
-	let absPath = path.join( BASE_DIR, relPath );
+	let absPath = path.join( BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath );
 
 	await afs.mkdir( path.dirname( absPath ) );
 	return afs.writeJSON( absPath + '.json', data );
@@ -62,9 +62,9 @@ async function writeData( relPath, data ) {
 }
 
 /**
- * 
+ *
  * @param {string} chan
- * @returns {string} 
+ * @returns {string}
  */
 function getChannelDir( chan ) {
 	if ( !chan ) return CHANNELS_DIR;
@@ -82,9 +82,9 @@ function getGuildDir( guild ) {
 }
 
 /**
- * 
+ *
  * @param {User} user
- * @returns {string} User storage directory. 
+ * @returns {string} User storage directory.
  */
 function getUserDir( user ) {
 	if ( user == null ) return USERS_DIR;
@@ -129,8 +129,8 @@ module.exports = {
 	getChannelDir:getChannelDir,
 
 	/**
-	 * 
-	 * @param {string} plugin 
+	 *
+	 * @param {string} plugin
 	 */
 	getPluginDir( plugin ) {
 
@@ -176,7 +176,7 @@ module.exports = {
 		}
 
 		return thepath;
-	
+
 	},
 
 	channelPath:( chan, subs ) => {
