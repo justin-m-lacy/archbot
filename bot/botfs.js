@@ -18,7 +18,7 @@ async function readData( relPath ) {
 
 async function writeData( relPath, data ) {
 
-	let absPath = path.join( BASE_DIR, relPath );
+	let absPath = path.join( BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath );
 
 	await afs.mkdir( path.dirname( absPath ) );
 	await afs.writeJSON( absPath + '.json', data );
@@ -108,7 +108,7 @@ module.exports = {
 		}
 
 		return thepath;
-	
+
 	},
 
 	channelPath:( chan, subs ) => {
