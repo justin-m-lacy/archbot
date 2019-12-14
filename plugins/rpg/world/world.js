@@ -12,7 +12,7 @@ module.exports = class World {
 
 	/**
 	 * Note that the World is using the Context cache, not a special rpg cache.
-	 * @param {} fcache 
+	 * @param {} fcache
 	 */
 	constructor( fcache ) {
 
@@ -27,8 +27,8 @@ module.exports = class World {
 
 	/**
 	 * Change location description.
-	 * @param {Char} char 
-	 * @param {string} desc 
+	 * @param {Char} char
+	 * @param {string} desc
 	 */
 	async setDesc( char, desc, attach ) {
 
@@ -57,8 +57,8 @@ module.exports = class World {
 
 	/**
 	 * Attempt to use a feature at the location.
-	 * @param {Char} char 
-	 * @param {*} wot 
+	 * @param {Char} char
+	 * @param {*} wot
 	 */
 	async useLoc( char, wot ) {
 
@@ -76,8 +76,8 @@ module.exports = class World {
 
 	/**
 	 * Attempt to take an item from cur location.
-	 * @param {Char} char 
-	 * @param {string|number|Item} first 
+	 * @param {Char} char
+	 * @param {string|number|Item} first
 	 */
 	async take( char, first, end ) {
 
@@ -145,9 +145,9 @@ module.exports = class World {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {Char} char
-	 * @returns {string} description of loc maker and time, or error message. 
+	 * @returns {string} description of loc maker and time, or error message.
 	 */
 	async explored( char ) {
 
@@ -155,7 +155,7 @@ module.exports = class World {
 		if ( loc.maker ) return loc.explored();
 
 		loc.setMaker( char.name );
-		return 'You are the first to explore ' + loc.coord;	
+		return 'You are the first to explore ' + loc.coord;
 
 	}
 
@@ -175,26 +175,26 @@ module.exports = class World {
 	}
 
 		/**
-	 * 
-	 * @param {Char} char 
-	 * @param {string|number|Monster} what 
+	 *
+	 * @param {Char} char
+	 * @param {string|number|Monster} what
 	 */
 	async examine( char, what ) {
 
 		let loc = await this.getOrGen( char.loc );
 
 		if ( !what ) return 'Examine what?';
-		
+
 		let it = loc.getNpc( what );
 		if ( !it ) return 'Creature not found.';
 		return it.getDetails();
-		
+
 	}
 
 	/**
-	 * 
-	 * @param {Char} char 
-	 * @param {string|Number|Item} what 
+	 *
+	 * @param {Char} char
+	 * @param {string|Number|Item} what
 	 */
 	async look( char, what ) {
 
@@ -211,12 +211,12 @@ module.exports = class World {
 	}
 
 	/**
-	 * 
-	 * @param {*} char 
-	 * @param {Item} what 
+	 *
+	 * @param {*} char
+	 * @param {Item} what
 	 */
 	async put( char, what ) {
-	
+
 		let loc = await this.getOrGen( char.loc, char );
 		let ind = loc.drop( what );
 		await this.quickSave( loc );
@@ -227,8 +227,8 @@ module.exports = class World {
 
 	/**
 	 * Attempt to drop an item at cur location.
-	 * @param {Char} char 
-	 * @param {string|Item|number} what 
+	 * @param {Char} char
+	 * @param {string|Item|number} what
 	 */
 	async drop( char, what, end ) {
 
@@ -245,8 +245,8 @@ module.exports = class World {
 	}
 
 	/**
-	 * 
-	 * @param {Char} char 
+	 *
+	 * @param {Char} char
 	 */
 	setHome( char ) {
 
@@ -259,8 +259,8 @@ module.exports = class World {
 	}
 
 	/**
-	 * 
-	 * @param {Char} char 
+	 *
+	 * @param {Char} char
 	 */
 	goHome( char ) {
 
@@ -284,7 +284,7 @@ module.exports = class World {
 		if ( !from ){
 			console.warn( 'error: starting loc null.');
 			return 'Error: Not in a starting location.'
-		} 
+		}
 
 		dir = dir.toLowerCase();
 		let exit = from.getExit( dir );
@@ -326,7 +326,7 @@ module.exports = class World {
 		if ( Math.random() > 0.5 || loc.npcs.length>4 ) return;
 
 		console.log('attempting spawn.');
-	
+
 		let lvl = Math.floor( loc.norm / 20 );
 		let dev = Math.random() - 0.5;
 
@@ -445,9 +445,9 @@ module.exports = class World {
 	}
 
 	/**
-	 * 
-	 * @param {number} x 
-	 * @param {number} y 
+	 *
+	 * @param {number} x
+	 * @param {number} y
 	 */
 	coordKey( coord ) {
 		return coord.x + ',' + coord.y;
@@ -459,9 +459,9 @@ module.exports = class World {
 	legacyKey( x,y ) { return 'rpg/locs/' + x + ',' + y }
 
 	/**
-	 * 
-	 * @param {number} x 
-	 * @param {number} y 
+	 *
+	 * @param {number} x
+	 * @param {number} y
 	 */
 	getBKey( x,y ) {
 		return 'rpg/blocks/' + Math.floor(x/BLOCK_SIZE) + ',' + Math.floor(y/BLOCK_SIZE);
@@ -469,8 +469,8 @@ module.exports = class World {
 
 
 	/**
-	 * 
-	 * @param {number} x 
+	 *
+	 * @param {number} x
 	 * @param {number} y
 	 * @returns {Loc.Exit[]} - all exits allowed from this location.
 	 */
@@ -496,14 +496,14 @@ module.exports = class World {
 			// no exits lead from existing location in this direction.
 			return null;
 		}
-		else if (Math.random() < 0.25) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
+		else if (Math.random() < 0.4) return new Loc.Exit(fromDir, dest );	// TODO: this is generation logic.
 		return null;
 	}
 
 	/**
 	* All existing locations adjacent to x,y.
-	* @param {number} x 
-	* @param {number} y 
+	* @param {number} x
+	* @param {number} y
 	*/
 	async getNear( x,y ) {
 
