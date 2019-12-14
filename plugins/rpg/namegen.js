@@ -153,8 +153,8 @@ function cmdRollName( m, race, sex ) {
 }
 
 /**
- * 
- * @param {string} race 
+ *
+ * @param {string} race
  */
 function getName( race="human", sex='m' ) {
 
@@ -185,7 +185,9 @@ function getMixRace( race, gender ) {
 
 	if ( race == null ) return buildName( hLists.roots, hLists.parts, hLists.ends );
 
-	let lists = nameParts[race][gender];
+	let nameObj = nameParts[race];
+	if ( !nameObj) return null;
+	let lists = nameObj[gender];
 	return buildName( hLists.roots.concat( lists.roots ), hLists.parts.concat( lists.parts ), hLists.ends.concat( lists.ends ) );
 
 }
@@ -209,5 +211,3 @@ function buildName( roots, parts, ends ) {
 	return name;
 
 }
-
-

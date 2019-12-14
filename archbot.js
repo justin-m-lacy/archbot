@@ -324,7 +324,6 @@ async function cmdOnTime( msg, name ) {
 
 	try {
 
-		console.log('reading history');
 		let history = await readHistory(gMember);
 		if ( history ) {
 
@@ -352,6 +351,7 @@ async function cmdOnTime( msg, name ) {
 async function cmdOffTime( msg, name ) {
 
 	let chan = msg.channel;
+
 	let gMember = bot.userOrSendErr( chan, name );
 	if ( !gMember ) return;
 
@@ -370,7 +370,7 @@ async function cmdOffTime( msg, name ) {
 
 	} catch ( err ){
 
-		console.error( err );
+		console.log( err );
 	}
 	return chan.send( 'I do not know when ' + name + ' went offline.' );
 
@@ -438,6 +438,7 @@ function hasStatus( gMember, statuses ) {
  */
 function latestStatus( history, statuses ) {
 
+	if ( !history ) return null;
 	if ( statuses instanceof Array ) {
 
 		let status = null;
@@ -454,7 +455,7 @@ function latestStatus( history, statuses ) {
 		}
 		return statusTime;
 	
-	} else {
+	} else if ( typeof statuses === 'string' ) {
 
 		if ( history.hasOwnProperty( statuses ) === true ) return history[statuses];
 
@@ -491,8 +492,12 @@ async function sendSchedule( chan, name, activity ) {
  */
 async function readHistory( gMember ){
 
-	let data = await bot.fetchUserData( gMember );
-	if ( data && data.hasOwnProperty('history')) return data.history;
+	try {
+		let data = await bot.fetchUserData( gMember );
+		if ( data && data.hasOwnProperty('history')) return data.history;
+	} catch(e) {
+		console.log(e);
+	}
 	return null;
 
 }
@@ -534,7 +539,7 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
  * @param {GuildMember} oldMember 
  * @param {GuildMember} newMember 
  */
-function presenceChanged( oldMember, newMember ) {
+async function presenceChanged( oldMember, newMember ) {
 
 	// ignore bot events.
 	if ( oldMember.id === client.id ) return;
@@ -543,14 +548,14 @@ function presenceChanged( oldMember, newMember ) {
 	let newStatus = newMember.presence.status;
 
 	/// statuses: 'offline', 'online', 'idle', 'dnd'
-	if ( newStatus !== oldStatus ) logHistory( oldMember, [oldStatus, newStatus] );
+	if ( newStatus !== oldStatus ) await logHistory( oldMember, [oldStatus, newStatus] );
 
 	let oldGame = oldMember.presence.game;
 	let newGame = newMember.presence.game;
 	let oldGameName = oldGame ? oldGame.name : null;
 	let newGameName = newGame ? newGame.name : null;
 
-	if ( oldGameName !== newGameName ) logGames( oldMember, oldGame, newGame );
+	if ( oldGameName !== newGameName ) await logGames( oldMember, oldGame, newGame );
 
 }
 
@@ -560,7 +565,7 @@ function presenceChanged( oldMember, newMember ) {
  * @param {Discord.Game} prevGame 
  * @param {Discord.Game} curGame 
  */
-function logGames( guildMember, prevGame, curGame ) {
+async function logGames( guildMember, prevGame, curGame ) {
 
 	let now = Date.now();
 	var gameData = {};
@@ -577,7 +582,7 @@ function logGames( guildMember, prevGame, curGame ) {
  * @param {GuildMember} guildMember 
  * @param {string[]} statuses 
  */
-function logHistory( guildMember, statuses ) {
+async function logHistory( guildMember, statuses ) {
 
 	let now = Date.now();
 	let history = {};
@@ -599,12 +604,18 @@ function logHistory( guildMember, statuses ) {
  */
 async function mergeMember( uObject, newData ){
 
-	let data = await bot.fetchUserData( uObject );
-	if ( data ) {
-		jsutils.recurMerge( newData, data );
-		newData = data;
-	}
+	try {
 
-	return bot.storeUserData( uObject, newData );
+		let data = await bot.fetchUserData( uObject );
+		if ( (data instanceof Object) ) {
+			jsutils.recurMerge( data, newData );
+			newData = data;
+		}
+	
+		return bot.storeUserData( uObject, newData );
+
+	} catch(e) {
+		console.error(e);
+	}
 
 }

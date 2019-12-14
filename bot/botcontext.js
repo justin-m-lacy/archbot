@@ -449,7 +449,7 @@ const Context = class {
 	 * @param {string} key 
 	 * @returns {Promise<*>}
 	 */
-	async fetchData( key ) { return await this._cache.fetch(key); }
+	async fetchData( key ) { return this._cache.fetch(key); }
 
 	/**
 	 * Set keyed data.

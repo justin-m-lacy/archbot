@@ -63,7 +63,7 @@ class DiscordBot {
 	get saveDir() { return this._saveDir; }
 
 	/**
-	 * 
+	 *
 	 * @param {Discord.Client} client
 	 * @param {string} masterid - id of master user.
 	 * @param {string} [mainDir=null] - the main directory of the archbot program. Defaults to the directory of the main script
@@ -85,14 +85,14 @@ class DiscordBot {
 		fsys.setBaseDir( this._saveDir );
 
 		this._cache = new Cache({
-			
+
 			loader:fsys.readData,
 			saver:fsys.writeData,
 			checker:fsys.fileExists,
 			deleter:fsys.deleteData
 
 		});
-		
+
 		this._dispatch = new Dispatch( this._cmdPrefix );
 
 		// maps id->context id.
@@ -106,9 +106,20 @@ class DiscordBot {
 		process.on( 'SIGINT', ()=>this.onShutdown() );
 
 		client.setInterval(
-			()=>{ this._cache.cleanup(60*1000*30); }, 60*1000*30 );
+			()=>{
+
+				try {
+					this._cache.cleanup(60*1000*30);
+				} catch(e){console.error(e); }
+
+			}, 60*1000*30 );
+
 		client.setInterval(
-			()=>{this._cache.backup(60*1000*15); console.log('ROUTINE BACKUP.'); }, 60*1000*15 );
+			()=>{
+				try {
+					this._cache.backup(60*1000*15);
+				} catch(e) { console.error(e); }
+			}, 60*1000*15 );
 
 		this.initClient();
 
@@ -179,8 +190,8 @@ class DiscordBot {
 	}
 
 	/**
-	 * 
-	 * @param {Object[]} plug_files 
+	 *
+	 * @param {Object[]} plug_files
 	 */
 	addPlugins( plug_files ) {
 
@@ -200,7 +211,7 @@ class DiscordBot {
 	/**
 	 * Add class that will be instantiated on every running
 	 * context.
-	 * @param {class} cls 
+	 * @param {class} cls
 	 */
 	addContextClass( cls ) {
 
@@ -256,10 +267,10 @@ class DiscordBot {
 
 	/**
 	 * Add a command to the bot.
-	 * @param {string} name 
-	 * @param {string} desc 
-	 * @param {Function} func 
-	 * @param {?Object} [opts=null] 
+	 * @param {string} name
+	 * @param {string} desc
+	 * @param {Function} func
+	 * @param {?Object} [opts=null]
 	 */
 	addCmd( name, desc, func, opts=null ) {
 		this._dispatch.add( name, desc, func, opts );
@@ -267,19 +278,19 @@ class DiscordBot {
 
 	/**
 	 * Add a command with a plugin class which is instantiated for each chat context.
-	 * @param {string} name 
-	 * @param {string} desc 
-	 * @param {Function} func 
-	 * @param {Object} plugClass 
-	 * @param {?Object} [opts=null] 
+	 * @param {string} name
+	 * @param {string} desc
+	 * @param {Function} func
+	 * @param {Object} plugClass
+	 * @param {?Object} [opts=null]
 	 */
 	addContextCmd( name, desc, func, plugClass, opts=null ) {
 		this._dispatch.addContextCmd( name, desc, func, plugClass, opts );
 	}
 
 	/**
-	 * 
-	 * @param {Message} m 
+	 *
+	 * @param {Message} m
 	 */
 	async onMessage( m ) {
 
@@ -291,14 +302,17 @@ class DiscordBot {
 		if ( !command ) return;
 
 		// check command access.
+
 		let context = await this.getMsgContext( m );
-		if ( m.member && this.testAccess(m, command, context ) === false ) return this.sendNoPerm( m, command );
+		if ( context ) {
+			if ( m.member && this.testAccess(m, command, context ) === false ) return this.sendNoPerm( m, command );
+		}
 
 		if ( command.isDirect === true ) {
 
 			this._dispatch.dispatch( command, [m] );
 
-		} else {
+		} else if ( context ) {
 
 			// context command.
 			let error = this._dispatch.routeCmd( context, command, [m] );
@@ -306,7 +320,7 @@ class DiscordBot {
 			if ( !error ) return;
 			else if ( error instanceof Promise ) {
 
-				error.then( s=> { if ( s) return m.channel.send(s); } );
+				error.then( s=> { if ( s) return m.channel.send(s); } ).catch(e=>console.error(e) );
 
 			} else if ( typeof(error) === 'string' ) {
 
@@ -319,9 +333,9 @@ class DiscordBot {
 	}
 
 	/**
-	 * 
-	 * @param {Message} m 
-	 * @param {Command} cmd 
+	 *
+	 * @param {Message} m
+	 * @param {Command} cmd
 	 * @param {*} context
 	 * @returns {boolean}
 	 */
@@ -373,7 +387,7 @@ class DiscordBot {
 	/**
 	 * Close the running Archbot program. Owner only.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @returns {Promise}
 	 */
 	async cmdBotQuit(m) {
@@ -401,9 +415,9 @@ class DiscordBot {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {Message} m
-	 * @returns {boolean} 
+	 * @returns {boolean} returns true to block guild/channel.
 	 */
 	spamcheck(m) {
 
@@ -418,14 +432,14 @@ class DiscordBot {
 	/**
 	 * Proxy the given context through the user's DM.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @returns {Promise}
 	 */
 	async cmdProxy( m ) {
 
 		// get context of the guild/channel to be proxied to user.
 		let context = await this.getMsgContext(m);
-	
+
 		this.setProxy( m.author, context );
 		return m.author.send( 'Proxy created.');
 
@@ -434,7 +448,7 @@ class DiscordBot {
 	/**
 	 * Reset command's permissions to default.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} cmd - name of command.
 	 * @returns {Promise}
 	 */
@@ -448,8 +462,8 @@ class DiscordBot {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} cmdName - name of command. 
+	 * @param {Message} m
+	 * @param {string} cmdName - name of command.
 	 * @param {string} [perm=undefined]
 	 * @returns {Promise}
 	 */
@@ -500,8 +514,8 @@ class DiscordBot {
 
 	/**
 	 * Proxy a Context to a user's PM.
-	 * @param {User} user 
-	 * @param {BotContext} context 
+	 * @param {User} user
+	 * @param {BotContext} context
 	 */
 	setProxy( user, context ) {
 
@@ -552,11 +566,11 @@ class DiscordBot {
 			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
 
 		} else {
-	
+
 			idobj = m.author;
 			//check proxy
 			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
-	
+
 		}
 
 		return this._contexts[ idobj.id ] || this.makeContext( idobj, type );
@@ -582,7 +596,7 @@ class DiscordBot {
 	 * Get a context from the source id, mapping messages
 	 * to the destobj.
 	 * @async
-	 * @param {*} destobj 
+	 * @param {*} destobj
 	 * @param {*} srcid
 	 * @returns {Promise<BotContext>}
 	 */
@@ -611,9 +625,9 @@ class DiscordBot {
 
 	/**
 	 * @async
-	 * @param {*} idobj 
+	 * @param {*} idobj
 	 * @param {*} type
-	 * @returns {Promise<BotContext>} 
+	 * @returns {Promise<BotContext>}
 	 */
 	async makeContext( idobj, type ) {
 
@@ -662,7 +676,7 @@ class DiscordBot {
 	/**
 	 * fetch data for arbitrary key.
 	 * @async
-	 * @param {string} key 
+	 * @param {string} key
 	 * @returns {Promise<*>}
 	 */
 	async fetchData( key ) {
@@ -672,7 +686,7 @@ class DiscordBot {
 	/**
 	 * Store data for key.
 	 * @async
-	 * @param {string} key 
+	 * @param {string} key
 	 * @param {*} data
 	 * @returns {Promise}
 	 */
@@ -682,9 +696,9 @@ class DiscordBot {
 
 	/**
 	 * Create a key to associate with a chain of Discord objects.
-	 * @param {*} baseObj 
+	 * @param {*} baseObj
 	 * @param  {...any} subs
-	 * @returns {string} 
+	 * @returns {string}
 	 */
 	getDataKey( baseObj, ...subs ) {
 
@@ -697,8 +711,8 @@ class DiscordBot {
 	}
 
 	/**
-	 * 
-	 * @param {string} key 
+	 *
+	 * @param {string} key
 	 * @param {*} data
 	 */
 	cacheData( key, data ) {
@@ -720,8 +734,8 @@ class DiscordBot {
 	}
 
 	/**
-	 * 
-	 * @param {Discord.User|Discord.GuildMember} uObject 
+	 *
+	 * @param {Discord.User|Discord.GuildMember} uObject
 	 * @param {*} data - user data to store.
 	 */
 	storeUserData( uObject, data ){
@@ -738,7 +752,7 @@ class DiscordBot {
 	 * or replies with an error message.
 	 * Function is intentionally not async since there is no reason
 	 * to wait for the channel reply to go through.
-	 * @param {Channel} channel 
+	 * @param {Channel} channel
 	 * @param {string} name
 	 * @returns {}
 	 */
@@ -756,7 +770,7 @@ class DiscordBot {
 
 	/**
 	 * Find a GuildMember or User object in the channel.
-	 * @param {Discord.Channel} channel 
+	 * @param {Discord.Channel} channel
 	 * @param {string} name - name or nickname of user to find.
 	 * @returns {(GuildMember|User|null)}
 	 */
@@ -796,7 +810,7 @@ class DiscordBot {
 
 	/**
 	 * @async
-	 * @param {Channel} chan 
+	 * @param {Channel} chan
 	 * @param {string} cmdname
 	 * @returns {Promise}
 	 */
@@ -826,7 +840,7 @@ class DiscordBot {
 
 	/**
 	 * @async
-	 * @param {Channel} chan 
+	 * @param {Channel} chan
 	 * @returns {Promise}
 	 */
 	async printCommands( chan ) {
@@ -858,9 +872,9 @@ class DiscordBot {
 } // class
 
 /**
- * 
- * @param {GuildMember} oldGM 
- * @param {GuildMember} newGM 
+ *
+ * @param {GuildMember} oldGM
+ * @param {GuildMember} newGM
  */
 function onPresence( oldGM, newGM ) {
 
