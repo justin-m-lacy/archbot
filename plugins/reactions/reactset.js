@@ -1,6 +1,5 @@
 const ReactModule = require( './reaction');
 const parseReaction = ReactModule.parseReaction;
-
 const parseReactions = ReactModule.parseReactions;
 
 /**
@@ -18,8 +17,7 @@ class ReactSet {
 	}
 
 	/**
-	 * @property {string|RegeEx} trigger - trigger in message text that triggers
-	 * one of the set reactions.
+	 * @property {string|RegExp} trigger - reaction trigger.
 	 */
 	get trigger() { return this._trigger; }
 	set trigger(v) { this._trigger = v; }
@@ -31,7 +29,7 @@ class ReactSet {
 	set reacts(v) { this._reacts = v; }
 
 	/**
-	 * @property {number} lastUsed - timestamp of when trigger was last used
+	 * @property {number} lastUsed - timestamp when trigger was last used
 	 * for a reaction.
 	 */
 	get lastUsed() { return this._lastUsed; }
@@ -61,7 +59,7 @@ class ReactSet {
 	 *
 	 * @param {string|Number|null} [reactStr=null] - React string to match, or null if
 	 * all reactions should be returned.
-	 * @returns {false|string|Object|Array} - String or Object information matched,
+	 * @returns {Reaction|Array|null} - String or Object information matched,
 	 * or Array of all Reactions of reactStr is null, or false if no reaction
 	 * matching the string is found.
 	 */
@@ -72,28 +70,18 @@ class ReactSet {
 		var obj;
 
 		if ( !isNaN(reactStr) ) {
-			obj = this.getIndex( reactStr - 1 );
+			obj = this.getNumber( reactStr );
 			if ( obj) return obj;
 
 		}
 
 		reactStr = reactStr.toLowerCase();
 
-		obj = this._reacts;
-		if ( typeof obj === 'string') {
+		for( let i = 0; i < this._reacts.length; i++ ) {
+			if ( this._reacts[i].sameReact(reactStr)) return this._reacts[i];
+		}
 
-			if ( reactStr === obj.toLowerCase() ) return obj;
-
-		} else if ( obj instanceof Array ) {
-
-			return obj.find( (elm)=>{
-				if ( typeof elm === 'string') return elm.toLowerCase() === reactStr;
-				else return ( typeof elm.r === 'string' && elm.r.toLowerCase() === reactStr );
-			});
-
-		} else if ( typeof obj.r === 'string' && obj.r.toLowerCase() === reactStr ) return obj;
-
-		return false;
+		return null;
 
 	}
 
@@ -113,23 +101,24 @@ class ReactSet {
 			// ambiguous removal. return the number of reactions.
 			if ( this._reacts.length > 1 ) return this._reacts.length;
 
-			this._reacts = null;
+			this._reacts.length = 0;
 			return true;
 
 		}
 
 		/**
-		 * Attempt to remove a numbered reaction.
-		 * Removal attemp continues on failure because a reaction could actually be a number.
-		 * The literaly reaction-is-number isn't tested first since it would allow users
-		 * to thwart numbered-removal by flooding number reactions.
+		 * Attempt to remove a 1-based indexed reaction.
+		 * Removal attemp continues on failure because a reaction could be an actual number.
+		 * The 'number reaction' isn't tested first since it would allow users
+		 * to block indexed-removal by flooding number reactions;
+		 * while a 'number reaction' can always be removed by index.
 		 */
-		if ( !isNaN(react) && this.removeIndex(react-1) ) return true;
+		if ( !isNaN(react) && this.removeNumber( react ) ) return true;
 
 		for (let i = this._reacts.length - 1; i >= 0; i--) {
 
-			if (this._isMatch(react, this._reacts[i]) === true) {
-				this._splice(this._reacts, i);
+			if ( this._reacts[i].sameReact( react ) ) {
+				this._reacts.splice( i, 1 );
 				return true;
 			}
 
@@ -139,52 +128,39 @@ class ReactSet {
 	}
 
 	/**
-	 * Returns a reaction based on index or null for invalid index.
-	 * @param {number} ind - The zero-based index of the reaction.
+	 * Returned one-based numbered reaction.
+	 * @param {number} num - The ONE-based index of the reaction.
 	 * @returns {Object|null}
 	 */
-	getIndex( ind ) {
+	getNumber( num ) {
 
-		if ( ind < 0 || ind >= this._reacts.length ) return null;
+		if ( num < 1 || num > this._reacts.length ) return null;
 
-		return this._reacts[ind];
+		return this._reacts[num-1];
 
 	}
 
 	/**
-	 * Remove an indexed reaction.
-	 * @param {number} index - the index to remove.
+	 * Remove a one-based numbered reaction.
+	 * @param {number} num - the one-based reaction to remove.
 	 * @returns {boolean} true if reaction removed, false otherwise.
 	 */
-	removeIndex( ind ) {
+	removeNumber( num ) {
 
-		ind = Number(ind);
-		if ( ind < 0 || ind >= this._reacts.length ) return false;
+		num = Number(num);
+		if ( num < 1 || num > this._reacts.length ) return false;
 
-		this._reacts.splice( ind, 1 );
+		this._reacts.splice( num-1, 1 );
 		return true;
 
 	}
 
 	/**
-	 * @returns {string|Object} A reaction string from the set, or a reaction Object with included embed url.
+	 * Get random reaction.
+	 * @returns {Reaction|null}
 	 */
 	getReact() {
-
-		let resp = this._reacts[ Math.floor( this._reacts.length*Math.random())];
-
-		if ( resp instanceof Object ) {
-
-			// return full response Object so embed can be included in result.
-			if ( resp.embed ) return resp;
-			else resp = resp.r;
-
-		}
-
-		// should be string now.
-		if ( typeof resp !== 'string') return resp.toString();
-		return resp;
-
+		return this._reacts[ Math.floor( this._reacts.length*Math.random())];
 	}
 
 	/**
@@ -234,11 +210,10 @@ class ReactSet {
 	}
 
 	/**
-	 * returns {boolean}
+	 * @returns {boolean}
 	 */
 	isEmpty() {
-		return this._reacts === null ||
-		((this._reacts instanceof Array ) && this._reacts.length === 0);
+		return this._reacts.length <= 0;
 	}
 
 	/**
@@ -248,35 +223,7 @@ class ReactSet {
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
 	 */
 	add( react, uid, embedUrl=null ) {
-
-		//react = { r:react, uid:uid, t:Date.now(), embed:embedUrl };
-
-		this._reacts.push( new ReactModule( react, uid, Date.now(), embedUrl ) );
-
-	}
-
-	_splice( a, i ) {
-
-		if ( i === a.length-1 ) a.pop();
-		else a[i] = a.pop();
-
-	}
-
-	/**
-	 * Tests whether the react string matches the Reaction.
-	 * @param {string|RegEx} str
-	 * @param {string|RegEx|Object} react
-	 * @returns {bool} Whether the react object matches the string.
-	 */
-	_isMatch( str, react ) {
-
-		if ( typeof react === 'string' ) return str === react;
-		if ( react instanceof Object ) {
-			return react.r === str;
-		}
-
-		return false;
-
+		this._reacts.push( new ReactModule.Reaction( react, uid, Date.now(), embedUrl ) );
 	}
 
 }

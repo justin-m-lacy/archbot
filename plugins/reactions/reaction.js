@@ -4,22 +4,24 @@
  * @param {string} uid - userid of creator
  * @param {?string} embed - url of embedded attachment
  */
-export const newReaction = ( resp, uid, embed ) => {
+export const makeReaction = ( resp, uid, embed ) => {
 	return new Reaction( resp, uid, Date.now(), embed );
 }
 
 export class Reaction {
 
-	toJSON(){
+	/*toJSON(){
 
-	}
 
-	constructor( response, uid, t, embed ){
+
+	}*/
+
+	constructor( response, uid, t=0, embed=undefined ){
 
 		/**
 		 * @property {string} response - reaction response.
 		 */
-		this.response = response;
+		this.r = response;
 
 		/**
 		 * @property {string} uid - uid of reaction creator
@@ -35,6 +37,17 @@ export class Reaction {
 		 * @property {string} embed - url of reaction embed.
 		 */
 		this.embed = embed;
+
+	}
+
+	/**
+	 * Test if a response string matches this reaction.
+	 * @param {string} str
+	 * @returns {bool} Whether the react object matches the string.
+	 */
+	sameReact( str ) {
+
+		return this.r === str;
 
 	}
 
