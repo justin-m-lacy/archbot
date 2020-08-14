@@ -1,7 +1,13 @@
 const Display = require( '../../display');
 
 /**
- * {RegEx} Regex to test if a string defines a regex.
+ * @const {number} PROC_RATE - Base Proc chance to try any reaction.
+ * In future, PROC_RATES might be defined per Context.
+ */
+const PROC_RATE = 0.25;
+
+/**
+ * @const {RegEx} regExTest - test if string defines a regex.
  */
 const regExTest = /^\s*\/(.+)\/([gim]{0,3})\s*$/;
 
@@ -12,19 +18,18 @@ var globalReacts, globalRegEx;
 
 
 /**
- * Class which handles reactions for a single guild.
- * Instantiated for each Discord Context.
+ * Handles reactions for a single DiscordContext.
  */
 class GuildReactions {
 
 	/**
-	 * {BotContext}
+	 * @property {BotContext}
 	 */
 	get context() { return this._context; }
 
 	/**
 	 * @constructor
-	 * @param {BotContext} context 
+	 * @param {BotContext} context
 	 */
 	constructor( context ) {
 
@@ -37,18 +42,31 @@ class GuildReactions {
 
 		/**
 		 * RegEx->ReactSet - Reactions based on regular expressions.
+		 * @property {Map<RegEx,ReactSet>}
 		 */
 		this.reMap = new Map();
 
 		this._context = context;
 
-		this._procPct = 0.25;
+		this._procPct = PROC_RATE;
 
 		this.loadReactions();
-		
+
+		/**
+		 * @property {number} minWait - minimum time in milliseconds between
+		 * repeats of a single trigger.
+		 */
 		this.minWait = 1000;
+
+		/**
+		 * @property {number} gWait - global wait in milliseconds between
+		 * any reactions at all (per Context.)
+		 */
 		this.gWait = 500;
-		// time last message was recieved.
+
+		/**
+		 * @property {number} msgTime - last time message was received in this context.
+		 */
 		this.msgTime = 0;
 
 		this._context.onMsg( m=>{
@@ -106,7 +124,7 @@ class GuildReactions {
 	/**
 	 * Command to remove a reaction.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} trig - reaction trigger.
 	 * @param {string|null|undefined} which
 	 * @returns {Promise}
@@ -119,7 +137,7 @@ class GuildReactions {
 
 			if ( regExTest.test(trig) === true ) res = this.rmRegEx( trig, which );
 			else res = this.rmString( trig, which );
-	
+
 			if ( res === true ) {
 
 				await this.storeReacts();
@@ -138,7 +156,7 @@ class GuildReactions {
 	/**
 	 * Command to display information about a given Trigger/Reaction combination.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} trig - Reaction trigger.
 	 * @param {string|null|undefined} [which=null] - The specific reaction for the given trigger
 	 * to get information for.
@@ -158,12 +176,23 @@ class GuildReactions {
 	/**
 	 * Command to display all information for a given reaction trigger.
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} trig - Reaction trigger.
 	 * @param {number} [page=1] - The page of text.
 	 * @returns {Promise}
 	 */
 	async cmdReacts( m, trig, page=1 ) {
+
+		/**
+		 * Get list of all react trigger texts.
+		 */
+		if (!trig ) {
+
+			// list of all triggers defined for server.
+			let triggers = this.getTriggers();
+			return;
+
+		}
 
 		let reacts = this.getReactions( trig );
 		if ( !reacts ) return m.channel.send( 'No reaction found.');
@@ -210,9 +239,9 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} trig - regex formatted string.
-	 * @param {*} react 
+	 * @param {*} react
 	 * @returns {boolean|number} - true on success.
 	 */
 	rmRegEx( trig, react ) {
@@ -229,7 +258,7 @@ class GuildReactions {
 
 		let res = rset.tryRemove( react );
 		if ( res === true && rset.isEmpty() ) this.reMap.delete( pair[0] );
-	
+
 		return res;
 
 	}
@@ -245,9 +274,10 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
-	 * @param {RegEx} regex - regular expression which triggers the reaction. 
-	 * @param {string} react 
+	 * Regex reacts are by using a standard JS regular expression within quote marks "\^w+\" etc.
+	 * Reactions may contain $n replacement groups where n is a 1-indexed group from the regular expression.
+	 * @param {RegEx} regex - regular expression which triggers the reaction.
+	 * @param {string} react
 	 * @param {string} uid - discord id of creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
@@ -264,9 +294,9 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} trig - substring which triggers the reaction.
-	 * @param {string} react 
+	 * @param {string} react
 	 * @param {string} uid - discord id of reaction creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
@@ -307,8 +337,8 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
-	 * @param {Map( string->ReactSet )} map 
+	 *
+	 * @param {Map<string,ReactSet>} map
 	 * @param {string} str - input string to test.
 	 * @returns {string|null} string reaction or null.
 	 */
@@ -337,7 +367,7 @@ class GuildReactions {
 
 	/**
 	 * Attempt to find a regular expression trigger match.
-	 * @param {Map( RegEx -> Reaction)} reMap - Map of regular expressions being tested.
+	 * @param {Map<RegEx,Reaction>} reMap - Map of regular expressions being tested.
 	 * @param {string} str - string being tested.
 	 * @returns {Object|Array|string|null}
 	 */
@@ -368,7 +398,7 @@ class GuildReactions {
 	 * @async
 	 * @param {string|object|Array} react
 	 * @param {boolean} [details=false] whether to include extended details about the reaction.
-	 * @returns {string}
+	 * @returns {Promise<string>}
 	 */
 	async infoString( react, details=false ) {
 
@@ -393,13 +423,13 @@ class GuildReactions {
 
 
 			if ( react.uid ) {
-	
+
 				let name = await this._context.displayName( react.uid );
 				if ( name ) {
 
 					resp += `\nCreated by ${name}`;
 					if ( details ) resp += ` (id:${react.uid})`;
-	
+
 				} else resp += `\nCreated by user id: ${react.uid}`;
 
 				if ( details && react.t ) resp += ` @ ${new Date(react.t)}`;
@@ -414,7 +444,13 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
+	 * @returns {string[]} - array of all strings with reactions defined.
+	 */
+	getTriggers() {
+	}
+
+	/**
+	 *
 	 * @param {string|regEx} trig - trigger for the reaction.
 	 * @param {string|null} [reactStr=null] - the reaction string to return, or null to return all reactions for
 	 * the given trigger.
@@ -438,7 +474,7 @@ class GuildReactions {
 
 	/**
 	 * Returns [key,value] array pair for regex->value stored in map.
-	 * @param {*} map 
+	 * @param {*} map
 	 * @param {*} regex
 	 * @returns {Array|undefined}
 	 */
@@ -454,8 +490,8 @@ class GuildReactions {
 	}
 
 	/**
-	 * 
-	 * @param {Map} map 
+	 *
+	 * @param {Map} map
 	 * @param {string} reStr - regex string.
 	 * @returns {ReactSet|undefined}
 	 */
@@ -483,7 +519,7 @@ class GuildReactions {
 			console.log('loading guild reactions.');
 			let reactData = await this._context.fetchData( this._context.getDataKey( 'reactions', 'reactions' ) );
 			if ( !reactData ) return null;
-	
+
 			console.log('parsing reactions');
 			this.allReacts = parseReacts( reactData );
 
@@ -498,11 +534,11 @@ class GuildReactions {
 } //
 
 /**
- * 
+ *
  * @param {Object} reactData - reaction data.
  * @returns {Object}
  */
-function parseReacts( reactData ) {
+const parseReacts = ( reactData ) => {
 	return {
 		toJSON(){
 
@@ -517,7 +553,7 @@ function parseReacts( reactData ) {
 }
 
 /**
- * 
+ *
  * @param {*} data
  * @returns {Map} - Reaction map.
  */
@@ -534,7 +570,7 @@ function parseStrings( data ) {
 }
 
 /**
- * 
+ *
  * @param {Object|null} data
  * @returns {Map} - Reaction map.
  */
@@ -557,9 +593,9 @@ function parseRe( data ) {
 }
 
 /**
- * 
+ *
  * @param {Map} map
- * @returns {Object} 
+ * @returns {Object}
  */
 function mapToJSON( map ){
 
@@ -577,7 +613,7 @@ function mapToJSON( map ){
  * @param {string} s
  * @returns {RegExp|false}
  */
-function toRegEx( s ) {
+const toRegEx = ( s ) => {
 
 	let res = regExTest.exec( s );
 	if ( res === null ) return false;
@@ -591,7 +627,7 @@ function toRegEx( s ) {
 
 /**
  * Initialize the archbot plugin.
- * @param {DiscordBot} bot 
+ * @param {DiscordBot} bot
  */
 exports.init = function( bot ) {
 
@@ -611,7 +647,7 @@ exports.init = function( bot ) {
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
 	bot.addContextCmd( 'reacts', 'reacts <\"trigger"\"> [page]',
 		GuildReactions.prototype.cmdReacts, GuildReactions,
-		{ minArgs:1, maxArgs:2, group:'left' });
+		{ minArgs:0, maxArgs:2, group:'left' });
 
 	bot.addContextCmd( 'rmreact', 'rmreact <\"react trigger\"> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
