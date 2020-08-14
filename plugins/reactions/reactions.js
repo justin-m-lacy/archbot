@@ -37,7 +37,7 @@ class GuildReactions {
 		/**
 		 * @property {object} allReacts
 		 * @property {Map<string,ReactSet>} allReacts.strings
-		 * @property {Map<RegEx,ReactSet>} allReacts.regEx
+		 * @property {Map<RegEx,ReactSet>} allReacts.regex
 		 */
 		this.allReacts = {};
 
@@ -250,7 +250,7 @@ class GuildReactions {
 		} else {
 
 			let pageText = Display.pageString( triggers.join('\n') );
-			pageText = Display.getPageText( page-1 );
+			pageText = Display.getPageText( pageText, page-1 );
 
 			pageText += '\n\n' + pageText.length + ' triggers defined.';
 
@@ -534,7 +534,8 @@ const parseReacts = ( reactData ) => {
 			}
 
 		},
-		strings:parseStrings( reactData.strings||reactData ), regex:parseRe(reactData.regex)
+		strings:parseStrings( reactData.strings||reactData ),
+		regex:parseRe(reactData.regex)
 	};
 }
 
@@ -636,7 +637,7 @@ exports.init = function( bot ) {
 		{ minArgs:1, maxArgs:2, group:'left' });
 
 	bot.addContextCmd( 'triggers', 'triggers [page]',
-	GuildReactions.prototype.cmdReacts, GuildReactions,
+	GuildReactions.prototype.cmdTriggers, GuildReactions,
 	{ minArgs:0, maxArgs:1, group:'left' });
 
 	bot.addContextCmd( 'rmreact', 'rmreact <\"react trigger\"> [response]',

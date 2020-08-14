@@ -1,14 +1,4 @@
-/**
- *
- * @param {string} resp
- * @param {string} uid - userid of creator
- * @param {?string} embed - url of embedded attachment
- */
-export const makeReaction = ( resp, uid, embed ) => {
-	return new Reaction( resp, uid, Date.now(), embed );
-}
-
-export class Reaction {
+class Reaction {
 
 	/*toJSON(){
 
@@ -127,12 +117,25 @@ export class Reaction {
 
 }
 
+module.exports.Reaction = Reaction;
+
+/**
+ *
+ * @param {string} resp
+ * @param {string} uid - userid of creator
+ * @param {?string} embed - url of embedded attachment
+ */
+module.exports.makeReaction = ( resp, uid, embed ) => {
+	return new Reaction( resp, uid, Date.now(), embed );
+}
+
+
 /**
  *
  * @param {?object|string} r
  * @returns {Reaction|null}
  */
-export const parseReaction = ( r ) => {
+const parseReaction = ( r ) => {
 
 
 	if ( typeof r === 'object') {
@@ -150,12 +153,14 @@ export const parseReaction = ( r ) => {
 
 }
 
+module.exports.parseReaction = parseReaction;
+
 /**
  * Parse an array of reactions.
  * @param {Array} a
  * @returns {Reaction[]}
  */
-export const parseReactions = (a) => {
+module.exports.parseReactions = (a) => {
 
 	let d = [];
 
