@@ -66,7 +66,7 @@ class Char extends actor.Actor {
 	set levelFlag(b) { this._levelUp = b;}
 
 	toJSON() {
-	
+
 		let json = {};
 		for( let i = saveProps.length-1; i>=0; i-- ) {
 
@@ -153,7 +153,7 @@ class Char extends actor.Actor {
 
 	/**
 	 * Add a single point to the given stat.
-	 * @param {string} stat 
+	 * @param {string} stat
 	 * @returns {string|bool} error message, or true.
 	 */
 	addStat( stat ) {
@@ -220,7 +220,7 @@ class Char extends actor.Actor {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {Item|number|string} what - what to cook.
 	 */
 	cook( what ) {
@@ -237,7 +237,7 @@ class Char extends actor.Actor {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {number|string|Item} what
 	 * @returns {bool|string} Error message or true.
 	 */
@@ -258,7 +258,7 @@ class Char extends actor.Actor {
 			}
 
 			return true;
-	
+
 		}
 		return removed;
 
@@ -267,7 +267,7 @@ class Char extends actor.Actor {
 	/**
 	 * Removes any items matching the predicate and returns them.
 	 * Removed items are not added to inventory.
-	 * @param {function} p 
+	 * @param {function} p
 	 */
 	removeWhere( p ) {
 		return this.removeEquip( this._equip.removeWhere(p) );
@@ -277,7 +277,7 @@ class Char extends actor.Actor {
 
 		let removed = this._equip.removeSlot( slot );
 		if ( !removed ) return;
-	
+
 		this.removeEquip(removed);
 		this._inv.add( removed );
 
@@ -289,8 +289,8 @@ class Char extends actor.Actor {
 
 		this._equip = e;
 		for( let it of e.items() ) {
-			
-			if ( it instanceof Array ) {
+
+			if ( Array.isArray( it ) ) {
 				it.forEach( it=>this.applyEquip(it) );
 			}
 			else this.applyEquip(it);
@@ -311,12 +311,12 @@ class Char extends actor.Actor {
 	}
 
 	/**
-	 * 
-	 * @param {Item|Item[]} wot 
+	 *
+	 * @param {Item|Item[]} wot
 	 */
 	removeEquip(wot) {
 
-		if ( wot instanceof Array ) {
+		if ( Array.isArray( wot ) ) {
 
 			let it;
 			for( let i = wot.length-1; i >= 0; i-- ) {
@@ -335,7 +335,7 @@ class Char extends actor.Actor {
 
 	/**
 	 * Returns the item in the given equipment slot.
-	 * @param {Item} slot 
+	 * @param {Item} slot
 	 */
 	getEquip( slot ) { return this._equip.get(slot); }
 
@@ -348,20 +348,20 @@ class Char extends actor.Actor {
 
 	/**
 	 * Get an item from inventory without removing it.
-	 * @param {number|string|Item} which 
+	 * @param {number|string|Item} which
 	 */
 	getItem( which, sub ) { return this._inv.get( which, sub ); }
 
 	/**
 	 * Add an item to inventory.
-	 * @param {Item|Item[]} it 
+	 * @param {Item|Item[]} it
 	 */
 	addItem( it ) { return this._inv.add( it ); }
 
 	/**
 	 * Remove an item from inventory and return it.
 	 * @param {number|string|Item} which
-	 * @returns {Item} Item removed or null. 
+	 * @returns {Item} Item removed or null.
 	 */
 	takeItem( which, sub ) { return this._inv.take(which, sub); }
 
@@ -422,7 +422,7 @@ class Char extends actor.Actor {
 
 		let weaps = this._equip.getWeapons();
 		if ( weaps === null ) return 'No weapons equipped.';
-		else if ( weaps instanceof Array ) {
+		else if ( Array.isArray( weaps ) ) {
 
 			let res = '';
 			for( let i = weaps.length-1; i >= 0; i-- ) {

@@ -14,7 +14,7 @@ fist.damage = new forms.DamageSrc( new dice.Roller(1,2,0), 'blunt');
 
 /**
  * Exp for killing target.
- * @param {number} lvl 
+ * @param {number} lvl
  */
 const npcExp = lvl => Math.floor( 10* Math.pow( 1.3, lvl ) );
 const pvpExp = lvl =>  Math.floor( 10* Math.pow( 1.2, lvl/2 ) );
@@ -54,7 +54,7 @@ module.exports = class Combat {
 		await this.resolve();
 
 		if ( this.defender.state === 'dead') {
-	
+
 			this.world.removeNpc( this.attacker, this.defender );
 			await this.doLoot( this.attacker, itemgen.genLoot( this.defender ) );
 
@@ -64,7 +64,7 @@ module.exports = class Combat {
 
 	/**
 	 * @async
-	 * @param {Party} p 
+	 * @param {Party} p
 	 * @param {*} dest
 	 * @returns {Promise}
 	 */
@@ -95,7 +95,7 @@ module.exports = class Combat {
 					break;	// no opponents with hp left.
 				}
 				await this.tryHit( c, destChar, p );
-	
+
 			} else await this.tryHit( c ,dest, p );
 
 		}
@@ -126,7 +126,7 @@ module.exports = class Combat {
 		else await this.tryHit( this.defender, this.attacker );
 
 		await this.resolve();
-	
+
 	}
 
 	/**
@@ -146,7 +146,7 @@ module.exports = class Combat {
 				this.resp += ` ${atk.defender.name} was slain.`;
 
 				if ( atk.defender instanceof Char ) {
-					
+
 					try {
 						let g = Grave.MakeGrave( atk.defender, atk.attacker );
 						this.resp += await this.world.put( atk.defender, g );
@@ -210,8 +210,8 @@ module.exports = class Combat {
 	}
 
 	/**
-	 * 
-	 * @param {Item|number|string} wot - optional item to try to take. 
+	 *
+	 * @param {Item|number|string} wot - optional item to try to take.
 	 */
 	steal( wot=null ) {
 
@@ -243,8 +243,8 @@ module.exports = class Combat {
 
 	/**
 	 * single Char attack. no reprisal.
-	 * @param {Char} src 
-	 * @param {Char} dest 
+	 * @param {Char} src
+	 * @param {Char} dest
 	 */
 	attack( src, dest ) {
 
@@ -262,7 +262,7 @@ module.exports = class Combat {
 
 		let it;
 		if ( wot ) {
-	
+
 			it = targ.takeItem(wot);
 			if ( !it) {
 				this.resp += `${src.name} tries to rob ${targ.name}, but could not find the item they wanted.`;
@@ -371,7 +371,7 @@ class AttackInfo {
 
 		let w = char.getWeapons();
 		if ( !w ) return fist;
-		else if ( w instanceof Array ) {
+		else if ( Array.isArray( w ) ) {
 			return w[Math.floor( w.length*Math.random() )];
 		} else {
 			return w;

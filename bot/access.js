@@ -17,8 +17,8 @@ module.exports = class Access {
 	set perms(v) { this._perms = v; }
 
 	/**
-	 * 
-	 * @param {Object} [vars=null] 
+	 *
+	 * @param {Object} [vars=null]
 	 */
 	constructor(vars = null) {
 
@@ -31,16 +31,16 @@ module.exports = class Access {
 	 * Remove all permission settings on a command, resetting command access to its default value.
 	 * After access is unset, most commands
 	 * will be available to all users. The exceptions tend to be special admin commands.
-	 * @param {string} cmd 
+	 * @param {string} cmd
 	 */
 	unsetAccess(cmd) {
 		delete this._perms[cmd];
 	}
 
 	/**
-	 * 
-	 * @param {string} cmd 
-	 * @param {number|string} perm 
+	 *
+	 * @param {string} cmd
+	 * @param {number|string} perm
 	 */
 	setAccess(cmd, perm) {
 
@@ -52,7 +52,7 @@ module.exports = class Access {
 			if ( perm === 'all' || perm === 'public' || perm === 'true' ) {
 
 				this.perms[cmd] = Discord.Permissions.ALL;
-	
+
 			} else {
 
 				// roles access.
@@ -87,14 +87,14 @@ module.exports = class Access {
 
 		if ( !isNaN(perm) ) return perm.toString();
 		else if ( typeof(perm) === 'string' ) return perm;
-		else if ( perm instanceof Array ) return perm.join(', ');
+		else if ( Array.isArray( perm ) ) return perm.join(', ');
 
 		return null;
 
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} cmd
 	 * @returns {number|string|Array} access flags, or roles, or an array of any combination of them.
 	 */
@@ -125,15 +125,15 @@ module.exports = class Access {
 	}
 
 	/**
-	 * 
-	 * @param {GuildMember} gm 
-	 * @param {number|string} perm 
+	 *
+	 * @param {GuildMember} gm
+	 * @param {number|string} perm
 	 */
 	checkPerms(gm, perm) {
 
 		if (isNaN(perm) === false) return gm.permissions.has(perm);
 
-		else if (perm instanceof Array) {
+		else if ( Array.isArray( perm ) ) {
 
 			let a = perm;
 			for (let i = a.length - 1; i >= 0; i--) {

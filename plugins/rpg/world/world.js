@@ -239,7 +239,7 @@ module.exports = class World {
 		let ind = loc.drop( it );
 		await this.quickSave( loc );
 
-		if ( it instanceof Array ) return it.length + ' items dropped.';
+		if ( Array.isArray( it  ) ) return it.length + ' items dropped.';
 		return `${char.name} dropped ${it.name}. (${ind})`;
 
 	}

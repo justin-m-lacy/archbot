@@ -21,7 +21,7 @@ module.exports = class Equip {
 
 			var wot = src[k];
 			if ( !wot ) continue;
-			if ( wot instanceof Array ){
+			if ( Array.isArray( wot ) ){
 
 				dest[k] = wot.map( ItemGen.fromJSON );
 
@@ -66,7 +66,7 @@ module.exports = class Equip {
 			cur = this.slots[slot];
 			if ( cur == null ) {
 				list += 'nothing'
-			} else if ( cur instanceof Array ) {
+			} else if ( Array.isArray( cur ) ) {
 
 				list += itemjs.Item.ItemList( cur );
 
@@ -79,7 +79,7 @@ module.exports = class Equip {
 		return list;
 
 	}
- 
+
 	get( slot ) {
 
 		if ( !this.slots.hasOwnProperty(slot)) return null;
@@ -103,8 +103,8 @@ module.exports = class Equip {
 	}
 
 	/**
-	 * 
-	 * @param {Item} it 
+	 *
+	 * @param {Item} it
 	 */
 	remove( it ) {
 
@@ -112,7 +112,7 @@ module.exports = class Equip {
 
 		let cur = this.slots[it.slot];
 
-		if ( cur instanceof Array ) {
+		if ( Array.isArray( cur ) ) {
 
 			for( let i = cur.length-1; i >= 0; i-- ) {
 
@@ -143,7 +143,7 @@ module.exports = class Equip {
 		let it = this.slots[slot];
 		if ( !it) return;
 
-		if ( it instanceof Array ) {
+		if ( Array.isArray( it ) ) {
 			it = it.shift();
 		} else {
 			this.slots[slot] = null;
@@ -219,9 +219,9 @@ module.exports = class Equip {
 	}
 
 	/**
-	 * 
-	 * @param {string} slot 
-	 * @param {Armor|Weapon} it 
+	 *
+	 * @param {string} slot
+	 * @param {Armor|Weapon} it
 	 * @returns error string if slot does not exist, null if equip
 	 * successful, old item if item replaces previous.
 	 */
@@ -233,7 +233,7 @@ module.exports = class Equip {
 		if( slot === null || !this.slots.hasOwnProperty(slot)) return it.name + ' cannot be equipped.';
 
 		let cur = this.slots[slot];
-		if ( cur instanceof Array ) {
+		if ( Array.isArray( cur ) ) {
 
 			cur.push( it );
 			if ( cur.length > MaxSlots[slot] ) cur = cur.shift();
@@ -270,7 +270,7 @@ module.exports = class Equip {
 			v = this.slots[k];
 			if ( v === null || v === undefined ) continue;
 
-			if ( v instanceof Array ) {
+			if ( Array.isArray( v ) ) {
 
 				for( let i = v.length-1; i >= 0; i-- ) {
 
@@ -300,7 +300,7 @@ module.exports = class Equip {
 		for( let k in this.slots ) {
 
 			v = this.slots[k];
-			if ( v instanceof Array ) {
+			if ( Array.isArray( v ) ) {
 
 				for( let i = v.length-1; i >= 0; i-- ) func( v[i] );
 

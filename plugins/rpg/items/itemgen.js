@@ -186,7 +186,7 @@ function genWeapon( lvl ) {
 }
 
 function genArmor( slot=null, lvl=0 ) {
-	
+
 	console.log( 'armor level: ' + lvl );
 
 	let mat = Material.Random( lvl );
@@ -253,7 +253,7 @@ function getDrops( mons ) {
 	let drops = mons.drops;
 	if ( !drops ) return;
 
-	if ( drops instanceof Array ) {
+	if ( Array.isArray( drops ) ) {
 
 		console.log( 'ARRAY DROP');
 		let it = drops[ Math.floor( Math.random()*drops.length ) ];
@@ -302,7 +302,7 @@ function miscItem() {
 
 /**
  * Create named feature from data.
- * @param {string} s 
+ * @param {string} s
  */
 function getFeature( s ) {
 	let d = featureByName[s];
@@ -317,7 +317,7 @@ function initFeatures() {
 	featureByName = {};
 
 	for( let i = featureList.length-1; i>= 0; i-- ) {
-		featureByName[ featureList[i].name ] = featureList[i]; 
+		featureByName[ featureList[i].name ] = featureList[i];
 	}
 	console.log('INIT FEATURES DONE');
 

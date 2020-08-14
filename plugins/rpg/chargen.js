@@ -79,7 +79,7 @@ function rollStats( statRolls, destObj ) {
 
 		rollInfo = statRolls[i];
 		stat = rollInfo.stat;
-		if ( stat instanceof Array ) {
+		if ( Array.isArray( stat) ) {
 
 			for( let j = stat.length-1; j >= 0; j-- ) {
 				rollStat( destObj, stat[j], rollInfo );
@@ -126,7 +126,7 @@ function rollStat( destObj, stat, info ) {
 
 /**
  * Bound stats by stat definitions min/max.
- * @param {Char} char 
+ * @param {Char} char
  */
 function boundStats( char ) {
 
@@ -140,7 +140,7 @@ function boundStats( char ) {
 
 			stat = info.stat;
 
-		if ( stat instanceof Array ) {
+		if ( Array.isArray( stat ) ) {
 
 			for( let j = stat.length-1; j >= 0; j-- ) {
 				boundStat( char, stat[j], info );
