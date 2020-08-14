@@ -1,5 +1,7 @@
 const Display = require( '../../display');
 
+
+
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
  */
@@ -129,7 +131,7 @@ class GuildReactions {
 		await this.storeReacts();
 
 		if ( react ) return m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
-		else return m.channel.send( 'Ahkay, reaction set.')
+		else return m.channel.send( 'Reaction set.')
 
 	}
 
@@ -147,8 +149,8 @@ class GuildReactions {
 
 			var res;
 
-			if ( regExTest.test(trig) === true ) res = this.rmRegEx( trig, which );
-			else res = this.rmString( trig, which );
+			if ( regExTest.test(trig) === true ) res = this.removeReact( this.reMap, trig, which, true );
+			else res = this.removeReact( this.reactions, trig, which );
 
 			if ( res === true ) {
 
@@ -195,17 +197,6 @@ class GuildReactions {
 	 */
 	async cmdReacts( m, trig, page=1 ) {
 
-		/**
-		 * Get list of all react trigger texts.
-		 */
-		if (!trig ) {
-
-			// list of all triggers defined for server.
-			let triggers = this.getTriggers();
-			return;
-
-		}
-
 		let reacts = this.getReactions( trig );
 		if ( !reacts ) return m.channel.send( 'No reaction found.');
 
@@ -224,45 +215,52 @@ class GuildReactions {
 
 	}
 
-
 	/**
-	 * Removes the given reaction string from the given reaction trigger. If no reaction
-	 * string is specified, the reaction trigger will be removed if the given trigger
-	 * has only a single reaction entry.
-	 * @param {string} trig - The reaction trigger to remove a reaction from.
-	 * @param {string|null|undefined} reaction - The reaction string to remove.
-	 * @returns {bool|number} Returns true if a reaction is successfully removed.
-	 * If no reaction string is specified, and multiple reactions are found,
-	 * the number of reactions is returned.
-	 * If no matching trigger/reaction pair is found, false is returned.
+	 * Get all custom defined triggers.
+	 * @param {Message} m
+	 * @param {number} [page=1]
+	 * @returns {Promise}
 	 */
-	rmString( trig, reaction ) {
+	async cmdTriggers( m, page=1 ) {
 
-		trig = trig.toLowerCase();
-		let rset = this.reactions.get( trig );
+		// list of all triggers defined for server.
+		let triggers = this.getTriggers();
 
-		if ( rset === undefined ) return false;
+		if ( triggers.length <= 0 ) {
+			return m.channel.send( 'No custom reactions found.' );
+		} else {
 
-		let res = rset.tryRemove( reaction );
-		if ( res === true && rset.isEmpty()) this.reactions.delete( trig );
+			let pageText = Display.pageString( triggers.join('\n') );
+			pageText = Display.getPageText( page-1 );
 
-		return res;
+			pageText += '\n\n' + pageText.length + ' triggers defined.';
+
+			return m.channel.send( pageText );
+
+		}
 
 	}
 
 	/**
-	 *
-	 * @param {string} trig - regex formatted string.
-	 * @param {*} react
-	 * @returns {boolean|number} - true on success.
+	 * Removes a reaction for the given trigger. If no reaction is specified, the reaction trigger will be removed if the given trigger
+	 * has only a single reaction entry.
+	 * @param {Map<string,ReactSet>} map
+	 * @param {string} trig - The reaction trigger to remove a reaction from.
+	 * @param {string|null|undefined} reaction - The reaction string to remove.
+	 * @param {boolean} [isRegex=false] - If the trigger is a regular expression.
+	 * @returns {bool|number} true if a reaction is removed.
+	 * If multiple reactions match, none are removed, and the number found is returned.
+	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
-	rmRegEx( trig, react ) {
+	removeReact( map, trig, reaction, isRegex=false) {
 
-		let rset = this.reMap.get( trig );
-		if ( !rset ) return false;
+		if ( isRegex===false ) trig = trig.toLowerCase();
 
-		let res = rset.tryRemove( react );
-		if ( res === true && rset.isEmpty() ) this.reMap.delete( trig );
+		let rset = map.get( trig );
+		if ( rset === undefined ) return false;
+
+		let res = rset.tryRemove( reaction );
+		if ( res === true && rset.isEmpty()) map.delete( trig );
 
 		return res;
 
@@ -376,7 +374,7 @@ class GuildReactions {
 	}
 
 	/**
-	 * Attempt to find a regular expression trigger match.
+	 * Determine if string matches a regex trigger.
 	 * @param {Map<RegEx,Reaction>} reMap - Map of regular expressions being tested.
 	 * @param {string} str - string being tested.
 	 * @returns {Object|Array|string|null}
@@ -473,7 +471,7 @@ class GuildReactions {
 	 * @param {string} trig - trigger for the reaction.
 	 * @param {string|null} [reactStr=null] - the reaction string to return, or null to return all reactions for
 	 * the given trigger.
-	 * @returns {string|object|Array|bool} Returns the single reaction found, or an array of reactions
+	 * @returns {string|Reaction|Array|null} Returns the single reaction found, or an array of reactions
 	 * if no reactStr is specified.
 	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */
@@ -484,7 +482,7 @@ class GuildReactions {
 		let rset = this.reMap.get(trig);
 		if ( rset === undefined ) {
 			rset = this.reactions.get( trig.toLowerCase() );
-			if ( rset === undefined ) return false;
+			if ( rset === undefined ) return null;
 		}
 
 		return rset.findReactions( reactStr );
@@ -608,12 +606,12 @@ const toRegEx = ( s ) => {
 }
 
 /**
- * Initialize the archbot plugin.
+ * Initialize plugin.
  * @param {DiscordBot} bot
  */
 exports.init = function( bot ) {
 
-	console.log( 'loading reactions.');
+	console.log( 'loading reacts.');
 
 	let reactData = require('./reactions.json');
 	reactData = parseReacts( reactData );
@@ -629,7 +627,11 @@ exports.init = function( bot ) {
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
 	bot.addContextCmd( 'reacts', 'reacts <\"trigger"\"> [page]',
 		GuildReactions.prototype.cmdReacts, GuildReactions,
-		{ minArgs:0, maxArgs:2, group:'left' });
+		{ minArgs:1, maxArgs:2, group:'left' });
+
+	bot.addContextCmd( 'triggers', 'triggers [page]',
+	GuildReactions.prototype.cmdReacts, GuildReactions,
+	{ minArgs:0, maxArgs:1, group:'left' });
 
 	bot.addContextCmd( 'rmreact', 'rmreact <\"react trigger\"> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
