@@ -51,7 +51,7 @@ var eventExp = {
 exports.Game = class Game {
 
 	/**
-	 * 
+	 *
 	 * @param {RPG} rpg
 	 * @param {Cache} charCache character cache.
 	 * @param {World} world RPG world
@@ -76,8 +76,8 @@ exports.Game = class Game {
 	/**
 	 * Determines whether a character can perform a given action
 	 * in their current state.
-	 * @param {Character} char 
-	 * @param {string} act - action to attempt to perform. 
+	 * @param {Character} char
+	 * @param {string} act - action to attempt to perform.
 	 */
 	canAct( char, act ) {
 		let illegal = illegal_acts[ char.state ];
@@ -134,10 +134,10 @@ exports.Game = class Game {
 			return char.output( `${char.name} was hurt trying to hike. hp: (${char.hp}/${char.maxHp})` );
 		}
 		else if ( r < 10 ) return char.output('You failed to find your way.');
-	
+
 		let loc = await this.world.hike( char, dir );
 		if ( !loc ) return char.output( 'You failed to find your way.' );
-		
+
 		if ( p && p.leader === char.name ) {
 
 			//console.log('Moving party to: ' + char.loc.toString() );
@@ -166,7 +166,7 @@ exports.Game = class Game {
 		if ( !party ) return 'You are not in a party.';
 
 		if ( !tar ) { return `current leader: ${party.leader}.`}
-	
+
 		if ( !party.isLeader(char) ) return 'You are not the party leader.';
 
 		if ( party.setLeader( tar ) ) return `${tar.name} is now the party leader.`;
@@ -299,7 +299,7 @@ exports.Game = class Game {
 		let eq = char.getEquip( it.slot );
 
 		if ( !eq) res += 'Equip: nothing';
-		else if ( eq instanceof Array ) res += 'Equip: ' + item.Item.DetailsList( eq );
+		else if ( Array.isArray( eq ) ) res += 'Equip: ' + item.Item.DetailsList( eq );
 		else res += 'Equip: ' + eq.getDetails();
 
 		return res;
@@ -311,7 +311,7 @@ exports.Game = class Game {
 		if ( !wot ) return `${char.name} equip:\n${char.listEquip()}`;
 
 		if ( this.tick( char, 'equip') === false ) return char.getLog();
-		
+
 		let res = char.equip(wot);
 		if ( res === true ) res = char.name + ' equips ' + wot;	// TODO,echo slot used.
 		else if ( typeof(res) === 'string');// return res;
@@ -365,7 +365,7 @@ exports.Game = class Game {
 	}
 
 	give( src, dest, expr ) {
-		
+
 		if ( this.tick( src, 'give') === false ) return src.output();
 
 		return src.output( Trade.transfer( src, dest, expr ) );
@@ -417,7 +417,7 @@ exports.Game = class Game {
 	unequip( char, slot ) {
 
 		if ( this.tick( char, 'unequip') === false ) return char.output();
-	
+
 		if ( !slot ) return char.output( 'Specify an equip slot to remove.' );
 
 		if ( char.unequip(slot) ) return char.output( 'Removed.' );

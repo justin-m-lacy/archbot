@@ -188,7 +188,7 @@ class GuildReactions {
 	}
 
 	/**
-	 * Command to display all information for a given reaction trigger.
+	 * Display all information for a reaction trigger.
 	 * @async
 	 * @param {Message} m
 	 * @param {string} trig - Reaction trigger.
@@ -208,7 +208,7 @@ class GuildReactions {
 		resp = Display.getPageText( resp, page-1 );
 
 		// append reaction count.
-		if ( reacts instanceof Array ) resp += `\n\n${reacts.length} total reactions`;
+		if (  Array.isArray(reacts) ) resp += `\n\n${reacts.length} total reactions`;
 		resp += '\n\n' + pageText;
 
 		return m.channel.send( resp );
@@ -277,8 +277,8 @@ class GuildReactions {
 	}
 
 	/**
-	 * Regex reacts are by using a standard JS regular expression within quote marks "\^w+\" etc.
-	 * Reactions may contain $n replacement groups where n is a 1-indexed group from the regular expression.
+	 * Regex reacts use standard JS regular expressions within quote marks "\^w+\" etc.
+	 * Reactions can contain $n substitution groups where n is a 1-indexed group from the regular expression.
 	 * @param {string} trig - regex trigger for reaction.
 	 * @param {string} react
 	 * @param {string} uid - discord id of creator.
@@ -471,7 +471,7 @@ class GuildReactions {
 	 * @param {string} trig - trigger for the reaction.
 	 * @param {string|null} [reactStr=null] - the reaction string to return, or null to return all reactions for
 	 * the given trigger.
-	 * @returns {string|Reaction|Array|null} Returns the single reaction found, or an array of reactions
+	 * @returns {Reaction|Reaction[]|null} Returns the single reaction found, or an array of reactions
 	 * if no reactStr is specified.
 	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */

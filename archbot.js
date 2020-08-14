@@ -31,7 +31,7 @@ console.log( 'logging in...');
 client.login( auth.token );
 
 
-function initCmds(){ 
+function initCmds(){
 
 	let cmds = bot.dispatch;
 
@@ -75,7 +75,7 @@ async function cmdUptime( m ) { return m.channel.send( client.user.username + ' 
 
 /**
  * @async
- * @param {Message} msg 
+ * @param {Message} msg
  * @param {string} name
  * @returns {Promise}
  */
@@ -89,7 +89,7 @@ async function cmdUName( msg, name ) {
 
 /**
  * @async
- * @param {Message} msg 
+ * @param {Message} msg
  * @param {string} name
  * @returns {Promise}
  */
@@ -102,9 +102,9 @@ async function cmdNick( msg, name ) {
 }
 
 /**
- * 
+ *
  * @param {Message} msg
- * @param {string} [cmd] command to get help for. 
+ * @param {string} [cmd] command to get help for.
  */
 function cmdHelp( msg, cmd ) {
 
@@ -115,8 +115,8 @@ function cmdHelp( msg, cmd ) {
 
 /**
  * @async
- * @param {Message} msg 
- * @param {string} name 
+ * @param {Message} msg
+ * @param {string} name
  * @returns {Promise}
  */
 async function cmdUid( msg, name ) {
@@ -129,7 +129,7 @@ async function cmdUid( msg, name ) {
 
 /**
  * @async
- * @param {Discord.Message} msg 
+ * @param {Discord.Message} msg
  * @param {string} dicestr - roll formatted string.
  * @returns {Promise}
  */
@@ -142,9 +142,9 @@ async function cmdRoll( msg, dicestr ) {
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} when 
+ *
+ * @param {Message} msg
+ * @param {string} when
  */
 function cmdSleep( msg, when ) {
 	let sender = bot.getSender(msg);
@@ -152,10 +152,10 @@ function cmdSleep( msg, when ) {
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} activity 
- * @param {string} when 
+ *
+ * @param {Message} msg
+ * @param {string} activity
+ * @param {string} when
  */
 function cmdSchedule( msg, activity, when ) {
 
@@ -174,8 +174,8 @@ function cmdLastPlay( msg, who, game ){
 }
 
 /**
- * 
- * @param {Message} msg 
+ *
+ * @param {Message} msg
  * @param {string} who - user to check.
  */
 function cmdLastOn( msg, who ){
@@ -183,8 +183,8 @@ function cmdLastOn( msg, who ){
 }
 
 /**
- * 
- * @param {Message} msg 
+ *
+ * @param {Message} msg
  * @param {string} who - user to check.
  */
 function cmdLastIdle( msg, who){
@@ -192,8 +192,8 @@ function cmdLastIdle( msg, who){
 }
 
 /**
- * 
- * @param {Message} msg 
+ *
+ * @param {Message} msg
  * @param {string} who - user to check.
  */
 function cmdLastActive( msg, who ){
@@ -201,8 +201,8 @@ function cmdLastActive( msg, who ){
 }
 
 /**
- * 
- * @param {Message} msg 
+ *
+ * @param {Message} msg
  * @param {string} who - user to check.
  */
 function cmdLastOff( msg, who ){
@@ -210,9 +210,9 @@ function cmdLastOff( msg, who ){
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} reply 
+ *
+ * @param {Message} msg
+ * @param {string} reply
  */
 function cmdTest( msg, reply ){
 	if ( reply == null ) msg.channel.send( 'eh?' );
@@ -222,7 +222,7 @@ function cmdTest( msg, reply ){
 function cmdFuck( m ) { m.channel.send( m.content.slice(1) + ' yourself, ' + m.member.displayName ); }
 
 async function sendGameTime( channel, displayName, gameName ) {
-	
+
 	let uObject = bot.userOrSendErr( channel, displayName );
 	if ( !uObject ) return;
 
@@ -246,9 +246,9 @@ async function sendGameTime( channel, displayName, gameName ) {
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} name 
+ *
+ * @param {Message} msg
+ * @param {string} name
  */
 async function cmdPlayTime( msg, name ){
 
@@ -276,9 +276,9 @@ async function cmdPlayTime( msg, name ){
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} name 
+ *
+ * @param {Message} msg
+ * @param {string} name
  */
 async function cmdIdleTime( msg, name ){
 
@@ -300,7 +300,7 @@ async function cmdIdleTime( msg, name ){
 		}
 
 	} catch ( err ){
-		
+
 		console.error( err );
 	}
 
@@ -309,9 +309,9 @@ async function cmdIdleTime( msg, name ){
 }
 
 /**
- * 
- * @param {Message} msg 
- * @param {string} name 
+ *
+ * @param {Message} msg
+ * @param {string} name
  */
 async function cmdOnTime( msg, name ) {
 
@@ -334,7 +334,7 @@ async function cmdOnTime( msg, name ) {
 		}
 
 	} catch ( err ){
-		
+
 		console.error( err );
 	}
 
@@ -344,7 +344,7 @@ async function cmdOnTime( msg, name ) {
 
 /**
  * @async
- * @param {Message} msg 
+ * @param {Message} msg
  * @param {string} name
  * @returns {Promise}
  */
@@ -379,7 +379,7 @@ async function cmdOffTime( msg, name ) {
 /**
  * Send status history of user to channel.
  * @async
- * @param {Channel} channel 
+ * @param {Channel} channel
  * @param {string} name - name of user to check.
  * @param {(string|string[])} statuses - status name or list of statuses to check.
  * @param {string} statusName - status to display.
@@ -399,7 +399,7 @@ async function sendHistory( channel, name, statuses, statusName ) {
 		let lastTime = latestStatus( memData.history, statuses );
 
 		let dateStr = DateFormat.dateString( lastTime );
-		
+
 		return channel.send( 'Last saw ' + name + ' ' + statusName + ' ' + dateStr );
 
 	} catch ( err ) {
@@ -409,17 +409,17 @@ async function sendHistory( channel, name, statuses, statusName ) {
 }
 
 /**
- * 
- * @param {GuildMember} gMember 
+ *
+ * @param {GuildMember} gMember
  * @param {string[]|string} statuses
  * @returns {boolean}
  */
 function hasStatus( gMember, statuses ) {
 
 	let status = gMember.presence.status;
-	if ( statuses instanceof Array ) {
+	if ( Array.isArray( statuses ) ) {
 
-		for( let i = statuses.length-1; i >= 0; i-- ) {	
+		for( let i = statuses.length-1; i >= 0; i-- ) {
 
 			if ( statuses[i] === status ) return true;
 		}
@@ -433,17 +433,17 @@ function hasStatus( gMember, statuses ) {
 /**
  * checks history object for last time user was in a given status
  * or in any of the statuses given in an array.
- * @param {Object} history 
- * @param {string|string[]} statuses 
+ * @param {Object} history
+ * @param {string|string[]} statuses
  */
 function latestStatus( history, statuses ) {
 
 	if ( !history ) return null;
-	if ( statuses instanceof Array ) {
+	if ( Array.isArray( statuses ) ) {
 
 		let status = null;
 		let statusTime = null;
-		
+
 		if ( statuses.length === 0 ) { return null; }
 		for( let i = statuses.length-1; i >= 0; i-- ) {
 
@@ -454,7 +454,7 @@ function latestStatus( history, statuses ) {
 
 		}
 		return statusTime;
-	
+
 	} else if ( typeof statuses === 'string' ) {
 
 		if ( history.hasOwnProperty( statuses ) === true ) return history[statuses];
@@ -466,8 +466,8 @@ function latestStatus( history, statuses ) {
 /**
  * send schedule message to channel, for user with displayName
  * @async
- * @param {Channel} chan 
- * @param {string} name 
+ * @param {Channel} chan
+ * @param {string} name
  * @param {string} activity
  * @returns {Promise}
  */
@@ -488,7 +488,7 @@ async function sendSchedule( chan, name, activity ) {
  * Get the history object of a guild member.
  * @async
  * @param {GuildMember} gMember
- * @returns {Promise<Object|null>} 
+ * @returns {Promise<Object|null>}
  */
 async function readHistory( gMember ){
 
@@ -535,9 +535,9 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
 }
 
 /**
- * 
- * @param {GuildMember} oldMember 
- * @param {GuildMember} newMember 
+ *
+ * @param {GuildMember} oldMember
+ * @param {GuildMember} newMember
  */
 async function presenceChanged( oldMember, newMember ) {
 
@@ -560,10 +560,10 @@ async function presenceChanged( oldMember, newMember ) {
 }
 
 /**
- * 
- * @param {GuildMember} guildMember 
- * @param {Discord.Game} prevGame 
- * @param {Discord.Game} curGame 
+ *
+ * @param {GuildMember} guildMember
+ * @param {Discord.Game} prevGame
+ * @param {Discord.Game} curGame
  */
 async function logGames( guildMember, prevGame, curGame ) {
 
@@ -572,15 +572,15 @@ async function logGames( guildMember, prevGame, curGame ) {
 
 	if ( prevGame ) gameData[prevGame.name] = now;
 	if ( curGame ) gameData[curGame.name] = now;
-	
+
 	return mergeMember( guildMember, {games:gameData} );
 
 }
 
 /**
  * Log a guild member's last status within the guild.
- * @param {GuildMember} guildMember 
- * @param {string[]} statuses 
+ * @param {GuildMember} guildMember
+ * @param {string[]} statuses
  */
 async function logHistory( guildMember, statuses ) {
 
@@ -598,7 +598,7 @@ async function logHistory( guildMember, statuses ) {
 /**
  * Merge existing user data.
  * @async
- * @param {GuildMember|User} uObject 
+ * @param {GuildMember|User} uObject
  * @param {Object} newData - data to merge into existing data.
  * @returns {Promise}
  */
@@ -611,7 +611,7 @@ async function mergeMember( uObject, newData ){
 			jsutils.recurMerge( data, newData );
 			newData = data;
 		}
-	
+
 		return bot.storeUserData( uObject, newData );
 
 	} catch(e) {

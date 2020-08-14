@@ -104,7 +104,7 @@ class Monster {
 
 					mons = a[ind];
 					if ( !mons.biome || mons.biome === biome ||
-					((mons.biome instanceof Array) && !mons.biome.includes(biome) ) )
+					( Array.isArray( mons.biome ) && !mons.biome.includes(biome) ) )
 						return create( mons );
 					console.log('WRONG BIOME: ' + mons.name );
 					ind = (ind+1) % a.length;
@@ -165,7 +165,7 @@ class Monster {
 	set template(t) { this._template = t;}
 	get name() { return this._name; }
 	set name( v ) { this._name = v; }
-	
+
 	get level() { return this._level; }
 	set level( v ) { this._level = v; }
 	get toHit() { return this._toHit; }
@@ -240,7 +240,7 @@ class Monster {
 	}
 
 	clone() { return Object.assign( new Monster(), this ); }
-	
+
 
 }
 

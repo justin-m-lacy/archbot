@@ -8,8 +8,8 @@ module.exports = class CmdDispatch {
 	get prefix() { return this.cmdLine.prefix; }
 
 	/**
-	 * 
-	 * @param {string} cmdPrefix 
+	 *
+	 * @param {string} cmdPrefix
 	 */
 	constructor( cmdPrefix='!') {
 
@@ -23,7 +23,7 @@ module.exports = class CmdDispatch {
 	getCommands() { return this.cmdLine.commands; }
 
 	/**
-	 * 
+	 *
 	 * @param {string} name
 	 * @returns {(Command|null)}
 	 */
@@ -39,9 +39,9 @@ module.exports = class CmdDispatch {
 	} //
 
 	/**
-	 * 
-	 * @param {Command} cmd 
-	 * @param {Array} leadArgs 
+	 *
+	 * @param {Command} cmd
+	 * @param {Array} leadArgs
 	 */
 	dispatch( cmd, leadArgs ) {
 
@@ -54,10 +54,10 @@ module.exports = class CmdDispatch {
 	}
 
 	/**
-	 * 
-	 * @param {BotContext} context 
-	 * @param {Command} cmd 
-	 * @param {Array} leadArgs 
+	 *
+	 * @param {BotContext} context
+	 * @param {Command} cmd
+	 * @param {Array} leadArgs
 	 * @returns {Promise}
 	 */
 	routeCmd( context, cmd, leadArgs ) {
@@ -70,7 +70,7 @@ module.exports = class CmdDispatch {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} name - Name of command.
 	 * @param {string} desc - Command Usage details.
 	 * @param {function} func - Function to call.
@@ -91,11 +91,11 @@ module.exports = class CmdDispatch {
 	}
 
 	/**
-	 * 
-	 * @param {string} name 
-	 * @param {string} desc 
-	 * @param {Function} func 
-	 * @param {Object} [opts=null] 
+	 *
+	 * @param {string} name
+	 * @param {string} desc
+	 * @param {Function} func
+	 * @param {Object} [opts=null]
 	 */
 	add( name, desc, func, opts=null ) {
 
@@ -111,17 +111,17 @@ module.exports = class CmdDispatch {
 	}
 
 	/**
-	 * 
-	 * @param {Command} cmd 
+	 *
+	 * @param {Command} cmd
 	 */
 	regCmd( cmd ) {
-	
+
 		this.cmdLine.commands[ cmd.name ] = cmd;
 		let alias = cmd.alias;
 		if ( alias ) {
 
 			if ( typeof(alias) === 'string') this.cmdLine.commands[ alias ] = cmd;
-			else if ( alias instanceof Array )
+			else if ( Array.isArray( alias) )
 				for( let i = alias.length-1; i >= 0; i-- ) this.cmdLine.commands[ alias[i] ] = cmd;
 
 		}
@@ -134,14 +134,14 @@ module.exports = class CmdDispatch {
 	get commands() { return this.cmdLine.commands; }
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	getCmd( name ) { return this._cmds[name]; }
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	clearCmd( name ) { delete this._cmds[name];	}
 
@@ -158,15 +158,15 @@ class CmdLine {
 	get prefix() { return this._prefix; }
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	getCommand( name ) {
 		return this._cmds[name.toLowerCase()] || null;
 	}
 
 	constructor( cmdPrefix='!' ) {
-	
+
 		this._prefix = cmdPrefix;
 		this._prefixLen = cmdPrefix ? cmdPrefix.length : 0;
 
@@ -175,7 +175,7 @@ class CmdLine {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} str
 	 * @returns {Command|null} The command found on the input line.
 	 */
@@ -185,13 +185,13 @@ class CmdLine {
 
 		// cmd prefix.
 		if ( str.slice( 0, this._prefixLen ) !== this._prefix ) return null;
-		
+
 		let cmd, ind = str.indexOf( ' ', this._prefixLen );
 		if ( ind < 0 ){
 
 			cmd = this._cmds[ str.slice( this._prefixLen ).toLowerCase() ];
 			this._args = null;
-		
+
 		} else {
 
 			cmd = this._cmds[ str.slice( this._prefixLen, ind ).toLowerCase() ];
@@ -206,7 +206,7 @@ class CmdLine {
 	}
 
 	readArgs( argstr, cmd ) {
-		
+
 		argstr = argstr.replace( /“|”/g, '\"');
 
 		if ( !cmd.maxArgs ) this._args = this.splitArgs( argstr );
@@ -349,7 +349,7 @@ class CmdLine {
 		if ( len > 0 && str.charAt(0) === '\"' ) start++;
 		let end = len-1;
 		if ( end > 0 && str.charAt(end) === '\"') end--;
-	
+
 		if ( end < start ) return '';
 		return str.slice(start,end+1);
 

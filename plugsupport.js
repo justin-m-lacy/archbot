@@ -8,7 +8,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 	try {
 
 		dirs = fs.readdirSync( plugins_dir );
-	
+
 		let plugs, stats;
 		for( let dir of dirs ) {
 
@@ -25,7 +25,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 	} catch ( err ) {
 		console.error(err);
-	} 
+	}
 
 	return plugins;
 
@@ -34,8 +34,8 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 /**
  * Searches the directory for a plugin description file,
  * and loads any plugins listed.
- * @param {string} dir 
- * @param {function} init_func 
+ * @param {string} dir
+ * @param {function} init_func
  */
 function findAndLoad( dir, init_func=null ) {
 
@@ -45,7 +45,7 @@ function findAndLoad( dir, init_func=null ) {
 	for( let file of files ) {
 
 		try {
-		
+
 			if ( !(path.extname(file) === '.json')) continue;
 
 			file = path.resolve( dir, file );
@@ -56,7 +56,7 @@ function findAndLoad( dir, init_func=null ) {
 			if ( plugs ) {
 
 				if ( init_func != null ) {
-					if ( plugs instanceof Array ) plugs.forEach( (p)=>init_func(p) );
+					if ( Array.isArray( plugs ) ) plugs.forEach( (p)=>init_func(p) );
 					else if ( init_func != null ) init_func(plugs);
 				}
 				return plugs;
@@ -78,7 +78,7 @@ function loadPlugDesc( dir, descFile ) {
 
 	let plug;
 
-	if ( desc instanceof Array ) {
+	if ( Array.isArray( desc ) ) {
 
 		let a = desc;
 		let plugs = [];

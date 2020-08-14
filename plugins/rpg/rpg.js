@@ -412,7 +412,7 @@ class RPG {
 			let item = char.getEquip( slot );
 			if ( !item ) return m.reply( 'Nothing equipped in ' + slot + ' slot.');
 			if ( typeof(item) === 'string' ) return m.reply( item );
-			else if ( item instanceof Array ) {
+			else if ( Array.isArray( item ) ) {
 
 				let r = '';
 				for( let i = item.length-1; i>= 0; i-- ) {

@@ -70,7 +70,7 @@ module.exports = class Inventory {
 			it = this._items[i];
 			list += '\n'+(i+1) + ') ' + it.name;
 			if ( it.attach ) list += '\t[img]';
-	
+
 		}
 
 		return list;
@@ -92,7 +92,7 @@ module.exports = class Inventory {
 		if ( Number.isNaN(num) ) {
 
 			return this.findItem( start );
-	
+
 		} else {
 
 			num--;
@@ -107,7 +107,7 @@ module.exports = class Inventory {
 	 * Returns an item from a sub-inventory, or a range of items
 	 * if the base item is not an inventory, and the second param
 	 * is a number.
-	 * @param {string|number} base 
+	 * @param {string|number} base
 	 * @param {string|number} sub
 	 * @returns {Item|[Item]|null}
 	 */
@@ -125,12 +125,12 @@ module.exports = class Inventory {
 	 * Takes an item from a sub-inventory, or a range of items
 	 * if the base item is not an inventory, and the second param
 	 * is a number.
-	 * @param {*} base 
+	 * @param {*} base
 	 * @param {*} sub
 	 * @returns {Item|[Item]|null}
 	 */
 	takeSub( base, sub ) {
-		
+
 		let it = this.take(base);
 		if ( !it) return null;
 
@@ -140,7 +140,7 @@ module.exports = class Inventory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {number} start - start number of items to take.
 	 * @param {number} finish - end number of items to take.
 	 * @returns {[Item]|null} - Range of items found.
@@ -159,7 +159,7 @@ module.exports = class Inventory {
 	/**
 	 * Attempts to remove an item by name or index.
 	 * @param {number|string|Item} which
-	 * @returns {Item|null} item removed, or null if none found. 
+	 * @returns {Item|null} item removed, or null if none found.
 	 */
 	take( which, sub ) {
 
@@ -168,7 +168,7 @@ module.exports = class Inventory {
 
 		if ( which instanceof itemjs.Item ) {
 
-			let ind = this._items.indexOf( which ); 
+			let ind = this._items.indexOf( which );
 			if ( ind >= 0 ) return this._items.splice( ind, 1 )[0];
 			return null;
 
@@ -185,12 +185,12 @@ module.exports = class Inventory {
 				if ( item.name.toLowerCase() === which ) return this._items.splice( i, 1 )[0];
 
 			}
-	
+
 		} else {
 
 			ind--
 			if ( ind >= 0 && ind < this._items.length ) return this._items.splice( ind, 1 )[0];
-	
+
 		}
 
 		return null;
@@ -198,8 +198,8 @@ module.exports = class Inventory {
 	}
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	findItem( name ) {
 
@@ -214,13 +214,13 @@ module.exports = class Inventory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {Item|[Item]} it
 	 * @returns {number} - starting 1-index where items were added.
 	 */
 	add( it ) {
 
-		if ( it instanceof Array ) {
+		if ( Array.isArray( it ) ) {
 			let ind = this._items.length + 1;
 			this._items = this._items.concat( it );
 			return ind;
@@ -233,7 +233,7 @@ module.exports = class Inventory {
 
 	/**
 	 * Remove all items matching predicate; returns the list of items removed.
-	 * @param {*} p 
+	 * @param {*} p
 	 */
 	removeWhere( p ) {
 
@@ -249,7 +249,7 @@ module.exports = class Inventory {
 
 	/**
 	 * Apply function to each item in inventory.
-	 * @param {function} f 
+	 * @param {function} f
 	 */
 	forEach( f ) {
 
