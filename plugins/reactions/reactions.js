@@ -94,20 +94,39 @@ class GuildReactions {
 
 				this.msgTime = now;
 
-				let resp = this.react(m.content);
-				if ( resp !== null ) {
+				let rset = this.findSet(m.content);
+				if ( rset !== null ) {
 
-					if ( resp.embed ) {
-
-						return Embeds.replyEmbed( m, resp.toString(), resp.embed );
-
-					} else return m.channel.send( resp.toString() );
+					return this.respond( m, rset );
 
 				}
 
 			} catch(e) { console.error(e); }
 
 		} );
+
+	}
+
+	/**
+	 * Respond with a reaction from the given ReactSet
+	 * @param {Message} m
+	 * @param {ReactSet} rset
+	 * @returns {Promise}
+	 */
+	async respond( m, rset ) {
+
+		var last = rset.lastUsed;
+		if ( last && (this.msgTime - last ) < this.minWait ) continue;
+		rset.lastUsed = this.msgTime;
+
+		// get random reaction from set.
+		let react = rset.getReact();
+
+		let resp = react.getResponse( rset.trigger, m.content );
+
+		if ( rset.embed ) {
+			return Embeds.replyEmbed( m, resp, rset.embed );
+		} else return m.channel.send( resp);
 
 	}
 
@@ -322,25 +341,24 @@ class GuildReactions {
 	}
 
 	/**
-	 * Attempt to react to the given string message.
-	 * @param {string} content - Message to react to.
-	 * @returns {string|null} Reaction string for the message, or null
+	 * Find a reaction set for the given input text.
+	 * @param {string} str - Message to react to.
+	 * @returns {ReactSet|null} Reaction string for the message, or null
 	 * if no match found.
 	 */
-	react( content ) {
+	findSet( str ) {
 
-		let resp = this.tryRegExs( this.reMap, content );
-		if ( resp !== null ) return resp;
+		let rset = this.tryRegEx( this.reMap, str );
+		if ( rset !== null ) return rset;
 
-		resp = this.tryRegExs( globalRegEx, content );
-		if ( resp !== null ) return resp;
+		rset = this.tryRegEx( globalRegEx, str );
+		if ( rset !== null ) return rset;
 
-		content = content.toLowerCase();
-		resp = this.tryStrings( this.reactions, content );
-		if ( resp !== null ) return resp;
+		str = str.toLowerCase();
+		rset = this.tryReact( this.reactions, str );
+		if ( rset !== null ) return rset;
 
-		resp = this.tryStrings( globalReacts, content );
-		return resp;
+		return this.tryReact( globalReacts, str );
 
 	}
 
@@ -348,24 +366,16 @@ class GuildReactions {
 	 *
 	 * @param {Map<string,ReactSet>} map
 	 * @param {string} str - input string to test.
-	 * @returns {string|null} string reaction or null.
+	 * @returns {ReactSet|null} string reaction or null.
 	 */
-	tryStrings( map, str ) {
+	tryReact( map, str ) {
 
 		for( let k of map.keys() ) {
 
 			if ( str.indexOf(k) >= 0 ) {
 
 				var rset = map.get(k);
-				if ( rset === undefined ) {
-					continue;
-				}
-
-				var last = rset.lastUsed;
-				if ( last && (this.msgTime - last ) < this.minWait ) continue;
-				rset.lastUsed = this.msgTime;
-
-				return rset.getReact();
+				if ( rset !== undefined ) return rset;
 
 			}
 
@@ -377,19 +387,15 @@ class GuildReactions {
 	 * Determine if string matches a regex trigger.
 	 * @param {Map<RegEx,Reaction>} reMap - Map of regular expressions being tested.
 	 * @param {string} str - string being tested.
-	 * @returns {Object|Array|string|null}
+	 * @returns {ReactSet|null}
 	 */
-	tryRegExs( map, str ) {
+	tryRegEx( map, str ) {
 
 		for( let rset of map.values() ) {
 
 			if ( rset.trigger.test( str ) === true ) {
 
-				let last = rset.lastUsed;
-				if ( last && (this.msgTime - last ) < this.minWait ) continue;
-				rset.lastUsed = this.msgTime;
-
-				return p.global === true ? rset.textReplace(str) : rset.replaceReact( str );
+				return rset;
 
 			}
 

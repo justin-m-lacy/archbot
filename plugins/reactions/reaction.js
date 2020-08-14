@@ -51,7 +51,78 @@ export class Reaction {
 
 	}
 
+	/**
+	 * Get the text portion of the reaction response.
+
+	 *
+	 * @param {string|RegExp} trig - trigger that matched input string.
+	 * @param {string} str - input string that triggered reaction.
+	 * @returns {string}
+	 */
+	getResponse( trig, str ) {
+
+		if ( typeof trig === 'string' ) return this.r;
+
+		return trig.global ?
+			this.fullReplace( trig, str ) :
+			this.groupReplace( trig, str );
+
+	}
+
+	/**
+	 * @returns {string} - Raw reaction display string, with no substitions applied.
+	 */
 	toString(){
+		return this.r;
+	}
+
+	/**
+	 * Substitute regex groups in the reaction text.
+	 * Groups are 1-based placeholders in the form of "$n"
+	 * @param {RegExp} trig
+	 * @param {string} text
+	 */
+	groupReplace( trig, text ) {
+
+		var res, resLen;
+		let resp = this.r;
+
+		trig.lastIndex = 0;	// reset from test()
+
+		// TODO: Global option?
+		if ( ( res = trig.exec(text)) !== null ) {
+
+			resLen = res.length;
+			// replace $ groups.
+			resp = resp.replace( groupRegex, ( match, p1, )=> {
+
+				let n = Number( p1 );
+				if ( Number.isNaN(n) === true ) {
+
+					if ( p1 === '`') return text.slice(0, res.index );
+					else if ( p1 === "'") return text.slice( trig.lastIndex );	// TODO: Wrong.
+					else if ( p1 === '&') return res[0];
+
+				} else if ( n < resLen ) return res[n];
+
+				return match;
+
+			});
+
+		}
+
+		return resp;
+
+	}
+
+	/**
+	 * Get reaction text replacing each section of input that matches the RegEx trigger with the full response.
+	 * @note A RegExp with the global flag replaces each section of the input that matches
+	 * the regex with the full response string.
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+	 */
+	fullReplace( trig, text ) {
+		return text.replace( trig, this.r );
 	}
 
 }

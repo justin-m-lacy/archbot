@@ -164,52 +164,6 @@ class ReactSet {
 	}
 
 	/**
-	 * Substitute regex groups in the reaction text.
-	 * Groups are 1-based placeholders in the form of "$n"
-	 * @param {string} text
-	 */
-	replaceReact( text ) {
-
-		var res, resLen;
-		let resp = this.getReact();		// react template.
-
-		this._trigger.lastIndex = 0;	// reset from test()
-
-		// TODO: Global option?
-		if ( ( res = this._trigger.exec(text)) !== null ) {
-
-			resLen = res.length;
-			// replace $ stubs.
-			resp = resp.replace( groupRegex, function( match, p1, ){
-
-				let n = Number( p1 );
-				if ( Number.isNaN(n) === true ) {
-
-					if ( p1 === '`') return text.slice(0, res.index );
-					else if ( p1 === "'") return text.slice( this._trigger.lastIndex );	// TODO: Wrong.
-					else if ( p1 === '&') return res[0];
-
-				} else if ( n < resLen ) return res[n];
-
-				return match;
-
-			});
-
-		}
-
-		return resp;
-
-	}
-
-	/**
-	 * Get a regex reaction, using substring matches for replacements in text.
-	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-	 */
-	textReplace( text ) {
-		return text.replace( this._trigger, this.getReact() );
-	}
-
-	/**
 	 * @returns {boolean}
 	 */
 	isEmpty() {
