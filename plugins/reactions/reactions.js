@@ -168,7 +168,7 @@ class GuildReactions {
 
 			var res;
 
-			if ( regExTest.test(trig) === true ) res = this.removeReact( this.reMap, trig, which, true );
+			if ( this.reMap.has(trig) ) res = this.removeReact( this.reMap, trig, which, true );
 			else res = this.removeReact( this.reactions, trig, which );
 
 			if ( res === true ) {
@@ -251,10 +251,10 @@ class GuildReactions {
 			return m.channel.send( 'No custom reactions found.' );
 		} else {
 
-			let pageText = Display.getPageText( triggers.join(' ### '), page-1 );
+			let pageText = '`' + Display.getPageText( triggers.join('\t*\t'), page-1 ) + '`';
 			let footer = Display.pageFooter(pageText);
 
-			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n\n' + footer;
+			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n' + footer;
 
 			return m.channel.send( pageText );
 
@@ -276,17 +276,14 @@ class GuildReactions {
 	removeReact( map, trig, reaction=null, isRegex=false) {
 
 		if ( isRegex===false ) trig = trig.toLowerCase();
-		else console.log('REMOVING REGEX TRIGGER: ' + trig );
+		//else console.log('REMOVING REGEX TRIGGER: ' + trig );
 
 		let rset = map.get( trig );
 		if ( rset === undefined ) {
-
-			// possible legacy or bugged regex stored in string triggers.
-			return this.removeReact( this.reactions, trig, reaction );
-
+			return false;
 		}
 
-		console.log('REGEX TRIGGER FOUND: ' +  rset.trigger );
+		//console.log('REGEX TRIGGER FOUND: ' +  rset.trigger );
 
 		let res = rset.tryRemove( reaction );
 		if ( res === true && rset.isEmpty()) map.delete( trig );
