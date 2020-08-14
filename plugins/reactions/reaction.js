@@ -1,3 +1,13 @@
+/**
+ *
+ * @param {string} resp
+ * @param {string} uid - userid of creator
+ * @param {?string} embed - url of embedded attachment
+ */
+export const newReaction = ( resp, uid, embed ) => {
+	return new Reaction( resp, uid, Date.now(), embed );
+}
+
 export class Reaction {
 
 	toJSON(){
@@ -30,5 +40,48 @@ export class Reaction {
 
 	toString(){
 	}
+
+}
+
+/**
+ *
+ * @param {?object|string} r
+ * @returns {Reaction|null}
+ */
+export const parseReaction = ( r ) => {
+
+
+	if ( typeof r === 'object') {
+
+		if ( r instanceof Reaction ) {
+			return r;
+		} else {
+
+			return new Reaction( r.r, r.uid, r.t, r.embed );
+		}
+
+	} else if ( typeof r === 'string' ) return new Reaction(r);
+
+	return null;
+
+}
+
+/**
+ * Parse an array of reactions.
+ * @param {Array} a
+ * @returns {Reaction[]}
+ */
+export const parseReactions = (a) => {
+
+	let d = [];
+
+	let len = a.length;
+	for( let i = 0; i < len; i++ ) {
+
+		let r = parseReaction(a[i]);
+		if ( r !== null ) d.push(r);
+	}
+
+	return d;
 
 }

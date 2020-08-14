@@ -1,3 +1,8 @@
+const ReactModule = require( './reaction');
+const parseReaction = ReactModule.parseReaction;
+
+const parseReactions = ReactModule.parseReactions;
+
 /**
  * @const {RegEx} groupRegex - regex for substitution in a regex reaction. $1, $2, etc.
  */
@@ -13,7 +18,7 @@ class ReactSet {
 	}
 
 	/**
-	 * @property {string|RegeEx} trigger - A trigger in source text that triggers
+	 * @property {string|RegeEx} trigger - trigger in message text that triggers
 	 * one of the set reactions.
 	 */
 	get trigger() { return this._trigger; }
@@ -36,21 +41,19 @@ class ReactSet {
 
 		this._trigger = trig;
 
-		if ( reacts !== null ) {
+		if ( Array.isArray(reacts)) {
 
-			/**
-			 * @deprecated @compat
-			 */
-			if ( (typeof reacts === 'object' )&& !(Array.isArray(reacts) ) ) {
-				// old response save.
-				if ( reacts.r && typeof reacts.r !== 'string' ) {
-					//console.log('using oldstyle react: ' + trig + ' -> ' + reacts.r );
-					reacts = reacts.r;
-				}
+			this._reacts = parseReactions(reacts);
+
+		} else {
+
+			this._reacts = [];
+
+			if ( reacts ){
+				let r = parseReaction(reacts);
+				if ( r ) this._reacts.push(r);
 			}
-
 		}
-		this._reacts = reacts;
 
 	}
 
@@ -62,7 +65,7 @@ class ReactSet {
 	 * or Array of all Reactions of reactStr is null, or false if no reaction
 	 * matching the string is found.
 	 */
-	getReactions( reactStr=null ) {
+	findReactions( reactStr=null ) {
 
 		if ( reactStr === null || reactStr === undefined ) return this._reacts;
 
@@ -246,11 +249,9 @@ class ReactSet {
 	 */
 	add( react, uid, embedUrl=null ) {
 
-		react = { r:react, uid:uid, t:Date.now(), embed:embedUrl };
+		//react = { r:react, uid:uid, t:Date.now(), embed:embedUrl };
 
-		if ( this._reacts === null ) this._reacts = react;
-		else if ( this._reacts instanceof Array ) this._reacts.push( react );
-		else this._reacts = [ this._reacts, react ];
+		this._reacts.push( new ReactModule( react, uid, Date.now(), embedUrl ) );
 
 	}
 
