@@ -159,7 +159,7 @@ class GuildReactions {
 	 * @async
 	 * @param {Message} m
 	 * @param {string} trig - reaction trigger.
-	 * @param {string|null|undefined} which
+	 * @param {string} which
 	 * @returns {Promise}
 	 */
 	async cmdRmReact( m, trig, which ) {
@@ -178,11 +178,12 @@ class GuildReactions {
 
 			} else if ( res === false ) return m.channel.send('Reaction not found.');
 
+			// multiple reactions found.
 			return m.channel.send( `${res} reactions found for trigger: ${trig}`);
 
 		}
 
-		return m.channel.send( 'Usage: !rmreact "string" ["reaction"]' );
+		return m.channel.send( 'Usage: !rmreact "trigger" ["reaction"]' );
 
 	}
 
@@ -250,7 +251,7 @@ class GuildReactions {
 			return m.channel.send( 'No custom reactions found.' );
 		} else {
 
-			let pageText = Display.getPageText( triggers.join('\n'), page-1 );
+			let pageText = Display.getPageText( triggers.join(' ### '), page-1 );
 			let footer = Display.pageFooter(pageText);
 
 			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n\n' + footer;
@@ -266,18 +267,26 @@ class GuildReactions {
 	 * has only a single reaction entry.
 	 * @param {Map<string,ReactSet>} map
 	 * @param {string} trig - The reaction trigger to remove a reaction from.
-	 * @param {string|null|undefined} reaction - The reaction string to remove.
+	 * @param {string|null} [reaction=null] - The reaction string to remove.
 	 * @param {boolean} [isRegex=false] - If the trigger is a regular expression.
 	 * @returns {bool|number} true if a reaction is removed.
 	 * If multiple reactions match, none are removed, and the number found is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
-	removeReact( map, trig, reaction, isRegex=false) {
+	removeReact( map, trig, reaction=null, isRegex=false) {
 
 		if ( isRegex===false ) trig = trig.toLowerCase();
+		else console.log('REMOVING REGEX TRIGGER: ' + trig );
 
 		let rset = map.get( trig );
-		if ( rset === undefined ) return false;
+		if ( rset === undefined ) {
+
+			// possible legacy or bugged regex stored in string triggers.
+			return this.removeReact( this.reactions, trig, reaction );
+
+		}
+
+		console.log('REGEX TRIGGER FOUND: ' +  rset.trigger );
 
 		let res = rset.tryRemove( reaction );
 		if ( res === true && rset.isEmpty()) map.delete( trig );
