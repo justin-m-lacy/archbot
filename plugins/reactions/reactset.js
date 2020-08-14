@@ -1,29 +1,47 @@
-var stubReplace = /\$(\d+|[&'`])/g;
+/**
+ * @const {RegEx} groupRegex - regex for substitution in a regex reaction. $1, $2, etc.
+ */
+const groupRegex = /\$(\d+|[&'`])/g;
 
-
+/**
+ * Collection of reactions tied to a single Trigger.
+ */
 class ReactSet {
 
 	toJSON(){
 		return this._reacts;
 	}
 
+	/**
+	 * @property {string|RegeEx} trigger - A trigger in source text that triggers
+	 * one of the set reactions.
+	 */
 	get trigger() { return this._trigger; }
 	set trigger(v) { this._trigger = v; }
 
+	/**
+	 * @property {Reaction[]} reacts
+	 */
 	get reacts() { return this._reacts; }
 	set reacts(v) { this._reacts = v; }
 
+	/**
+	 * @property {number} lastUsed - timestamp of when trigger was last used
+	 * for a reaction.
+	 */
 	get lastUsed() { return this._lastUsed; }
 	set lastUsed(v) { this._lastUsed = v; }
 
 	constructor( trig, reacts=null ) {
 
-		this._trigger = trig;	// not actually used.
+		this._trigger = trig;
 
 		if ( reacts !== null ) {
 
-			// compatibility with old react versions.
-			if ( reacts instanceof Object && !(reacts instanceof Array )) {
+			/**
+			 * @deprecated @compat
+			 */
+			if ( (typeof reacts === 'object' )&& !(Array.isArray(reacts) ) ) {
 				// old response save.
 				if ( reacts.r && typeof reacts.r !== 'string' ) {
 					//console.log('using oldstyle react: ' + trig + ' -> ' + reacts.r );
@@ -37,7 +55,7 @@ class ReactSet {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string|Number|null} [reactStr=null] - React string to match, or null if
 	 * all reactions should be returned.
 	 * @returns {false|string|Object|Array} - String or Object information matched,
@@ -77,7 +95,7 @@ class ReactSet {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string|RegEx} react - reaction to remove, or null to remove a single reaction,
 	 * if only one reaction exists.
 	 * @returns {number|boolean} If no matching reaction is found, returns false.
@@ -90,7 +108,7 @@ class ReactSet {
 		if ( react === null ) {
 
 			// ambiguous removal. return the number of reactions.
-			if ( this._reacts instanceof Array && this._reacts.length > 1 ) return this._reacts.length;
+			if ( this._reacts.length > 1 ) return this._reacts.length;
 
 			this._reacts = null;
 			return true;
@@ -105,19 +123,15 @@ class ReactSet {
 		 */
 		if ( !isNaN(react) && this.removeIndex(react-1) ) return true;
 
-		if (this._reacts instanceof Array) {
+		for (let i = this._reacts.length - 1; i >= 0; i--) {
 
-			for (let i = this._reacts.length - 1; i >= 0; i--) {
-
-				if (this._isMatch(react, this._reacts[i]) === true) {
-					this._splice(this._reacts, i);
-					return true;
-				}
-
+			if (this._isMatch(react, this._reacts[i]) === true) {
+				this._splice(this._reacts, i);
+				return true;
 			}
-			return false;
 
-		} else if (this._isMatch(react, this._reacts) === true) this._reacts = null;
+		}
+		return false;
 
 	}
 
@@ -128,16 +142,9 @@ class ReactSet {
 	 */
 	getIndex( ind ) {
 
-		if ( ind < 0 ) return null;
-		if ( this._reacts instanceof Array ) {
+		if ( ind < 0 || ind >= this._reacts.length ) return null;
 
-			if ( ind >= this._reacts.length ) return null;
-			return this._reacts[ind];
-	
-		}
-
-		if ( this._reacts != null && ind === 0 ) return this._reacts;
-		return null;
+		return this._reacts[ind];
 
 	}
 
@@ -149,22 +156,10 @@ class ReactSet {
 	removeIndex( ind ) {
 
 		ind = Number(ind);
-		if ( ind < 0 ) return false;
-		if ( this._reacts instanceof Array ) {
+		if ( ind < 0 || ind >= this._reacts.length ) return false;
 
-			if ( ind >= this._reacts.length ) return false;
-			this._reacts.splice( ind , 1 );
-			return true;
-
-		}
-
-		// if _reacts is a single item, removing index-0 will remove the item.
-		if ( this._reacts != null && ind === 0 ) {
-			this._reacts = null;
-			return true;
-		}
-
-		return false;
+		this._reacts.splice( ind, 1 );
+		return true;
 
 	}
 
@@ -173,8 +168,7 @@ class ReactSet {
 	 */
 	getReact() {
 
-		let resp = this._reacts;
-		if ( resp instanceof Array ) resp = resp[ Math.floor( resp.length*Math.random())];
+		let resp = this._reacts[ Math.floor( this._reacts.length*Math.random())];
 
 		if ( resp instanceof Object ) {
 
@@ -191,8 +185,9 @@ class ReactSet {
 	}
 
 	/**
-	 * Substitute regex $groups in the reaction text.
-	 * @param {string} text 
+	 * Substitute regex groups in the reaction text.
+	 * Groups are 1-based placeholders in the form of "$n"
+	 * @param {string} text
 	 */
 	replaceReact( text ) {
 
@@ -206,7 +201,7 @@ class ReactSet {
 
 			resLen = res.length;
 			// replace $ stubs.
-			resp = resp.replace( stubReplace, function( match, p1, ){
+			resp = resp.replace( groupRegex, function( match, p1, ){
 
 				let n = Number( p1 );
 				if ( Number.isNaN(n) === true ) {
@@ -239,12 +234,12 @@ class ReactSet {
 	 * returns {boolean}
 	 */
 	isEmpty() {
-		return this._reacts === null || 
+		return this._reacts === null ||
 		((this._reacts instanceof Array ) && this._reacts.length === 0);
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} react - reaction string.
 	 * @param {string} uid - disord user snowflake.
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
@@ -268,7 +263,7 @@ class ReactSet {
 
 	/**
 	 * Tests whether the react string matches the Reaction.
-	 * @param {string|RegEx} str 
+	 * @param {string|RegEx} str
 	 * @param {string|RegEx|Object} react
 	 * @returns {bool} Whether the react object matches the string.
 	 */
