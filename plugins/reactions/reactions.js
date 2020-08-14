@@ -221,14 +221,15 @@ class GuildReactions {
 
 		let resp = await this.infoString( reacts );
 
-		let pageText = Display.pageString( resp );
+		// must save before response is extended by total reaction count.
+		let pagingFooter = Display.pageFooter( resp );
 
 		// get a single page of the response.
 		resp = Display.getPageText( resp, page-1 );
 
 		// append reaction count.
 		if (  Array.isArray(reacts) ) resp += `\n\n${reacts.length} total reactions`;
-		resp += '\n\n' + pageText;
+		resp += '\n\n' + pagingFooter;
 
 		return m.channel.send( resp );
 
@@ -249,10 +250,10 @@ class GuildReactions {
 			return m.channel.send( 'No custom reactions found.' );
 		} else {
 
-			let pageText = Display.pageString( triggers.join('\n') );
-			pageText = Display.getPageText( pageText, page-1 );
+			let pageText = Display.getPageText( triggers.join('\n'), page-1 );
+			let footer = Display.pageFooter(pageText);
 
-			pageText += '\n\n' + pageText.length + ' triggers defined.';
+			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n\n' + footer;
 
 			return m.channel.send( pageText );
 
