@@ -23,7 +23,7 @@ module.exports = {
 	},
 
 	/**
-	 * 
+	 *
 	 * @param {string} str
 	 * @returns {string}
 	 */
@@ -50,7 +50,7 @@ module.exports = {
 	 * @param {string} text
 	 * @returns {string} Information about the number of pages required.
 	 */
-	pageString( text ) {
+	pageFooter( text ) {
 		let count = this.pageCount(text);
 		return '( ' + count + ' page result' + ( count != 1 ? 's )' : ' )' );
 	},
@@ -58,7 +58,7 @@ module.exports = {
 	/**
 	 * Break the text into pages based on the maximum content length,
 	 * and return the indicated page of text.
-	 * @param {string} text 
+	 * @param {string} text
 	 * @param {number} page - zero-based page index.
 	 * @returns {string} - a single page of text out of the total.
 	 */
@@ -68,27 +68,27 @@ module.exports = {
 
 	/**
 	 * Break a message text into pages, and send it to the required message channel.
-	 * @param {Discord.Message} m 
+	 * @param {Discord.Message} m
 	 * @param {string} text - text to paginate and send.
 	 * @param {number} page - zero-based page of text to be sent.
 	 */
 	async sendPage( m, text, page ) {
-		return m.channel.send( this.getPageText(text,page) + '\n\n' + this.pageString(text) );
+		return m.channel.send( this.getPageText(text,page) + '\n\n' + this.pageFooter(text) );
 	},
 
 	/**
 	 * Break a message text into pages, and reply the page to the given message.
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} text - text to paginate and reply.
 	 * @param {number} page - zero-based page of text to reply.
 	 */
 	async replyPage( m, text, page ) {
-		return m.reply( this.getPageText(text, page) + '\n\n' + this.pageString(text) );
+		return m.reply( this.getPageText(text, page) + '\n\n' + this.pageFooter(text) );
 	},
 
 	/**
 	 * Paginates an array of text to only break between items.
-	 * @param {string[]} items 
+	 * @param {string[]} items
 	 * @param {number} [page=0] the zero-based index of the page of text to display.
 	 * @returns { {page:string, pages:number} } text of page and total page count.
 	 */
