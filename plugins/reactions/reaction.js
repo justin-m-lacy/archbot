@@ -19,7 +19,7 @@ class Reaction {
 		this.uid = uid;
 
 		/**
-		 * @property {number} t - timestamp of reaction creation time.
+		 * @property {number} t - creation timestamp.
 		 */
 		this.t = t;
 
