@@ -1,3 +1,19 @@
+/**
+ * Promisify a function that with a single param callback
+ * as its last argument.
+ */
+exports.promisify = (f)=>{
+
+	return ( ...args ) => {
+
+		return new Promise( (res)=>{
+			f.apply( null, args.concat( res ) );
+		});
+
+	}
+
+}
+
 exports.randElm = (arr)=>{
 	return arr[ Math.floor( Math.random()*(arr.length)) ];
 }
