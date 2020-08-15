@@ -6,7 +6,7 @@ exports.init = function( bot ) {
 
 }
 
-function cmd8Ball( msg, query ) {
+function cmd8Ball( msg ) {
 
 	if ( !answers ) answers = require( './answers.json');
 	if ( answers.length === 0 ) return;

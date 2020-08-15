@@ -1,6 +1,8 @@
 /**
  * Promisify a function that with a single param callback
  * as its last argument.
+ * Unlike node Utilities promisify, the first callback param
+ * is not a reject error.
  */
 exports.promisify = (f)=>{
 
