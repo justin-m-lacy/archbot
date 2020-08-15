@@ -1,6 +1,6 @@
 module.exports = {
 
-	CONTENT_MAX:1905,
+	CONTENT_MAX:1600,
 
 	capsRegEx:/(?:\b(\w*)\b)*/g,
 

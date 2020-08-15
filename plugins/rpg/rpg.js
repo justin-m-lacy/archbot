@@ -776,7 +776,7 @@ class RPG {
 
 			if ( charname ) {
 
-				if ( !this._context.validKey(charname)) return m.reply( `'${charname}' contains illegal characters.`);
+				if ( !this._context.isValidKey(charname)) return m.reply( `'${charname}' contains illegal characters.`);
 				if ( await this.charExists(charname) ) return m.reply( `Character '${charname}' already exists.` );
 
 			} else charname = await this.uniqueName( race, sex );

@@ -1,6 +1,5 @@
 exports.randElm = (arr)=>{
-	const ind = Math.floor( Math.random()*(arr.length));
-	return arr[ind];
+	return arr[ Math.floor( Math.random()*(arr.length)) ];
 }
 
 /**
@@ -27,18 +26,18 @@ exports.recurMerge = recurMerge;
 
 function recurMerge( dest, src ) {
 
-	if ( !(src instanceof Object) ) return dest;
-	if ( !(dest instanceof Object) ) return Object.assign({}, src);
+	if ( typeof src !== 'object' ) return dest;
+	if ( typeof dest !== 'object' ) return Object.assign({}, src);
 
 	for( var key in src ) {
 
-		if ( !src.hasOwnProperty(key) ) {
+		if ( !src.hasOwnProperty(key) ) {	// skip inherited properties.
 			continue;
 		}
 
 		var newVal = src[key];
 		var oldVal = dest[key];
-		if ( oldVal != null && oldVal instanceof Object && newVal instanceof Object ) {
+		if ( oldVal != null && ( typeof oldVal ==='object' && typeof newVal === 'object' ) ) {
 
 			recurMerge( oldVal, newVal );
 

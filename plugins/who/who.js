@@ -6,13 +6,17 @@ exports.init = function( bot ) {
 
 }
 
+const getResponse = ()=> {
+	return responses[ Math.floor( Math.random()*responses.length ) ];
+}
+
 /**
  * @async
- * @param {Message} m 
+ * @param {Message} m
  * @param {string} msg - ignored question.
  * @returns {Promise}
  */
-async function cmdWho( m, msg ) {
+async function cmdWho( m ) {
 
 	if ( !responses ) responses = require( './responses.json');
 	if ( responses.length === 0 ) return;
@@ -31,12 +35,8 @@ async function cmdWho( m, msg ) {
 		u = m.channel.recipients.random();
 		name = u.username;
 
-	} else return m.channel.send( 'It\'s you, moron.' );
+	} else return m.channel.send( 'It\'s you, I guess.' );
 
 	return m.channel.send( resp.replace( /%t/g, name ));
 
-}
-
-function getResponse() {
-	return responses[ Math.floor( Math.random()*responses.length ) ];
 }

@@ -15,7 +15,7 @@ const Context = class {
 	get type() { return 'unknown'; }
 
 	/**
-	 * 
+	 *
 	 * @property {object} idObject - discord obj whose id serves as context base.
 	 */
 	get idObject() { return this._idobj; }
@@ -95,7 +95,7 @@ const Context = class {
 
 	/**
 	 * Return access permission string for the given command.
-	 * @param {string} cmd 
+	 * @param {string} cmd
 	 * @returns {string}
 	 */
 	accessInfo(cmd) {
@@ -103,16 +103,16 @@ const Context = class {
 	}
 
 	/**
-	 * 
-	 * @param {string} cmd 
+	 *
+	 * @param {string} cmd
 	 */
 	unsetAccess( cmd ) {
 		this.access.unsetAccess( cmd );
 	}
 
 	/**
-	 * 
-	 * @param {string} cmd 
+	 *
+	 * @param {string} cmd
 	 * @param {number|string} perm
 	 * @returns {boolean}
 	 */
@@ -121,17 +121,17 @@ const Context = class {
 	}
 
 	/**
-	 * 
-	 * @param {string} cmd 
+	 *
+	 * @param {string} cmd
 	 */
 	getAccess( cmd ) {
 		return this.access.getAccess( cmd );
 	}
 
 	/**
-	 * 
-	 * @param {string} cmd 
-	 * @param {GuildMember} gm 
+	 *
+	 * @param {string} cmd
+	 * @param {GuildMember} gm
 	 * @returns {boolean}
 	 */
 	canAccess( cmd, gm ) {
@@ -156,9 +156,9 @@ const Context = class {
 
 	/**
 	 * @async
-	 * @param {string} key 
+	 * @param {string} key
 	 * @param {*} value
-	 * @returns {Promise<*>} 
+	 * @returns {Promise<*>}
 	 */
 	async setSetting( key, value=null ) {
 
@@ -190,7 +190,7 @@ const Context = class {
 	 * @param {string} s
 	 * @returns {boolean}
 	 */
-	validKey( s) {
+	isValidKey( s) {
 
 		let a = fsys.illegalChars;
 		for( let i = a.length-1; i>=0; i--) {
@@ -209,15 +209,15 @@ const Context = class {
 
 	/**
 	 * Register message event with Discord client.
-	 * @param {string} evtName 
-	 * @param {function} func 
+	 * @param {string} evtName
+	 * @param {function} func
 	 */
 	onMsg( func ) {
 
 		this._bot.client.on( 'message', (m)=>{
 
 			if ( m.author.id === m.client.user.id ) return;
-			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;
+			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;	// ignore bot commands.
 			if ( this._bot.spamcheck(m)) return;
 
 			let t = this.type;
@@ -239,7 +239,7 @@ const Context = class {
 	 * ( path is relative to the context's save directory. )
 	 * File extensions are not included.
 	 * @async
-	 * @param {string} path 
+	 * @param {string} path
 	 * @returns {Promise<string[]>}
 	 */
 	async getDataList( path ) {
@@ -259,8 +259,8 @@ const Context = class {
 	/**
 	 * Displays standard user not found message to the given
 	 * channel.
-	 * @param {Discord.Channel|Discord.Message} obj 
-	 * @param {string} user 
+	 * @param {Discord.Channel|Discord.Message} obj
+	 * @param {string} user
 	 */
 	sendUserNotFound( obj, user ) {
 
@@ -272,7 +272,7 @@ const Context = class {
 	/**
 	 * Attempts to find a user in the given Context.
 	 * An error message is sent on failure.
-	 * @param {Discord.Channel|Discord.Message} resp 
+	 * @param {Discord.Channel|Discord.Message} resp
 	 * @param {string} name
 	 * @returns {GuildMember|null}
 	 */
@@ -300,7 +300,7 @@ const Context = class {
 	async displayName( id ) {
 
 		if ( !id ) return 'Invalid ID';
-	
+
 		let u = await this._bot.client.fetchUser( id );
 		if ( u ) return u.username;
 
@@ -330,7 +330,7 @@ const Context = class {
 
 	/**
 	 * Override in subclass.
-	 * @param {string} name 
+	 * @param {string} name
 	 */
 	findChannel( name ) { return null; }
 
@@ -371,7 +371,7 @@ const Context = class {
 
 	/**
 	 * @async
-	 * @param {Command} cmd 
+	 * @param {Command} cmd
 	 * @param {Array} args
 	 * @returns {Promise}
 	 */
@@ -407,7 +407,7 @@ const Context = class {
 		let keys = [];
 		let pt;
 		for( let i = 0; i < len; i++ ){
-	
+
 			pt = objs[i];
 			if ( typeof(pt) === 'string') keys.push(pt);
 			else keys.push(pt.id);
@@ -428,8 +428,8 @@ const Context = class {
 
 	/**
 	 * Caches data without writing to disk.
-	 * @param {string} key 
-	 * @param {*} data 
+	 * @param {string} key
+	 * @param {*} data
 	 */
 	cacheData( key, data ) {
 		this._cache.cache(key, data );
@@ -442,11 +442,11 @@ const Context = class {
 	 * @returns {*}
 	 */
 	getData( key ) { return this._cache.get(key); }
-	
+
 	/**
 	 * Fetch keyed data.
 	 * @async
-	 * @param {string} key 
+	 * @param {string} key
 	 * @returns {Promise<*>}
 	 */
 	async fetchData( key ) { return this._cache.fetch(key); }
@@ -454,8 +454,8 @@ const Context = class {
 	/**
 	 * Set keyed data.
 	 * @async
-	 * @param {string} key 
-	 * @param {*} data 
+	 * @param {string} key
+	 * @param {*} data
 	 * @param {boolean} [forceSave=false] Whether to force a save to the underlying data store.
 	 * @returns {Promise}
 	 */
@@ -481,8 +481,8 @@ exports.UserContext = class extends Context {
 	get name() { return this._idobj.username; }
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	findUser( name ) {
 
@@ -507,9 +507,9 @@ exports.GroupContext = class extends Context {
 	get name() { return this._idobj.name; }
 
 	/**
-	 * 
+	 *
 	 * @param {string} name
-	 * @returns {} 
+	 * @returns {}
 	 */
 	findUser( name ){
 		name = name.toLowerCase();
@@ -529,8 +529,8 @@ exports.GuildContext = class extends Context {
 	get name() { return this._idobj.name; }
 
 	/**
-	 * 
-	 * @param {string} id 
+	 *
+	 * @param {string} id
 	 */
 	async displayName( id ) {
 
@@ -554,7 +554,7 @@ exports.GuildContext = class extends Context {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param {string} name - GuildMember display name of user to find.
 	 */
 	findUser( name ) {

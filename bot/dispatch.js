@@ -1,5 +1,12 @@
 const Command = require( './command.js');
 
+const QuoteRE = /“|”/g;
+
+/**
+ * @const {RegExp} SplitRE - splits input line into arguments.
+ */
+//const SplitRE = /"([^"]*)"|“([^”]*)”|\s*\b([^"]+)\b/g;
+
 module.exports = class CmdDispatch {
 
 	/**
@@ -207,13 +214,41 @@ class CmdLine {
 
 	readArgs( argstr, cmd ) {
 
-		argstr = argstr.replace( /“|”/g, '\"');
+		argstr = argstr.replace( QuoteRE, '"' );
 
 		if ( !cmd.maxArgs ) this._args = this.splitArgs( argstr );
 		else {
 			if ( cmd.group === 'right') this._args = this.groupRight( argstr, cmd.maxArgs );
 			else this._args = this.groupLeft( argstr, cmd.maxArgs );
 		}
+
+	}
+
+	/**
+	 * Split input into args without limit.
+	 * @param {*} str
+	 */
+	splitAll( str ){
+
+		var res;
+
+		var args = [];
+
+		while ( res = splitRE.exec(str) ) {
+
+			args.push( res[0] );
+
+			/*for( let i = 1; i < res.length; i++ ) {
+
+				if ( res[i] !== undefined ) {
+					args.push(res[i]);
+					break;
+				}
+			}*/
+
+		}
+
+		return args;
 
 	}
 
@@ -234,10 +269,10 @@ class CmdLine {
 			char = str.charAt( start );
 			end = start + 1;
 
-			if ( char == '\"') {
+			if ( char === '"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) !== '\"') end++;
+				while ( end < len && str.charAt(end) !== '"') end++;
 				args.push( str.slice( start+1, end ) );
 
 			} else {
@@ -253,6 +288,7 @@ class CmdLine {
 		return args;
 
 	}
+
 
 	// groups args on right to max count.
 	groupRight( str, argCount ) {
@@ -278,10 +314,10 @@ class CmdLine {
 			char = str.charAt( start );
 			end = start + 1;
 
-			if ( char === '\"') {
+			if ( char === '"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) !== '\"') end++;
+				while ( end < len && str.charAt(end) !== '"') end++;
 				args.push( str.slice( start+1, end ) );
 
 			} else {
@@ -321,10 +357,10 @@ class CmdLine {
 			char = str.charAt( start );
 			end = start - 1;
 
-			if ( char === '\"') {
+			if ( char === '"') {
 
 				// quoted arg.
-				while ( end >= 0 && str.charAt(end) !== '\"') end--;
+				while ( end >= 0 && str.charAt(end) !== '"') end--;
 				args.unshift( str.slice( end+1, start ) );
 
 			} else {
@@ -346,9 +382,9 @@ class CmdLine {
 		str = str.trim();
 		let len = str.length;
 		let start = 0;
-		if ( len > 0 && str.charAt(0) === '\"' ) start++;
+		if ( len > 0 && str.charAt(0) === '"' ) start++;
 		let end = len-1;
-		if ( end > 0 && str.charAt(end) === '\"') end--;
+		if ( end > 0 && str.charAt(end) === '"') end--;
 
 		if ( end < start ) return '';
 		return str.slice(start,end+1);
@@ -373,10 +409,10 @@ class CmdLine {
 
 			char = str.charAt( start );
 			end = start+1;
-			if ( char === '\"') {
+			if ( char === '"') {
 
 				// quoted arg.
-				while ( end < len && str.charAt(end) !== '\"') end++;
+				while ( end < len && str.charAt(end) !== '"') end++;
 				args.push( str.slice(start+1, end ) );
 
 			} else {

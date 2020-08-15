@@ -24,7 +24,7 @@ class Quoter {
 		if ( !this.quotes ) await this.loadQuotes();
 
 		let q = args.join(' ');
-		if ( q === null || q === '') return m.channel.send( "That isn't a quote, noob.");
+		if ( q === null || q === '') return m.channel.send( "Silence isn't a quote.");
 
 		this.quotes.push( q );
 
