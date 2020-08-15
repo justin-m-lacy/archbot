@@ -15,10 +15,8 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 			if ( !dir.isDirectory() ) continue;
 
-			console.log('searching plug dir: ' + dir.name );
-
-			newPlugs = loadPlugs( dir, init_func );
-			if ( newPlugs ) plugins.push.apply( plugins, plus );
+			newPlugs = loadPlugs( path.resolve( plugins_dir, dir.name ), init_func );
+			if ( newPlugs ) plugins.push.apply( plugins, newPlugs );
 
 		}
 
@@ -32,40 +30,38 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 
 /**
  * Attempt to load and initialize all plugins found in a plugin directory.
- * @param {fs.Direct} dir
+ * @param {string} dirPath
  * @param {function} init_func
  */
-function loadPlugs( dir, init_func=null ) {
+function loadPlugs( dirPath, init_func=null ) {
 
-	let files = fs.readdirSync( dir.name, {withFileTypes:true} );
+	let files = fs.readdirSync( dirPath, {withFileTypes:true} );
 
 	if ( files.length === 1 ) {
 
 		// If a single file, attempt to load that file as plugin.
-		var plug = this.requirePlugin( dir, file, '' );
+
+		let file = files[0];
+		if ( !file.isFile() ) return null;
+
+		var plug = this.requirePlugin( dirPath, file.name, init_func );
 		if ( plug ) return [plug];
 
 	}
 
+	// multiple files exist. search for json plugin description.
 	for( let file of files ) {
 
 		try {
 
 			if ( !file.isFile() ) continue;
 
-			if ( !(path.extname(file.name) === '.json')) continue;
+			if ( path.extname(file.name) !== '.json' ) continue;
 
 			//file = path.resolve( dir, file );
 
-			let plugs = loadPlugDesc( dir, file );
-			if ( plugs ) {
-
-				if ( init_func != null ) {
-					if ( Array.isArray( plugs ) ) plugs.forEach( (p)=>init_func(p) );
-					else if ( init_func != null ) init_func(plugs);
-				}
-				return plugs;
-			}
+			let plugs = loadPlugDesc( dirPath, file.name, init_func );
+			return plugs;
 
 		} catch (err ){
 			console.error(err);
@@ -78,19 +74,18 @@ function loadPlugs( dir, init_func=null ) {
 
 /**
  *
- * @param {fs.Direct} file
+ * @param {fs.Direct} fileName
  */
-function requirePlugin( dir, file, init_func=null ) {
+function requirePlugin( plugPath, fileName, init_func=null ) {
 
-	var name = file.name;
+	console.log('loading plugin file: ' + fileName );
+	if ( path.extname(fileName) !== '.js' ) return null;
 
-	console.log('loading plugin file: ' + name );
-
-	if ( path.extname(name) !== '.js' ) continue;
+	fileName = path.resolve( plugPath, fileName );
 
 	try {
 
-		let plug = require( plugFile );
+		let plug = require( fileName );
 
 		if ( plug && init_func ) init_func( plug );
 
@@ -104,9 +99,9 @@ function requirePlugin( dir, file, init_func=null ) {
 
 }
 
-function loadPlugDesc( dir, descFile, init_func=null ) {
+function loadPlugDesc( plugDir, descFile, init_func=null ) {
 
-	let data = fs.readFileSync(descFile);
+	let data = fs.readFileSync( path.resolve(plugDir, descFile ) );
 	let desc = JSON.parse( data );
 
 	let plug;
@@ -122,7 +117,7 @@ function loadPlugDesc( dir, descFile, init_func=null ) {
 
 				//if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
 
-				plug = requirePlugin( dir, desc.plugin, init_func );
+				plug = requirePlugin( plugDir, desc.plugin, init_func );
 				if ( plug ) plugs.push(plug);
 
 			}
@@ -135,7 +130,7 @@ function loadPlugDesc( dir, descFile, init_func=null ) {
 
 		if ( !desc.plugin ) return null;
 		//if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
-		return requirePlugin( dir, desc.plugin, init_func );
+		return requirePlugin( plugDir, desc.plugin, init_func );
 
 	}
 
