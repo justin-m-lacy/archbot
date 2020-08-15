@@ -16,7 +16,10 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 			if ( !dir.isDirectory() ) continue;
 
 			newPlugs = loadPlugs( path.resolve( plugins_dir, dir.name ), init_func );
-			if ( newPlugs ) plugins.push.apply( plugins, newPlugs );
+			if ( newPlugs ) {
+				if ( Array.isArray(newPlugs) ) Array.prototype.push.apply( plugins, newPlugs );
+				else plugins.push(newPlugs);
+			}
 
 		}
 
@@ -24,6 +27,7 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 		console.error(err);
 	}
 
+	console.log('Plugins Loaded: ' + plugins.length );
 	return plugins;
 
 }
@@ -44,8 +48,8 @@ function loadPlugs( dirPath, init_func=null ) {
 		let file = files[0];
 		if ( !file.isFile() ) return null;
 
-		var plug = this.requirePlugin( dirPath, file.name, init_func );
-		if ( plug ) return [plug];
+		var plug = requirePlugin( dirPath, file.name, init_func );
+		return plug;
 
 	}
 
@@ -60,8 +64,9 @@ function loadPlugs( dirPath, init_func=null ) {
 
 			//file = path.resolve( dir, file );
 
-			let plugs = loadPlugDesc( dirPath, file.name, init_func );
-			return plugs;
+			let res = loadPlugDesc( dirPath, file.name, init_func );
+			// might be multiple json files that are NOT plugins.
+			if ( res ) return res;
 
 		} catch (err ){
 			console.error(err);
@@ -99,6 +104,13 @@ function requirePlugin( plugPath, fileName, init_func=null ) {
 
 }
 
+/**
+ * Loads a json file in a plugin's folder. If the json file defines a plugin,
+ * the plugin file is loaded and returned.
+ * @param {*} plugDir
+ * @param {*} descFile
+ * @param {*} init_func
+ */
 function loadPlugDesc( plugDir, descFile, init_func=null ) {
 
 	let data = fs.readFileSync( path.resolve(plugDir, descFile ) );
@@ -124,7 +136,7 @@ function loadPlugDesc( plugDir, descFile, init_func=null ) {
 
 		}
 
-		if ( plugs.length > 0 ) return plugs;
+		return plugs.length > 0 ? plugs : null;
 
 	} else {
 
