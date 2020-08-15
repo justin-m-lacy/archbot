@@ -251,7 +251,7 @@ class GuildReactions {
 			return m.channel.send( 'No custom reactions found.' );
 		} else {
 
-			let pageText = '`' + Display.getPageText( triggers.join('\t*\t'), page-1 ) + '`';
+			let pageText = '`' + Display.getPageText( triggers.join('  •  '), page-1 ) + '`';
 			let footer = Display.pageFooter(pageText);
 
 			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n' + footer;
