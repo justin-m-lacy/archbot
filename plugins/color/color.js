@@ -44,22 +44,25 @@ async function imgData( color ) {
 				0xff
 			 )
 		);
-		if ( !img ) return null;
 
-		return await imageBuffer( img );
+		return img ? imageBuffer( img ) : null;
 
 	} catch(e) { return null; }
 
 }
 
+/**
+ *
+ * @param {} color
+ * @returns {Promise<Jimp>}
+ */
 function makeImage( color ) {
 
 	return new Promise( (res)=>{
 
-		let j = new jimp( IMG_SIZE, IMG_SIZE, color, (err,image)=>{
+		new jimp( IMG_SIZE, IMG_SIZE, color, (err,image)=>{
 
-			if ( err ) res(null);
-			res(image);
+			err ? res(null) : res(image);
 
 		});
 
@@ -69,7 +72,7 @@ function makeImage( color ) {
 
 /**
  * Wraps image.getBuffer() in a promise to make awaitable.
- * @param {*} img 
+ * @param {*} img
  */
 async function imageBuffer( img ) {
 

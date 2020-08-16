@@ -9,9 +9,9 @@ const chessdir = 'chess';
 module.exports = class {
 
 	/**
-	 * 
-	 * @param {Context} context 
-	 * @param {Cache} fileCache 
+	 *
+	 * @param {Context} context
+	 * @param {Cache} fileCache
 	 */
 	constructor( context, fileCache ) {
 
@@ -27,6 +27,7 @@ module.exports = class {
 	/**
 	 * Load the list of all games available
 	 * on file.
+	 * @returns {Promise}
 	*/
 	async loadList() {
 

@@ -9,8 +9,8 @@ const game_dir = 'chess/';
 class Room {
 
 	/**
-	 * 
-	 * @param {BotContext} context 
+	 *
+	 * @param {BotContext} context
 	 */
 	constructor( context ) {
 
@@ -21,8 +21,8 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} [p1] 
+	 * @param {Message} m
+	 * @param {string} [p1]
 	 * @param {string} [p2]
 	 * @returns {Promise}
 	 */
@@ -49,9 +49,9 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} oppName 
-	 * @param {string} [firstMove] 
+	 * @param {Message} m
+	 * @param {string} oppName
+	 * @param {string} [firstMove]
 	 * @returns {Promise}
 	 */
 	async cmdNewGame( m, oppName, firstMove ) {
@@ -86,8 +86,8 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} opp 
+	 * @param {Message} m
+	 * @param {string} opp
 	 * @param {?number} [gnum=null]
 	 * @returns {Promise}
 	 */
@@ -105,9 +105,9 @@ class Room {
 	/**
 	 * Display a PGN of a game.
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} [p1] 
-	 * @param {string} [p2] 
+	 * @param {Message} m
+	 * @param {string} [p1]
+	 * @param {string} [p2]
 	 * @param {?number} [gnum]
 	 * @returns {Promise}
 	 */
@@ -130,8 +130,8 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} oppName 
+	 * @param {Message} m
+	 * @param {string} oppName
 	 * @param {?number} [gnum]
 	 * @returns {Promise}
 	 */
@@ -148,9 +148,9 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {string} p1 
-	 * @param {string} p2 
+	 * @param {Message} m
+	 * @param {string} p1
+	 * @param {string} p2
 	 * @param {?number} [gnum]
 	 * @returns {Promise}
 	 */
@@ -171,7 +171,7 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param  {...string[]} args
 	 * @returns {Promise}
 	 */
@@ -195,13 +195,13 @@ class Room {
 		if ( !game ) return;
 
 		return this.moveOrShowErr( m, game, moveStr );
-		
+
 	}
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {ChessGame} game 
+	 * @param {Message} m
+	 * @param {ChessGame} game
 	 * @param {string} moveStr
 	 * @returns {Promise}
 	 */
@@ -220,7 +220,7 @@ class Room {
 					await this.gcache.completeGame( game );
 				}
 
-			} else m.reply( moveStr + ' is not a legal move.');
+			} else return m.reply( moveStr + ' is not a legal move.');
 
 		} else return m.reply( 'It is not your turn to move.' );
 
@@ -228,8 +228,8 @@ class Room {
 
 	/**
 	 * @async
-	 * @param {Channel} chan 
-	 * @param {Game} game 
+	 * @param {Channel} chan
+	 * @param {Game} game
 	 */
 	async sendGameStatus( chan, game ) {
 		return chan.send( game.getStatusString() );

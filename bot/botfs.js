@@ -152,7 +152,7 @@ module.exports = {
 	},
 
 	fileExists:async (filePath) => {
-		return await( afs.exists( BASE_DIR + filePath + '.json') );
+		return afs.exists( BASE_DIR + filePath + '.json');
 	},
 
 	guildPath:(guild, subs )=> {
