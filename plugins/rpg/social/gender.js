@@ -18,7 +18,7 @@ f ={
 	"is":"she's"
 };
 
-let genders = { 
+let genders = {
 
 	m:m,
 	male:m,
@@ -26,12 +26,14 @@ let genders = {
 	female:f
 }
 
+// grammatical replacement indicators.
 let genReg = /%sub|%ob|%adj|%pos|%ref|%is/g
 
 /**
- * Re-genders a string marked with pronoun cases: e.g. %sub (subjective)
- * @param {string} gender 
- * @param {*} str 
+ * Re-genders a string with grammatical gender markers: e.g. %sub (subjective)
+ * @param {string} gender
+ * @param {string} str
+ * @returns {string}
  */
 exports.genderfy = function( gender, str ) {
 
@@ -55,8 +57,8 @@ exports.genderfy = function( gender, str ) {
 
 /**
  * TODO:match word case.
- * @param {string} gender 
- * @param {*} word 
+ * @param {string} gender
+ * @param {*} word
  */
 /*exports.toGender = function( gender, word ){
 

@@ -192,7 +192,7 @@ exports.Game = class Game {
 		} else if ( other ) {
 
 			// attempt to accept.
-			if ( !other.accept(char ) ) return `${other.getList()}\\nnYou have not been invited to ${other.leader}'s awesome party.`;
+			if ( !other.acceptInvite( char ) ) return `${other.getList()}\\nnYou have not been invited to ${other.leader}'s awesome party.`;
 
 			this._parties[char.name ] = other;
 			return `${char.name} Joined ${other.leader}'s party.`;
@@ -246,7 +246,7 @@ exports.Game = class Game {
 		let g = await this.guilds.GetGuild(gname);
 		if ( !g ) return `${gname} does not exist.`;
 
-		if ( g.accept(char) ) {
+		if ( g.acceptInvite( char) ) {
 			char.guild = gname;
 			return `${char.name} has joined ${gname}.`;
 		}

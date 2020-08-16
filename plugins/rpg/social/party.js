@@ -1,5 +1,7 @@
 const loc = require( '../world/loc.js');
-module.exports = class Party {
+const SocialGroup = require('./socialGroup');
+
+module.exports = class Party extends SocialGroup {
 
 	static FromJSON(json) {
 
@@ -14,20 +16,18 @@ module.exports = class Party {
 	toJSON() {
 
 		return {
-			names:this._names,
-			leader:this._leader,
+			roster:this.names,
+			leader:this.leader,
 			invites:this.pending
 		}
 
 	}
 
-	get names() { return this._names; }
-	get invites() { return this.pending; }
-
-	get leader() { return this._leader; }
-	set leader(n) { this._leader = n; }
-
-	get name() { return this._leader + "'s Party";}
+	/**
+	 * @deprecated
+	 */
+	get names() { return this.roster; }
+	set names(v) { this.roster = v;}
 
 	get loc() { return this._loc; }
 	set loc(v) { this._loc.setTo(v); }
@@ -35,9 +35,9 @@ module.exports = class Party {
 	async getState() {
 
 		let char;
-		for( let i = this._names.length-1; i >= 0; i-- ) {
+		for( let i = this.roster.length-1; i >= 0; i-- ) {
 
-			char = await this._cache.fetch( this._names[i]);
+			char = await this._cache.fetch( this.roster[i]);
 			if ( char && char.isAlive() ) return 'alive';
 
 		} //
@@ -47,33 +47,38 @@ module.exports = class Party {
 
 	constructor( leader, cache ) {
 
+		super();
+
 		this._cache = cache;
 
-		this._names = [ leader.name ];
-		this.pending = [];
+		this.roster = [ leader.name ];
 
-		this._leader = leader.name;
+		this.leader = leader.name;
+		this.name = this._leader + "'s Party";
+
 		this._loc = new loc.Coord( leader.loc.x, leader.loc.y );
 
 	}
 
 	/**
-	 * 
-	 * @param {string} name 
+	 *
+	 * @param {string} name
 	 */
 	async getChar( name ) { return this._cache.fetch( name ); }
 
 	/**
-	 * 
-	 * @param {Loc.Coord} coord 
+	 *
+	 * @param {Loc.Coord} coord
 	 */
 	async move( coord ) {
 
 		this.loc = coord;
 
-		for( let i = this._names.length-1; i >= 0; i-- ) {
+		let roster = this.roster;
 
-			var char = await this._cache.fetch( this._names[i]);
+		for( let i = roster.length-1; i >= 0; i-- ) {
+
+			var char = await this._cache.fetch( roster[i]);
 			if ( char ) {
 				char.loc = coord;
 				if ( char.isAlive() ) char.recover();
@@ -88,9 +93,11 @@ module.exports = class Party {
 		let hp = 0;
 		let max = 0;
 
-		for( let i = this._names.length-1; i >= 0; i-- ) {
+		let roster = this.roster;
 
-			var char = await this._cache.fetch( this._names[i]);
+		for( let i = roster.length-1; i >= 0; i-- ) {
+
+			var char = await this._cache.fetch( roster[i]);
 			if ( !char) continue;
 			if ( char.isAlive() ) char.rest();
 			hp += char.curHp;
@@ -103,9 +110,11 @@ module.exports = class Party {
 
 	async recover() {
 
-		for( let i = this._names.length-1; i >= 0; i-- ) {
+		let roster = this.roster;
 
-			var char = await this._cache.fetch( this._names[i]);
+		for( let i = roster.length-1; i >= 0; i-- ) {
+
+			var char = await this._cache.fetch( roster[i]);
 			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
 			if ( char && char.isAlive() ) char.recover();
 
@@ -114,11 +123,14 @@ module.exports = class Party {
 	}
 
 	async getStatus() {
-		let res = this._leader + "'s Party:";
 
-		let len = this._names.length;
+		let res = this.name + ':';
+
+		let roster = this.roster;
+		let len = roster.length;
+
 		for( let i = 0; i < len; i++ ) {
-			var char = await this._cache.fetch( this._names[i] );
+			var char = await this._cache.fetch( roster[i] );
 			res += `\n${char.name}  ${char.getStatus()}`;
 		}
 
@@ -126,32 +138,9 @@ module.exports = class Party {
 
 	}
 
-	getList() { return this._leader + "'s Party:\n" + this._names.join('\n'); }
-
-
-	isLeader( char ) { return this._leader === char.name; }
-	setLeader(char) {
-
-		let name = (typeof(char) === 'string') ? char : char.name;
-		if ( !this._names.includes(name)) return false;
-	
-		this._leader = name;
-		return true;
-
-	}
-
-	/**
-	 * 
-	 * @param {string|Char} char 
-	 */
-	includes( char ) {
-		if ( typeof(char)==='string') return this._names.includes(char);
-		return this._names.includes(char.name);
-	}
-
 	async addExp( exp ) {
 
-		let count = this._names.length;
+		let count = this.roster.length;
 
 		// add exp bonus for party members.
 		exp = Math.floor( exp*( 1 + count*0.15 ) / count );
@@ -160,7 +149,7 @@ module.exports = class Party {
 
 		for( let i = count-1; i>= 0; i-- ) {
 
-			var c = await this._cache.fetch( this._names[i] );
+			var c = await this._cache.fetch( this.roster[i] );
 			if ( c ) c.addExp( exp)
 
 		}
@@ -172,13 +161,13 @@ module.exports = class Party {
 	 */
 	async randAlive() {
 
-		let len = this._names.length;
+		let len = this.roster.length;
 		let ind = Math.floor( Math.random()*len );
 		let start = ind;
 
 		do {
 
-			var c = await this._cache.fetch( this._names[ind] );
+			var c = await this._cache.fetch( this.roster[ind] );
 			if ( c && c.state === 'alive' ) return c;
 
 			if ( ++ind >= len ) ind = 0;
@@ -195,16 +184,16 @@ module.exports = class Party {
 	 */
 	async randTarget() {
 
-		let len = this._names.length;
+		let len = this.roster.length;
 		let ind = Math.floor( Math.random()*len );
 		let start =ind;
 
 		do {
 
-			var c = await this._cache.fetch( this._names[ind] );
+			var c = await this._cache.fetch( this.roster[ind] );
 			if ( c && c.curHp > 0 && c.state === 'alive' ) return c;
 
-			console.log( this._names[ind] + ' NOT A VALID TARGEt.');
+			console.log( this.roster[ind] + ' NOT A VALID TARGEt.');
 			if ( ++ind >= len ) ind = 0;
 
 		} while ( ind != start );
@@ -214,56 +203,11 @@ module.exports = class Party {
 	}
 
 	async randChar() {
-		return this._cache.fetch( this._names[ Math.floor( this._names.length*Math.random() )] );
+		return this._cache.fetch( this.roster[ Math.floor( this.roster.length*Math.random() )] );
 	}
 
 	randName() {
-		return this._names[ Math.floor( this._names.length*Math.random() )];
-	}
-
-	invite(char) {
-
-		let name = char.name;
-
-		if ( this.pending.includes(name) || this._names.includes(name ) ) return;
-		this.pending.push(name);
-
-	}
-
-	accept( char ) {
-
-		let name = char.name;
-		let ind = this.pending.indexOf( name );
-		if ( ind < 0 ) return false;
-
-		this.pending.splice(ind, 1);
-		this._names.push( name );
-
-		return true;
-
-	}
-
-	/**
-	 * 
-	 * @param {string} name
-	 * @returns true if the party should be removed. false otherwise. 
-	 */
-	leave( char ) {
-
-		console.log( char.name + ' attempting to leave party.');
-
-		let name = char.name;
-		let ind = this._names.indexOf( name );
-		if ( ind >= 0 ) {
-
-			this._names.splice(ind, 1);
-			if ( this._names.length === 0 ||
-				(this._names.length === 1 && this.invites.length === 0) ) return true;
-
-			if ( this._leader === name ) this._leader = this._names[0];
-
-		}
-		return false;
+		return this.roster[ Math.floor( this.roster.length*Math.random() )];
 	}
 
 }
