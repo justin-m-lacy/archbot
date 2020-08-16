@@ -513,13 +513,13 @@ class GuildReactions {
 			let reactData = await this._context.fetchData( this._context.getDataKey( 'reactions', 'reactions' ) );
 			if ( !reactData ) return null;
 
-			console.log('parsing reactions');
 			this.allReacts = parseReacts( reactData );
 
 			this.reactions = this.allReacts.strings;
 			this.reMap = this.allReacts.regex;
 
 			this._procPct = await this._context.getSetting( 'reactPct') || this._procPct;
+
 		} catch ( e ) { console.error(e);}
 
 	}

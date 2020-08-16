@@ -90,7 +90,7 @@ const Context = class {
 	 * @returns {Promise}
 	 */
 	async doBackup() {
-		return await this._cache.backup( 0 );
+		return this._cache.backup( 0 );
 	}
 
 	/**
@@ -201,7 +201,7 @@ const Context = class {
 	}
 
 	/**
-	 * Returns true if the given discord user is the bot owner.
+	 * Check if Discord User is the bot owner.
 	 * @param {Discord.User|string} u
 	 * @returns {boolean}
 	*/
@@ -235,7 +235,7 @@ const Context = class {
 	}
 
 	/**
-	 * Returns an array of all files stored at the given data path.
+	 * Returns an array of all files stored at a data path.
 	 * ( path is relative to the context's save directory. )
 	 * File extensions are not included.
 	 * @async
@@ -264,8 +264,8 @@ const Context = class {
 	 */
 	sendUserNotFound( obj, user ) {
 
-		if ( obj instanceof Discord.Message ) obj.reply( 'User \'' + user + '\' not found.');
-		else obj.send( 'User \'' + user + '\' not found.');
+		if ( obj instanceof Discord.Message ) return obj.reply( 'User \'' + user + '\' not found.');
+		else return obj.send( 'User \'' + user + '\' not found.');
 
 	}
 
@@ -302,9 +302,9 @@ const Context = class {
 		if ( !id ) return 'Invalid ID';
 
 		let u = await this._bot.client.fetchUser( id );
-		if ( u ) return u.username;
 
-		return 'Unknown User';
+		// todo: return null instead.
+		return u ? u.username : 'Unknown User';
 
 	}
 
@@ -315,7 +315,7 @@ const Context = class {
 	 */
 	userString( o ) {
 
-		if ( typeof(o) === 'string') return o;
+		if ( typeof o === 'string') return o;
 		if ( o instanceof Discord.User ) return o.username;
 		if ( o instanceof Discord.GuildMember ) return o.displayName;
 		return o.id;
@@ -380,8 +380,10 @@ const Context = class {
 		//console.time( cmd.name );
 
 		let target = this._instances[ cmd.instClass.name ];
-		if ( !target ) target = await this.addClass( cmd.instClass );
-		if ( !target ) console.log( 'ERROR:Null Target' );
+		if ( !target ) {
+			target = await this.addClass( cmd.instClass );
+			if ( !target ) console.log( 'ERROR:Null Target' );
+		}
 
 		cmd.func.apply( target, args );
 
@@ -409,10 +411,11 @@ const Context = class {
 		for( let i = 0; i < len; i++ ){
 
 			pt = objs[i];
-			if ( typeof(pt) === 'string') keys.push(pt);
+			if ( typeof pt  === 'string') keys.push(pt);
 			else keys.push(pt.id);
 
 		}
+		// todo: maybe use path.resolve instead?
 		return keys.join( '/' );
 
 	}
@@ -423,7 +426,7 @@ const Context = class {
 	 * @returns {Promise}
 	 */
 	async deleteData( key ) {
-		await this._cache.delete(key);
+		return this._cache.delete(key);
 	}
 
 	/**

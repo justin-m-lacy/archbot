@@ -40,8 +40,8 @@ module.exports = class GameCache {
 
 	/**
 	 * @async
-	 * @param {User} u1 
-	 * @param {User} u2 
+	 * @param {User} u1
+	 * @param {User} u2
 	 */
 	async allGames( u1, u2 ) {
 
@@ -90,7 +90,7 @@ module.exports = class GameCache {
 	/**
 	 * Attempts to retrieve a uniquely active user game.
 	 * Displays a message if multiple games are active.
-	 * @param {Discord.Message} m 
+	 * @param {Discord.Message} m
 	 * @param {Discord.User} u1
 	 * @param {Discord.User} [u2=null]
 	 * @param {?number} [gnum=null]
@@ -110,15 +110,15 @@ module.exports = class GameCache {
 		} else if ( games.length > 1 ) {
 			m.reply( 'Multiple games for ' + this.context.userString(u1) +
 					' found. Include opponent in command.' );
-		} else return await this.loadGame( games[0][0] );
+		} else return this.loadGame( games[0][0] );
 
 	}
 
 
 	/**
 	 * @async
-	 * @param {*} u1 
-	 * @param {*} u2 
+	 * @param {*} u1
+	 * @param {*} u2
 	 * @param {?number} num
 	 * @returns {Promise}
 	 */
@@ -128,9 +128,9 @@ module.exports = class GameCache {
 
 			let gameList = await this.activeGames(u1,u2);
 			let gname;
-	
+
 			if ( num ) {
-	
+
 				num--;
 				if ( num < 0 || num >= gameList.length ) return null;
 				gname = gameList[num][0];
@@ -142,9 +142,9 @@ module.exports = class GameCache {
 				if ( gameList.length === 0 ) return;
 				gname = gameList[ gameList.length-1 ][0];
 				console.log('gname: ' + gname );
-			
+
 			}
-	
+
 			return await this.loadGame( gname );
 
 		} catch ( e ) { console.error(e); }
@@ -153,9 +153,9 @@ module.exports = class GameCache {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {*} p1 
-	 * @param {*} p2 
+	 * @param {Message} m
+	 * @param {*} p1
+	 * @param {*} p2
 	 * @param {*} gnum
 	 * @returns {Promise<Game|null>}
 	 */
@@ -200,7 +200,7 @@ module.exports = class GameCache {
 
 	/**
 	 * @async
-	 * @param {Game} game 
+	 * @param {Game} game
 	*/
 	async saveGame( game ) {
 		await this.context.storeData( this.dir + game.saveID, game, true );
@@ -237,10 +237,10 @@ module.exports = class GameCache {
 
 	/**
 	 * @async
-	 * @param {Message} m 
-	 * @param {*} u1 
+	 * @param {Message} m
+	 * @param {*} u1
 	 * @param {*} u2
-	 * @returns {Promise} 
+	 * @returns {Promise}
 	 */
 	async printGames( m, u1, u2 ) {
 
@@ -276,12 +276,12 @@ module.exports = class GameCache {
 
 	/**
 	 * @async
-	 * @param {Game} game 
+	 * @param {Game} game
 	 */
 	async addNew( game ) {
 
 		let [ list1, list2 ] = await Promise.all( [this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
-		
+
 		let info = Game.IdParts(game.saveID);
 
 		if ( game.inProgress() ) {
@@ -293,7 +293,7 @@ module.exports = class GameCache {
 		} else {
 
 			console.log('GAME IS CLOSED');
-	
+
 			this.insertGame( list1.completed, info );
 			this.insertGame( list2.completed, info );
 
@@ -304,9 +304,9 @@ module.exports = class GameCache {
 	}
 
 	/**
-	 * @param {*} list 
-	 * @param {Discord.User} [user=null] 
-	 * @param {?number} [gnum=null] 
+	 * @param {*} list
+	 * @param {Discord.User} [user=null]
+	 * @param {?number} [gnum=null]
 	 */
 	filterList( list, user=null, gnum=null ) {
 
@@ -347,7 +347,7 @@ module.exports = class GameCache {
 	async completeGame( game ) {
 
 		let [ list1, list2 ] = await Promise.all( [ this.getUserLists( game.p1 ), this.getUserLists( game.p2 )] );
-		
+
 		let info = Game.IdParts(game.saveID);
 
 		this.removeGame( list1.active, info );
@@ -387,15 +387,15 @@ module.exports = class GameCache {
 		} //
 
 		console.log('ADDING ITEM AT: ' + mid );
- 
+
 		list.splice( mid, 0, ginfo );
 
 	}
 
 	/**
 	 * Remove a game from a games list.
-	 * @param {Array[]} list 
-	 * @param {[string,string,string]} ginfo 
+	 * @param {Array[]} list
+	 * @param {[string,string,string]} ginfo
 	 */
 	removeGame( list, ginfo ) {
 
@@ -430,8 +430,8 @@ module.exports = class GameCache {
 	}
 
 	/**
-	 * 
-	 * @param {RegExpMatchArray} a 
+	 *
+	 * @param {RegExpMatchArray} a
 	 * @param {RegExpMatchArray} b
 	 * @returns {number}
 	*/

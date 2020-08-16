@@ -11,7 +11,7 @@ module.exports = {
 	sendBlock:async (m,s)=> m.reply( '```' + s + '```'),
 
 	/**
- 	* Checks if the character is a vowel.
+ 	* Check if character is a vowel.
 	* @param {string} c - character to test.
 	* @returns {boolean}
  	*/

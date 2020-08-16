@@ -72,14 +72,16 @@ function makeImage( color ) {
 
 /**
  * Wraps image.getBuffer() in a promise to make awaitable.
- * @param {*} img
+ * @param {Jimp} img
+ * @returns {Promise<Buffer|null>}
  */
 async function imageBuffer( img ) {
 
-	return new Promise( (res,rej)=>{
+	return new Promise( (res)=>{
 		img.getBuffer( jimp.MIME_PNG, (err, buff)=>{
-			if ( err ) res(null);
-			else res( buff );
+
+			res( err ? null : buff );
+
 		} );
 	});
 

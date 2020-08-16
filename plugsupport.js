@@ -27,7 +27,6 @@ exports.loadPlugins = function( plugins_dir, init_func=null ) {
 		console.error(err);
 	}
 
-	console.log('Plugins Loaded: ' + plugins.length );
 	return plugins;
 
 }
@@ -65,7 +64,9 @@ function loadPlugs( dirPath, init_func=null ) {
 			//file = path.resolve( dir, file );
 
 			let res = loadPlugDesc( dirPath, file.name, init_func );
+
 			// might be multiple json files that are NOT plugins.
+			// these return null but loop should still continue.
 			if ( res ) return res;
 
 		} catch (err ){

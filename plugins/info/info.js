@@ -2,6 +2,7 @@ class Info {
 
 	constructor( context ) {
 
+		// TODO: Use Map or Object.create to prevent base object overwrites.
 		this.infos = {};
 
 		this._context = context;
@@ -13,16 +14,18 @@ class Info {
 
 	async cmdInfo( m, subj, info=null ) {
 
-		if ( subj == null ) return m.channel.send( 'Usage: !info "subj" "definition"' );
+		if ( subj == null ) return m.channel.reply( 'Usage: !info "subj" "definition"' );
 
 		if ( info ) {
+
 			await this.addInfo( subj, info, m.author.id );
 			return m.channel.send( 'Ah, "' + subj + '" -> ' + info );
+
 		} else {
 
 			info = this.getInfo( subj );
 			if ( info ) return m.reply( info );
-			else return m.reply( 'Information not found.');
+			return m.reply( 'Information not found.');
 
 		}
 
@@ -40,27 +43,27 @@ class Info {
 	}
 
 	/**
-	 * 
-	 * @param {*} subj 
-	 * @param {*} which - Not yet implemented. 
+	 *
+	 * @param {*} subj
+	 * @param {*} which - Not yet implemented.
 	 */
 	async rmInfo( subj, which ) {
 
 		subj = subj.toLowerCase();
 		let cur = this.infos[subj];
 		if ( cur ) {
+
 			delete this.infos[subj];
 			await this._context.storeData( this.getKey(), this.infos );
 			return true;
+
 		}
 
 	}
 
 	getInfo( subj ) {
 		let cur = this.infos[subj];
-		if ( cur ) return cur.i;
-		return null;
-
+		return cur ? cur.i : null;
 	}
 
 	async addInfo( subj, info, uid ) {
@@ -75,7 +78,7 @@ class Info {
 			this.infos[subj] = info;
 
 			await this._context.storeData( this.getKey(), this.infos );
-	
+
 		} catch ( e ) { console.error(e); }
 
 	}
