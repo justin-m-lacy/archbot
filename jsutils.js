@@ -4,12 +4,14 @@
  * Unlike node Utilities promisify, the first callback param
  * is not a reject error.
  */
-exports.promisify = (f)=>{
+exports.promisify = (f, fthis=null)=>{
 
 	return ( ...args ) => {
 
 		return new Promise( (res)=>{
-			f.apply( null, args.concat( res ) );
+
+			f.apply( fthis, args.concat( res ) );
+
 		});
 
 	}

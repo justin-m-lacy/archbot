@@ -1,4 +1,6 @@
 const fs = require( 'fs');
+//const promisify = require( 'util').promisify;
+const fsPromises = fs.promises;
 
 /**
  * @note the else-conditions are required since a promise callback is not a return.
@@ -15,8 +17,7 @@ exports.deleteFile = path => new Promise( (res,rej)=> {
 
 	fs.unlink( path, (err)=>{
 
-		if ( !err ) res(true );
-		else rej(err);
+		err ? rej(err) : res(true);
 
 	});
 
@@ -24,19 +25,16 @@ exports.deleteFile = path => new Promise( (res,rej)=> {
 
 /**
  * @function
- * Determines if file at path exists.
+ * Determines if file exists at path.
  * @param {string} path
- * @returns {Promise<boolean,NodeJS.ErrnoException>}
+ * @returns {Promise<boolean>}
  */
-exports.exists = path => new Promise( (res,rej)=>{
+exports.exists = path => new Promise( (res)=>{
 
 	fs.access( path,
 
 		(err)=>{
-
-			if ( !err ) res(true);
-			else res( false );
-
+			res( !err );
 		});
 
 });
@@ -48,51 +46,28 @@ exports.exists = path => new Promise( (res,rej)=>{
  * @param {?Object|string} [options=null] Encoding used as the encoding of the result. If not provided, `'utf8'` is used.
  * @returns {Promise<string[],NodeJS.ErrnoException>}
  */
-const readdir = (path, options=null) => new Promise( (res,rej)=>{
-
-	fs.readdir( path, options, (err,files)=>{
-
-		if ( err ) rej(err);
-		else res(files);
-
-	});
-
-});
-
-exports.readdir = readdir;
+const readdir = fsPromises.readdir;
 
 /**
  * @function
  * Read a list of names of all files at the given path, excluding directories.
  * @param {string} path
- * @param {*} options
  * @returns {Promise<string[], NodeJS.ErrnoException>}
  */
-exports.readfiles = (path, options=null) => new Promise( (res,rej)=>{
+exports.readfiles = ( path ) => new Promise( (res,rej)=>{
 
-	if ( path.charAt(path.length-1) != '/') path += '/';
+	if ( path.charAt(path.length-1) != '/') path += '/'; // might be unncessary now?
 
-	let count;
-	let found = [];
-
-	readdir( path, options ).then(
+	readdir( path, {withFileTypes:true} ).then(
 
 		files=>{
 
-			count = files.length;
-			for( let i = count-1; i>= 0;i-- ) {
+			let found = [];
 
-				let f = files[i];
-				fs.stat( path + f, (e,stats)=>{
-
-					if ( !e ) {
-						if( stats.isFile() ) found.push(f);
-					}
-					if ( --count <= 0 ) res(found);
-
-				});
-
+			for( let i = files.length-1; i>= 0;i-- ) {
+				if ( files[i].isFile() ) found.push( files[i].name );
 			}
+			res(found);
 
 		},
 		err=>rej(err)
@@ -119,20 +94,27 @@ exports.readJSONSync = path => {
 
 /**
  * @function
- * Attempt to create a directory
+ * Attempt to create a directory.
+ * Directory already existing is not considered an error.
  * @param {string} path
  * @returns {Promise}
  */
 exports.mkdir = path => new Promise( (res,rej)=> {
 
-	if ( fs.existsSync(path) ) {
-		res();
-		return;
-	}
-	fs.mkdir( path,  err => {
-		if ( err ) rej(err);
-		else res();
-	});
+	fsPromises.stat( path ).then(
+
+		stat=>{
+
+			// todo: check access?
+			stat.isDirectory() ?  res() : rej('File exists and is not directory.');
+
+		},
+		()=>{
+
+			// file does not exist. this is intended.
+			return fsPromises.mkdir( path );
+		}
+	);
 
 });
 
@@ -141,16 +123,7 @@ exports.mkdir = path => new Promise( (res,rej)=> {
  * @param {string} path
  * @returns {Promise<*,NodeJS.ErrnoException>}
  */
-exports.readFile = path => new Promise( (res,rej)=>{
-
-	fs.readFile( path, (err,data)=>{
-
-		if ( err ) rej(err);
-		else res( data );
-
-	});
-
-});
+exports.readFile = fsPromises.readFile;
 
 /**
  * @function
@@ -161,14 +134,16 @@ exports.readJSON = path=> new Promise( (res,rej)=>{
 
 		fs.readFile( path, 'utf8', (err,data)=>{
 
-			if ( err || data === undefined || data === null ) rej(err);
+			if ( err ) rej(err);
+			else if ( data === undefined || data === null ) rej('File is null.');
 			else {
 
 				if ( data === '' ) res(null);
 
 				else {
-					data = JSON.parse(data);
-					res( data);
+
+					res( JSON.parse(data));
+
 				}
 			}
 
@@ -187,10 +162,7 @@ exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
 
 	//console.log( 'data: ' + JSON.stringify(data));
 	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, err=>{
-
-		if ( err ) rej(err);
-		else res();
-
+		err ? rej(err) : res();
 	});
 
 });

@@ -1,7 +1,7 @@
 const Discord = require( 'discord.js' );
 const AudioSource = require( './audioSource' );
 
-const ytdl = require( 'ytdl-core');
+//const ytdl = require( 'ytdl-core');
 const path = require( 'path' );
 
 /**
@@ -43,8 +43,8 @@ class Juke {
 	get playing() { return this._playing; }
 
 	/**
-	 * 
-	 * @param {BotContext} context 
+	 *
+	 * @param {BotContext} context
 	 */
 	constructor( context ) {
 
@@ -174,8 +174,8 @@ class Juke {
 	/**
 	 * User voice state changed. Check that there is a still a listener
 	 * in the juke's voice channel.
-	 * @param {GuildMember} oldMember 
-	 * @param {GuildMember} newMember 
+	 * @param {GuildMember} oldMember
+	 * @param {GuildMember} newMember
 	 */
 	voiceChanged( oldMember, newMember ) {
 
@@ -189,7 +189,7 @@ class Juke {
 			}
 
 		} else {
-	
+
 			if ( this._connection.dispatcher ) this._connection.dispatcher.resume();
 			else this.playNext();
 		}
@@ -198,7 +198,7 @@ class Juke {
 
 		/**
 	 * Get or set the play channel.
-	 * @param {Message} m 
+	 * @param {Message} m
 	 * @param {string} [channel=null]
 	 */
 	async cmdChannel( m, channel=null ) {
@@ -299,7 +299,7 @@ class Juke {
 	}
 
 	async cmdPlaylist( m ) {
-		return m.channel.send( 'Current Playlist:\n' + 
+		return m.channel.send( 'Current Playlist:\n' +
 		( this._playing ? '* ' + this._playing.toString() + '\n' : '' ) + this.displayList( this._queue ), {code:true} );
 	}
 
@@ -315,7 +315,7 @@ class Juke {
 }
 
 
-exports.init = function( bot ) {
+/*exports.init = function( bot ) {
 
 	bot.addContextCmd( 'jukechan', 'jukechan [channel]',
 		Juke.prototype.cmdChannel, Juke, { minArgs:0, maxArgs:1, group:'right'} );
@@ -335,4 +335,4 @@ exports.init = function( bot ) {
 	bot.addContextCmd( 'songs', 'songs',
 		Juke.prototype.cmdSongs, Juke );
 
-}
+}*/
