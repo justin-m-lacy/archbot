@@ -41,7 +41,7 @@ exports.loadImages = async function() {
 	} catch(e) {
 		console.error(e);
 	}
-				
+
 }
 
 /**
@@ -59,8 +59,8 @@ exports.showBoard = async function( chan, game ) {
 			let buff = await getBoardImg(game);
 			if ( buff ) {
 
-				let attach = new Discord.Attachment( buff );
-				return chan.send( game.getStatusString(), attach );
+				//let attach =
+				return chan.send( game.getStatusString(), new Discord.Attachment( buff ) );
 
 			}
 
@@ -76,7 +76,8 @@ exports.showBoard = async function( chan, game ) {
 
 /**
  * @asyn
- * @param {Game} game 
+ * @param {Game} game
+ * @returns {Promise<Buffer>}
  */
 async function getBoardImg( game ) {
 
@@ -106,31 +107,31 @@ async function getBoardImg( game ) {
 		}
 
 	} // while
-	
-	return await imageBuffer( img );
+
+	return imageBuffer( img );
 
 }
 
 /**
  * Wraps image.getBuffer() in a promise to make awaitable.
- * @param {Jimp} img 
- * @returns {Promise<Buffer>}
+ * @param {Jimp} img
+ * @returns {Promise<Buffer|null>}
  */
 async function imageBuffer( img ) {
 
 	return new Promise( (res)=>{
 		img.getBuffer( jimp.MIME_PNG, (err, buff)=>{
-			if ( err ) res(null);
-			else res( buff );
+
+			res( err ? null : buff );
 		} );
 	});
 
 }
 
 /**
- * 
+ *
  * @param {Game} game
- * @returns {string} 
+ * @returns {string}
  */
 function getBoardStr( game ) {
 
@@ -155,7 +156,7 @@ function getBoardStr( game ) {
 			wasPiece = true;
 		}
 
-		
+
 		if ( ++i % 8 === 0 ) {
 
 			rows.unshift( row.join(' ') );

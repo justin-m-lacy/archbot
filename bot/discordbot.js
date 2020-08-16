@@ -295,7 +295,7 @@ class DiscordBot {
 	async onMessage( m ) {
 
 		if ( m.author.id === this._client.user.id ) return;
-		if ( this.spamcheck(m) ) return;
+		if ( this.spamblock(m) ) return;
 
 		let command = this._dispatch.parseLine( m.content );
 
@@ -419,12 +419,14 @@ class DiscordBot {
 	 * @param {Message} m
 	 * @returns {boolean} returns true to block guild/channel.
 	 */
-	spamcheck(m) {
+	spamblock(m) {
 
 		if ( !m.guild) return false;
 		let allow = this._spamblock[m.guild.id];
+
 		if ( !allow ) return false;
 		if ( allow[m.channel.id]) return false;
+
 		return true;
 
 	}

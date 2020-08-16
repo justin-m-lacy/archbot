@@ -250,7 +250,7 @@ async function sendGameTime( channel, displayName, gameName ) {
 
 	} catch ( err ) {
 		console.error(err);
-		await channel.send( gameName + ': No record for ' + displayName + ' found.' );
+		return channel.send( gameName + ': No record for ' + displayName + ' found.' );
 	}
 
 }
@@ -617,7 +617,7 @@ async function mergeMember( uObject, newData ){
 	try {
 
 		let data = await bot.fetchUserData( uObject );
-		if ( (data instanceof Object) ) {
+		if ( typeof data === 'object' ) {
 			jsutils.recurMerge( data, newData );
 			newData = data;
 		}

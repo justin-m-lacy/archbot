@@ -7,24 +7,39 @@ class Quoter {
 
 	}
 
+	/**
+	 *
+	 * @param {Message} m
+	 * @returns {Promise}
+	 */
 	async cmdQuote( m ) {
 
 		if ( !this.quotes ) await this.loadQuotes();
 
 		let len = this.quotes.length;
-		if ( len === 0 ) return m.channel.send( 'There are no quotes for this server.');
+		if ( len > 0 ) {
 
-		let str = this.quotes[ Math.floor( Math.random()*len ) ];
-		return m.channel.send( str );
+			let str = this.quotes[ Math.floor( Math.random()*len ) ];
+			return m.channel.send( str );
+
+		}
+		return m.channel.send( 'There are no quotes for this server.');
 
 	}
 
+	/**
+	 *
+	 * @param {*} m
+	 * @param  {...any} args
+	 * @returns {Promise}
+	 */
 	async cmdNewQuote( m, ...args ) {
 
 		if ( !this.quotes ) await this.loadQuotes();
 
 		let q = args.join(' ');
-		if ( q === null || q === '') return m.channel.send( "Silence isn't a quote.");
+		// todo: allow attachments.
+		if ( q === null || q === '') return m.channel.reply( "Your silence is not memorable.");
 
 		this.quotes.push( q );
 

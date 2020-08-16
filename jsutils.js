@@ -51,7 +51,8 @@ function recurMerge( dest, src ) {
 
 	for( var key in src ) {
 
-		if ( !src.hasOwnProperty(key) ) {	// skip inherited properties.
+		// src[key] might be falsey. skip inherited props.
+		if ( !src.hasOwnProperty(key) ) {
 			continue;
 		}
 

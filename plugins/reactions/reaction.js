@@ -1,11 +1,15 @@
 class Reaction {
 
 	/*toJSON(){
-
-
-
 	}*/
 
+	/**
+	 *
+	 * @param {string} response
+	 * @param {string} uid - response creator
+	 * @param {number} t - creation timestamp.
+	 * @param {string} embed - embed url.
+	 */
 	constructor( response, uid, t=0, embed=undefined ){
 
 		/**
@@ -135,7 +139,7 @@ module.exports.makeReaction = ( resp, uid, embed ) => {
  * @param {?object|string} r
  * @returns {Reaction|null}
  */
-const parseReaction = ( r ) => {
+const parseReaction = module.exports.parseReaction = ( r ) => {
 
 
 	if ( typeof r === 'object') {
@@ -152,8 +156,6 @@ const parseReaction = ( r ) => {
 	return null;
 
 }
-
-module.exports.parseReaction = parseReaction;
 
 /**
  * Parse an array of reactions.
