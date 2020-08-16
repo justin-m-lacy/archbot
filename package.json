@@ -4,8 +4,8 @@
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
-	"run": "node archbot.js",
-	"dev":"node archbot.js dev"
+    "run": "node archbot.js",
+    "dev": "node archbot.js dev"
   },
   "repository": {
     "type": "git",
@@ -21,13 +21,12 @@
     "archdice": "^1.0.1",
     "bufferutil": "^4.0.1",
     "chess-rules": "^1.1.0",
-    "discord.js": "^11.5.1",
+    "discord.js": "^12.3.1",
     "djs-embed": "^0.1.4",
     "ffmpeg-binaries": "^4.0.0",
     "formulic": "^1.1.2",
-    "jimp": "^0.2.28",
+    "jimp": "^0.16.0",
     "node-opus": "^0.3.2",
-    "uws": "^9.148.0",
-    "ytdl-core": "^0.29.2"
+    "uws": "^9.148.0"
   }
 }

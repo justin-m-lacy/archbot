@@ -22,7 +22,7 @@ async function cmdGetTime( msg, query ) {
 	if ( res.statusCode !== 200 ) {
 
 		res.resume();
-		return msg.reply( 'Time not found: ' + res.statusCode );
+		return msg.reply( 'ERROR ' + res.statusCode + ': ' + res.statusCode );
 
 	} else {
 
@@ -31,8 +31,8 @@ async function cmdGetTime( msg, query ) {
 			data+=chunk;
 		});
 
-		await promisify( res.on )( 'end' );
-		return msg.reply(data);
+		await promisify( res.on, res )( 'end' );
+		return msg.reply( data.slice(0, 1600 ) );
 
 	}
 
