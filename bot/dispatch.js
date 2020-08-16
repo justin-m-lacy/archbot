@@ -144,24 +144,25 @@ module.exports = class CmdDispatch {
 	 *
 	 * @param {string} name
 	 */
-	getCmd( name ) { return this._cmds[name]; }
-
-	/**
-	 *
-	 * @param {string} name
-	 */
-	clearCmd( name ) { delete this._cmds[name];	}
+	clearCmd( name ) { delete this.commands[name];	}
 
 }
 
 class CmdLine {
 
 	/**
-	 * { Object[string->Command] } - All active commands.
+	 * { .<string,Command> } - All active commands.
 	 */
 	get commands() { return this._cmds; }
 
+	/**
+	 * @property {string[]} args - current arguments on command line.
+	 */
 	get args() { return this._args; }
+
+	/**
+	 * @property {string} prefix - bot command prefix.
+	 */
 	get prefix() { return this._prefix; }
 
 	/**
@@ -169,7 +170,7 @@ class CmdLine {
 	 * @param {string} name
 	 */
 	getCommand( name ) {
-		return this._cmds[name.toLowerCase()] || null;
+		return this._cmds[ name.toLowerCase() ];
 	}
 
 	constructor( cmdPrefix='!' ) {
