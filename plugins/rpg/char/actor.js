@@ -13,7 +13,7 @@ exports.Actor = class Actor {
 		if ( json.statMods ) {
 			// apply last.
 			let mods = json.statMods;
-			let mod;
+
 			for( let i = mods.length-1; i >= 0; i-- ) {
 				let mod = StatMod.FromJSON( mods[i]);
 				if ( mod ) act.addMod( mod );
@@ -116,7 +116,7 @@ exports.Actor = class Actor {
 
 	get curStats() { return this._curStats; }
 	set curStats(v) { this._curStats = v; }
-	
+
 	get info() { return this._info; }
 	set info( v ) { this._info = v; }
 
@@ -145,7 +145,7 @@ exports.Actor = class Actor {
 
 	/**
 	 * Removes a gold amount or returns false.
-	 * @param {number} amt 
+	 * @param {number} amt
 	 */
 	payOrFail( amt ) {
 
@@ -194,8 +194,8 @@ exports.Actor = class Actor {
 	addGold( amt ) { this._info.gold += amt; }
 
 	/**
-	 * 
-	 * @param {string} stat 
+	 *
+	 * @param {string} stat
 	 */
 	getModifier( stat ) { return this._curStats.getModifier(stat); }
 

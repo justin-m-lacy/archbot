@@ -1,17 +1,8 @@
-
-exports.tryLevel = tryLevel;
-exports.nextExp = getNextExp;
-
-function tryLevel( char ) {
-
-	if ( char.exp < getNextExp(char) ) return false;
-	char.levelUp();
-
-	return true;
-
+const requiredExp = ( level ) => {
+	return Math.floor( 100*( Math.pow( 1.5, level) ) );
 }
 
-function getNextExp( char ) {
+const getNextExp = exports.nextExp = ( char ) => {
 
 	let req = requiredExp( char.level+1);
 
@@ -26,15 +17,11 @@ function getNextExp( char ) {
 }
 
 
-function requiredExp( level ) {
-	return Math.floor( 100*( Math.pow( 1.5, level) ) );
-}
+const tryLevel = exports.tryLevel = ( char ) => {
 
-/**
- * 
- * @param {number} curLevel - current char level.
- * @returns {number} exp needed to reach next level.
- */
-function nextExp( curLevel ) {
-	return Math.floor( 100*( Math.pow( 1.5, ++curLevel) ) );
-}
+	if ( char.exp < getNextExp(char) ) return false;
+	char.levelUp();
+
+	return true;
+
+};
