@@ -60,7 +60,7 @@ exports.showBoard = async function( chan, game ) {
 			if ( buff ) {
 
 				//let attach =
-				return chan.send( game.getStatusString(), new Discord.Attachment( buff ) );
+				return chan.send( game.getStatusString(), new Discord.MessageAttachment( buff ) );
 
 			}
 
