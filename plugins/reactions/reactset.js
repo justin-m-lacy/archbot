@@ -3,11 +3,6 @@ const parseReaction = ReactModule.parseReaction;
 const parseReactions = ReactModule.parseReactions;
 
 /**
- * @const {RegEx} groupRegex - regex for substitution in a regex reaction. $1, $2, etc.
- */
-const groupRegex = /\$(\d+|[&'`])/g;
-
-/**
  * Collection of reactions tied to a single Trigger.
  */
 class ReactSet {
