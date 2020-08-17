@@ -1,2 +1,2 @@
 #!/bin/bash
-NODE_ENV="production" node  mynode/archbot/archbot.js &> archlog.txt &
+NODE_ENV="production" node archbot.js &> archlog.txt &
