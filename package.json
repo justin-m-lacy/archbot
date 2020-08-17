@@ -5,7 +5,6 @@
   "main": "archbot.js",
   "scripts": {
 	"start": "NODE_ENV=production node archbot.js",
-    "run": "NODE_ENV=development node archbot.js",
     "dev": "NODE_ENV=development node archbot.js"
   },
   "repository": {
