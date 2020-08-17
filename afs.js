@@ -101,7 +101,7 @@ exports.readJSONSync = path => {
  */
 exports.mkdir = path => {
 
-	fsPromises.stat( path ).then(
+	return fsPromises.stat( path ).then(
 
 		stat=>{
 
@@ -112,7 +112,7 @@ exports.mkdir = path => {
 		()=>{
 
 			// file does not exist. this is intended.
-			return fsPromises.mkdir( path );
+			return fsPromises.mkdir( path, {recursive:true} );
 		}
 	);
 
