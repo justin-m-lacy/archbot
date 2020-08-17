@@ -205,7 +205,7 @@ const Context = class {
 	 * @param {Discord.User|string} u
 	 * @returns {boolean}
 	*/
-	isMaster( u) { return this._bot.isMaster(u); }
+	isOwner( u) { return this._bot.isOwner(u); }
 
 	/**
 	 * Register message event with Discord client.

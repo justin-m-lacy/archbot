@@ -13,8 +13,8 @@ exports.CONTENT_MAX = CONTENT_MAX;
 const Contexts = exports.Context = require( './botcontext.js');
 
 var Bot;
-exports.InitBot = ( client, master ) => {
-	Bot = new DiscordBot( client, master );
+exports.InitBot = ( client, auth ) => {
+	Bot = new DiscordBot( client, auth );
 	return Bot;
 }
 
@@ -65,11 +65,13 @@ class DiscordBot {
 	/**
 	 *
 	 * @param {Discord.Client} client
-	 * @param {string} masterid - id of master user.
+	 * @param {object} auth - authentication information object.
+	 * @param {string} auth.owner - owner of bot.
+	 * @param {string[]} auth.admins - accounts with authority to control bot.
 	 * @param {string} [mainDir=null] - the main directory of the archbot program. Defaults to the directory of the main script
 	 * being run.
 	 */
-	constructor( client, masterid, mainDir=null ) {
+	constructor( client, auth, mainDir=null ) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
@@ -100,7 +102,8 @@ class DiscordBot {
 
 		this.loadPlugins();
 
-		this._master = masterid;
+		this._admins = auth.admins;
+		this._owner = auth.owner;
 
 		process.on( 'exit', ()=>this.onShutdown() );
 		process.on( 'SIGINT', ()=>this.onShutdown() );
@@ -359,10 +362,10 @@ class DiscordBot {
 	 * @param {Discord.User|string} u
 	 * @returns {boolean}
 	 */
-	isMaster( u ) {
+	isOwner( u ) {
 
-		if ( u instanceof Discord.User ) return u.id === this._master;
-		return u === this._master;
+		if ( typeof u !== 'string' ) u = u.id;
+		return (this._admins && this._admins.includes( u ) ) || u === this._owner;
 	}
 
 	/**
@@ -373,7 +376,7 @@ class DiscordBot {
 	 */
 	async cmdBackup( m ) {
 
-		if ( this.isMaster( m.author.id ) ) {
+		if ( this.isOwner( m.author.id ) ) {
 			await this._cache.backup( 0 );
 		} else {
 
@@ -392,7 +395,7 @@ class DiscordBot {
 	 */
 	async cmdBotQuit(m) {
 
-		if ( this.isMaster(m.author.id) ) {
+		if ( this.isOwner(m.author.id) ) {
 			this.client.destroy();
 		}
 		return this.sendNoPerm(m);
@@ -407,7 +410,7 @@ class DiscordBot {
 	 */
 	async cmdLeaveGuild( m ) {
 
-		if ( this.isMaster( m.author.id ) && m.guild ) {
+		if ( this.isOwner( m.author.id ) && m.guild ) {
 			return m.guild.leave();
 		}
 		return this.sendNoPerm(m);

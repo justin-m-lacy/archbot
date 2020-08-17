@@ -24,7 +24,7 @@ var client = new Discord.Client(
 console.log( 'client created.');
 
 try {
-	var bot = DiscordBot.InitBot( client, auth.master );
+	var bot = DiscordBot.InitBot( client, auth.owner, auth.admins );
 	console.log( 'bot created.');
 } catch (e ) {
 	console.error(e);
