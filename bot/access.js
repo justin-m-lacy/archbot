@@ -141,7 +141,7 @@ module.exports = class Access {
 				perm = a[i];
 				if (isNaN(perm) === false && gm.permissions.has(perm) === true) return true;
 				else if (typeof perm === 'string' &&
-					gm.roles.some(role => role.name.toLowerCase() === perm.toLowerCase())) return true;
+					gm.roles.cache.some(role => role.name.toLowerCase() === perm.toLowerCase())) return true;
 
 			}
 
@@ -150,7 +150,7 @@ module.exports = class Access {
 		} else if (typeof perm === 'string') {
 
 			// assume perm is a role string.
-			return gm.roles.some(role => role.name.toLowerCase() === perm.toLowerCase());
+			return gm.roles.cache.some(role => role.name.toLowerCase() === perm.toLowerCase());
 
 		}
 
