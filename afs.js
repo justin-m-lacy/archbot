@@ -99,14 +99,14 @@ exports.readJSONSync = path => {
  * @param {string} path
  * @returns {Promise}
  */
-exports.mkdir = path => new Promise( (res,rej)=> {
+exports.mkdir = path => {
 
 	fsPromises.stat( path ).then(
 
 		stat=>{
 
-			// todo: check access?
-			stat.isDirectory() ?  res() : rej('File exists and is not directory.');
+			if ( stat.isDirectory() ) return;
+			else throw new Error('File exists and is not a directory.');
 
 		},
 		()=>{
@@ -116,7 +116,7 @@ exports.mkdir = path => new Promise( (res,rej)=> {
 		}
 	);
 
-});
+};
 
 /**
  * @function
