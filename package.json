@@ -4,7 +4,8 @@
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
-    "run": "NODE_ENV=production node archbot.js",
+	"start": "NODE_ENV=production node archbot.js",
+    "run": "NODE_ENV=development node archbot.js",
     "dev": "NODE_ENV=development node archbot.js"
   },
   "repository": {
