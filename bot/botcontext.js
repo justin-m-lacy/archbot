@@ -10,7 +10,7 @@ const Access = require( './access.js' );
 const Context = class {
 
 	/**
-	 * @property {string} type - 'guild', 'user', 'dm', 'group', 'channel'
+	 * @property {string} type - 'guild', 'user', 'dm', 'channel'
 	 */
 	get type() { return 'unknown'; }
 
@@ -223,7 +223,7 @@ const Context = class {
 			let t = this.type;
 			if ( t === 'guild' ){
 				if ( !m.guild || m.guild.id !== this._idobj.id) return;
-			} else if ( t === 'group' || t === 'channel') {
+			} else if ( t === 'channel') {
 				if ( m.channel.id !== this._idobj.id) return;
 			} else if ( t === 'user' ) {
 				if ( m.author.id !== this._idobj.id ) return;
@@ -301,7 +301,7 @@ const Context = class {
 
 		if ( !id ) return 'Invalid ID';
 
-		let u = await this._bot.client.fetchUser( id );
+		let u = await this._bot.client.users.fetch( id );
 
 		// todo: return null instead.
 		return u ? u.username : 'Unknown User';
@@ -498,29 +498,6 @@ exports.UserContext = class extends Context {
 
 }
 
-//GroupDMChannel
-exports.GroupContext = class extends Context {
-	/**
-	 * {string}
-	 */
-	get type() { return 'group'; }
-	/**
-	 * {string}
-	 */
-	get name() { return this._idobj.name; }
-
-	/**
-	 *
-	 * @param {string} name
-	 * @returns {}
-	 */
-	findUser( name ){
-		name = name.toLowerCase();
-		return this._idobj.nicks.find( val => val.toLowerCase() === name );
-	}
-
-}
-
 exports.GuildContext = class extends Context {
 	/**
 	 * {string}
@@ -541,7 +518,7 @@ exports.GuildContext = class extends Context {
 
 		try {
 
-			let g = await this._idobj.fetchMember( id );
+			let g = await this._idobj.members.fetch( id );
 			if ( g ) return g.displayName;
 
 		} catch( e ) {}

@@ -6,15 +6,6 @@ const dice = require( 'archdice' );
 const jsutils = require( './jsutils.js' );
 const DiscordBot = require( './bot/discordbot.js');
 
-/**
- * @global @property {boolean} __DEV - whether app is running in development.
- */
-// check argv 'dev'
-if ( process.argv.includes( 'dev') ) {
-	global.__DEV__ = true;
-}
-
-
 // init bot
 var client = new Discord.Client(
 	{ "messageCacheMaxSize":150,
@@ -37,7 +28,7 @@ client.on( 'error', err=>{
 });
 
 console.log( 'logging in...');
-client.login( __DEV__ && auth.dev ? auth.dev.token || auth.token : auth.token );
+client.login( (process.env.NODE_ENV!=='production' && auth.dev) ? auth.dev.token || auth.token : auth.token );
 
 
 function initCmds(){

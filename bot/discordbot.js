@@ -153,7 +153,7 @@ class DiscordBot {
 
 			let config = require( '../archconfig.json');
 
-			if ( __DEV__ && config.dev ) {
+			if ( process.env.NODE_ENV !== 'production' && config.dev ) {
 				Object.assign( config, config.dev );
 			}
 
@@ -179,7 +179,7 @@ class DiscordBot {
 
 		try {
 
-			var plugins = require( '../plugsupport.js' ).loadPlugins( this._plugsdir );
+			var plugins = require( './plugsupport.js' ).loadPlugins( this._plugsdir );
 			this.addPlugins( plugins );
 
 		} catch(e) { console.error(e);}
@@ -229,7 +229,7 @@ class DiscordBot {
 		// ensure context for every guild.
 		if ( this.client ) {
 
-			this.client.guilds.forEach( (g, id) => {
+			this.client.guilds.cache.forEach( (g, id) => {
 
 				this.getContext( g ).then( c=>{
 					console.log('adding class: ' + cls.name )
@@ -267,7 +267,7 @@ class DiscordBot {
 				return;
 			}
 
-			this.client.guilds.forEach( (g, id) => {
+			this.client.guilds.cache.forEach( (g, id) => {
 				this.getContext(g);
 			});
 		} catch ( e) { console.log(e);}
@@ -571,12 +571,7 @@ class DiscordBot {
 		let type = m.channel.type, idobj;
 
 		if ( type === 'text' || type === 'voice ') idobj = m.guild;
-		else if ( type === 'group' ) {
-
-			idobj = m.channel;
-			if ( this._proxies[idobj.id] ) return this.getProxy( idobj, this._proxies[idobj.id] );
-
-		} else {
+		else {
 
 			idobj = m.author;
 			//check proxy
@@ -616,7 +611,7 @@ class DiscordBot {
 		let con = this._contexts[srcid];
 		if ( con ) return con;
 
-		let proxob = this.findProxTarget( srcid );
+		let proxob = await this.findProxTarget( srcid );
 		if ( proxob) return this.makeContext( proxob );
 
 		// proxy not found.
@@ -630,8 +625,8 @@ class DiscordBot {
 	 * @param {string} id
 	 * @returns {Guild|Channel}
 	 */
-	findProxTarget( id ) {
-		return this._client.guilds.get(id) || this.client.channels.get(id);
+	async findProxTarget( id ) {
+		return await this._client.guilds.fetch(id) || await this.client.channels.fetch(id);
 	}
 
 	/**
@@ -647,8 +642,6 @@ class DiscordBot {
 
 		if ( type === 'text' || !type || type === 'voice' )
 			context = new Contexts.GuildContext( this, idobj, this._cache.subcache( fsys.getGuildDir(idobj) ) );
-		else if ( type === 'group' )
-			context = new Contexts.GroupContext( this, idobj, this._cache.subcache( fsys.getChannelDir(idobj) ) );
 		else  context = new Contexts.UserContext( this, idobj, this._cache.subcache( fsys.getUserDir(idobj)) );
 
 		await context.init( this._contextClasses );
@@ -806,12 +799,6 @@ class DiscordBot {
 			case 'dm':
 				if ( channel.recipient.username.toLowerCase() === name ) return channel.recipient;
 				return null;
-			case 'group':
-
-				for( let id of channel.nicks.keys() ) {
-					if ( channel.nicks.get(id).toLowerCase() === name ) return channel.recipients.get(id);
-				}
-				return channel.recipients.find( u=>u.username.toLowerCase() === name );
 
 		}
 
