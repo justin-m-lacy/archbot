@@ -7,12 +7,11 @@ const jsutils = require( './jsutils.js' );
 const DiscordBot = require( './bot/discordbot.js');
 
 /**
- * @property {boolean} __DEV - whether app is running in development.
+ * @global @property {boolean} __DEV - whether app is running in development.
  */
-var __DEV = false;
 // check argv 'dev'
 if ( process.argv.includes( 'dev') ) {
-	__DEV = true;
+	global.__DEV__ = true;
 }
 
 
@@ -38,7 +37,7 @@ client.on( 'error', err=>{
 });
 
 console.log( 'logging in...');
-client.login( __DEV && auth.dev ? auth.dev.token || auth.token : auth.token );
+client.login( __DEV__ && auth.dev ? auth.dev.token || auth.token : auth.token );
 
 
 function initCmds(){

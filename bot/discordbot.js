@@ -145,17 +145,23 @@ class DiscordBot {
 	}
 
 	/**
-	 * Attempt to load config file.
+	 * Load config file.
 	 */
 	loadConfig() {
 
 		try {
 
 			let config = require( '../archconfig.json');
+
+			if ( __DEV__ && config.dev ) {
+				Object.assign( config, config.dev );
+			}
+
 			this._spamblock = config.spamblock || {};
 			this._cmdPrefix = config.cmdprefix || '!';
 			this._plugsdir = path.join( this._directory, config.pluginsdir );
 			this._saveDir = path.join( this._directory, config.savedir || '/savedata/');
+
 
 		} catch ( e) {
 			this._cmdPrefix = '!';
