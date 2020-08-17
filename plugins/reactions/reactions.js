@@ -116,7 +116,7 @@ class GuildReactions {
 	async respond( m, rset ) {
 
 		var last = rset.lastUsed;
-		if ( last && (this.msgTime - last ) < this.minWait ) continue;
+		if ( last && (this.msgTime - last ) < this.minWait ) return;
 		rset.lastUsed = this.msgTime;
 
 		// get random reaction from set.
