@@ -5,6 +5,7 @@ auth.json
 .vscode
 
 savedata
+devdata
 
 node_modules
 *.lnk
