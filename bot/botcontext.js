@@ -218,7 +218,7 @@ const Context = class {
 
 			if ( m.author.id === m.client.user.id ) return;
 			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;	// ignore bot commands.
-			if ( this._bot.spamcheck(m)) return;
+			if ( this._bot.spamblock(m)) return;
 
 			let t = this.type;
 			if ( t === 'guild' ){
