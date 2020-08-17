@@ -27,7 +27,7 @@ async function cmdWho( m ) {
 
 	if ( t === 'text' || t === 'voice') {
 
-		u = m.guild.members.random();
+		u = m.guild.members.cache.random();
 		name = u.displayName;
 
 	} else return m.channel.send( 'It\'s you, I guess.' );
