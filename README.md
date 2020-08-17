@@ -34,6 +34,17 @@ When running in dev mode, this alternate bot will be run instead of the primary 
 
 auth.json should not be pushed to any public repository.
 
-Open a command terminal and type: node archbot.js A path to node.js must be in your command path for this to work.
+AFTER auth.json is configured, the bot can be run in a number of ways:
 
-runbot.bat is a simple command script for easily running the Bot in windows. After your auth.json file has been configured, you can double click the script to run the bot.
+1) npm run start ( or npm run dev )
+
+2) Open a command terminal and run node archbot.js A path to node.js must be in your command path for this to work.
+
+
+Linux/Unix Run script:
+
+3) archrun - bash script to run bot in background process.
+
+Windows Run script:
+
+4) archrun.bat - Double click the script to run the bot.
