@@ -30,11 +30,6 @@ async function cmdWho( m ) {
 		u = m.guild.members.random();
 		name = u.displayName;
 
-	} else if ( t === 'group') {
-
-		u = m.channel.recipients.random();
-		name = u.username;
-
 	} else return m.channel.send( 'It\'s you, I guess.' );
 
 	return m.channel.send( resp.replace( /%t/g, name ));
