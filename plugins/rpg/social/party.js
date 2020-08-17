@@ -145,7 +145,7 @@ module.exports = class Party extends SocialGroup {
 		// add exp bonus for party members.
 		exp = Math.floor( exp*( 1 + count*0.15 ) / count );
 
-		console.log( 'EXP PER PERSON: ' + exp );
+		console.log( 'EXP EACH: ' + exp );
 
 		for( let i = count-1; i>= 0; i-- ) {
 
@@ -200,14 +200,6 @@ module.exports = class Party extends SocialGroup {
 
 		return null;
 
-	}
-
-	async randChar() {
-		return this._cache.fetch( this.roster[ Math.floor( this.roster.length*Math.random() )] );
-	}
-
-	randName() {
-		return this.roster[ Math.floor( this.roster.length*Math.random() )];
 	}
 
 }

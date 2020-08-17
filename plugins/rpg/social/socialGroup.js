@@ -72,6 +72,9 @@ module.exports = class SocialGroup {
 
 	}
 
+	async randChar() {
+		return this._cache.fetch( this.roster[ Math.floor( this.roster.length*Math.random() )] );
+	}
 
 	/**
 	 *

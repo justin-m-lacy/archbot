@@ -18,6 +18,30 @@ exports.promisify = (f, fthis=null)=>{
 
 }
 
+
+/**
+ * @param {*=>boolean} pred - predicate random element must satisfy.
+ * @returns {*} - Random element satisfying predicate,
+ * or null.
+ */
+exports.randWhere = (arr, pred ) => {
+
+	let len = arr.length;
+	let ind = Math.floor( Math.random()*len );
+	let start = ind;
+
+	do {
+
+		if ( pred(arr[i] ) ) return arr[i];
+
+		if ( ++ind >= len ) ind = 0;
+
+	} while ( ind != start );
+
+	return null;
+
+}
+
 exports.randElm = (arr)=>{
 	return arr[ Math.floor( Math.random()*(arr.length)) ];
 }

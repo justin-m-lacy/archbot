@@ -1,5 +1,5 @@
 const Weapon = require( './weapon.js' );
-const Armor = require( './armor.js');
+const Wearable = require( './wearable.js');
 const Item = require( './item.js');
 const Material = require( './material.js');
 const Potion= require('./potion.js');
@@ -129,7 +129,7 @@ function fromJSON( json ) {
 
 	switch ( json.type ) {
 		case 'armor':
-		return Armor.FromJSON( json );
+		return Wearable.FromJSON( json );
 		break;
 
 		case 'weapon':
@@ -202,7 +202,7 @@ function genArmor( slot=null, lvl=0 ) {
 
 	if ( !tmp ) return;
 
-	return Armor.FromData( tmp, mat );
+	return Wearable.FromData( tmp, mat );
 
 }
 

@@ -10,9 +10,15 @@ var UNKNOWN = exports.UNKNOWN = "unknown";
 
 exports.Item = class Item {
 
+	/**
+	 * @property {string} name
+	 */
 	get name() { return this._name; }
 	set name(v) { this._name = v; }
 
+	/**
+	 * @property {string} type
+	 */
 	get type() { return this._type; }
 	set type(v) { this._type = v;}
 
@@ -22,6 +28,9 @@ exports.Item = class Item {
 	get desc() { return this._desc; }
 	set desc( v) { this._desc = v; }
 
+	/**
+	 * @property {string} inscription
+	 */
 	get inscription() { return this._inscript; }
 	set inscription(v) { this._inscript = v; }
 
@@ -38,7 +47,7 @@ exports.Item = class Item {
 	set crafter(s) { this._crafter = s; }
 
 	/**
-	 * timestamp of crafting.
+	 * @property {number} time - creation timestamp.
 	 */
 	get time() { return this._time; }
 	set time(t) { this._time = t;}
@@ -46,8 +55,8 @@ exports.Item = class Item {
 	/**
 	 * Since Item is subclassed, the sub item created
 	 * is passed as a param.
-	 * @param {Object} json 
-	 * @param {Item} it 
+	 * @param {Object} json
+	 * @param {Item} it
 	 */
 	static FromJSON( json, it=null ) {
 
@@ -97,7 +106,7 @@ exports.Item = class Item {
 	}
 
 	/**
-	 * @returns detailed string description of item.
+	 * @returns {string} detailed string description of item.
 	*/
 	getDetails( imgTag=true ) {
 
@@ -132,8 +141,8 @@ exports.Item = class Item {
 	}
 
 	/**
-	 * 
-	 * @param {Item[]} a 
+	 *
+	 * @param {Item[]} a
 	 */
 	static DetailsList( a ) {
 
@@ -156,8 +165,8 @@ exports.Item = class Item {
 	}
 
 	/**
-	 * 
-	 * @param {Item[]} a 
+	 *
+	 * @param {Item[]} a
 	 */
 	static ItemList( a ) {
 

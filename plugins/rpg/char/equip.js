@@ -136,6 +136,11 @@ module.exports = class Equip {
 
 	}
 
+	/**
+	 * Remove item from slot and return it.
+	 * @param {string} slot
+	 * @returns {Item|null}
+	 */
 	removeSlot( slot ) {
 
 		if( !slot ) return;
@@ -260,6 +265,11 @@ module.exports = class Equip {
 
 	}
 
+	/**
+	 * Remove all items matching predicate, and returns them.
+	 * @param {*} p - predicate
+	 * @returns {Item[]}
+	 */
 	removeWhere( p ) {
 
 		let v;

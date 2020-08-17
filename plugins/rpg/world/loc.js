@@ -38,8 +38,16 @@ class Coord {
 		this.y = coord.y;
 	}
 
+	/**
+	 * @returns {number} absolute distance from origin.
+	 */
 	abs() { return Math.abs(this.x) + Math.abs(this.y); }
 
+	/**
+	 * Get distance to another coordinate.
+	 * @param {Coord} c - second coordinate
+	 * @returns {number}
+	 */
 	dist( c ) { return Math.abs( c.x - this.x ) + Math.abs(c.y - this.y ); }
 
 	equals( c ) {
@@ -61,7 +69,7 @@ exports.Loc = class Loc {
 	set areaName(v) { this._areaName = v; }
 
 	/**
-	 * {string} - name of the biome, not a biome object.
+	 * @property {string} - name of the biome.
 	 */
 	get biome() { return this._biome; }
 	set biome(v) { this._biome = v;}
@@ -71,6 +79,9 @@ exports.Loc = class Loc {
 
 	get npcs() { return this._npcs; }
 
+	/**
+	 * @property {Coord} coord
+	*/
 	get coord() { return this._coord; }
 	set coord(v) { this._coord = v; this._key = v.toString(); }
 
@@ -174,9 +185,9 @@ exports.Loc = class Loc {
 	}
 
 	/**
-	 * 
-	 * @param {Loc.Coord} coord 
-	 * @param {string} biomeName 
+	 *
+	 * @param {Loc.Coord} coord
+	 * @param {string} biomeName
 	 */
 	constructor( coord, biomeName ) {
 
@@ -187,7 +198,7 @@ exports.Loc = class Loc {
 
 		this._features = new Inv();
 		this._inv = new Inv();
-	
+
 		this._exits = {};
 
 	}
@@ -211,7 +222,7 @@ exports.Loc = class Loc {
 
 	/**
 	 * Add a new exit from this location.
-	 * @param {Exit} exit 
+	 * @param {Exit} exit
 	 */
 	addExit( exit ) {
 		//console.log( 'adding exit ' + exit);
@@ -219,8 +230,8 @@ exports.Loc = class Loc {
 	}
 
 	/**
-	 * 
-	 * @param {string} dir 
+	 *
+	 * @param {string} dir
 	 */
 	getExit( dir ) {
 		return this._exits[dir];
@@ -282,9 +293,9 @@ exports.Loc = class Loc {
 	}
 
 	/**
-	 * 
-	 * @param {Char} char 
-	 * @param {Feature|string|number} wot 
+	 *
+	 * @param {Char} char
+	 * @param {Feature|string|number} wot
 	 */
 	use( char, wot) {
 
@@ -300,26 +311,26 @@ exports.Loc = class Loc {
 	lookItems() { return 'On ground: ' + this._inv.getList(); }
 
 	/**
-	 * 
-	 * @param {Feature} f 
+	 *
+	 * @param {Feature} f
 	 */
 	addFeature( f ) { this._features.add(f);}
 
 	/**
-	 * 
-	 * @param {Feature|string|number} wot 
+	 *
+	 * @param {Feature|string|number} wot
 	 */
 	getFeature(wot) { return this._features.get(wot);}
 
 	/**
 	 * Get item without taking it.
-	 * @param {Item|string|number} item 
+	 * @param {Item|string|number} item
 	 */
 	get( item ) { return this._inv.get(item); }
 
 	/**
-	 * 
-	 * @param {Item|Item[]} item 
+	 *
+	 * @param {Item|Item[]} item
 	 */
 	drop( item ) { return this._inv.add( item ); }
 
@@ -328,8 +339,8 @@ exports.Loc = class Loc {
 	}
 
 	/**
-	 * 
-	 * @param {string} what 
+	 *
+	 * @param {string} what
 	 */
 	take( what ) { return this._inv.take( what ); }
 

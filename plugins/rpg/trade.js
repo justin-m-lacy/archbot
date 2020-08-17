@@ -1,9 +1,17 @@
 const util = require('../../jsutils.js');
 const Material = require( './items/material.js');
 
-var isGold = /^(\d+)\s*g(?:old)?$/i;
+/**
+ * @const {RegExp} isGold - Regexp testing for a gold amount.
+ */
+const goldAmt = /^(\d+)\s*g(?:old)?$/i;
 
-function rollCost(lvl) {
+/**
+ *
+ * @param {*} lvl
+ * @returns {number} item cost per level.
+ */
+const rollCost = (lvl) => {
 	return 40*lvl*( Math.floor( Math.pow( 1.5, Math.floor(lvl/2 )) ) );
 }
 
@@ -12,7 +20,7 @@ exports.rollWeap = (char ) => {
 	let level = char.level;
 	let cost = rollCost(level);
 	if ( !char.payOrFail( cost ) )
-	return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`; 
+	return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`;
 
 	let gen = require( './items/itemgen.js' );
 	let mod = 1 + char.getModifier('cha');
@@ -33,7 +41,7 @@ exports.rollArmor = (char, slot ) => {
 	let level = char.level;
 	let cost = rollCost(level);
 	if ( !char.payOrFail( cost ) )
-		return `${char.name} cannot afford to roll new armor. (${cost} gold)`; 
+		return `${char.name} cannot afford to roll new armor. (${cost} gold)`;
 
 	let gen = require( './items/itemgen.js' );
 
@@ -90,7 +98,7 @@ exports.sell = ( src, wot, end=null ) => {
 
 exports.transfer = function transfer( src, dest, what ) {
 
-	let res = isGold.exec( what );
+	let res = goldAmt.exec( what );
 	if ( res !== null ) {
 
 		console.log( 'gold transfer: ' + res[1] );
@@ -132,11 +140,6 @@ function xferGold( src, dest, count ) {
 
 }
 
-var lvlPurge = (it, max )=>{
-	if ( (it.level || 0) > max ) return true;
-	return false;
-}
-
 exports.nerfItems = ( char ) => {
 
 	let inv = char.inv;
@@ -162,6 +165,6 @@ exports.nerfItems = ( char ) => {
 	let equip = char.getEquip();
 	removed = removed.concat( char.removeWhere( test ) ).map( it => it.name );
 
-	return 'DELETED: ' + removed.join( ', '); 
+	return 'DELETED: ' + removed.join( ', ');
 
 }

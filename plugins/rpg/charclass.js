@@ -4,9 +4,8 @@ let CharClass = module.exports = class {
 
 	static GetClass( classname ) {
 
-		if ( classname ) return classByName[classname.toLowerCase()];
-		return null;
-	
+		return classname ? classByName[classname.toLowerCase()] : null;
+
 	}
 
 	static RandClass( classname ) {
@@ -16,7 +15,7 @@ let CharClass = module.exports = class {
 			if ( classByName.hasOwnProperty(classname) ) return classByName[classname];
 		}
 		return classes[ Math.floor(classes.length*Math.random()) ];
-	
+
 	}
 
 	constructor() {
@@ -54,7 +53,7 @@ let CharClass = module.exports = class {
 
 	get desc() { return this._desc; }
 	get baseMods() { return this._baseMods; }
-	get infoMods() { return this._infoMods; } 
+	get infoMods() { return this._infoMods; }
 	get ver(){ return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }

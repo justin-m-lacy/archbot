@@ -12,6 +12,7 @@ module.exports = class World {
 
 	/**
 	 * Note that the World is using the Context cache, not a special rpg cache.
+	 * Why?
 	 * @param {} fcache
 	 */
 	constructor( fcache ) {
@@ -44,11 +45,21 @@ module.exports = class World {
 
 	}
 
+	/**
+	 * Get an Npc at Character location.
+	 * @param {Char} char
+	 * @param {*} who
+	 */
 	async getNpc( char, who ) {
 		let loc = await this.getOrGen(char.loc, char);
 		return loc.getNpc(who);
 	}
 
+	/**
+	 * Remove Npc at Character location.
+	 * @param {Char} char
+	 * @param {*} who
+	 */
 	async removeNpc( char, who ) {
 		let loc = await this.getOrGen(char.loc, char);
 		return loc.removeNpc(who);
@@ -95,8 +106,7 @@ module.exports = class World {
 
 	async hike( char, dir ) {
 
-		let coord = char.loc;
-		if ( !coord ) coord = new Loc.Coord(0,0);
+		let coord = char.loc || new Loc.Coord(0,0);
 		let loc;
 
 		switch ( dir ) {
@@ -117,8 +127,7 @@ module.exports = class World {
 			loc = await this.getOrGen(  new Loc.Coord( coord.x-1, coord.y), char );
 			break;
 			default:
-			return;
-			break;
+				return;
 		}
 
 		char.loc = loc.coord;
@@ -132,7 +141,7 @@ module.exports = class World {
 
 		let loc = char.loc;
 		if ( !loc ) {
-			console.error('Char loc is null');
+			console.error('Char loc null');
 			loc = new Loc.Coord(0,0);
 		}
 
@@ -174,8 +183,8 @@ module.exports = class World {
 
 	}
 
-		/**
-	 *
+	/**
+	 * Examine world at character location.
 	 * @param {Char} char
 	 * @param {string|number|Monster} what
 	 */

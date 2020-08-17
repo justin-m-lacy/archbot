@@ -1,8 +1,6 @@
 const Char = require( './char/char.js');
 const stats = require( './char/stats.js');
 
-const Race = exports.Race = require( './race.js');
-const CharClass = exports.CharClass = require( './charclass.js' );
 const Dice = require( './dice.js');
 const ItemGen = require( './items/itemgen.js' );
 

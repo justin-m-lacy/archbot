@@ -878,7 +878,6 @@ class RPG {
 
 exports.init = function( bot ){
 
-	console.log('INIT RPG');
 	var proto = RPG.prototype;
 
 	// CHAR MANAGEMENT
