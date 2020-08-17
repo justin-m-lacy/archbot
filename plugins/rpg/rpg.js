@@ -181,7 +181,7 @@ class RPG {
 		let char = await this.loadChar( who );
 		if ( !char ) return;
 
-		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
+		if ( !this._context.isOwner( m.author ) ) return m.reply( 'You do not have permission to do that.');
 
 		return m.reply( Trade.nerfItems( char ) );
 
@@ -189,7 +189,7 @@ class RPG {
 
 	async cmdFormula( m, str ) {
 
-		if ( !this._context.isMaster( m.author ) ) return m.reply( 'You do not have permission to do that.');
+		if ( !this._context.isOwner( m.author ) ) return m.reply( 'You do not have permission to do that.');
 		let char = await this.userCharOrErr( m, m.author );
 		if (!char) return;
 
