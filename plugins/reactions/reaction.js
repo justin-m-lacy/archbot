@@ -1,3 +1,8 @@
+/**
+ * @const {RegEx} groupRegex - regex for substitution in a regex reaction. $1, $2, etc.
+ */
+const groupRegex = /\$(\d+|[&'`])/g;
+
 class Reaction {
 
 	/*toJSON(){
