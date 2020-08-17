@@ -4,17 +4,18 @@ const gender = require( '../social/gender.js');
 module.exports = class Grave extends itemjs.Item {
 
 	/**
-	 * 
-	 * @param {Char} char 
-	 * @param {Char} killer 
+	 *
+	 * @param {Char} char
+	 * @param {Char} slayer
 	 */
-	static MakeGrave( char, killer ) {
-		return new Grave( char.name, killer.name, Grave.GetEpitaph( char, killer ) );
+	static MakeGrave( char, slayer ) {
+		return new Grave( char.name, slayer.name, Grave.GetEpitaph( char, slayer ) );
 	}
 
 	static FromJSON( json ) {
 
-		let p = new Grave( json.char, json.killer, json.epitaph );
+		// @deprecated killer
+		let p = new Grave( json.char, json.slayer || json.killer, json.epitaph );
 
 		itemjs.Item.FromJSON( json, p );
 
@@ -37,7 +38,7 @@ module.exports = class Grave extends itemjs.Item {
 
 		s.char = this.char;
 		s.epitaph = this.epitaph;
-		s.killer = this.killer;
+		s.slayer = this.slayer;
 
 		return s;
 
@@ -49,17 +50,17 @@ module.exports = class Grave extends itemjs.Item {
 	get epitaph() { return this._epitaph; }
 	set epitaph(v) { this._epitaph = v; }
 
-	get killer() { return this._killer; }
-	set killer(v) { this._killer = v; }
+	get slayer() { return this._slayer; }
+	set slayer(v) { this._slayer = v; }
 
-	constructor( char, killer, epitaph ) {
+	constructor( char, slayer, epitaph ) {
 
-		super( `${char}'s Gravestone`, `Here lies ${char}, slain by ${killer}.`, 'grave');
+		super( `${char}'s Gravestone`, `Here lies ${char}, slain by ${slayer}.`, 'grave');
 
 		this.char = char;
-		this.killer = killer;
+		this.slayer = slayer;
 		this.epitaph = epitaph;
-		
+
 	}
 
 	getDetails( imgTag=true) {

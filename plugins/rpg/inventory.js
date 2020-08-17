@@ -40,6 +40,10 @@ module.exports = class Inventory {
 
 	toJSON() { return { items:this._items }; }
 
+	/**
+	 * Removes and returns random item from inventory.
+	 * @returns {Item} random item from Inventory, or null.
+	 */
 	randItem() {
 
 		let len = this._items.length;
@@ -78,7 +82,7 @@ module.exports = class Inventory {
 	}
 
 	/**
-	 * Retrieves an item by name or index.
+	 * Retrieve item by name or index.
 	 * @param {string|number} start
 	 * @returns {Item|null} Item found, or null on failure.
 	 */

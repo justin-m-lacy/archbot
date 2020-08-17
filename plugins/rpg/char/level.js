@@ -17,7 +17,7 @@ const getNextExp = exports.nextExp = ( char ) => {
 }
 
 
-const tryLevel = exports.tryLevel = ( char ) => {
+exports.tryLevel = ( char ) => {
 
 	if ( char.exp < getNextExp(char) ) return false;
 	char.levelUp();
