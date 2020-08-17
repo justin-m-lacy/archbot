@@ -97,7 +97,7 @@ async function getBoardImg( game ) {
 			srcR = sqr.side == 'W' ? 1 : 0;
 			srcC = pieceCol[ sqr.type ];
 
-			img.composite( pieces, destCol*tSize, destRow*tSize, srcC*tSize, srcR*tSize, tSize, tSize );
+			img.blit( pieces, destCol*tSize, destRow*tSize, srcC*tSize, srcR*tSize, tSize, tSize );
 
 		}
 		destCol++; i++;

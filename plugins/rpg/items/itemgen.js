@@ -312,14 +312,14 @@ function getFeature( s ) {
 
 function initFeatures() {
 
-	console.log('INIT FEATURES');
+	//console.log('INIT FEATURES');
 	featureList = require( '../data/world/features.json');
 	featureByName = {};
 
 	for( let i = featureList.length-1; i>= 0; i-- ) {
 		featureByName[ featureList[i].name ] = featureList[i];
 	}
-	console.log('INIT FEATURES DONE');
+	//console.log('INIT FEATURES DONE');
 
 }
 
