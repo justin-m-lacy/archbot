@@ -788,7 +788,7 @@ class DiscordBot {
 			case 'text':
 			case 'voice':
 
-				return channel.guild.members.find(
+				return channel.guild.members.cache.find(
 
 					gm =>
 						gm.displayName.toLowerCase() === name || (

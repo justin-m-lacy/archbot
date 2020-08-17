@@ -530,7 +530,7 @@ exports.GuildContext = class extends Context {
 	findChannel( name ) {
 
 		name = name.toLowerCase();
-		return this.idObject.channels.find( c=> c.name.toLowerCase() === name );
+		return this.idObject.channels.cache.find( c=> c.name.toLowerCase() === name );
 	}
 
 	/**
@@ -540,7 +540,7 @@ exports.GuildContext = class extends Context {
 	findUser( name ) {
 
 		name = name.toLowerCase();
-		return this._idobj.members.find( gm => gm.displayName.toLowerCase() === name );
+		return this._idobj.members.cache.find( gm => gm.displayName.toLowerCase() === name );
 
 	}
 
