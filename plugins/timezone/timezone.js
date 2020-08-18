@@ -1,6 +1,5 @@
-
 const promisify = require('../../jsutils').promisify;
-const get = promisify( require('http').get );
+const promiseGet = promisify( require('http').get );
 
 /**
  * Allow display of other timezones using world time zone API.
@@ -17,7 +16,7 @@ exports.init = function( bot ) {
 
 async function cmdGetTime( msg, query ) {
 
-	var res = await get( TimeApiUrl + query );
+	var res = await promiseGet( TimeApiUrl + query );
 
 	if ( res.statusCode !== 200 ) {
 
