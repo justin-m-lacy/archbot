@@ -17,3 +17,4 @@ client_link.txt
 !node_modules/archdice
 
 *.code-workspace
+plugins/chess/images/outfile.png
