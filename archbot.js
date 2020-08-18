@@ -22,7 +22,7 @@ try {
 
 initCmds();
 
-client.on( 'presenceUpdate', presenceChanged );
+client.on( 'presenceUpdate', presenceUpdate );
 client.on( 'error', err=>{
 	console.error( 'Connection error: ' + err.message );
 });
@@ -536,42 +536,42 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
 
 /**
  *
- * @param {GuildMember} oldMember
- * @param {GuildMember} newMember
+ * @param {Presence} oldPres
+ * @param {Presence} newPres
  */
-async function presenceChanged( oldMember, newMember ) {
+async function presenceUpdate( oldPres, newPres ) {
 
 	// ignore bot events.
-	if ( oldMember.id === client.id ) return;
+	if ( oldPres.userID === client.id ) return;
 
-	let oldStatus = oldMember.presence.status;
-	let newStatus = newMember.presence.status;
+	let oldStatus = oldPres.status;
+	let newStatus = newPres.status;
 
 	/// statuses: 'offline', 'online', 'idle', 'dnd'
-	if ( newStatus !== oldStatus ) await logHistory( oldMember, [oldStatus, newStatus] );
+	if ( newStatus !== oldStatus ) await logHistory( oldPres.member, [oldStatus, newStatus] );
 
-	let oldGame = oldMember.presence.game;
-	let newGame = newMember.presence.game;
-	let oldGameName = oldGame ? oldGame.name : null;
-	let newGameName = newGame ? newGame.name : null;
+	let oldActs = oldPres.activities;
+	let newActs = newPres.activities;
+	let oldGameName = oldActs ? oldActs[0].name : null;
+	let newGameName = newActs ? newActs[0].name : null;
 
-	if ( oldGameName !== newGameName ) await logGames( oldMember, oldGame, newGame );
+	if ( oldGameName !== newGameName ) await logActivities( oldPres, oldActs[0], newActs[0] );
 
 }
 
 /**
  *
  * @param {GuildMember} guildMember
- * @param {Discord.Game} prevGame
- * @param {Discord.Game} curGame
+ * @param {Discord.Game} prevAct
+ * @param {Discord.Game} curAct
  */
-async function logGames( guildMember, prevGame, curGame ) {
+async function logActivities( guildMember, prevAct, curAct ) {
 
 	let now = Date.now();
 	var gameData = {};
 
-	if ( prevGame ) gameData[prevGame.name] = now;
-	if ( curGame ) gameData[curGame.name] = now;
+	if ( prevAct ) gameData[prevAct.name] = now;
+	if ( curAct ) gameData[curAct.name] = now;
 
 	return mergeMember( guildMember, {games:gameData} );
 
