@@ -26,7 +26,7 @@ async function cmdColor( msg, colorStr ) {
 	if ( !data ) return msg.reply( {embed:embed} );
 	else {
 		embed.file = {attachment:data};
-		return msg.reply( {embed:new Discord.RichEmbed( embed )} );
+		return msg.reply( {embed:new Discord.MessageEmbed( embed )} );
 	}
 
 }
