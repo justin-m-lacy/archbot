@@ -549,31 +549,25 @@ async function presenceUpdate( oldPres, newPres ) {
 
 	/// statuses: 'offline', 'online', 'idle', 'dnd'
 	if ( newStatus !== oldStatus ) await logHistory( oldPres.member, [oldStatus, newStatus] );
-
-	let oldActs = oldPres.activities;
-	let newActs = newPres.activities;
-	let oldGameName = oldActs ? oldActs[0].name : null;
-	let newGameName = newActs ? newActs[0].name : null;
-
-	if ( oldGameName !== newGameName ) await logActivities( oldPres, oldActs[0], newActs[0] );
+	await logActivities( oldPres.member, oldPres.activities, newPres.activities );
 
 }
 
 /**
  *
  * @param {GuildMember} guildMember
- * @param {Discord.Game} prevAct
- * @param {Discord.Game} curAct
+ * @param {Discord.Activity[]} oldActs
+ * @param {Discord.Activity[]} newActs
  */
-async function logActivities( guildMember, prevAct, curAct ) {
+async function logActivities( guildMember, oldActs, newActs ) {
 
 	let now = Date.now();
 	var gameData = {};
 
-	if ( prevAct ) gameData[prevAct.name] = now;
-	if ( curAct ) gameData[curAct.name] = now;
+	for( let i = oldActs.length-1; i >= 0; i-- ) gameData[oldActs[i].name] = now;
+	for( let i = oldActs.length-1; i >= 0; i-- ) gameData[newActs[i].name] = now;
 
-	return mergeMember( guildMember, {games:gameData} );
+	return mergeMember( guildMember, {activities:gameData} );
 
 }
 
