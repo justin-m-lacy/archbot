@@ -1,6 +1,6 @@
 {
   "name": "archbot",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
@@ -29,14 +29,14 @@
     "uws": "^9.148.0"
   },
   "keywords": [
-	  "discord",
-	  "discordjs",
-	  "bot",
-	  "games",
-	  "fun",
-	  "chat",
-	  "node",
-	  "8ball",
-	  "rpg"
+    "discord",
+    "discordjs",
+    "bot",
+    "games",
+    "fun",
+    "chat",
+    "node",
+    "8ball",
+    "rpg"
   ]
 }
