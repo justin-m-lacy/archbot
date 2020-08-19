@@ -210,15 +210,18 @@ const Context = class {
 	/**
 	 * Register message event with Discord client.
 	 * @param {string} evtName
-	 * @param {function} func
+	 * @param {function} listener
 	 */
-	onMsg( func ) {
+	onMsg( listener ) {
 
 		this._bot.client.on( 'message', (m)=>{
 
 			if ( m.author.id === m.client.user.id ) return;
-			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;	// ignore bot commands.
+
 			if ( this._bot.spamblock(m)) return;
+
+			// ignore bot commands. (commands routed separately)
+			if ( m.content.charAt(0) === this._bot.cmdPrefix) return;
 
 			let t = this.type;
 			if ( t === 'guild' ){
@@ -229,7 +232,7 @@ const Context = class {
 				if ( m.author.id !== this._idobj.id ) return;
 			}
 
-			func(m);
+			listener(m);
 
 		} );
 	}
@@ -283,10 +286,7 @@ const Context = class {
 			return null;
 		}
 		let member = this.findUser( name );
-		if ( !member ) {
-			( resp instanceof Discord.Channel ) ? resp.send( 'User \'' + name + '\' not found.' ) :
-			resp.reply( 'User \'' + name + '\' not found.' )
-		}
+		if ( !member ) this.sendUserNotFound( resp, name );
 
 		return member;
 
@@ -309,7 +309,7 @@ const Context = class {
 	}
 
 	/**
-	 * Returns a name to display for the given user.
+	 * Get a display name for user.
 	 * @param {(string|Discord.User|Discord.GuildMember)} o
 	 * @returns {string}
 	 */
@@ -346,7 +346,7 @@ const Context = class {
 		console.log( 'adding class: ' + cls.name );
 
 		if ( this._instances[cls.name] ) {
-			console.log('class exists');
+			console.log( 'class ' + clas.name + ' already exists for ' + this.idObject.id );
 			return this._instances[cls.name];
 		}
 
@@ -382,7 +382,10 @@ const Context = class {
 		let target = this._instances[ cmd.instClass.name ];
 		if ( !target ) {
 			target = await this.addClass( cmd.instClass );
-			if ( !target ) console.log( 'ERROR:Null Target' );
+			if ( !target ) {
+				console.error( 'Missing command target: ' + cmd.instClass );
+				return null;
+			}
 		}
 
 		cmd.func.apply( target, args );
@@ -392,7 +395,7 @@ const Context = class {
 	}
 
 	/**
-	 * Creates a context subcache mapped by key.
+	 * Create a context subcache mapped by key.
 	 * @param {string} key
 	 * @returns {Cache} - The Cache object.
 	 */
