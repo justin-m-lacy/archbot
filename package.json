@@ -27,5 +27,16 @@
     "formulic": "^1.1.2",
     "jimp": "^0.16.0",
     "uws": "^9.148.0"
-  }
+  },
+  "keywords": [
+	  "discord",
+	  "discordjs",
+	  "bot",
+	  "games",
+	  "fun",
+	  "chat",
+	  "node",
+	  "8ball",
+	  "rpg"
+  ]
 }
