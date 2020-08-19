@@ -250,7 +250,12 @@ class DiscordBot {
 
 		this._client.on( 'resume', onResume );
 
-		this._client.on( 'message', m=>this.onMessage(m) );
+		this._client.on( 'message', m=>{
+
+			if ( m.author.id === this.user.id ) return;
+			this.onMessage(m);
+
+		});
 
 		this._client.on( 'presenceUpdate', onPresence );
 
@@ -303,7 +308,6 @@ class DiscordBot {
 	 */
 	async onMessage( m ) {
 
-		if ( m.author.id === this._client.user.id ) return;
 		if ( this.spamblock(m) ) return;
 
 		let command = this._dispatch.parseLine( m.content );
@@ -331,7 +335,7 @@ class DiscordBot {
 
 				error.then( s=> { if ( s) return m.channel.send(s); } ).catch(e=>console.error(e) );
 
-			} else if ( typeof(error) === 'string' ) {
+			} else if ( typeof error === 'string' ) {
 
 				return m.channel.send( error );
 
@@ -518,7 +522,7 @@ class DiscordBot {
 	 */
 	async sendNoPerm( m, cmd=null ) {
 
-		if ( cmd ) return m.reply( 'You do not have permission to use the command `${cmd.name}`');
+		if ( cmd ) return m.reply( `You do not have permission to use the command '${cmd.name}'`);
 		return m.reply( 'You do not have permission to use that command.');
 
 	}
@@ -561,7 +565,7 @@ class DiscordBot {
 	}
 
 	/**
-	 * Return a Context associated with the message channel.
+	 * Return a unique Context associated with a message channel.
 	 * @async
 	 * @param {Discord.Message} m
 	 * @returns {Promise<BotContext>}
@@ -631,13 +635,13 @@ class DiscordBot {
 
 	/**
 	 * @async
-	 * @param {*} idobj
-	 * @param {*} type
+	 * @param {Discord.Base} idobj
+	 * @param {string} type
 	 * @returns {Promise<BotContext>}
 	 */
 	async makeContext( idobj, type ) {
 
-		console.log( 'creating context for: ' + idobj.id );
+		console.log( 'create context for: ' + idobj.id );
 		let context;
 
 		if ( type === 'text' || !type || type === 'voice' )
