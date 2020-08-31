@@ -5,7 +5,7 @@ const Display = require( '../../display');
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
  */
-const PROC_RATE = 0.25;
+const PROC_RATE = 0.3;
 
 /**
  * @const {RegEx} regExTest - test if string defines a regex.
@@ -68,7 +68,7 @@ class GuildReactions {
 		 * @property {number} gWait - global wait in milliseconds between
 		 * any reactions at all (per Context.)
 		 */
-		this.gWait = 500;
+		this.gWait = 20000;
 
 		/**
 		 * @property {number} msgTime - last time message was received in this context.
@@ -151,6 +151,15 @@ class GuildReactions {
 
 		if ( react ) return m.channel.send( 'Okie Dokie: ' + trig + " -> " + react );
 		else return m.channel.send( 'Reaction set.')
+
+	}
+
+	async cmdTestReact( m, trig ) {
+
+		let rset = this.findSet( trig );
+		if ( rset !== null ) {
+			return this.respond( m, rset );
+		}
 
 	}
 
@@ -636,6 +645,9 @@ exports.init = function( bot ) {
 	bot.addContextClass( GuildReactions );
 	bot.addContextCmd( 'react', 'react <\"search trigger\"> <\"response string\">',
 		GuildReactions.prototype.cmdAddReact, GuildReactions, { minArgs:2, maxArgs:2, group:'right'} );
+
+	bot.addContextCmd( 'reacttest', 'reacttest <\"search trigger\">',
+		GuildReactions.prototype.cmdTestReact, GuildReactions, { minArgs:1, maxArgs:1, group:'left'} );
 
 	bot.addContextCmd( 'reactinfo', 'reactinfo <\"trigger"\"> [which]',
 		GuildReactions.prototype.cmdReactInfo, GuildReactions, {minArgs:1, maxArgs:2, group:'right'} );
