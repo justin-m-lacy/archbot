@@ -1,0 +1,18 @@
+let chargrid = require('chargrid');
+
+class WordSearchGame {
+
+	async cmdWordsearch( m, ...args ) {
+
+	}
+
+}
+
+exports.init = function( bot ) {
+
+	bot.addContextCmd( 'info', 'info <subject> [definition]',
+		Info.prototype.cmdInfo, Info, { minArgs:1, maxArgs:2, group:'right'} );
+	bot.addContextCmd( 'rminfo', 'rminfo <subject> [definition]',
+		Info.prototype.cmdRmInfo, Info, { minArgs:1, maxArgs:1, group:'right'} );
+
+}
