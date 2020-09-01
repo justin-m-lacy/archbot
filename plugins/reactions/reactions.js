@@ -5,7 +5,7 @@ const Display = require( '../../display');
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
  */
-const PROC_RATE = 0.3;
+const PROC_RATE = 0.1;
 
 /**
  * @const {RegEx} regExTest - test if string defines a regex.
@@ -118,6 +118,7 @@ class GuildReactions {
 		var last = rset.lastUsed;
 		if ( last && (this.msgTime - last ) < this.minWait ) return;
 		rset.lastUsed = this.msgTime;
+		this.gTime = this.msgTime;
 
 		// get random reaction from set.
 		let react = rset.getReact();
