@@ -564,8 +564,20 @@ async function logActivities( guildMember, oldActs, newActs ) {
 	let now = Date.now();
 	var gameData = {};
 
-	for( let i = oldActs.length-1; i >= 0; i-- ) gameData[oldActs[i].name] = now;
-	for( let i = oldActs.length-1; i >= 0; i-- ) gameData[newActs[i].name] = now;
+	for( let i = oldActs.length-1; i >= 0; i-- ) {
+		if ( !oldActs[i] ) {
+			oldActs.splice(i,1);
+			continue;
+		}
+		gameData[oldActs[i].name] = now;
+	}
+	for( let i = oldActs.length-1; i >= 0; i-- ) {
+		if ( !newActs[i]) {
+			newActs.splice(i,1);
+			continue;
+		}
+		gameData[newActs[i].name] = now;
+	}
 
 	return mergeMember( guildMember, {activities:gameData} );
 
