@@ -541,15 +541,15 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
  */
 async function presenceUpdate( oldPres, newPres ) {
 
+	// ignore bot events.
+	if ( newPres.userID === client.user.id ) return;
+
 	if ( !oldPres ) {
 
-		await logHistory( newPres.member, [newStatus]);
+		await logHistory( newPres.member, [newPres.status]);
 		await logActivities( newPres.member, null, newPres.activities );
 
 	} else {
-
-		// ignore bot events.
-		if ( oldPres.userID === client.user.id ) return;
 
 		let oldStatus = oldPres.status;
 		let newStatus = newPres.status;
