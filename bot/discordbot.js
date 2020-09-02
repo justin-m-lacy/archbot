@@ -76,7 +76,7 @@ class DiscordBot {
 		// map target discord obj to processing context.
 		this._contexts = {};
 
-		this._directory = mainDir || path.dirname(  require.main.filename );
+		this._directory = mainDir || process.cwd();
 
 		// classes to instantiate for each context.
 		this._contextClasses = [];
@@ -252,7 +252,7 @@ class DiscordBot {
 
 		this._client.on( 'message', m=>{
 
-			if ( m.author.id === this.user.id ) return;
+			if ( m.author.id === this._client.user.id ) return;
 			this.onMessage(m);
 
 		});
