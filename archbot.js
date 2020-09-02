@@ -541,15 +541,24 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
  */
 async function presenceUpdate( oldPres, newPres ) {
 
-	// ignore bot events.
-	if ( oldPres.userID === client.user.id ) return;
+	if ( !oldPres ) {
 
-	let oldStatus = oldPres.status;
-	let newStatus = newPres.status;
+		await logHistory( newPres.member, [newStatus]);
+		await logActivities( newPres.member, null, newPres.activities );
 
-	/// statuses: 'offline', 'online', 'idle', 'dnd'
-	if ( newStatus !== oldStatus ) await logHistory( oldPres.member, [oldStatus, newStatus] );
-	await logActivities( oldPres.member, oldPres.activities, newPres.activities );
+	} else {
+
+		// ignore bot events.
+		if ( oldPres.userID === client.user.id ) return;
+
+		let oldStatus = oldPres.status;
+		let newStatus = newPres.status;
+
+		/// statuses: 'offline', 'online', 'idle', 'dnd'
+		if ( newStatus !== oldStatus ) await logHistory( oldPres.member, [oldStatus, newStatus] );
+		await logActivities( oldPres.member, oldPres.activities, newPres.activities );
+
+	}
 
 }
 
@@ -564,14 +573,18 @@ async function logActivities( guildMember, oldActs, newActs ) {
 	let now = Date.now();
 	var gameData = {};
 
-	for( let i = oldActs.length-1; i >= 0; i-- ) {
-		if ( !oldActs[i] ) {
-			oldActs.splice(i,1);
-			continue;
+	if ( oldActs ) {
+
+		for( let i = oldActs.length-1; i >= 0; i-- ) {
+			if ( !oldActs[i] ) {
+				oldActs.splice(i,1);
+				continue;
+			}
+			gameData[oldActs[i].name] = now;
 		}
-		gameData[oldActs[i].name] = now;
 	}
-	for( let i = oldActs.length-1; i >= 0; i-- ) {
+
+	for( let i = newActs.length-1; i >= 0; i-- ) {
 		if ( !newActs[i]) {
 			newActs.splice(i,1);
 			continue;
