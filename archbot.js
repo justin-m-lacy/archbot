@@ -542,7 +542,7 @@ async function setSchedule( uObject, scheduleType, scheduleString ) {
 async function presenceUpdate( oldPres, newPres ) {
 
 	// ignore bot events.
-	if ( oldPres.userID === client.id ) return;
+	if ( oldPres.userID === client.user.id ) return;
 
 	let oldStatus = oldPres.status;
 	let newStatus = newPres.status;
