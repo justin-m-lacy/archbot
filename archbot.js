@@ -613,7 +613,7 @@ async function mergeMember( uObject, newData ){
 	try {
 
 		let data = await bot.fetchUserData( uObject );
-		if ( typeof data === 'object' ) {
+		if ( data && typeof data === 'object' ) {
 			jsutils.recurMerge( data, newData );
 			newData = data;
 		}
