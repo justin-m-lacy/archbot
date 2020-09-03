@@ -133,6 +133,26 @@ class GuildReactions {
 	}
 
 	/**
+	 * Respond with a reaction from the given ReactSet
+	 * @param {Message} m
+	 * @param {ReactSet} rset
+	 * @returns {Promise}
+	 */
+	async respondTest( m, rset, input ) {
+
+		// get random reaction from set.
+		let react = rset.getReact();
+
+		if (!react ) return m.reply( 'No reactions found for "' + input +'"' );
+
+		let resp = react.getResponse( input, input );
+		if ( rset.embed ) {
+			return Embeds.replyEmbed( m, resp||' ', rset.embed );
+		} else if ( resp ) return m.reply( resp );
+
+	}
+
+	/**
 	 * Command to add a reaction.
 	 * @async
 	 * @param {Message} m - User message.
@@ -160,7 +180,7 @@ class GuildReactions {
 
 		let rset = this.findSet( trig );
 		if ( rset !== null ) {
-			return this.respond( m, rset );
+			return this.respondTest( m, rset, trig );
 		} else return m.reply( 'No reaction found for "' + trig +'"' );
 
 	}
