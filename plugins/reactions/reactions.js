@@ -123,11 +123,12 @@ class GuildReactions {
 		// get random reaction from set.
 		let react = rset.getReact();
 
-		let resp = react.getResponse( rset.trigger, m.content );
+		if (!react ) return null;
 
+		let resp = react.getResponse( rset.trigger, m.content );
 		if ( rset.embed ) {
-			return Embeds.replyEmbed( m, resp, rset.embed );
-		} else return m.channel.send( resp);
+			return Embeds.replyEmbed( m, resp||' ', rset.embed );
+		} else if ( resp ) return m.channel.send( resp );
 
 	}
 
@@ -160,7 +161,7 @@ class GuildReactions {
 		let rset = this.findSet( trig );
 		if ( rset !== null ) {
 			return this.respond( m, rset );
-		}
+		} else return m.reply( 'No reaction found for "' + trig +'"' );
 
 	}
 
