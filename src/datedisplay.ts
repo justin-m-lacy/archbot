@@ -12,9 +12,9 @@ const fullMonths = ['january', 'february', 'march', 'april', 'may', 'june',
 const days = ['sun', 'mon', 'tues', 'wed', 'thr', 'fri', 'sat'];
 const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
-module.exports = {
+export default {
 
-	parse(str) {
+	parse(str: string) {
 
 		let parts = str.split(' ');
 		let len = parts.length;
@@ -62,13 +62,14 @@ module.exports = {
 	 * @param {Date} date
 	 * @param {string} str
 	 */
-	setTime(date, str) {
+	setTime(date: Date, str: string) {
 
-		let parts = str.split(':');
-		for (let i = parts.length - 1; i >= 0; i--) {
-			parts[i] = parseInt(parts[i]);
+		try {
+			let parts = str.split(':').map(v => parseInt(v));
+			date.setHours.apply(date, parts);
+		} catch (err) {
+			console.warn(`failed to parse ${str} date parts: ${err}`);
 		}
-		date.setHours.apply(date, parts);
 
 	},
 
@@ -77,7 +78,7 @@ module.exports = {
 	 * @param {string} str
 	 * @returns {number} zero-based day of week, or -1 on failure.
 	 */
-	tryGetDay(str) {
+	tryGetDay(str: string) {
 
 		str = str.toLocaleLowerCase();
 		let day = days.indexOf(str);
@@ -91,7 +92,7 @@ module.exports = {
 	 * @param {string} str
 	 * @returns {number} zero-based month of the year, or -1 on failure.
 	 */
-	tryGetMonth(str) {
+	tryGetMonth(str: string) {
 
 		str = str.toLocaleLowerCase();
 		let month = months.indexOf(str);
@@ -105,7 +106,7 @@ module.exports = {
 	 * @param {number} since - timestamp of the starting Date.
 	 * @returns {string} Description of time elapsed.
 	 */
-	elapsed(since) {
+	elapsed(since: number) {
 
 		//let dt = Date.now() - since;
 		return this.timespan(Date.now() - since);
@@ -117,7 +118,7 @@ module.exports = {
 	 * @param {number} dt - span of time in milliseconds.
 	 * @returns {string} - description of the time span.
 	 */
-	timespan(dt) {
+	timespan(dt: number) {
 		if (dt < ms_per_hr) return ((dt / ms_per_min).toFixed(2) + ' minutes');
 		return (dt / ms_per_hr).toFixed(2) + ' hours';
 	},
@@ -128,9 +129,9 @@ module.exports = {
 	 * @param {Date|number} date
 	 * @returns {string}
 	 */
-	dateString(date) {
+	dateString(date: Date | number) {
 
-		let dt;
+		let dt: number;
 
 		if (date instanceof Date) {
 			dt = Date.now() - date.getTime();
@@ -151,7 +152,7 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getDayString(date) {
+	getDayString(date: Date) {
 		return date.getHours() + ':' + date.getMinutes();
 	},
 
@@ -160,7 +161,7 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getMonthDate(date) {
+	getMonthDate(date: Date) {
 		return Display.capitalize(months[date.getMonth()] + ' ' + date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes());
 	},
 
@@ -169,7 +170,7 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getWeekDate(date) {
+	getWeekDate(date: Date) {
 		return Display.capitalize(days[date.getDay()] + ' ' + date.getMonth() + '/'
 			+ date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes());
 	},
@@ -179,7 +180,7 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getFarDate(date) {
+	getFarDate(date: Date) {
 		return Display.capitalize(months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear());
 	},
 
@@ -188,7 +189,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a day.
 	 */
-	inDay(dt) {
+	inDay(dt: number) {
 		return Math.abs(dt) < ms_per_day;
 	},
 
@@ -197,7 +198,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a week.
 	 */
-	inWeek(dt) {
+	inWeek(dt: number) {
 		return Math.abs(dt) < 7 * ms_per_day;
 	},
 
@@ -206,7 +207,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a month.
 	 */
-	inMonth(dt) {
+	inMonth(dt: number) {
 		return Math.abs(dt) < 31 * ms_per_day;
 	},
 
@@ -215,7 +216,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a year.
 	 */
-	inYear(dt) {
+	inYear(dt: number) {
 		return Math.abs(dt) < ms_per_year;
 	}
 

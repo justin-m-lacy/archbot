@@ -1,3 +1,4 @@
+import { GameInfo } from './gamecache';
 const ID_SEPARATOR = '-';
 
 
@@ -7,7 +8,7 @@ const vsTmpl = "^(?:(U)\\" + ID_SEPARATOR + "(V)|(V)\\" + ID_SEPARATOR + "(U))(?
 // regex template for all user's games.
 const allUserTmpl = "^(?:(U)\\" + ID_SEPARATOR + "(\\w+)|(\\w+)\\" + ID_SEPARATOR + "(U))(?:\\" + ID_SEPARATOR + "(\\d+))?$";
 
-module.exports = class Game {
+export default class Game {
 
 	/**
 	 * @static
@@ -15,10 +16,10 @@ module.exports = class Game {
 	 * @returns {Array} An array of game information in the form of
 	 * the two player ids, followed by a timestamp.
 	 */
-	static IdParts( gid ) {
-		let a = gid.split( ID_SEPARATOR );
+	static IdParts(gid: string) {
+		let a = gid.split(ID_SEPARATOR);
 		a.unshift(gid);
-		return a;
+		return a as GameInfo;
 	}
 
 	/**
@@ -28,8 +29,8 @@ module.exports = class Game {
 	 * @param {string} uid
 	 * @returns {RegExp}
 	*/
-	static UserRegex( uid ){
-		return new RegExp( allUserTmpl.replace( /U/g, uid ) );
+	static UserRegex(uid: string) {
+		return new RegExp(allUserTmpl.replace(/U/g, uid));
 	}
 
 	/**
@@ -39,8 +40,8 @@ module.exports = class Game {
 	 * @param {string} p2
 	 * @returns {RegExp}
 	 */
-	static VsRegex( p1, p2 ) {
-		return new RegExp( vsTmpl.replace( /U/g, p1).replace(/V/g,p2) );
+	static VsRegex(p1: string, p2: string) {
+		return new RegExp(vsTmpl.replace(/U/g, p1).replace(/V/g, p2));
 	}
 
 	/**
@@ -89,13 +90,34 @@ module.exports = class Game {
 	 */
 	get timestamp() { return this._time; }
 
+	private _time: number;
+	private _gid: string;
+	private _saveID: string;
+
+	get player1Id() {
+		return this.p1;
+	}
+
+	get player2Id() {
+		return this.p2;
+	}
+
+	/**
+	 * player1 id.
+	 */
+	private p1: string;
+	/**
+	 * player 2 id
+	 */
+	private p2: string;
+
 	/**
 	 * 
 	 * @param {string} id1 
 	 * @param {string} id2 
 	 * @param {number} time - unix timestamp of game start.
 	 */
-	constructor( id1, id2, time ) {
+	constructor(id1: string, id2: string, time: number) {
 
 		this.p1 = id1;
 		this.p2 = id2;
@@ -116,15 +138,15 @@ module.exports = class Game {
 	 * @param {string} uid - user id of player to check.
 	 * @returns {boolean} true if one of the players has the given id.
 	 */
-	hasPlayer( uid ) {
-		return ( this.p1 === uid || this.p2 === uid );
+	hasPlayer(uid: string) {
+		return (this.p1 === uid || this.p2 === uid);
 	}
 
 	/**
 	 * @returns {string}
 	 */
 	getShortId() {
-		return ( this.p1 <= this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 ) : (this.p2 + ID_SEPARATOR + this.p1 );
+		return (this.p1 <= this.p2) ? (this.p1 + ID_SEPARATOR + this.p2) : (this.p2 + ID_SEPARATOR + this.p1);
 	}
 
 	/**
@@ -132,17 +154,17 @@ module.exports = class Game {
 	*/
 	getSaveId() {
 
-		return ( this.p1 <= this.p2) ? ( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time ) :
-				( this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time );
+		return (this.p1 <= this.p2) ? (this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time) :
+			(this.p1 + ID_SEPARATOR + this.p2 + ID_SEPARATOR + this._time);
 
 	}
-	
+
 	toJSON() {
 
 		return {
-			time:this._time,
-			p1:this.p1,
-			p2:this.p2
+			time: this._time,
+			p1: this.p1,
+			p2: this.p2
 		};
 
 	}
