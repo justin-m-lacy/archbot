@@ -1,13 +1,20 @@
-const ReactModule = require( './reaction');
+import { Reaction } from './reaction';
+const ReactModule = require('./reaction');
 const parseReaction = ReactModule.parseReaction;
 const parseReactions = ReactModule.parseReactions;
 
 /**
  * Collection of reactions tied to a single Trigger.
  */
-class ReactSet {
+export class ReactSet {
 
-	toJSON(){
+	private _reacts: Reaction[];
+
+	private _trigger: string | RegExp;
+
+	private _lastUsed: number;
+
+	toJSON() {
 		return this._reacts;
 	}
 
@@ -30,11 +37,11 @@ class ReactSet {
 	get lastUsed() { return this._lastUsed; }
 	set lastUsed(v) { this._lastUsed = v; }
 
-	constructor( trig, reacts=null ) {
+	constructor(trig: string | RegExp, reacts = null) {
 
 		this._trigger = trig;
 
-		if ( Array.isArray(reacts)) {
+		if (Array.isArray(reacts)) {
 
 			this._reacts = parseReactions(reacts);
 
@@ -42,9 +49,9 @@ class ReactSet {
 
 			this._reacts = [];
 
-			if ( reacts ){
+			if (reacts) {
 				let r = parseReaction(reacts);
-				if ( r ) this._reacts.push(r);
+				if (r) this._reacts.push(r);
 			}
 		}
 
@@ -58,22 +65,22 @@ class ReactSet {
 	 * or Array of all Reactions of reactStr is null, or false if no reaction
 	 * matching the string is found.
 	 */
-	findReactions( reactStr=null ) {
+	findReactions(reactStr = null) {
 
-		if ( reactStr === null || reactStr === undefined ) return this._reacts;
+		if (reactStr === null || reactStr === undefined) return this._reacts;
 
 		var obj;
 
-		if ( !isNaN(reactStr) ) {
-			obj = this.getNumber( reactStr );
-			if ( obj) return obj;
+		if (!isNaN(reactStr)) {
+			obj = this.getNumber(reactStr);
+			if (obj) return obj;
 
 		}
 
 		reactStr = reactStr.toLowerCase();
 
-		for( let i = 0; i < this._reacts.length; i++ ) {
-			if ( this._reacts[i].sameReact(reactStr)) return this._reacts[i];
+		for (let i = 0; i < this._reacts.length; i++) {
+			if (this._reacts[i].sameReact(reactStr)) return this._reacts[i];
 		}
 
 		return null;
@@ -89,12 +96,12 @@ class ReactSet {
 	 * If no match term is specified, and multiple reactions exist, returns the
 	 * number of reactions found.
 	 */
-	tryRemove( react=null ) {
+	tryRemove(react = null) {
 
-		if ( react === null ) {
+		if (react === null) {
 
 			// ambiguous removal. return the number of reactions.
-			if ( this._reacts.length > 1 ) return this._reacts.length;
+			if (this._reacts.length > 1) return this._reacts.length;
 
 			this._reacts.length = 0;
 			return true;
@@ -108,12 +115,12 @@ class ReactSet {
 		 * to block indexed-removal by flooding number reactions;
 		 * while a 'number reaction' can always be removed by index.
 		 */
-		if ( !isNaN(react) && this.removeNumber( react ) ) return true;
+		if (!isNaN(react) && this.removeNumber(react)) return true;
 
 		for (let i = this._reacts.length - 1; i >= 0; i--) {
 
-			if ( this._reacts[i].sameReact( react ) ) {
-				this._reacts.splice( i, 1 );
+			if (this._reacts[i].sameReact(react)) {
+				this._reacts.splice(i, 1);
 				return true;
 			}
 
@@ -127,11 +134,11 @@ class ReactSet {
 	 * @param {number} num - The ONE-based index of the reaction.
 	 * @returns {Object|null}
 	 */
-	getNumber( num ) {
+	getNumber(num: number) {
 
-		if ( num < 1 || num > this._reacts.length ) return null;
+		if (num < 1 || num > this._reacts.length) return null;
 
-		return this._reacts[num-1];
+		return this._reacts[num - 1];
 
 	}
 
@@ -140,12 +147,12 @@ class ReactSet {
 	 * @param {number} num - the one-based reaction to remove.
 	 * @returns {boolean} true if reaction removed, false otherwise.
 	 */
-	removeNumber( num ) {
+	removeNumber(num) {
 
 		num = Number(num);
-		if ( num < 1 || num > this._reacts.length ) return false;
+		if (num < 1 || num > this._reacts.length) return false;
 
-		this._reacts.splice( num-1, 1 );
+		this._reacts.splice(num - 1, 1);
 		return true;
 
 	}
@@ -155,7 +162,7 @@ class ReactSet {
 	 * @returns {Reaction|null}
 	 */
 	getReact() {
-		return this._reacts[ Math.floor( this._reacts.length*Math.random())];
+		return this._reacts[Math.floor(this._reacts.length * Math.random())];
 	}
 
 	/**
@@ -171,10 +178,8 @@ class ReactSet {
 	 * @param {string} uid - disord user snowflake.
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
 	 */
-	add( react, uid, embedUrl=null ) {
-		this._reacts.push( new ReactModule.Reaction( react, uid, Date.now(), embedUrl ) );
+	add(react, uid, embedUrl = null) {
+		this._reacts.push(new ReactModule.Reaction(react, uid, Date.now(), embedUrl));
 	}
 
 }
-
-module.exports = ReactSet;

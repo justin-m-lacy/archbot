@@ -1,6 +1,48 @@
-const rollex = /^([\+\-]?\d*)\s*d\s*(\d*)\s*([\+\-]?\d+)?/;
+const rollRE = /^([\+\-]?\d*)\s*d\s*(\d*)\s*([\+\-]?\d+)?/;
+
+//const multiRE = /(([\+\-]?\d*)(\s*d\s*(\d+))?)(([\+\-]\d*)(\s*d\s*(\d+))?)*/i;
 
 exports.roll = roll;
+
+const MAX_SIDES = 10000;
+const MAX_ROLLS = 10000;
+
+/**
+ * @class
+ */
+exports.MultiRoll = class MultiRoll {
+
+	toJSON(){
+
+		let s = '';
+		let len = this.rolls.length;
+		for( let i = 0; i < len; i++ ) {
+
+			s += '(' + this.rolls[i].toJSON() + ')';
+		}
+	
+	}
+
+	/**
+	 * 
+	 * @param {*} vars 
+	 */
+	constructor( vars=null ) {
+
+
+	}
+
+}
+
+/**
+ * 
+ */
+exports.Die = class Die {
+
+	constructor( vars=null ) {
+	}
+
+}
 
 /**
  * Represents a roller object of the form (n)d(s) + b
@@ -16,7 +58,7 @@ exports.Roller = class Roller {
 	 */
 	static FromString( str ) {
 
-		let res = rollex.exec( str );
+		let res = rollRE.exec( str );
 		if ( res === null ) return new Roller();
 
 		let num = res.length > 1 ? parseInt( res[1] ) : 1;
@@ -97,22 +139,30 @@ exports.Roller = class Roller {
  * @param {string} str
  * @returns {Number} the result of the dice roll. 
  */
-exports.parseRoll = str => {
+exports.parseRoll = ( str, maxRolls=MAX_ROLLS, maxSides=MAX_SIDES) => {
 
-	let res = rollex.exec( str );
+	let res = rollRE.exec( str );
 	if ( res === null ) return roll(1,6);
 
 	let num = res.length > 1 ? parseInt( res[1] ) : 1;
 	let sides = res.length > 2 ? parseInt( res[2] ) : 6;
 	let bonus = res.length > 3 ? parseInt( res[3] ) : 0;
 
-	if ( Number.isNaN(num ) ) num = 1;
-	if ( Number.isNaN(sides )) sides = 6;
+	if ( Number.isNaN(num) ) {
+		throw TypeError('Invalid rolls count.');
+	} else if ( num > maxRolls ) {
+		throw RangeError(`Rolls too large: ${num}`);
+	}
+
+	if ( Number.isNaN(sides) ) {
+		throw TypeError('Invalid sides number.');
+	} else if ( num > maxRolls ) {
+		throw RangeError(`Dice side too large: ${sides}`);
+	}
+
 	if ( Number.isNaN(bonus)) bonus = 0;
 
 	return roll( num, sides, bonus );
-
-	let tot = bonus;
 
 }
 

@@ -1,0 +1,34 @@
+client created.
+MAIN PATH: /home/lerpingl/mynode/archbot
+MY PATH: /home/lerpingl/mynode/archbot/bot
+CURRENT DIR: /home/lerpingl/mynode/archbot
+loading plugin file: 8ball.js
+loading plugin file: checkers.js
+loading plugin file: chess.js
+loading plugin file: color.js
+loading plugin file: fight.js
+loading plugin file: info.js
+loading plugin file: quotes.js
+loading plugin file: reactions.js
+loading plugin file: namegen.js
+loading plugin file: rpg.js
+INIT FEATURES
+INIT FEATURES DONE
+loading plugin file: timezone.js
+loading plugin file: who.js
+loading reacts.
+Chess INIT
+checkers init
+bot created.
+logging in...
+client ready: ArchBot - (413135671381852181)
+create context for: 265586734874624000
+adding class: GuildReactions
+loading guild reactions.
+create context for: 448887984918495243
+adding class: GuildReactions
+loading guild reactions.
+create context for: 622495527485046805
+adding class: GuildReactions
+loading guild reactions.
+adding class: Quoter
