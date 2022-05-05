@@ -18,3 +18,7 @@ client_link.txt
 
 *.code-workspace
 plugins/chess/images/outfile.png
+
+*.code-workspace
+
+archconfig.json

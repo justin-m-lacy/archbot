@@ -1,4 +1,4 @@
-import Discord, { Activity, Channel, Client, GuildMember, Intents, Message, Presence, TextBasedChannel, TextChannel, User } from 'discord.js';
+import Discord, { Activity, Client, GuildMember, Intents, Message, Presence, TextBasedChannel, User } from 'discord.js';
 import auth from './auth.json';
 import { UserHistory } from './src/history';
 

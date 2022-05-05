@@ -1,21 +1,30 @@
-module.exports = {
+import Discord, { Message } from 'discord.js';
 
-	CONTENT_MAX:1600,
+export const Display = {
 
-	capsRegEx:/(?:\b(\w*)\b)*/g,
+	CONTENT_MAX: 1600,
 
-	blockText:(s)=> '```' + s + '```',
+	capsRegEx: /(?:\b(\w*)\b)*/g,
 
-	sendEmbed:async (m,s,e)=> m.reply( '```' + s + '```', {embed:{image:{url:e}}}),
+	blockText: (s: string) => '```' + s + '```',
 
-	sendBlock:async (m,s)=> m.reply( '```' + s + '```'),
+	sendEmbed: async (m: Message, s: string, e: string) => {
+
+		return m.reply({
+			content: '```' + s + '```',
+			embeds: [{ image: { url: e } }]
+		});
+
+	},
+
+	sendBlock: async (m: Message, s: string) => m.reply('```' + s + '```'),
 
 	/**
- 	* Check if character is a vowel.
+	  * Check if character is a vowel.
 	* @param {string} c - character to test.
 	* @returns {boolean}
- 	*/
-	isVowel:( c ) => {
+	  */
+	isVowel: (c: string) => {
 
 		c = c.toLowerCase();
 		return c === 'a' || c === 'e' || c === 'i' || c === 'o' || c === 'u';
@@ -27,22 +36,22 @@ module.exports = {
 	 * @param {string} str
 	 * @returns {string}
 	 */
-	capitalize( str ){
+	capitalize(str: string) {
 
-		return str.replace( this.capsRegEx, ( sub )=>{
+		return str.replace(this.capsRegEx, (sub) => {
 			return sub[0].toUpperCase() + sub.slice(1);
 		});
 
 	},
 
-		/**
-	 * Gets the total number of pages that would be required to display
-	 * the text, given the maximum message size.
-	 * @param {string} text
-	 * @returns {number} one-based page count.
-	 */
-	pageCount( text ) {
-		return Math.floor( text.length / this.CONTENT_MAX ) + 1;
+	/**
+ * Gets the total number of pages that would be required to display
+ * the text, given the maximum message size.
+ * @param {string} text
+ * @returns {number} one-based page count.
+ */
+	pageCount(text: string) {
+		return Math.floor(text.length / this.CONTENT_MAX) + 1;
 	},
 
 	/**
@@ -50,9 +59,9 @@ module.exports = {
 	 * @param {string} text
 	 * @returns {string} Information about the number of pages required.
 	 */
-	pageFooter( text ) {
+	pageFooter(text: string) {
 		let count = this.pageCount(text);
-		return '( ' + count + ' page result' + ( count != 1 ? 's )' : ' )' );
+		return '( ' + count + ' page result' + (count != 1 ? 's )' : ' )');
 	},
 
 	/**
@@ -62,8 +71,8 @@ module.exports = {
 	 * @param {number} page - zero-based page index.
 	 * @returns {string} - a single page of text out of the total.
 	 */
-	getPageText( text, page ) {
-		return text.slice( this.CONTENT_MAX*page, this.CONTENT_MAX*(page+1) );
+	getPageText(text: string, page: number = 0) {
+		return text.slice(this.CONTENT_MAX * page, this.CONTENT_MAX * (page + 1));
 	},
 
 	/**
@@ -72,8 +81,8 @@ module.exports = {
 	 * @param {string} text - text to paginate and send.
 	 * @param {number} page - zero-based page of text to be sent.
 	 */
-	async sendPage( m, text, page ) {
-		return m.channel.send( this.getPageText(text,page) + '\n\n' + this.pageFooter(text) );
+	async sendPage(m: Message, text: string, page: number = 0) {
+		return m.channel.send(this.getPageText(text, page) + '\n\n' + this.pageFooter(text));
 	},
 
 	/**
@@ -82,8 +91,8 @@ module.exports = {
 	 * @param {string} text - text to paginate and reply.
 	 * @param {number} page - zero-based page of text to reply.
 	 */
-	async replyPage( m, text, page ) {
-		return m.reply( this.getPageText(text, page) + '\n\n' + this.pageFooter(text) );
+	async replyPage(m: Message, text: string, page: number = 0) {
+		return m.reply(this.getPageText(text, page) + '\n\n' + this.pageFooter(text));
 	},
 
 	/**
@@ -92,24 +101,24 @@ module.exports = {
 	 * @param {number} [page=0] the zero-based index of the page of text to display.
 	 * @returns { {page:string, pages:number} } text of page and total page count.
 	 */
-	paginate( items, page=0 ) {
+	paginate(items: string[], page: number = 0) {
 
 		let it, len = items.length;
 		let chars = 0;
 
 		// item indices for breaking the current page.
-		let totalPages=0, pageStart = 0;
+		let totalPages = 0, pageStart = 0;
 		let pageStr = '';
 
-		for( let i = 0; i < len; i++ ) {
+		for (let i = 0; i < len; i++) {
 
 			it = items[i];
 			chars += it.length;
 
 			// adding this item's text crossed a page boundary.
-			if ( chars >= this.CONTENT_MAX ) {
+			if (chars >= this.CONTENT_MAX) {
 
-				if ( totalPages === page ) pageStr = items.slice( pageStart, i ).join( '\n');
+				if (totalPages === page) pageStr = items.slice(pageStart, i).join('\n');
 
 				totalPages++;
 				pageStart = i;
@@ -119,7 +128,7 @@ module.exports = {
 
 		} // for
 
-		return { page:pageStr, pages:totalPages+1 };
+		return { page: pageStr, pages: totalPages + 1 };
 	}
 
 }
