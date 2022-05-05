@@ -1,0 +1,49 @@
+{
+  "ts-node": {
+    "transpileOnly": true,
+    "require": [
+      "typescript-transform-paths/register"
+    ],
+  },
+  "compilerOptions": {
+    "rootDir": "./",
+    "baseUrl": "./",
+    "outDir": "dist",
+    "target": "esnext",
+    "module": "commonjs",
+    "useDefineForClassFields": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "incremental": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "node",
+    ],
+    "paths": {
+      "@src/*": [
+        "./src/*"
+      ]
+    },
+    "lib": [
+      "es6",
+      "DOM"
+    ]
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "archbot.ts",
+    "src/bot/**/*.ts",
+    "src/bot/**/*.js",
+    "src/bot/**/*.d.ts",
+    "src/bot/**/*.tsx",
+  ]
+}

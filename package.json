@@ -4,8 +4,10 @@
   "description": "Bot for discord",
   "main": "archbot.js",
   "scripts": {
-    "start": "node archbot.js",
-    "dev": "NODE_ENV=development node archbot.js"
+    "start": "node .",
+    "dev": "cross-env NODE_ENV=development && ts-node server.ts",
+    "build": "rimraf dist && cross-env NODE_ENV=production && ts-patch",
+    "host": "cross-env NODE_ENV=production && ts-node server.ts"
   },
   "repository": {
     "type": "git",
@@ -19,14 +21,14 @@
   "homepage": "https://github.com/lerpinglemur/archbot#readme",
   "dependencies": {
     "archcache": "^1.0.3",
-    "archdice": "^1.0.1",
-    "bufferutil": "^4.0.1",
+    "archdice": "^1.1.0",
+    "bufferutil": "^4.0.3",
     "chargrid": "0.0.3",
     "chess-rules": "^1.1.0",
-    "discord.js": "^12.3.1",
+    "discord.js": "^13.6.0",
     "djs-embed": "^0.1.4",
-    "formulic": "^1.1.2",
-    "jimp": "^0.16.0",
+    "formulic": "^1.2.1",
+    "jimp": "^0.16.1",
     "uws": "^9.148.0"
   },
   "keywords": [
@@ -39,5 +41,9 @@
     "node",
     "8ball",
     "rpg"
-  ]
+  ],
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.7.0"
+  }
 }

@@ -3,10 +3,15 @@
  */
 const groupRegex = /\$(\d+|[&'`])/g;
 
-class Reaction {
+export class Reaction {
 
 	/*toJSON(){
 	}*/
+
+	private r: string;
+	private uid?: string;
+	private t: number;
+	private embed?: string;
 
 	/**
 	 *
@@ -15,7 +20,7 @@ class Reaction {
 	 * @param {number} t - creation timestamp.
 	 * @param {string} embed - embed url.
 	 */
-	constructor( response, uid, t=0, embed=undefined ){
+	constructor(response: string, uid?: string, t: number = 0, embed?: string) {
 
 		/**
 		 * @property {string} response - reaction response.
@@ -44,7 +49,7 @@ class Reaction {
 	 * @param {string} str
 	 * @returns {bool} Whether the react object matches the string.
 	 */
-	sameReact( str ) {
+	sameReact(str: string) {
 
 		return this.r === str;
 
@@ -58,20 +63,20 @@ class Reaction {
 	 * @param {string} str - input string that triggered reaction.
 	 * @returns {string}
 	 */
-	getResponse( trig, str ) {
+	getResponse(trig, str) {
 
-		if ( typeof trig === 'string' ) return this.r;
+		if (typeof trig === 'string') return this.r;
 
 		return trig.global ?
-			this.fullReplace( trig, str ) :
-			this.groupReplace( trig, str );
+			this.fullReplace(trig, str) :
+			this.groupReplace(trig, str);
 
 	}
 
 	/**
 	 * @returns {string} - Raw reaction display string, with no substitions applied.
 	 */
-	toString(){
+	toString() {
 		return this.r;
 	}
 
@@ -81,7 +86,7 @@ class Reaction {
 	 * @param {RegExp} trig
 	 * @param {string} text
 	 */
-	groupReplace( trig, text ) {
+	groupReplace(trig: RegExp, text: string) {
 
 		var res, resLen;
 		let resp = this.r;
@@ -89,20 +94,20 @@ class Reaction {
 		trig.lastIndex = 0;	// reset from test()
 
 		// TODO: Global option?
-		if ( ( res = trig.exec(text)) !== null ) {
+		if ((res = trig.exec(text)) !== null) {
 
 			resLen = res.length;
 			// replace $ groups.
-			resp = resp.replace( groupRegex, ( match, p1, )=> {
+			resp = resp.replace(groupRegex, (match, p1,) => {
 
-				let n = Number( p1 );
-				if ( Number.isNaN(n) === true ) {
+				let n = Number(p1);
+				if (Number.isNaN(n) === true) {
 
-					if ( p1 === '`') return text.slice(0, res.index );
-					else if ( p1 === "'") return text.slice( trig.lastIndex );	// TODO: Wrong.
-					else if ( p1 === '&') return res[0];
+					if (p1 === '`') return text.slice(0, res.index);
+					else if (p1 === "'") return text.slice(trig.lastIndex);	// TODO: Wrong.
+					else if (p1 === '&') return res[0];
 
-				} else if ( n < resLen ) return res[n];
+				} else if (n < resLen) return res[n];
 
 				return match;
 
@@ -120,13 +125,11 @@ class Reaction {
 	 * the regex with the full response string.
 	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 	 */
-	fullReplace( trig, text ) {
-		return text.replace( trig, this.r );
+	fullReplace(trig: string, text: string) {
+		return text.replace(trig, this.r);
 	}
 
 }
-
-module.exports.Reaction = Reaction;
 
 /**
  *
@@ -134,8 +137,8 @@ module.exports.Reaction = Reaction;
  * @param {string} uid - userid of creator
  * @param {?string} embed - url of embedded attachment
  */
-module.exports.makeReaction = ( resp, uid, embed ) => {
-	return new Reaction( resp, uid, Date.now(), embed );
+export const makeReaction = (resp: string, uid: string, embed?: string) => {
+	return new Reaction(resp, uid, Date.now(), embed);
 }
 
 
@@ -144,19 +147,19 @@ module.exports.makeReaction = ( resp, uid, embed ) => {
  * @param {?object|string} r
  * @returns {Reaction|null}
  */
-const parseReaction = module.exports.parseReaction = ( r ) => {
+export const parseReaction = (r: Reaction | { r: string, uid?: string, t?: number, embed?: string } | string) => {
 
 
-	if ( typeof r === 'object') {
+	if (typeof r === 'object') {
 
-		if ( r instanceof Reaction ) {
+		if (r instanceof Reaction) {
 			return r;
 		} else {
 
-			return new Reaction( r.r, r.uid, r.t, r.embed );
+			return new Reaction(r.r, r.uid, r.t, r.embed);
 		}
 
-	} else if ( typeof r === 'string' ) return new Reaction(r);
+	} else if (typeof r === 'string') return new Reaction(r);
 
 	return null;
 
@@ -167,15 +170,15 @@ const parseReaction = module.exports.parseReaction = ( r ) => {
  * @param {Array} a
  * @returns {Reaction[]}
  */
-module.exports.parseReactions = (a) => {
+export const parseReactions = (a) => {
 
 	let d = [];
 
 	let len = a.length;
-	for( let i = 0; i < len; i++ ) {
+	for (let i = 0; i < len; i++) {
 
 		let r = parseReaction(a[i]);
-		if ( r !== null ) d.push(r);
+		if (r !== null) d.push(r);
 	}
 
 	return d;

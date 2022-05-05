@@ -4,13 +4,13 @@
  * Unlike node Utilities promisify, the first callback param
  * is not a rejection error.
  */
-exports.promisify = (f, fthis=null)=>{
+export const promisify = (f: Function, fthis = null) => {
 
-	return ( ...args ) => {
+	return (...args) => {
 
-		return new Promise( (res)=>{
+		return new Promise((res) => {
 
-			f.apply( fthis, args.concat( res ) );
+			f.apply(fthis, args.concat(res));
 
 		});
 
@@ -24,26 +24,26 @@ exports.promisify = (f, fthis=null)=>{
  * @returns {*} - Random element satisfying predicate,
  * or null.
  */
-exports.randWhere = (arr, pred ) => {
+export const randWhere = <T>(arr: T[], pred: (elm: T) => boolean) => {
 
 	let len = arr.length;
-	let ind = Math.floor( Math.random()*len );
-	let start = ind;
+	let i = Math.floor(Math.random() * len);
+	let start = i;
 
 	do {
 
-		if ( pred(arr[i] ) ) return arr[i];
+		if (pred(arr[i])) return arr[i];
 
-		if ( ++ind >= len ) ind = 0;
+		if (++i >= len) i = 0;
 
-	} while ( ind != start );
+	} while (i != start);
 
 	return null;
 
 }
 
-exports.randElm = (arr)=>{
-	return arr[ Math.floor( Math.random()*(arr.length)) ];
+export const randElm = <T>(arr: T[]) => {
+	return arr[Math.floor(Math.random() * (arr.length))];
 }
 
 /**
@@ -51,8 +51,8 @@ exports.randElm = (arr)=>{
  * @param {number} min
  * @param {number} max
  */
-exports.random = (min, max)=>{
-	return min + Math.round( Math.random()*(max-min) );
+export const random = (min: number, max: number) => {
+	return min + Math.round(Math.random() * (max - min));
 }
 
 /**
@@ -62,29 +62,27 @@ exports.random = (min, max)=>{
  * @param {Array} a - array.
  * @param {number} i - index to remove.
  */
-exports.fastCut = (a,i) =>{ a[i] = a[a.length-1]; a.pop(); }
+export const fastCut = (a, i) => { a[i] = a[a.length - 1]; a.pop(); }
 
 // Performs a recursive merge of variables from src to dest.
 // Variables from src override variables in dest.
-exports.recurMerge = recurMerge;
+export const recurMerge = (dest, src) => {
 
-function recurMerge( dest, src ) {
+	if (typeof src !== 'object') return dest;
+	if (typeof dest !== 'object') return Object.assign({}, src);
 
-	if ( typeof src !== 'object' ) return dest;
-	if ( typeof dest !== 'object' ) return Object.assign({}, src);
-
-	for( var key in src ) {
+	for (var key in src) {
 
 		// src[key] might be falsey. skip inherited props.
-		if ( !src.hasOwnProperty(key) ) {
+		if (!src.hasOwnProperty(key)) {
 			continue;
 		}
 
 		var newVal = src[key];
 		var oldVal = dest[key];
-		if ( oldVal != null && ( typeof oldVal ==='object' && typeof newVal === 'object' ) ) {
+		if (oldVal != null && (typeof oldVal === 'object' && typeof newVal === 'object')) {
 
-			recurMerge( oldVal, newVal );
+			recurMerge(oldVal, newVal);
 
 		} else {
 			dest[key] = newVal;
@@ -96,11 +94,11 @@ function recurMerge( dest, src ) {
 
 // merges all variables of src into dest.
 // values from src overwrite dest.
-exports.merge = ( src, dest ) => {
+export const merge = (src, dest) => {
 
-	for( var key in src ) {
+	for (var key in src) {
 
-		if ( src.hasOwnProperty( key ) ) {
+		if (src.hasOwnProperty(key)) {
 			dest[key] = src[key];
 		}
 

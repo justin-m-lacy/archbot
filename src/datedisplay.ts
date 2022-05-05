@@ -1,46 +1,46 @@
-const Display = require( './display');
+const Display = require('./display');
 
-const ms_per_day = 1000*3600*24;
-const ms_per_hr = 1000*3600;
-const ms_per_min = 60*1000;
-const ms_per_year = ms_per_day*365;
+const ms_per_day: number = 1000 * 3600 * 24;
+const ms_per_hr: number = 1000 * 3600;
+const ms_per_min: number = 60 * 1000;
+const ms_per_year: number = ms_per_day * 365;
 
-const months = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ];
-const fullMonths = [ 'january', 'february', 'march', 'april', 'may', 'june',
-	'july', 'august', 'september', 'october', 'november', 'december' ];
+const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const fullMonths = ['january', 'february', 'march', 'april', 'may', 'june',
+	'july', 'august', 'september', 'october', 'november', 'december'];
 
-const days = [ 'sun', 'mon', 'tues', 'wed', 'thr', 'fri', 'sat' ];
-const fullDays = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' ];
+const days = ['sun', 'mon', 'tues', 'wed', 'thr', 'fri', 'sat'];
+const fullDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 module.exports = {
 
-	parse( str ) {
+	parse(str) {
 
-		let parts = str.split( ' ' );
+		let parts = str.split(' ');
 		let len = parts.length;
 		let part, value, num;
 
 		let date = new Date();
 
-		for( let i = 0; i < len; i++ ) {
+		for (let i = 0; i < len; i++) {
 
 			part = parts[i];
 
-			if ( part.indexOf( ':' ) > 0 ) {
-				this.setTime( part );
+			if (part.indexOf(':') > 0) {
+				this.setTime(part);
 				continue;
 			}
 
-			num = parseInt( part );
-			if ( isNaN(num)) {
+			num = parseInt(part);
+			if (isNaN(num)) {
 
 				value = this.tryGetMonth(part);
-				if ( value >= 0 ) {
-					date.setMonth( value );
+				if (value >= 0) {
+					date.setMonth(value);
 				} else {
 
-					day = this.tryGetDay( part );
-					if ( value >= 0 ) {
+					let day = this.tryGetDay(part);
+					if (value >= 0) {
 					}
 
 				}
@@ -62,13 +62,13 @@ module.exports = {
 	 * @param {Date} date
 	 * @param {string} str
 	 */
-	setTime( date, str ) {
+	setTime(date, str) {
 
-		let parts = str.split( ':' );
-		for( let i = parts.length-1; i>=0; i--) {
-			parts[i] = parseInt( parts[i] );
+		let parts = str.split(':');
+		for (let i = parts.length - 1; i >= 0; i--) {
+			parts[i] = parseInt(parts[i]);
 		}
-		date.setHours.apply( date, parts );
+		date.setHours.apply(date, parts);
 
 	},
 
@@ -77,11 +77,11 @@ module.exports = {
 	 * @param {string} str
 	 * @returns {number} zero-based day of week, or -1 on failure.
 	 */
-	tryGetDay( str ) {
+	tryGetDay(str) {
 
 		str = str.toLocaleLowerCase();
 		let day = days.indexOf(str);
-		if ( day < 0 ) day = fullDays.indexOf(str);
+		if (day < 0) day = fullDays.indexOf(str);
 		return day;
 
 	},
@@ -91,11 +91,11 @@ module.exports = {
 	 * @param {string} str
 	 * @returns {number} zero-based month of the year, or -1 on failure.
 	 */
-	tryGetMonth( str ) {
+	tryGetMonth(str) {
 
 		str = str.toLocaleLowerCase();
 		let month = months.indexOf(str);
-		if ( month < 0 ) month = fullMonths.indexOf(str);
+		if (month < 0) month = fullMonths.indexOf(str);
 		return month;
 
 	},
@@ -105,10 +105,10 @@ module.exports = {
 	 * @param {number} since - timestamp of the starting Date.
 	 * @returns {string} Description of time elapsed.
 	 */
-	elapsed( since ) {
+	elapsed(since) {
 
 		//let dt = Date.now() - since;
-		return this.timespan( Date.now() - since );
+		return this.timespan(Date.now() - since);
 
 	},
 
@@ -117,9 +117,9 @@ module.exports = {
 	 * @param {number} dt - span of time in milliseconds.
 	 * @returns {string} - description of the time span.
 	 */
-	timespan( dt ) {
-		if ( dt < ms_per_hr ) return ( (dt/ms_per_min).toFixed(2) + ' minutes');
-		return ( dt / ms_per_hr).toFixed(2) + ' hours';
+	timespan(dt) {
+		if (dt < ms_per_hr) return ((dt / ms_per_min).toFixed(2) + ' minutes');
+		return (dt / ms_per_hr).toFixed(2) + ' hours';
 	},
 
 	/**
@@ -128,20 +128,20 @@ module.exports = {
 	 * @param {Date|number} date
 	 * @returns {string}
 	 */
-	dateString( date ) {
+	dateString(date) {
 
 		let dt;
 
-		if ( date instanceof Date ) {
+		if (date instanceof Date) {
 			dt = Date.now() - date.getTime();
 		} else {
 			dt = Date.now() - date;
 			date = new Date(date);
 		}
 
-		if ( this.inDay(dt) ) return this.getDayString(date);
-		else if ( this.inWeek(dt)) return this.getWeekDate(date);
-		else if ( this.inMonth(dt)) return this.getMonthDate(date);
+		if (this.inDay(dt)) return this.getDayString(date);
+		else if (this.inWeek(dt)) return this.getWeekDate(date);
+		else if (this.inMonth(dt)) return this.getMonthDate(date);
 		return this.getFarDate(date);
 
 	},
@@ -151,7 +151,7 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getDayString( date ) {
+	getDayString(date) {
 		return date.getHours() + ':' + date.getMinutes();
 	},
 
@@ -160,8 +160,8 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getMonthDate( date ) {
-		return Display.capitalize( months[ date.getMonth() ] + ' ' + date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes() );
+	getMonthDate(date) {
+		return Display.capitalize(months[date.getMonth()] + ' ' + date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes());
 	},
 
 	/**
@@ -169,9 +169,9 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getWeekDate( date ) {
-		return Display.capitalize( days[ date.getDay() ] + ' ' + date.getMonth() + '/'
-		+ date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes() );
+	getWeekDate(date) {
+		return Display.capitalize(days[date.getDay()] + ' ' + date.getMonth() + '/'
+			+ date.getDate() + ' at ' + date.getHours() + ':' + date.getMinutes());
 	},
 
 	/**
@@ -179,8 +179,8 @@ module.exports = {
 	 * @param {Date} date
 	 * @returns {string}
 	 */
-	getFarDate( date ) {
-		return Display.capitalize( months[ date.getMonth() ] + ' ' + date.getDate() + ', ' + date.getFullYear() );
+	getFarDate(date) {
+		return Display.capitalize(months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear());
 	},
 
 	/**
@@ -188,7 +188,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a day.
 	 */
-	inDay( dt ) {
+	inDay(dt) {
 		return Math.abs(dt) < ms_per_day;
 	},
 
@@ -197,8 +197,8 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a week.
 	 */
-	inWeek( dt ) {
-		return Math.abs(dt) < 7*ms_per_day;
+	inWeek(dt) {
+		return Math.abs(dt) < 7 * ms_per_day;
 	},
 
 	/**
@@ -206,8 +206,8 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a month.
 	 */
-	inMonth( dt ) {
-		return Math.abs(dt) < 31*ms_per_day;
+	inMonth(dt) {
+		return Math.abs(dt) < 31 * ms_per_day;
 	},
 
 	/**
@@ -215,7 +215,7 @@ module.exports = {
 	 * @param {number} dt - elapsed period if time in milliseconds.
 	 * @returns {boolean} - true if the elapsed time is less than a year.
 	 */
-	inYear( dt ) {
+	inYear(dt) {
 		return Math.abs(dt) < ms_per_year;
 	}
 
