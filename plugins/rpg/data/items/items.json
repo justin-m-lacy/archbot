@@ -1,98 +1,430 @@
 {
-    "misc":[
-    { "name":"Pickle", "desc":"I wonder what kind of plant they come from?"},
-    { "name":"Ear of Elfroid", "desc":"The trophy of a harmless creature.","type":"ing"},
-    { "name":"Spine of Elfroid", "desc":"It's bendy.", "type":"ing"},
-    { "name":"Nose of Elfroid", "desc":"Elfroid noses don't work because they never bathe.", "type":"ing"},
-    { "name":"Eye of Elfroid", "desc":"Can't spot the rush.", "type":"ing"},
-    { "name":"Derpy Hooves", "desc":"Put them on your feet." },
-    { "name":"Potato Peeler", "desc":"For peeling potatoes." },
-    { "name":"Stone Tablet", "desc":"For writing commandments." },
-    { "name":"Tiny Gloves", "desc":"For people with tiny fingers." },
-    { "name":"Elfroid", "desc":"Tiny stuffed doll. Completely harmless." },
-    { "name":"Javascript Interpreter", "desc":"It's totally useless." },
-    { "name":"Piece of Cake", "desc":"You can't have your cake and eat it too." },
-    { "name":"Gorilla Suit", "desc":"An inconspicuous disguise." },
-    { "name":"Fight Club Rule Book", "desc":"It's not that long."},
-    { "name":"Pukeko", "desc":"They’re pesky swamp hens and they get into everything."},
-    { "name":"The Hitchhikers Guide to the Galaxy", "desc":"Don't Panic." },
-    { "name":"Garn's Head on a Pike", "desc":"Don't know how it got there." },
-    { "name":"Kakapo", "desc":"They're extremely rare."},
-    { "name":"Missing Link", "desc":"It does exist!"},
-    { "name":"Russell's Paradox", "desc":"It's all loopy and self-referential."},
-    { "name":"Piece of Pi", "desc":"3.1415926535"},
-    { "name":"Towel", "desc":"Don't Panic."},
-    { "name":"Contact Lens", "desc":"Someone is probably missing this." },
-    { "name":"Crumpled Note", "desc":"It says, 'Do you like me? Check yes or no.'"},
-    { "name":"Puzzle Box", "desc":"It would be hell to get this thing open."},
-    { "name":"Dirty Underpants", "desc":"You could just throw them away..."},
-    { "name":"Tortilla with a Face", "desc":"It must be a sign."},
-    { "name":"Companion Cube", "desc":"You don't feel quite so lonely now."},
-    { "name":"Yo-Yo Ma Solo", "desc":"Bach's Cello Suite No. 1 In G Major."},
-    { "name":"Cucumber", "desc":"You have it for personal reasons."},
-    { "name":"Banana", "desc":"Don't make eye contact."},
-    { "name":"Taylor Swift CD", "desc":"You're just holding it for your girlfriend... you swear."},
-    { "name":"Duct Tape", "desc":"Is there anything it can't do?"},
-    { "name":"Cool Kids Badge", "desc":"Proves you're one of the cool kids."},
-    { "name":"Hamster named Boo", "desc":"A miniature giant Space Hamster."},
-    { "name":"Dirty Little Secret", "desc":"Keep it secret. Keep it safe."},
-    { "name":"A Sheep", "desc":"In New Zealand, you can legally marry one." },
-    { "name":"Cthulhu Plushie", "desc":"Squish, Squish."},
-    { "name":"Wikipedia", "desc":"Handy pocket-sized edition." },
-    { "name":"Ugly Stick", "desc":"You spent hours beating yourself with it as a child."},
-    { "name":"Oscar for Best Picture", "desc":"You really should thank the Academy." },
-    { "name":"Piece of Candy", "desc":"I wonder where the rest of her is?" },
-    { "name":"Statue of Trevelyan", "desc":"Must have been an important person. At some point." },
-    { "name":"Homunculus", "desc":"The morality of owning this thing is ambiguous at best." },
-    { "name":"Map to Mordor", "desc":"One does not simply walk into Mordor. One also needs a map." },
-    { "name":"Tiny Dancer", "desc":"Hold it close." },
-    { "name":"A Paperclip", "desc":"I would rip apart the stars to make just one more." },
-    { "name":"Lotion", "desc":"It puts it on its skin."},
-    { "name":"Book of German Love Poems", "desc":"Such a romantic language."},
-    { "name":"Sexual Favor", "desc":"Give it away or sell it." },
-    { "name":"Ban Hammer", "desc":"Preferred weapon of channel mods everywhere."},
-    { "name":"ArchBot", "desc":"The world's greatest Discord Bot(tm)."},
-    { "name":"Gallon of PCP", "desc":"I didn't know you could get it in liquid form."},
-    { "name":"Light Saber", "desc":"Needs batteries." },
-    { "name":"Overwhelmingly Large Telescope", "desc":"You could see anything with this."},
-    { "name":"A Spoon", "desc":"Try to realize the truth." },
-    { "name":"Pale Blue Dot", "desc":"Probably worthless." },
-    { "name":"A simple golden ring.", "desc":"This would probably be very powerful in another fictional world." },
-    { "name":"Log", "desc":"Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog." },
-    { "name":"Bat Wing", "desc":"Tug them and they come right off.", "cost":1, "type":"ing" },
-    { "name":"Rat Tail", "desc":"Tug them and they come right off.", "cost":1, "type":"ing" },
-    { "name":"Eye of Newt", "desc":"Standard ingredient in every witch's brew.", "cost":1, "type":"ing" }
-   
-],
-
-    "special":[ { "name":"Dragon Tears", "desc":"You made him cry!!!", "cost":100, "type":"ing" },
-        { "name":"Dragon Scales", "desc":"Durable", "cost":50, "type":"ing" },
-        { "name":"Crocodile Tooth", "desc":"Crickey!", "cost":5, "type":"ing" },
-        { "name":"Crocodile Tears", "desc":"You made him cry!!!", "cost":10, "type":"ing" },
-        { "name":"Bear Claw", "desc":"Delicious.", "cost":5, "type":"ing" },
-        { "name":"Mandrake Root", "desc":"It has healing properties.", "cost":15, "type":"ing" },
-        { "name":"Whiskey", "desc":"Increases martial ability.", "cost":15, "type":"ing" },
-        { "name":"Sulfur Dust", "desc":"It's used for sulfur crafting.", "cost":5, "type":"ing" },
-        { "name":"Phoenix Feather", "desc":"Feather of a phoenix.", "cost":75, "type":"ing" },
-        { "name":"Phoenix Ashes", "desc":"Ashes of a dead phoenix.", "cost":175, "type":"ing" },
-        { "name":"vampire fang", "desc":"Very goth.", "cost":175, "type":"ing" },
-        { "name":"wight pus", "desc":"Explodes on impact.", "cost":25, "type":"ing" },
-        { "name":"bone", "desc":"Regular old bone. You probably have a few yourself.", "cost":5, "type":"ing"},
-        { "name":"Medusa Head", "desc":"Don't look at it.", "cost":275, "type":"ing" },
-        { "name":"Kakapo Feather", "desc":"Illegal to own.", "cost":5, "type":"ing" },
-        { "name":"Fire Essence", "desc":"A glowing ball of fire.", "cost":25, "type":"ing" },
-        { "name":"Earth Essence", "desc":"It's just a lump of dirt, but you can tell it's special.", "cost":25, "type":"ing"},
-        { "name":"Ice Essence", "desc":"Distilled properties of ice without the ice itself.", "cost":25, "type":"ing" },
-        { "name":"Air Essence", "desc":"The swirling ball of air seems to hold itself together.", "cost":25, "type":"ing" },
-        { "name":"raw wood", "desc":"Might be useful one day.", "cost":1, "type":"ing" },
-        { "name":"raw stone", "desc":"Might be useful one day.", "cost":1, "type":"ing" },
-        { "name":"raw iron", "desc":"Might be useful one day.", "cost":25, "type":"ing" },
-        { "name":"Raw Steel", "desc":"Might be useful one day.", "cost":175, "type":"ing" },
-        { "name":"Raw Mithril", "desc":"Might be useful one day.", "cost":375, "type":"ing" },
-        { "name":"Raw Adamant", "desc":"Might be useful one day", "cost":775, "type":"ing" },
-        { "name":"Pixie Wings", "desc":"Tug them and they come right off.", "cost":25, "type":"ing" },
-        { "name":"Spectral Essence", "desc":"Wispy", "cost":25, "type":"ing" }
-        
+    "misc": [
+        {
+            "name": "Pickle",
+            "desc": "I wonder what kind of plant they come from?"
+        },
+        {
+            "name": "Ear of Elfroid",
+            "desc": "A trophy of a harmless creature.",
+            "type": "ing"
+        },
+        {
+            "name": "Spine of Elfroid",
+            "desc": "It's bendy.",
+            "type": "ing"
+        },
+        {
+            "name": "Nose of Elfroid",
+            "desc": "Elfroid noses don't work because they never bathe.",
+            "type": "ing"
+        },
+        {
+            "name": "Eye of Elfroid",
+            "desc": "Can't spot the rush.",
+            "type": "ing"
+        },
+        {
+            "name": "Derpy Hooves",
+            "desc": "Put them on your feet."
+        },
+        {
+            "name": "Potato Peeler",
+            "desc": "For peeling potatoes."
+        },
+        {
+            "name": "Stone Tablet",
+            "desc": "For writing commandments."
+        },
+        {
+            "name": "Tiny Gloves",
+            "desc": "For people with tiny fingers."
+        },
+        {
+            "name": "Elfroid",
+            "desc": "Tiny stuffed doll. Completely harmless."
+        },
+        {
+            "name": "Javascript Interpreter",
+            "desc": "Totally useless."
+        },
+        {
+            "name": "Piece of Cake",
+            "desc": "You can't have your cake and eat it too."
+        },
+        {
+            "name": "Gorilla Suit",
+            "desc": "An inconspicuous disguise."
+        },
+        {
+            "name": "Fight Club Rule Book",
+            "desc": "It's not that long."
+        },
+        {
+            "name": "Pukeko",
+            "desc": "They’re pesky swamp hens and they get into everything."
+        },
+        {
+            "name": "A Wayfarer's Guide to the Stars",
+            "desc": "Don't Panic."
+        },
+        {
+            "name": "Garn's Head on a Pike",
+            "desc": "He's got plenty of em."
+        },
+        {
+            "name": "Kakapo",
+            "desc": "They're extremely rare."
+        },
+        {
+            "name": "Missing Link",
+            "desc": "It does exist!"
+        },
+        {
+            "name": "Russell's Paradox",
+            "desc": "It's all loopy and self-referential."
+        },
+        {
+            "name": "Piece of Pi",
+            "desc": ".926535"
+        },
+        {
+            "name": "Towel",
+            "desc": "Don't Panic."
+        },
+        {
+            "name": "Contact Lens",
+            "desc": "Someone is probably missing this."
+        },
+        {
+            "name": "Crumpled Note",
+            "desc": "It says, 'Do you like me? Check yes or no.'"
+        },
+        {
+            "name": "Puzzle Box",
+            "desc": "It would be hell to get this thing open."
+        },
+        {
+            "name": "Dirty Underpants",
+            "desc": "You could just throw them away..."
+        },
+        {
+            "name": "Tortilla with a Face",
+            "desc": "It must be a sign."
+        },
+        {
+            "name": "Companion Cube",
+            "desc": "You don't feel quite so lonely now."
+        },
+        {
+            "name": "Yo-Yo Ma Solo",
+            "desc": "Bach's Cello Suite No. 1 In G Major."
+        },
+        {
+            "name": "Cucumber",
+            "desc": "One to eat..."
+        },
+        {
+            "name": "Banana",
+            "desc": "Don't make eye contact."
+        },
+        {
+            "name": "Taylor Swift CD",
+            "desc": "You're just holding it for your girlfriend..."
+        },
+        {
+            "name": "Duct Tape",
+            "desc": "Is there anything it can't do?"
+        },
+        {
+            "name": "Cool Kids Badge",
+            "desc": "Proves you're one of the cool kids."
+        },
+        {
+            "name": "Hamster named Boo",
+            "desc": "A miniature giant Space Hamster."
+        },
+        {
+            "name": "Dirty Little Secret",
+            "desc": "Keep it secret. Keep it safe."
+        },
+        {
+            "name": "A Sheep",
+            "desc": "In New Zealand, you can legally marry one."
+        },
+        {
+            "name": "Cthulhu Plushie",
+            "desc": "Squish, Squish."
+        },
+        {
+            "name": "Cross of Coronado",
+            "desc": "It belongs in a museum."
+        },
+        {
+            "name": "Wikipedia",
+            "desc": "Handy pocket-sized edition."
+        },
+        {
+            "name": "Ugly Stick",
+            "desc": "You spent hours beating yourself with it as a child."
+        },
+        {
+            "name": "Oscar for Best Picture",
+            "desc": "You really should thank the Academy."
+        },
+        {
+            "name": "Piece of Candy",
+            "desc": "I wonder where the rest of her is?"
+        },
+        {
+            "name": "Statue of Trevelyan",
+            "desc": "Must have been an important person. At some point."
+        },
+        {
+            "name": "Homunculus",
+            "desc": "The morality of owning this is ambiguous at best."
+        },
+        {
+            "name": "Map of Mordor",
+            "desc": "One does not simply walk into Mordor."
+        },
+        {
+            "name": "Tiny Dancer",
+            "desc": "Hold it close."
+        },
+        {
+            "name": "A Paperclip",
+            "desc": "I would rip apart the stars to make just one more."
+        },
+        {
+            "name": "Lotion",
+            "desc": "It puts it on its skin."
+        },
+        {
+            "name": "Book of German Love Poems",
+            "desc": "Such a romantic language."
+        },
+        {
+            "name": "Sexual Favor",
+            "desc": "Give it away or sell it."
+        },
+        {
+            "name": "Ban Hammer",
+            "desc": "Preferred weapon of channel mods everywhere."
+        },
+        {
+            "name": "ArchBot",
+            "desc": "The world's greatest Discord Bot(tm)."
+        },
+        {
+            "name": "Gallon of PCP",
+            "desc": "I didn't know you could get it in liquid form."
+        },
+        {
+            "name": "Light Saber",
+            "desc": "Needs batteries."
+        },
+        {
+            "name": "Overwhelmingly Large Telescope",
+            "desc": "You could see anything with this."
+        },
+        {
+            "name": "A Spoon",
+            "desc": "Try to realize the truth."
+        },
+        {
+            "name": "Pale Blue Dot",
+            "desc": "Probably worthless."
+        },
+        {
+            "name": "A simple golden ring.",
+            "desc": "This would probably be very powerful in another fictional world."
+        },
+        {
+            "name": "Log",
+            "desc": "Log rolls down stairs, alone or in pairs, rolls over your neighbor's dog."
+        },
+        {
+            "name": "Bat Wing",
+            "desc": "Tug them and they come right off.",
+            "cost": 1,
+            "type": "ing"
+        },
+        {
+            "name": "Rat Tail",
+            "desc": "Tug them and they come right off.",
+            "cost": 1,
+            "type": "ing"
+        },
+        {
+            "name": "Eye of Newt",
+            "desc": "Standard ingredient in every witch's brew.",
+            "cost": 1,
+            "type": "ing"
+        }
+    ],
+    "special": [
+        {
+            "name": "Dragon Tears",
+            "desc": "You made him cry!!!",
+            "cost": 100,
+            "type": "ing"
+        },
+        {
+            "name": "Dragon Scales",
+            "desc": "Durable",
+            "cost": 50,
+            "type": "ing"
+        },
+        {
+            "name": "Crocodile Tooth",
+            "desc": "Crickey!",
+            "cost": 5,
+            "type": "ing"
+        },
+        {
+            "name": "Crocodile Tears",
+            "desc": "You made him cry!!!",
+            "cost": 10,
+            "type": "ing"
+        },
+        {
+            "name": "Bear Claw",
+            "desc": "Delicious.",
+            "cost": 5,
+            "type": "ing"
+        },
+        {
+            "name": "Mandrake Root",
+            "desc": "It has healing properties.",
+            "cost": 15,
+            "type": "ing"
+        },
+        {
+            "name": "Whiskey",
+            "desc": "Increases martial ability.",
+            "cost": 15,
+            "type": "ing"
+        },
+        {
+            "name": "Sulfur Dust",
+            "desc": "It's used for sulfur crafting.",
+            "cost": 5,
+            "type": "ing"
+        },
+        {
+            "name": "Phoenix Feather",
+            "desc": "Feather of a phoenix.",
+            "cost": 75,
+            "type": "ing"
+        },
+        {
+            "name": "Phoenix Ashes",
+            "desc": "Ashes of a dead phoenix.",
+            "cost": 175,
+            "type": "ing"
+        },
+        {
+            "name": "vampire fang",
+            "desc": "Very goth.",
+            "cost": 175,
+            "type": "ing"
+        },
+        {
+            "name": "wight pus",
+            "desc": "Explodes on impact.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "bone",
+            "desc": "Regular old bone. You probably have a few yourself.",
+            "cost": 5,
+            "type": "ing"
+        },
+        {
+            "name": "Medusa Head",
+            "desc": "Don't look at it.",
+            "cost": 275,
+            "type": "ing"
+        },
+        {
+            "name": "Kakapo Feather",
+            "desc": "Illegal to own.",
+            "cost": 5,
+            "type": "ing"
+        },
+        {
+            "name": "Fire Essence",
+            "desc": "A glowing ball of fire.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "Earth Essence",
+            "desc": "It's just a lump of dirt, but you can tell it's special.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "Ice Essence",
+            "desc": "Distilled properties of ice without the ice itself.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "Air Essence",
+            "desc": "The swirling ball of air seems to hold itself together.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "raw wood",
+            "desc": "Might be useful one day.",
+            "cost": 1,
+            "type": "ing"
+        },
+        {
+            "name": "raw stone",
+            "desc": "Might be useful one day.",
+            "cost": 1,
+            "type": "ing"
+        },
+        {
+            "name": "raw iron",
+            "desc": "Might be useful one day.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "Raw Steel",
+            "desc": "Might be useful one day.",
+            "cost": 175,
+            "type": "ing"
+        },
+        {
+            "name": "Raw Mithril",
+            "desc": "Might be useful one day.",
+            "cost": 375,
+            "type": "ing"
+        },
+        {
+            "name": "Raw Adamant",
+            "desc": "Might be useful one day",
+            "cost": 775,
+            "type": "ing"
+        },
+        {
+            "name": "Pixie Wings",
+            "desc": "Tug them and they come right off.",
+            "cost": 25,
+            "type": "ing"
+        },
+        {
+            "name": "Spectral Essence",
+            "desc": "Wispy",
+            "cost": 25,
+            "type": "ing"
+        }
     ]
-
 }
