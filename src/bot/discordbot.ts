@@ -320,7 +320,7 @@ export class DiscordBot {
 	 * @param {Object} plugClass
 	 * @param {?Object} [opts=null]
 	 */
-	addContextCmd(name: string, desc: string, func: Function, plugClass: ContextClass<any>, opts?: CommandOpts) {
+	addContextCmd(name: string, desc: string, func: Function, plugClass: ContextClass<ContextSource>, opts?: CommandOpts) {
 		this._dispatch.addContextCmd(name, desc, func, plugClass, opts);
 	}
 
