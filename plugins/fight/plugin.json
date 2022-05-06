@@ -1,1 +1,3 @@
-{ "plugin":"fight.js" }
+{
+    "plugin": "fight.js"
+}
