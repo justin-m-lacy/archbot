@@ -1,6 +1,9 @@
 import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User } from "discord.js";
 import { Auth } from './auth';
 import Command from './command';
+import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
+import CmdDispatch from './dispatch';
+import { CommandOpts } from './dispatch';
 
 const fsys = require('./botfs.js');
 const Dispatch = require('./dispatch.js');
@@ -37,9 +40,20 @@ export class DiscordBot {
 	get dispatch() { return this._dispatch; }
 
 	/**
-	 * @property {Object[string->BotContext]}
+	 * Map ContextSource ids to BotContexts associated with those Discord objects.
 	 */
+	readonly _contexts: Map<string, BotContext<Guild | User | Channel>> = new Map();
 	get contexts() { return this._contexts; }
+
+	/**
+	 * Maps proxyId->proxiedId
+	 * the key represents the object acting as a proxy for the actual discord context.
+	 * typically this works as: proxies[userId]->GuildId
+	 * so commands in a user DM are mapped to the guild BotContext.
+	 */
+	readonly _proxies: Map<string, string> = new Map();
+
+	readonly _contextClasses: ContextClass<ContextSource>[] = [];
 
 	/**
 	 * @property {object[]} plugin classes to instantiate for each context.
@@ -63,7 +77,7 @@ export class DiscordBot {
 	 */
 	get saveDir() { return this._saveDir; }
 
-	readonly _dispatch: Dispatch;
+	readonly _dispatch: CmdDispatch;
 
 	readonly cache: Cache;
 
@@ -80,9 +94,6 @@ export class DiscordBot {
 	 * being run.
 	 */
 	constructor(client: Client, auth: Auth, mainDir = null) {
-
-		// map target discord obj to processing context.
-		this._contexts = {};
 
 		this.directory = mainDir || process.cwd();
 
@@ -113,24 +124,29 @@ export class DiscordBot {
 		this._admins = auth.admins;
 		this._owner = auth.owner;
 
+		this.initBotEvents();
+
+	}
+
+	initBotEvents() {
 		process.on('exit', () => this.onShutdown());
 		process.on('SIGINT', () => this.onShutdown());
 
-		client.setInterval(
+		setInterval(
 			() => {
 
 				try {
 					this.cache.cleanup(60 * 1000 * 30);
 				} catch (e) { console.error(e); }
 
-			}, 60 * 1000 * 30);
+			}, 60 * 1000 * 30).unref();
 
-		client.setInterval(
+		setInterval(
 			() => {
 				try {
 					this.cache.backup(60 * 1000 * 15);
 				} catch (e) { console.error(e); }
-			}, 60 * 1000 * 15);
+			}, 60 * 1000 * 15).unref();
 
 		this.initClient();
 
@@ -149,7 +165,6 @@ export class DiscordBot {
 			(m: Message, cmd: string) => this.cmdResetAccess(m, cmd),
 			{ minArgs: 1, maxArgs: 1, access: Discord.Permissions.FLAGS.ADMINISTRATOR }
 		);
-
 	}
 
 	/**
@@ -265,13 +280,12 @@ export class DiscordBot {
 
 		});
 
-		this.client.on('presenceUpdate', onPresence);
-
 	}
 
 	initContexts() {
 
-		console.log('client ready: ' + this.client.user.username + ' - (' + this.client.user.id + ')');
+		console.log('client ready: ' + this.client.user?.username + ' - ('
+			+ this.client.user?.id + ')');
 
 		try {
 			let classes = this._contextClasses;
@@ -294,7 +308,7 @@ export class DiscordBot {
 	 * @param {Function} func
 	 * @param {?Object} [opts=null]
 	 */
-	addCmd(name, desc, func, opts = null) {
+	addCmd(name: string, desc: string, func: Function, opts?: CommandOpts) {
 		this._dispatch.add(name, desc, func, opts);
 	}
 
@@ -306,7 +320,7 @@ export class DiscordBot {
 	 * @param {Object} plugClass
 	 * @param {?Object} [opts=null]
 	 */
-	addContextCmd(name, desc, func, plugClass, opts = null) {
+	addContextCmd(name: string, desc: string, func: Function, plugClass: ContextClass<any>, opts?: CommandOpts) {
 		this._dispatch.addContextCmd(name, desc, func, plugClass, opts);
 	}
 
@@ -314,19 +328,18 @@ export class DiscordBot {
 	 *
 	 * @param {Message} m
 	 */
-	async onMessage(m) {
+	async onMessage(m: Message) {
 
 		if (this.spamblock(m)) return;
 
-		let command = this._dispatch.parseLine(m.content);
+		const command = this._dispatch.parseLine(m.content);
 
 		if (!command) return;
 
 		// check command access.
-
 		let context = await this.getMsgContext(m);
 		if (context) {
-			if (m.member && this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
+			if (this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
 		}
 
 		if (command.isDirect === true) {
@@ -360,18 +373,19 @@ export class DiscordBot {
 	 * @param {*} context
 	 * @returns {boolean}
 	 */
-	testAccess(m: Message, cmd: Command, context) {
+	testAccess(m: Message, cmd: Command, context: BotContext<ContextSource>) {
 
-		let allowed = context.canAccess(cmd.name, m.member);
-		if (allowed === undefined) {
+		if (m.member) {
+			let allowed = context.canAccess(cmd.name, m.member);
+			if (allowed === undefined) {
 
-			// check default access.
-			if (!cmd.access) return true;
-			return m.member.permissions.has(cmd.access);
+				// check default access.
+				if (!cmd.access) return true;
+				return m.member.permissions.has(cmd.access);
 
+			}
+			return allowed;
 		}
-
-		return allowed;
 
 	}
 
@@ -398,8 +412,8 @@ export class DiscordBot {
 			await this.cache.backup(0);
 		} else {
 
-			let context = this.getMsgContext(m);
-			if (context) await this.context.doBackup();
+			//let context = this.getMsgContext(m);
+			//if (context) await context.doBackup();
 		}
 		return m.reply('backup complete.');
 
@@ -494,10 +508,12 @@ export class DiscordBot {
 
 		let cmd = this._dispatch.getCommand(cmdName);
 		if (!cmd) return m.reply(`Command '${cmdName}' not found.`);
-		else if (cmd.immutable) return m.reply(`The access level of Command '${cmdName}' is immutable.`);
+		else if (cmd.immutable) return m.reply(`The access level of '${this._dispatch.prefix}${cmdName}' cannot be changed.`);
 
 		let context = await this.getMsgContext(m);
-		if (perm === undefined || perm === null) {
+		if (context == null) {
+
+		} else if (perm === undefined || perm === null) {
 
 			let info = context.accessInfo(cmdName);
 			if (!info && info !== 0 && info !== '0') {
@@ -528,7 +544,7 @@ export class DiscordBot {
 	 * @param {Command} [cmd=null]
 	 * @returns {Promise}
 	 */
-	async sendNoPerm(m: Message, cmd = null) {
+	async sendNoPerm(m: Message, cmd?: Command) {
 
 		if (cmd) return m.reply(`You do not have permission to use the command '${cmd.name}'`);
 		return m.reply('You do not have permission to use that command.');
@@ -540,10 +556,10 @@ export class DiscordBot {
 	 * @param {User} user
 	 * @param {BotContext} context
 	 */
-	setProxy(user, context) {
+	setProxy(user: User, context: BotContext<Guild | Channel>) {
 
-		this._contexts[user.id] = context;
-		this._proxies[user.id] = context.sourceID;
+		//this._contexts.set(user.id, context);
+		this._proxies.set(user.id, context.sourceID);
 		this.cacheData('proxies', this._proxies);
 
 	}
@@ -564,10 +580,18 @@ export class DiscordBot {
 	 */
 	async restoreProxies() {
 
-		this._proxies = {};
-		let loaded = await this.fetchData('proxies');
-		if (loaded) {
-			this._proxies = Object.assign(this._proxies, loaded);
+		try {
+			let loaded = await this.fetchData('proxies');
+			if (loaded) {
+
+				for (let key in loaded) {
+					this._proxies.set(key, loaded[key]);
+				}
+
+			}
+		}
+		catch (err) {
+			console.warn(`Error restoring proxies: ${err}`);
 		}
 
 	}
@@ -578,57 +602,66 @@ export class DiscordBot {
 	 * @param {Discord.Message} m
 	 * @returns {Promise<BotContext>}
 	 */
-	async getMsgContext(m) {
+	async getMsgContext(m: Message) {
 
 		let type = m.channel.type, idobj;
 
-		if (type === 'text' || type === 'voice ') idobj = m.guild;
+		if (type.includes('GUILD')) {
+			idobj = m.guild;
+		}
 		else {
 
 			idobj = m.author;
 			//check proxy
-			if (this._proxies[idobj.id]) return this.getProxy(idobj, this._proxies[idobj.id]);
+			if (this._proxies.has(idobj.id)) {
+				return this.getProxiedContext(idobj);
+			}
 
 		}
 
-		return this._contexts[idobj.id] || this.makeContext(idobj, type);
+		if (idobj != null) {
+			return this._contexts.get(idobj.id) ?? this.makeContext(idobj, type);
+		}
 
 	}
 
 	/**
-	 * @async
-	 * @param {*} idobj
-	 * @param {string} type
+	 * Get or create BotContext associated with a Discord object.
 	 * @returns {Promise<BotContext>}
 	 */
-	async getContext(idobj, type) {
+	async getContext(idobj: ContextSource, type: string) {
 
-		let proxid = this._proxies[idobj.id];
-		if (proxid) return this.getProxy(idobj, proxid);
+		if (this._proxies.has(idobj.id)) {
+			return this.getProxiedContext(idobj);
+		}
 
-		return this._contexts[idobj.id] || this.makeContext(idobj, type);
+		return this._contexts.get(idobj.id) ?? this.makeContext(idobj, type);
 
 	}
 
 	/**
-	 * Get a context from the source id, mapping messages
-	 * to the destobj.
-	 * @async
-	 * @param {*} destobj
-	 * @param {*} srcid
+	 * Get the BotContext proxied to another channel.
+	 * e.g. a Guild's BotContext being proxied to a user's DM.
+	 * @param proxy - object acting as the actual proxied object.
+	 * This will typically be a User's DM channel.
 	 * @returns {Promise<BotContext>}
 	 */
-	async getProxy(destobj, srcid) {
+	async getProxiedContext(proxy: ContextSource) {
 
-		let con = this._contexts[srcid];
-		if (con) return con;
+		/// id of Discord object being proxied.
+		let sourceId = this._proxies.get(proxy.id);
 
-		let proxob = await this.findProxTarget(srcid);
-		if (proxob) return this.makeContext(proxob);
+		if (sourceId) {
+			let con = this._contexts.get(sourceId);
+			if (con) return con;
 
-		// proxy not found.
-		console.log('ERROR: Proxy not found: ' + srcid);
-		return this._contexts[destobj.id] || this.makeContext(destobj);
+			let proxob = await this.findDiscordObject(sourceId);
+			if (proxob) return this.makeContext(proxob);
+
+			// proxy not found.
+			console.log(`Error: Proxy target not found: ${sourceId}`);
+			return this._contexts.get(proxy.id) ?? this.makeContext(proxy);
+		}
 
 	}
 
@@ -637,7 +670,7 @@ export class DiscordBot {
 	 * @param {string} id
 	 * @returns {Guild|Channel}
 	 */
-	async findProxTarget(id) {
+	async findDiscordObject(id: string) {
 		return await this.client.guilds.fetch(id) || await this.client.channels.fetch(id);
 	}
 
@@ -647,18 +680,20 @@ export class DiscordBot {
 	 * @param {string} type
 	 * @returns {Promise<BotContext>}
 	 */
-	async makeContext(idobj, type) {
+	async makeContext(idobj: ContextSource, type?: string) {
 
 		console.log('create context for: ' + idobj.id);
 		let context;
 
-		if (type === 'text' || !type || type === 'voice')
-			context = new Contexts.GuildContext(this, idobj, this.cache.subcache(fsys.getGuildDir(idobj)));
-		else context = new Contexts.UserContext(this, idobj, this.cache.subcache(fsys.getUserDir(idobj)));
+		if (type != null && type.includes('GUILD') || idobj instanceof Guild) {
+			context = new GuildContext(this, idobj, this.cache.subcache(fsys.getGuildDir(idobj)));
+		} else {
+			context = new UserContext(this, idobj, this.cache.subcache(fsys.getUserDir(idobj)));
+		}
 
 		await context.init(this._contextClasses);
 
-		this._contexts[idobj.id] = context;
+		this._contexts.set(idobj.id, context);
 
 		return context;
 
@@ -669,8 +704,8 @@ export class DiscordBot {
 	 * @param {GuildMember|User} uObject
 	 * @returns {string}
 	 */
-	displayName(uObject) {
-		if (uObject instanceof Discord.GuildMember) {
+	displayName(uObject: GuildMember | User) {
+		if (uObject instanceof GuildMember) {
 			return uObject.displayName;
 		}
 		return uObject.username;
@@ -682,7 +717,7 @@ export class DiscordBot {
 	 * @param {Message} msg
 	 * @returns {GuildMember|User}
 	 */
-	getSender(msg) {
+	getSender(msg: Message) {
 
 		if (msg.member) return msg.member;
 		return msg.author;
@@ -695,7 +730,7 @@ export class DiscordBot {
 	 * @param {string} key
 	 * @returns {Promise<*>}
 	 */
-	async fetchData(key) {
+	async fetchData(key: string) {
 		return this.cache.fetch(key);
 	}
 
@@ -706,7 +741,7 @@ export class DiscordBot {
 	 * @param {*} data
 	 * @returns {Promise}
 	 */
-	async storeData(key, data) {
+	async storeData(key: string, data: any) {
 		return this.cache.store(key, data);
 	}
 
@@ -716,11 +751,11 @@ export class DiscordBot {
 	 * @param  {...any} subs
 	 * @returns {string}
 	 */
-	getDataKey(baseObj, ...subs) {
+	getDataKey(baseObj: Channel | GuildMember | Guild, ...subs: any[]) {
 
-		if (baseObj instanceof Discord.Channel) return fsys.channelPath(baseObj, subs);
-		else if (baseObj instanceof Discord.GuildMember) return fsys.guildPath(baseObj.guild, subs);
-		else if (baseObj instanceof Discord.Guild) return fsys.guildPath(baseObj, subs);
+		if (baseObj instanceof Channel) return fsys.channelPath(baseObj, subs);
+		else if (baseObj instanceof GuildMember) return fsys.guildPath(baseObj.guild, subs);
+		else if (baseObj instanceof Guild) return fsys.guildPath(baseObj, subs);
 
 		return '';
 
@@ -731,7 +766,7 @@ export class DiscordBot {
 	 * @param {string} key
 	 * @param {*} data
 	 */
-	cacheData(key, data) {
+	cacheData(key: string, data: any) {
 		this.cache.cache(key, data);
 	}
 
@@ -740,10 +775,10 @@ export class DiscordBot {
 	 * @param {GuildMember|User} uObject
 	 * @returns {Promise<*>}
 	 */
-	async fetchUserData(uObject) {
+	async fetchUserData(uObject: GuildMember | User) {
 
-		let objPath = (uObject instanceof Discord.GuildMember) ? fsys.memberPath(uObject)
-			: objPath = fsys.getUserDir(uObject);
+		let objPath: string = (uObject instanceof GuildMember) ? fsys.memberPath(uObject)
+			: fsys.getUserDir(uObject);
 
 		return this.cache.fetch(objPath);
 
@@ -790,31 +825,27 @@ export class DiscordBot {
 	 * @param {string} name - name or nickname of user to find.
 	 * @returns {(GuildMember|User|null)}
 	 */
-	findUser(channel, name) {
+	findUser(channel: TextBasedChannel, name: string) {
 
 		if (!channel) return null;
 
 		name = name.toLowerCase();
 		switch (channel.type) {
 
-			case 'text':
-			case 'voice':
-
-				return channel.guild.members.cache.find(
-
-					gm =>
-						gm.displayName.toLowerCase() === name || (
-							gm.nickname && gm.nickname.toLowerCase() === name
-						)
-				);
-
-			case 'dm':
+			case 'DM':
 				if (channel.recipient.username.toLowerCase() === name) return channel.recipient;
 				return null;
+			default:
+				return channel.guild.members.cache.find(
+
+					(gm) => {
+						return gm.displayName.toLowerCase() === name || (
+							gm.nickname?.toLowerCase() === name
+						)
+					}
+				);
 
 		}
-
-		return null;
 
 	}
 
@@ -824,12 +855,11 @@ export class DiscordBot {
 	 * @param {string} cmdname
 	 * @returns {Promise}
 	 */
-	async printCommand(chan, cmdname) {
+	async printCommand(chan: TextBasedChannel, cmdname: string) {
 
-		let cmds = this._dispatch.commands;
-		if (cmds && cmds.hasOwnProperty(cmdname)) {
+		let cmdInfo = this._dispatch.commands.get(cmdname);
+		if (cmdInfo) {
 
-			let cmdInfo = cmds[cmdname];
 			let usage = cmdInfo.usage;
 			if (!usage) return chan.send('No usage information found for command \'' + cmdname + '\'.');
 			else return chan.send(cmdname + ' usage: ' + cmdInfo.usage);
@@ -845,7 +875,7 @@ export class DiscordBot {
 	 * @param {string} module
 	 * @returns {Promise}
 	 */
-	async moduleCommands(module) {
+	async moduleCommands(module: string) {
 	}
 
 	/**
@@ -882,20 +912,6 @@ export class DiscordBot {
 	}
 
 } // class
-
-/**
- *
- * @param {GuildMember} oldGM
- * @param {GuildMember} newGM
- */
-const onPresence = (oldGM: GuildMember, newGM: GuildMember) => {
-
-	if (newGM.id === Bot.client.user.id) {
-		if (newGame.presence.status === 'online') {
-			console.log('bot now online in guild: ' + newGM.guild.name);
-		}
-	}
-}
 
 const onGuildUnavail = (g: Guild) => {
 	console.log('guild unavailable: ' + g.name);

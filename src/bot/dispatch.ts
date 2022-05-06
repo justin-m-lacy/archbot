@@ -1,7 +1,9 @@
 import Command from './command';
-import { BotContext, ContextObject } from './botcontext';
+import { BotContext, ContextSource } from './botcontext';
 
 const QuoteRE = /“|”/g;
+
+export type CommandOpts = Partial<Command>;
 
 /**
  * @const {RegExp} SplitRE - splits input line into arguments.
@@ -70,7 +72,7 @@ export default class CmdDispatch {
 	 * @param {Array} leadArgs
 	 * @returns {Promise}
 	 */
-	routeCmd<T extends ContextObject>(context: BotContext<T>, cmd: Command, leadArgs: any[]) {
+	routeCmd<T extends ContextSource>(context: BotContext<T>, cmd: Command, leadArgs: any[]) {
 
 		let lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
@@ -89,7 +91,7 @@ export default class CmdDispatch {
 	 * @param {number} [opts.minArgs] @param {number} [opts.maxArgs] @param {bool}[opts.hidden] @param {string}[opts.group]
 	 * @param {*[]} [opts.args] - Arguments to pass after all other arguments to command.
 	 */
-	addContextCmd(name: string, desc: string, func: Function, cmdClass: any, opts?: Partial<Command>) {
+	addContextCmd(name: string, desc: string, func: Function, cmdClass: any, opts?: CommandOpts) {
 
 		try {
 			let cmd = new Command(name, func, {
@@ -109,7 +111,7 @@ export default class CmdDispatch {
 	 * @param {Function} func
 	 * @param {Object} [opts=null]
 	 */
-	add(name: string, desc: string, func: Function, opts?: Partial<Command>) {
+	add(name: string, desc: string, func: Function, opts?: CommandOpts) {
 
 		try {
 

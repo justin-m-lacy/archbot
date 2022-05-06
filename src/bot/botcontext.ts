@@ -8,20 +8,28 @@ const Discord = require('discord.js');
 const fsys = require('./botfs.js');
 const afs = require('../afs');
 
-export type ContextObject = Channel | Guild | User;
+/**
+ * A discord object associated with this bot context.
+ * Commands, classes, and data from this context
+ * apply to the Discord ContextSource of the context.
+ */
+export type ContextSource = Channel | Guild | User;
 
 /**
- * A class instance registered and associated with the discord context.
+ * A class whose instances can be registered and associated with a BotContext.
+ * A BotContext can have any number of associated ContextClass instances,
+ * which pairs them to an underlying discord object such as a User, Guild, or Channel.
+ * [ContextClass instances] <-> BotContext <-> ContextSource
  */
-type ContextInstance<T extends ContextObject> = {
-	new(context: BotContext<T>): ContextInstance<T>,
+export type ContextClass<T extends ContextSource> = {
+	new(context: BotContext<T>): ContextClass<T>,
 	load?(): any
 };
 
 /**
  * Base class for a BotContext.
  */
-export abstract class BotContext<T extends ContextObject> {
+export abstract class BotContext<T extends ContextSource> {
 
 	/**
 	 * @property {string} type - 'guild', 'user', 'dm', 'channel'
@@ -51,7 +59,7 @@ export abstract class BotContext<T extends ContextObject> {
 	/**
 	 * Maps class-names to class instances.
 	 */
-	readonly _instances: Map<string, ContextInstance<T>> = new Map();
+	readonly _instances: Map<string, ContextClass<ContextSource>> = new Map();
 
 	/**
 	 * @property {Access} access - Information about access to settings and commands.
@@ -83,10 +91,10 @@ export abstract class BotContext<T extends ContextObject> {
 	 * Load Context preferences, init Context classes required
 	 * by plugins.
 	 * @async
-	 * @param {ContextInstance<T>[]} plugClasses
+	 * @param {ContextClass<T>[]} plugClasses
 	 * @returns {Promise}
 	 */
-	async init(plugClasses: ContextInstance<T>[]) {
+	async init(plugClasses: ContextClass<ContextSource>[]) {
 
 		for (let i = plugClasses.length - 1; i >= 0; i--) {
 			this.addClass(plugClasses[i]);
@@ -355,7 +363,7 @@ export abstract class BotContext<T extends ContextObject> {
 	 * @param {class} cls
 	 * @returns {Promise<Object>}
 	 */
-	async addClass(cls: ContextInstance<T>) {
+	async addClass(cls: ContextClass<ContextSource>) {
 
 		console.log('adding class: ' + cls.name);
 
@@ -381,7 +389,7 @@ export abstract class BotContext<T extends ContextObject> {
 	 * Add a context instance.
 	 * @param {Object} inst - plugin instance for this context.
 	 */
-	addInstance(inst: ContextInstance<T>) {
+	addInstance(inst: ContextClass<T>) {
 		this._instances.set(inst.constructor.name, inst);
 	}
 
