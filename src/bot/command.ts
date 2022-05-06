@@ -1,3 +1,5 @@
+import { PermissionResolvable } from "discord.js";
+
 export default class Command {
 
 	/**
@@ -86,7 +88,7 @@ export default class Command {
 	 * Default permissions required to use this command.
 	 * Can be overridden by BotContext Access.
 	 */
-	readonly access: number = 0;
+	readonly access: PermissionResolvable;
 
 	/**
 	 * immutable commands cannot have their access level changed.
