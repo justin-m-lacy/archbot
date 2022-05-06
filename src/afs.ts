@@ -1,4 +1,4 @@
-const fs = require( 'fs');
+import fs from 'fs';
 //const promisify = require( 'util').promisify;
 const fsPromises = fs.promises;
 
@@ -13,9 +13,9 @@ const fsPromises = fs.promises;
  * @returns {Promise<boolean,NodeJS.ErrnoException>}
  * @
  */
-exports.deleteFile = path => new Promise( (res,rej)=> {
+export const deleteFile = (path: string) => new Promise((res, rej) => {
 
-	fs.unlink( path, (err)=>{
+	fs.unlink(path, (err) => {
 
 		err ? rej(err) : res(true);
 
@@ -29,12 +29,12 @@ exports.deleteFile = path => new Promise( (res,rej)=> {
  * @param {string} path
  * @returns {Promise<boolean>}
  */
-exports.exists = path => new Promise( (res)=>{
+export const exists = (path: string) => new Promise((res) => {
 
-	fs.access( path,
+	fs.access(path,
 
-		(err)=>{
-			res( !err );
+		(err) => {
+			res(!err);
 		});
 
 });
@@ -54,43 +54,27 @@ const readdir = fsPromises.readdir;
  * @param {string} path
  * @returns {Promise<string[], NodeJS.ErrnoException>}
  */
-exports.readfiles = ( path ) => new Promise( (res,rej)=>{
+export const readfiles = (path: string) => new Promise((res, rej) => {
 
-	if ( path.charAt(path.length-1) != '/') path += '/'; // might be unncessary now?
+	if (path.charAt(path.length - 1) != '/') path += '/'; // might be unncessary now?
 
-	readdir( path, {withFileTypes:true} ).then(
+	readdir(path, { withFileTypes: true }).then(
 
-		files=>{
+		files => {
 
 			let found = [];
 
-			for( let i = files.length-1; i>= 0;i-- ) {
-				if ( files[i].isFile() ) found.push( files[i].name );
+			for (let i = files.length - 1; i >= 0; i--) {
+				if (files[i].isFile()) found.push(files[i].name);
 			}
 			res(found);
 
 		},
-		err=>rej(err)
+		err => rej(err)
 	);
 
 
 });
-
-
-/**
- * @function
- * @param {string} path
- * @returns {Object|null}
- */
-exports.readJSONSync = path => {
-
-	let data = fs.readFileSync( path );
-	try {
-		return JSON.parse( data );
-
-	} catch(e){ return null; }
-
-};
 
 /**
  * @function
@@ -99,20 +83,20 @@ exports.readJSONSync = path => {
  * @param {string} path
  * @returns {Promise}
  */
-exports.mkdir = path => {
+export const mkdir = (path: string) => {
 
-	return fsPromises.stat( path ).then(
+	return fsPromises.stat(path).then(
 
-		stat=>{
+		stat => {
 
-			if ( stat.isDirectory() ) return;
+			if (stat.isDirectory()) return;
 			else throw new Error('File exists and is not a directory.');
 
 		},
-		()=>{
+		() => {
 
 			// file does not exist. this is intended.
-			return fsPromises.mkdir( path, {recursive:true} );
+			return fsPromises.mkdir(path, { recursive: true });
 		}
 	);
 
@@ -123,33 +107,33 @@ exports.mkdir = path => {
  * @param {string} path
  * @returns {Promise<*,NodeJS.ErrnoException>}
  */
-exports.readFile = fsPromises.readFile;
+export const readFile = fsPromises.readFile;
 
 /**
  * @function
  * @param {string} path
  * @returns {Promise<Object,Error>}
  */
-exports.readJSON = path=> new Promise( (res,rej)=>{
+export const readJSON = (path: string) => new Promise((res, rej) => {
 
-		fs.readFile( path, 'utf8', (err,data)=>{
+	fs.readFile(path, 'utf8', (err, data) => {
 
-			if ( err ) rej(err);
-			else if ( data === undefined || data === null ) rej('File is null.');
+		if (err) rej(err);
+		else if (data === undefined || data === null) rej('File is null.');
+		else {
+
+			if (data === '') res(null);
+
 			else {
 
-				if ( data === '' ) res(null);
+				res(JSON.parse(data));
 
-				else {
-
-					res( JSON.parse(data));
-
-				}
 			}
-
-		});
+		}
 
 	});
+
+});
 
 
 /**
@@ -158,10 +142,10 @@ exports.readJSON = path=> new Promise( (res,rej)=>{
  * @param {*} data
  * @returns {Promise}
  */
-exports.writeJSON = (path,data) => new Promise( (res, rej)=>{
+export const writeJSON = (path: string, data: any) => new Promise<void>((res, rej) => {
 
 	//console.log( 'data: ' + JSON.stringify(data));
-	fs.writeFile( path, JSON.stringify(data), {flag:'w+'}, err=>{
+	fs.writeFile(path, JSON.stringify(data), { flag: 'w+' }, err => {
 		err ? rej(err) : res();
 	});
 

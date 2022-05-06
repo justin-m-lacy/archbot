@@ -1,10 +1,4 @@
 {
-  "ts-node": {
-    "transpileOnly": true,
-    "require": [
-      "typescript-transform-paths/register"
-    ],
-  },
   "compilerOptions": {
     "rootDir": "./",
     "baseUrl": "./",
@@ -41,6 +35,8 @@
   ],
   "include": [
     "archbot.ts",
+    "plugins/**/*.ts",
+    "plugins/**/*.js",
     "src/bot/**/*.ts",
     "src/bot/**/*.js",
     "src/bot/**/*.d.ts",

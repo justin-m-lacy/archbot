@@ -1,14 +1,17 @@
-const Discord = require ( 'discord.js');
+import { GuildMember } from 'discord.js';
+const Discord = require('discord.js');
 
 /**
  * Determines access to commands for every BotContext.
  * PERMISSION FLAGS: https://discordapp.com/developers/docs/topics/permissions
  */
-module.exports = class Access {
+export default class Access {
 
 	toJSON() {
 		return { perms: this._perms };
 	}
+
+	private _perms: { [key: string]: any };
 
 	/**
 	 * @property {Object( string->permission ) } perms - maps command names to permissions required to use command.
@@ -20,10 +23,9 @@ module.exports = class Access {
 	 *
 	 * @param {Object} [vars=null]
 	 */
-	constructor(vars = null) {
+	constructor(vars?: { perms?: { [key: string]: any } }) {
 
-		this._perms = this._perms || {};
-		if (vars) this.perms = vars.perms || this._perms;
+		this._perms = vars?.perms ?? {}
 
 	}
 
@@ -33,7 +35,7 @@ module.exports = class Access {
 	 * will be available to all users. The exceptions tend to be special admin commands.
 	 * @param {string} cmd
 	 */
-	unsetAccess(cmd) {
+	unsetAccess(cmd: string) {
 		delete this._perms[cmd];
 	}
 
@@ -42,14 +44,13 @@ module.exports = class Access {
 	 * @param {string} cmd
 	 * @param {number|string} perm
 	 */
-	setAccess(cmd, perm) {
+	setAccess(cmd: string, perm: number | string) {
 
-		if ( perm === null || perm === undefined ) this.perms[cmd] = Discord.Permissions.DEFAULT;
-		else if (!isNaN(perm)) this.perms[cmd] = Number(perm);
-		else if ( typeof(perm) === 'string' ) {
+		if (perm === null || perm === undefined) this.perms[cmd] = Discord.Permissions.DEFAULT;
+		else if (typeof (perm) === 'string') {
 
 			perm = perm.toLowerCase();
-			if ( perm === 'all' || perm === 'public' || perm === 'true' ) {
+			if (perm === 'all' || perm === 'public' || perm === 'true') {
 
 				this.perms[cmd] = Discord.Permissions.ALL;
 
@@ -69,7 +70,8 @@ module.exports = class Access {
 
 			}
 
-		} else return false;
+		} else if (!isNaN(perm)) this.perms[cmd] = Number(perm);
+		else return false;
 
 		return true;
 
@@ -79,15 +81,15 @@ module.exports = class Access {
 	 * @param {string} cmd - command to get access string for.
 	 * @returns {string|null}
 	 */
-	accessInfo() {
+	accessInfo(cmd: string) {
 
-		if ( !this.perms.hasOwnProperty(cmd) ) return null;
+		if (!this.perms.hasOwnProperty(cmd)) return null;
 
 		let perm = this.perms[cmd];
 
-		if ( !isNaN(perm) ) return perm.toString();
-		else if ( typeof(perm) === 'string' ) return perm;
-		else if ( Array.isArray( perm ) ) return perm.join(', ');
+		if (!isNaN(perm)) return perm.toString();
+		else if (typeof (perm) === 'string') return perm;
+		else if (Array.isArray(perm)) return perm.join(', ');
 
 		return null;
 
@@ -98,7 +100,7 @@ module.exports = class Access {
 	 * @param {string} cmd
 	 * @returns {number|string|Array} access flags, or roles, or an array of any combination of them.
 	 */
-	getAccess(cmd) {
+	getAccess(cmd: string) {
 
 		if (!this.perms.hasOwnProperty(cmd)) return undefined;
 
@@ -112,7 +114,7 @@ module.exports = class Access {
 	 * @returns {boolean|undefined} Returned undefined if no permission is set for the command.
 	 * Returns true if the command or setting can be used by the given member, false otherwise.
 	 */
-	canAccess(cmd, gm) {
+	canAccess(cmd: string, gm: GuildMember) {
 
 		if (this.perms.hasOwnProperty(cmd) === false) return undefined;
 
@@ -129,17 +131,17 @@ module.exports = class Access {
 	 * @param {GuildMember} gm
 	 * @param {number|string} perm
 	 */
-	checkPerms(gm, perm) {
+	checkPerms(gm: GuildMember, perm: string | number) {
 
-		if (isNaN(perm) === false) return gm.permissions.has(perm);
+		if (typeof perm === 'number' && isNaN(perm) === false) return gm.permissions.has(perm);
 
-		else if ( Array.isArray( perm ) ) {
+		else if (Array.isArray(perm)) {
 
 			let a = perm;
 			for (let i = a.length - 1; i >= 0; i--) {
 
 				perm = a[i];
-				if (isNaN(perm) === false && gm.permissions.has(perm) === true) return true;
+				if (typeof perm === 'number' && isNaN(perm) === false && gm.permissions.has(perm) === true) return true;
 				else if (typeof perm === 'string' &&
 					gm.roles.cache.some(role => role.name.toLowerCase() === perm.toLowerCase())) return true;
 
@@ -149,8 +151,9 @@ module.exports = class Access {
 
 		} else if (typeof perm === 'string') {
 
+			const lower = perm.toLowerCase();
 			// assume perm is a role string.
-			return gm.roles.cache.some(role => role.name.toLowerCase() === perm.toLowerCase());
+			return gm.roles.cache.some(role => role.name.toLowerCase() === lower);
 
 		}
 
