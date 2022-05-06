@@ -5,9 +5,7 @@ let raceByName: { [race: string]: Race };
 export default class Race {
 
 	static GetRace(racename?: string) {
-
-		if (racename) return raceByName[racename.toLowerCase()];
-		return null;
+		return racename ? raceByName[racename.toLowerCase()] : undefined;
 	}
 
 	static RandRace(racename?: string) {
