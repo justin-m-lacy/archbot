@@ -22,7 +22,7 @@ export type ContextSource = Channel | Guild | User;
  * [ContextClass instances] <-> BotContext <-> ContextSource
  */
 export type ContextClass<T extends ContextSource> = {
-	new(context: BotContext<T>): ContextClass<T>,
+	new(context: BotContext<T>): any,
 	load?(): any
 };
 
