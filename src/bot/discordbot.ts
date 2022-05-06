@@ -1,4 +1,6 @@
-import { Client } from "discord.js";
+import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User } from "discord.js";
+import { Auth } from './auth';
+import Command from './command';
 
 const fsys = require('./botfs.js');
 const Dispatch = require('./dispatch.js');
@@ -15,7 +17,7 @@ const Contexts = exports.Context = require('./botcontext.js');
 
 var Bot: DiscordBot;
 
-exports.InitBot = (client: Client, auth) => {
+export const InitBot = (client: Client, auth: Auth) => {
 	Bot = new DiscordBot(client, auth);
 	return Bot;
 }
@@ -27,12 +29,7 @@ export class DiscordBot {
 	/**
 	 * @property {DiscordClient}
 	 */
-	get client() { return this._client; }
-
-	/**
-	 * @property {Cache}
-	 */
-	get cache() { return this._cache; }
+	readonly client: Client;
 
 	/**
 	 * @property {Dispatch}
@@ -50,19 +47,28 @@ export class DiscordBot {
 	get contextClasses() { return this._contextClasses; }
 
 	/**
-	 * @property {string}
+	 * prefix that indicates an archbot command.
 	 */
-	get cmdPrefix() { return this._cmdPrefix; }
+	readonly cmdPrefix: string = '!';
 
 	/**
-	 * @property {string} the working directory of the program. defaults to the directory of the main script file.
+	 * The working directory of the program. defaults to the directory of the main script file.
 	 */
-	get directory() { return this._directory; }
+	readonly directory: string;
+
+	_saveDir!: string;
 
 	/**
 	 * @property {string} base save directory.
 	 */
 	get saveDir() { return this._saveDir; }
+
+	readonly _dispatch: Dispatch;
+
+	readonly cache: Cache;
+
+	readonly _owner: string;
+	readonly _admins?: string[];
 
 	/**
 	 *
@@ -73,22 +79,22 @@ export class DiscordBot {
 	 * @param {string} [mainDir=null] - the main directory of the archbot program. Defaults to the directory of the main script
 	 * being run.
 	 */
-	constructor(client, auth, mainDir = null) {
+	constructor(client: Client, auth: Auth, mainDir = null) {
 
 		// map target discord obj to processing context.
 		this._contexts = {};
 
-		this._directory = mainDir || process.cwd();
+		this.directory = mainDir || process.cwd();
 
 		// classes to instantiate for each context.
 		this._contextClasses = [];
 
-		this._client = client;
+		this.client = client;
 
 		this.loadConfig();
 		fsys.setBaseDir(this._saveDir);
 
-		this._cache = new Cache({
+		this.cache = new Cache({
 
 			loader: fsys.readData,
 			saver: fsys.writeData,
@@ -97,7 +103,7 @@ export class DiscordBot {
 
 		});
 
-		this._dispatch = new Dispatch(this._cmdPrefix);
+		this._dispatch = new Dispatch(this.cmdPrefix);
 
 		// maps id->context id.
 		this.restoreProxies();
@@ -114,7 +120,7 @@ export class DiscordBot {
 			() => {
 
 				try {
-					this._cache.cleanup(60 * 1000 * 30);
+					this.cache.cleanup(60 * 1000 * 30);
 				} catch (e) { console.error(e); }
 
 			}, 60 * 1000 * 30);
@@ -122,25 +128,25 @@ export class DiscordBot {
 		client.setInterval(
 			() => {
 				try {
-					this._cache.backup(60 * 1000 * 15);
+					this.cache.backup(60 * 1000 * 15);
 				} catch (e) { console.error(e); }
 			}, 60 * 1000 * 15);
 
 		this.initClient();
 
-		this.addCmd('backup', 'backup', (m) => this.cmdBackup(m),
+		this.addCmd('backup', 'backup', (m: Message) => this.cmdBackup(m),
 			{ access: 0, access: Discord.Permissions.FLAGS.ADMINISTRATOR, immutable: true, module: 'default' });
-		this.addCmd('archleave', 'archleave', (m) => this.cmdLeaveGuild(m), {
+		this.addCmd('archleave', 'archleave', (m: Message) => this.cmdLeaveGuild(m), {
 			access: Discord.Permissions.FLAGS.ADMINISTRATOR
 		});
-		this.addCmd('archkill', 'archkill', m => this.cmdBotQuit(m), { immutable: true });
-		this.addCmd('proxyme', 'proxyme', (m) => this.cmdProxy(m));
+		this.addCmd('archkill', 'archkill', (m: Message) => this.cmdBotQuit(m), { immutable: true });
+		this.addCmd('proxyme', 'proxyme', (m: Message) => this.cmdProxy(m));
 		this.addCmd('access', 'access cmd [permissions|roles]',
-			(m, cmd, perm) => this.cmdAccess(m, cmd, perm),
+			(m: Message, cmd: string, perm) => this.cmdAccess(m, cmd, perm),
 			{ minArgs: 1, access: Discord.Permissions.FLAGS.ADMINISTRATOR, immutable: true }
 		);
 		this.addCmd('resetaccess', 'resetaccess cmd',
-			(m, cmd) => this.cmdResetAccess(m, cmd),
+			(m: Message, cmd: string) => this.cmdResetAccess(m, cmd),
 			{ minArgs: 1, maxArgs: 1, access: Discord.Permissions.FLAGS.ADMINISTRATOR }
 		);
 
@@ -160,13 +166,13 @@ export class DiscordBot {
 			}
 
 			this._spamblock = config.spamblock || {};
-			this._cmdPrefix = config.cmdprefix || '!';
-			this._plugsdir = path.join(this._directory, config.pluginsdir);
-			this._saveDir = path.join(this._directory, config.savedir || '/savedata/');
+			this.cmdPrefix = config.cmdprefix || '!';
+			this._plugsdir = path.join(this.directory, config.pluginsdir);
+			this._saveDir = path.join(this.directory, config.savedir || '/savedata/');
 
 
 		} catch (e) {
-			this._cmdPrefix = '!';
+			this.cmdPrefix = '!';
 			this._spamblock = {};
 		}
 
@@ -191,10 +197,10 @@ export class DiscordBot {
 	 * @async
 	 */
 	async onShutdown() {
-		if (this._client) {
-			await this._cache.backup();
-			this._client.destroy();
-			this._client = null;
+		if (this.client) {
+			await this.cache.backup();
+			this.client.destroy();
+			this.client = null;
 
 		}
 		process.exit(1);
@@ -247,25 +253,25 @@ export class DiscordBot {
 	initClient() {
 
 		// NOTE: 'this' for events is always client.
-		this._client.on('ready', () => this.initContexts());
-		this._client.on('guildUnavailable', onGuildUnavail)
+		this.client.on('ready', () => this.initContexts());
+		this.client.on('guildUnavailable', onGuildUnavail)
 
-		this._client.on('resume', onResume);
+		this.client.on('resume', onResume);
 
-		this._client.on('message', m => {
+		this.client.on('message', m => {
 
-			if (m.author.id === this._client.user.id) return;
+			if (m.author.id === this.client.user.id) return;
 			this.onMessage(m);
 
 		});
 
-		this._client.on('presenceUpdate', onPresence);
+		this.client.on('presenceUpdate', onPresence);
 
 	}
 
 	initContexts() {
 
-		console.log('client ready: ' + this._client.user.username + ' - (' + this._client.user.id + ')');
+		console.log('client ready: ' + this.client.user.username + ' - (' + this.client.user.id + ')');
 
 		try {
 			let classes = this._contextClasses;
@@ -354,7 +360,7 @@ export class DiscordBot {
 	 * @param {*} context
 	 * @returns {boolean}
 	 */
-	testAccess(m, cmd, context) {
+	testAccess(m: Message, cmd: Command, context) {
 
 		let allowed = context.canAccess(cmd.name, m.member);
 		if (allowed === undefined) {
@@ -374,7 +380,7 @@ export class DiscordBot {
 	 * @param {Discord.User|string} u
 	 * @returns {boolean}
 	 */
-	isOwner(u) {
+	isOwner(u: User | string) {
 
 		if (typeof u !== 'string') u = u.id;
 		return (this._admins && this._admins.includes(u)) || u === this._owner;
@@ -386,10 +392,10 @@ export class DiscordBot {
 	 * @param {Message} m
 	 * @returns {Promise}
 	 */
-	async cmdBackup(m) {
+	async cmdBackup(m: Message) {
 
 		if (this.isOwner(m.author.id)) {
-			await this._cache.backup(0);
+			await this.cache.backup(0);
 		} else {
 
 			let context = this.getMsgContext(m);
@@ -405,7 +411,7 @@ export class DiscordBot {
 	 * @param {Message} m
 	 * @returns {Promise}
 	 */
-	async cmdBotQuit(m) {
+	async cmdBotQuit(m: Message) {
 
 		if (this.isOwner(m.author.id)) {
 			this.client.destroy();
@@ -420,7 +426,7 @@ export class DiscordBot {
 	 * @param {Message} m
 	 * @returns {Promise}
 	 */
-	async cmdLeaveGuild(m) {
+	async cmdLeaveGuild(m: Message) {
 
 		if (this.isOwner(m.author.id) && m.guild) {
 			return m.guild.leave();
@@ -434,7 +440,7 @@ export class DiscordBot {
 	 * @param {Message} m
 	 * @returns {boolean} returns true to block guild/channel.
 	 */
-	spamblock(m) {
+	spamblock(m: Message) {
 
 		if (!m.guild) return false;
 		let allow = this._spamblock[m.guild.id];
@@ -452,7 +458,7 @@ export class DiscordBot {
 	 * @param {Message} m
 	 * @returns {Promise}
 	 */
-	async cmdProxy(m) {
+	async cmdProxy(m: Message) {
 
 		// get context of the guild/channel to be proxied to user.
 		let context = await this.getMsgContext(m);
@@ -469,7 +475,7 @@ export class DiscordBot {
 	 * @param {string} cmd - name of command.
 	 * @returns {Promise}
 	 */
-	async cmdResetAccess(m, cmd) {
+	async cmdResetAccess(m: Message, cmd: string) {
 
 		// unset any custom access.
 		context.unsetAccess(cmd);
@@ -484,7 +490,7 @@ export class DiscordBot {
 	 * @param {string} [perm=undefined]
 	 * @returns {Promise}
 	 */
-	async cmdAccess(m, cmdName, perm = undefined) {
+	async cmdAccess(m: Message, cmdName: string, perm = undefined) {
 
 		let cmd = this._dispatch.getCommand(cmdName);
 		if (!cmd) return m.reply(`Command '${cmdName}' not found.`);
@@ -522,7 +528,7 @@ export class DiscordBot {
 	 * @param {Command} [cmd=null]
 	 * @returns {Promise}
 	 */
-	async sendNoPerm(m, cmd = null) {
+	async sendNoPerm(m: Message, cmd = null) {
 
 		if (cmd) return m.reply(`You do not have permission to use the command '${cmd.name}'`);
 		return m.reply('You do not have permission to use that command.');
@@ -632,7 +638,7 @@ export class DiscordBot {
 	 * @returns {Guild|Channel}
 	 */
 	async findProxTarget(id) {
-		return await this._client.guilds.fetch(id) || await this.client.channels.fetch(id);
+		return await this.client.guilds.fetch(id) || await this.client.channels.fetch(id);
 	}
 
 	/**
@@ -647,8 +653,8 @@ export class DiscordBot {
 		let context;
 
 		if (type === 'text' || !type || type === 'voice')
-			context = new Contexts.GuildContext(this, idobj, this._cache.subcache(fsys.getGuildDir(idobj)));
-		else context = new Contexts.UserContext(this, idobj, this._cache.subcache(fsys.getUserDir(idobj)));
+			context = new Contexts.GuildContext(this, idobj, this.cache.subcache(fsys.getGuildDir(idobj)));
+		else context = new Contexts.UserContext(this, idobj, this.cache.subcache(fsys.getUserDir(idobj)));
 
 		await context.init(this._contextClasses);
 
@@ -690,7 +696,7 @@ export class DiscordBot {
 	 * @returns {Promise<*>}
 	 */
 	async fetchData(key) {
-		return this._cache.fetch(key);
+		return this.cache.fetch(key);
 	}
 
 	/**
@@ -701,7 +707,7 @@ export class DiscordBot {
 	 * @returns {Promise}
 	 */
 	async storeData(key, data) {
-		return this._cache.store(key, data);
+		return this.cache.store(key, data);
 	}
 
 	/**
@@ -726,7 +732,7 @@ export class DiscordBot {
 	 * @param {*} data
 	 */
 	cacheData(key, data) {
-		this._cache.cache(key, data);
+		this.cache.cache(key, data);
 	}
 
 	/**
@@ -739,7 +745,7 @@ export class DiscordBot {
 		let objPath = (uObject instanceof Discord.GuildMember) ? fsys.memberPath(uObject)
 			: objPath = fsys.getUserDir(uObject);
 
-		return this._cache.fetch(objPath);
+		return this.cache.fetch(objPath);
 
 	}
 
@@ -748,12 +754,12 @@ export class DiscordBot {
 	 * @param {Discord.User|Discord.GuildMember} uObject
 	 * @param {*} data - user data to store.
 	 */
-	storeUserData(uObject, data) {
+	storeUserData(uObject: User | GuildMember, data: any) {
 
 		let objPath = (uObject instanceof Discord.GuildMember) ? fsys.memberPath(uObject) :
 			fsys.getUserDir(uObject);
 
-		return this._cache.cache(objPath, data);
+		return this.cache.cache(objPath, data);
 
 	}
 
@@ -766,7 +772,7 @@ export class DiscordBot {
 	 * @param {string} name
 	 * @returns {}
 	 */
-	userOrSendErr(channel, name) {
+	userOrSendErr(channel: TextBasedChannel, name?: string) {
 
 		if (!name) {
 			channel.send('User name expected.');
@@ -847,7 +853,7 @@ export class DiscordBot {
 	 * @param {Channel} chan
 	 * @returns {Promise}
 	 */
-	async printCommands(chan) {
+	async printCommands(chan: TextBasedChannel) {
 
 		let str = `Use ${this.cmdPrefix}help [command] for more information.\nAvailable commands:\n`;
 		let cmds = this._dispatch.commands;
@@ -882,7 +888,7 @@ export class DiscordBot {
  * @param {GuildMember} oldGM
  * @param {GuildMember} newGM
  */
-function onPresence(oldGM, newGM) {
+const onPresence = (oldGM: GuildMember, newGM: GuildMember) => {
 
 	if (newGM.id === Bot.client.user.id) {
 		if (newGame.presence.status === 'online') {
@@ -891,12 +897,12 @@ function onPresence(oldGM, newGM) {
 	}
 }
 
-function onGuildUnavail(g) {
+const onGuildUnavail = (g: Guild) => {
 	console.log('guild unavailable: ' + g.name);
 }
 
-function onResume(evtCount) {
-	console.log('resuming. missed ' + evtCount + ' events.');
+const onResume = (evtCount: number) => {
+	console.log(`resuming. missed ${evtCount} events.`);
 }
 
 /*function onReady() {

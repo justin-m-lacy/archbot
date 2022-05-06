@@ -133,17 +133,22 @@ export default class Access {
 	 */
 	checkPerms(gm: GuildMember, perm: string | number) {
 
-		if (typeof perm === 'number' && isNaN(perm) === false) return gm.permissions.has(perm);
+		if (typeof perm === 'number' && isNaN(perm) === false) {
 
-		else if (Array.isArray(perm)) {
+			return gm.permissions.has(perm);
+
+		} else if (Array.isArray(perm)) {
 
 			let a = perm;
 			for (let i = a.length - 1; i >= 0; i--) {
 
 				perm = a[i];
 				if (typeof perm === 'number' && isNaN(perm) === false && gm.permissions.has(perm) === true) return true;
-				else if (typeof perm === 'string' &&
-					gm.roles.cache.some(role => role.name.toLowerCase() === perm.toLowerCase())) return true;
+				else if (typeof perm === 'string') {
+
+					const lower = perm.toLowerCase();
+					return gm.roles.cache.some(role => role.name.toLowerCase() === lower);
+				}
 
 			}
 

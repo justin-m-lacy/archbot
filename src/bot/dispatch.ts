@@ -1,4 +1,5 @@
-const Command = require('./command.js');
+import Command from './command';
+import { BotContext, ContextObject } from './botcontext';
 
 const QuoteRE = /“|”/g;
 
@@ -7,12 +8,14 @@ const QuoteRE = /“|”/g;
  */
 //const SplitRE = /"([^"]*)"|“([^”]*)”|\s*\b([^"]+)\b/g;
 
-module.exports = class CmdDispatch {
+export default class CmdDispatch {
 
 	/**
 	 * {string}
 	 */
 	get prefix() { return this.cmdLine.prefix; }
+
+	private cmdLine: CmdLine;
 
 	/**
 	 *
@@ -34,14 +37,14 @@ module.exports = class CmdDispatch {
 	 * @param {string} name
 	 * @returns {(Command|null)}
 	 */
-	getCommand(name) { return this.cmdLine.getCommand(name); }
+	getCommand(name: string) { return this.cmdLine.getCommand(name); }
 
 	/**
 	 * Parse a line of input.
 	 * @param {string} input - text input.
 	 * @returns {Command|null} - command found on input, or null.
 	 */
-	parseLine(input) {
+	parseLine(input: string) {
 		return this.cmdLine.setInput(input);
 	} //
 
@@ -50,7 +53,7 @@ module.exports = class CmdDispatch {
 	 * @param {Command} cmd
 	 * @param {Array} leadArgs
 	 */
-	dispatch(cmd, leadArgs) {
+	dispatch(cmd: Command, leadArgs: any[]) {
 
 		let lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
@@ -67,7 +70,7 @@ module.exports = class CmdDispatch {
 	 * @param {Array} leadArgs
 	 * @returns {Promise}
 	 */
-	routeCmd(context, cmd, leadArgs) {
+	routeCmd<T extends ContextObject>(context: BotContext<T>, cmd: Command, leadArgs: any[]) {
 
 		let lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
@@ -86,12 +89,14 @@ module.exports = class CmdDispatch {
 	 * @param {number} [opts.minArgs] @param {number} [opts.maxArgs] @param {bool}[opts.hidden] @param {string}[opts.group]
 	 * @param {*[]} [opts.args] - Arguments to pass after all other arguments to command.
 	 */
-	addContextCmd(name, desc, func, cmdClass, opts = null) {
+	addContextCmd(name: string, desc: string, func: Function, cmdClass: any, opts?: Partial<Command>) {
 
 		try {
-			let cmd = new Command(name, func, opts);
-			cmd.desc = desc;
-			cmd.instClass = cmdClass;
+			let cmd = new Command(name, func, {
+				desc: desc,
+				instClass: cmdClass,
+				...opts
+			});
 			this.regCmd(cmd);
 		} catch (e) { console.error(e); }
 
@@ -104,13 +109,12 @@ module.exports = class CmdDispatch {
 	 * @param {Function} func
 	 * @param {Object} [opts=null]
 	 */
-	add(name, desc, func, opts = null) {
+	add(name: string, desc: string, func: Function, opts?: Partial<Command>) {
 
 		try {
 
 			//console.log( 'static command: ' + name );
-			let cmd = new Command(name, func, opts);
-			cmd.desc = desc;
+			let cmd = new Command(name, func, { desc: desc, ...opts });
 			this.regCmd(cmd);
 
 		} catch (e) { console.error(e); }
@@ -123,13 +127,14 @@ module.exports = class CmdDispatch {
 	 */
 	regCmd(cmd: Command) {
 
-		this.cmdLine.commands[cmd.name] = cmd;
+		this.cmdLine.commands.set(cmd.name, cmd);
 		let alias = cmd.alias;
 		if (alias) {
 
-			if (typeof (alias) === 'string') this.cmdLine.commands[alias] = cmd;
-			else if (Array.isArray(alias))
-				for (let i = alias.length - 1; i >= 0; i--) this.cmdLine.commands[alias[i]] = cmd;
+			if (typeof (alias) === 'string') this.cmdLine.commands.set(alias, cmd);
+			else if (Array.isArray(alias)) {
+				alias.every(v => this.cmdLine.commands.set(v, cmd));
+			}
 
 		}
 
@@ -144,15 +149,13 @@ module.exports = class CmdDispatch {
 	 *
 	 * @param {string} name
 	 */
-	clearCmd(name) { delete this.commands[name]; }
+	clearCmd(name: string) { return this.commands.delete(name); }
 
 }
 
 class CmdLine {
 
-	/**
-	 * { .<string,Command> } - All active commands.
-	 */
+	readonly _cmds: Map<string, Command> = new Map();
 	get commands() { return this._cmds; }
 
 	/**
@@ -160,49 +163,54 @@ class CmdLine {
 	 */
 	get args() { return this._args; }
 
+	private _args?: string[] | null;
+
 	/**
 	 * @property {string} prefix - bot command prefix.
 	 */
-	get prefix() { return this._prefix; }
+	readonly prefix: string;
+
+	/**
+	 * Length of command prefix.
+	 */
+	private readonly _prefixLen: number;
+
+	constructor(cmdPrefix = '!') {
+
+		this.prefix = cmdPrefix;
+		this._prefixLen = cmdPrefix ? cmdPrefix.length : 0;
+
+	}
 
 	/**
 	 *
 	 * @param {string} name
 	 */
-	getCommand(name) {
-		return this._cmds[name.toLowerCase()];
+	getCommand(name: string) {
+		return this._cmds.get(name.toLowerCase());
 	}
 
-	constructor(cmdPrefix = '!') {
-
-		this._prefix = cmdPrefix;
-		this._prefixLen = cmdPrefix ? cmdPrefix.length : 0;
-
-		this._cmds = {};
-
-	}
 
 	/**
 	 *
 	 * @param {string} str
 	 * @returns {Command|null} The command found on the input line.
 	 */
-	setInput(str) {
+	setInput(str: string) {
 
 		str = str.trim();
 
 		// cmd prefix.
-		if (str.slice(0, this._prefixLen) !== this._prefix) return null;
-
+		if (str.slice(0, this._prefixLen) !== this.prefix) return null;
 		let cmd, ind = str.indexOf(' ', this._prefixLen);
 		if (ind < 0) {
 
-			cmd = this._cmds[str.slice(this._prefixLen).toLowerCase()];
+			cmd = this._cmds.get(str.slice(this._prefixLen).toLowerCase());
 			this._args = null;
 
 		} else {
 
-			cmd = this._cmds[str.slice(this._prefixLen, ind).toLowerCase()];
+			cmd = this._cmds.get(str.slice(this._prefixLen, ind).toLowerCase());
 			if (!cmd) return null;
 
 			this.readArgs(str.slice(ind), cmd);
@@ -213,7 +221,7 @@ class CmdLine {
 
 	}
 
-	readArgs(argstr, cmd) {
+	readArgs(argstr: string, cmd: Command) {
 
 		argstr = argstr.replace(QuoteRE, '"');
 
@@ -225,35 +233,7 @@ class CmdLine {
 
 	}
 
-	/**
-	 * Split input into args without limit.
-	 * @param {*} str
-	 */
-	splitAll(str) {
-
-		var res;
-
-		var args = [];
-
-		while (res = splitRE.exec(str)) {
-
-			args.push(res[0]);
-
-			/*for( let i = 1; i < res.length; i++ ) {
-
-				if ( res[i] !== undefined ) {
-					args.push(res[i]);
-					break;
-				}
-			}*/
-
-		}
-
-		return args;
-
-	}
-
-	splitArgs(str) {
+	splitArgs(str: string) {
 
 		var args = [];
 		let len = str.length;
@@ -292,7 +272,7 @@ class CmdLine {
 
 
 	// groups args on right to max count.
-	groupRight(str, argCount) {
+	groupRight(str: string, argCount: number) {
 
 		var args = [];
 		let len = str.length;
@@ -336,7 +316,7 @@ class CmdLine {
 	}
 
 	// groups args on left to max count.
-	groupLeft(str, argCount) {
+	groupLeft(str: string, argCount: number) {
 
 		var args = [];
 		let start = str.length - 1;
@@ -378,7 +358,7 @@ class CmdLine {
 
 	}
 
-	trimQuote(str) {
+	trimQuote(str: string) {
 
 		str = str.trim();
 		let len = str.length;
@@ -393,7 +373,7 @@ class CmdLine {
 	}
 
 	/// splits arguments, allowing quote marks.
-	getArgs() {
+	/*getArgs() {
 
 		let str = this._argStr;
 		var args = [];
@@ -426,6 +406,6 @@ class CmdLine {
 
 		}
 
-	}
+	}*/
 
 }

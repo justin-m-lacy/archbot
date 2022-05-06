@@ -2,12 +2,11 @@ import { Channel, Guild, User, GuildMember, Message, TextBasedChannel } from 'di
 import { DiscordBot } from './discordbot';
 import Command from './command';
 import ArchCache from 'archcache';
+import Access from './access';
 
 const Discord = require('discord.js');
 const fsys = require('./botfs.js');
 const afs = require('../afs');
-
-const Access = require('./access.js');
 
 export type ContextObject = Channel | Guild | User;
 
@@ -15,14 +14,14 @@ export type ContextObject = Channel | Guild | User;
  * A class instance registered and associated with the discord context.
  */
 type ContextInstance<T extends ContextObject> = {
-	new(context: Context<T>): ContextInstance<T>,
+	new(context: BotContext<T>): ContextInstance<T>,
 	load?(): any
 };
 
 /**
  * Base class for a BotContext.
  */
-export abstract class Context<T extends ContextObject> {
+export abstract class BotContext<T extends ContextObject> {
 
 	/**
 	 * @property {string} type - 'guild', 'user', 'dm', 'channel'
@@ -62,6 +61,8 @@ export abstract class Context<T extends ContextObject> {
 
 	get afs() { return afs; }
 	get botfs() { return fsys; }
+
+	private _access?: Access;
 
 	/**
 	 * @param {DiscordBot} bot
@@ -112,7 +113,7 @@ export abstract class Context<T extends ContextObject> {
 	 * @returns {string}
 	 */
 	accessInfo(cmd: string) {
-		return this.access.accessInfo(cmd);
+		return this.access?.accessInfo(cmd);
 	}
 
 	/**
@@ -120,7 +121,7 @@ export abstract class Context<T extends ContextObject> {
 	 * @param {string} cmd
 	 */
 	unsetAccess(cmd: string) {
-		this.access.unsetAccess(cmd);
+		this.access?.unsetAccess(cmd);
 	}
 
 	/**
@@ -130,7 +131,7 @@ export abstract class Context<T extends ContextObject> {
 	 * @returns {boolean}
 	 */
 	setAccess(cmd: string, perm: string | number) {
-		return this.access.setAccess(cmd, perm);
+		return this.access?.setAccess(cmd, perm);
 	}
 
 	/**
@@ -138,7 +139,7 @@ export abstract class Context<T extends ContextObject> {
 	 * @param {string} cmd
 	 */
 	getAccess(cmd: string) {
-		return this.access.getAccess(cmd);
+		return this.access?.getAccess(cmd);
 	}
 
 	/**
@@ -148,7 +149,7 @@ export abstract class Context<T extends ContextObject> {
 	 * @returns {boolean}
 	 */
 	canAccess(cmd: string, gm: GuildMember) {
-		return this._access.canAccess(cmd, gm);
+		return this._access?.canAccess(cmd, gm);
 	}
 
 	/**
@@ -489,7 +490,7 @@ export abstract class Context<T extends ContextObject> {
 
 }
 
-export class UserContext extends Context<User> {
+export class UserContext extends BotContext<User> {
 
 	/**
 	 * {string}
@@ -516,7 +517,7 @@ export class UserContext extends Context<User> {
 
 }
 
-export class GuildContext extends Context<Guild> {
+export class GuildContext extends BotContext<Guild> {
 	/**
 	 * {string}
 	 */

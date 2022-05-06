@@ -1,6 +1,10 @@
+import { Channel, Guild, GuildMember, User } from 'discord.js';
 import path from 'path';
-import afs from '../afs';
+import * as afs from '../afs';
 
+export type Idable = {
+	id: string
+}
 /**
  * @constant {string} GUILDS_DIR
  */
@@ -33,7 +37,7 @@ var BASE_DIR = './savedata';
  * @param {string} relPath
  * @returns {Promise<boolean>}
  */
-async function deleteData(relPath) {
+async function deleteData(relPath: string) {
 	return afs.deleteFile(path.join(BASE_DIR, relPath + '.json'));
 }
 
@@ -42,7 +46,7 @@ async function deleteData(relPath) {
  * @param {string} relPath
  * @returns {Promise<*>}
  */
-async function readData(relPath) {
+async function readData(relPath: string) {
 	return afs.readJSON(path.join(BASE_DIR, relPath + '.json'));
 }
 
@@ -52,7 +56,7 @@ async function readData(relPath) {
  * @param {*} data - data to be JSON-encoded.
  * @returns {Promise<*>}
  */
-async function writeData(relPath, data) {
+async function writeData(relPath: string, data: any) {
 
 	try {
 
@@ -72,17 +76,17 @@ async function writeData(relPath, data) {
  * @param {string} chan
  * @returns {string}
  */
-function getChannelDir(chan) {
-	if (!chan) return CHANNELS_DIR;
+/*function getChannelDir(channel?: string) {
+	if (!channel) return CHANNELS_DIR;
 	return CHANNELS_DIR + channel.id + '/';
-}
+}*/
 
 /**
  * Gets path to guild storage.
  * @param {Guild} guild
  * @returns {string}
  */
-function getGuildDir(guild) {
+function getGuildDir(guild?: Guild) {
 	if (guild == null) return GUILDS_DIR;
 	return GUILDS_DIR + guild.id + '/';
 }
@@ -92,7 +96,7 @@ function getGuildDir(guild) {
  * @param {User} user
  * @returns {string} User storage directory.
  */
-function getUserDir(user) {
+function getUserDir(user?: User) {
 	if (user == null) return USERS_DIR;
 	return USERS_DIR + user.id + '/';
 }
@@ -102,7 +106,7 @@ function getUserDir(user) {
  * @param {string} user
  * @returns {string}
  */
-function getUserPath(user) {
+function getUserPath(user?: User) {
 
 	if (user == null) return '';
 	return USERS_DIR + user.id;
@@ -114,14 +118,14 @@ function getUserPath(user) {
  * @param {string} member
  * @returns {string}
  */
-function getMemberPath(member) {
+function getMemberPath(member?: GuildMember) {
 
 	if (!member || !member.guild) return '';
 	return GUILDS_DIR + member.guild.id + '/' + (member.id);
 
 }
 
-module.exports = {
+export default {
 
 	readData: readData,
 	writeData: writeData,
@@ -132,13 +136,12 @@ module.exports = {
 
 	getUserDir: getUserDir,
 	getGuildDir: getGuildDir,
-	getChannelDir: getChannelDir,
 
 	/**
 	 *
 	 * @param {string} plugin
 	 */
-	getPluginDir(plugin) {
+	getPluginDir(plugin: string) {
 
 		if (!plugin) return BASE_DIR + PLUGINS_DIR;
 		return BASE_DIR + PLUGINS_DIR + plugin + '/';
@@ -153,15 +156,19 @@ module.exports = {
 	getBaseDir() {
 		return BASE_DIR;
 	},
-	setBaseDir(v) {
-		BASE_DIR = v + '/';
+	setBaseDir(v: string) {
+		if (v.length > 0 && v[v.length - 1] !== '/') {
+			BASE_DIR = v + '/';
+		} else {
+			BASE_DIR = v;
+		}
 	},
 
-	fileExists: async (filePath) => {
+	fileExists: async (filePath: string) => {
 		return afs.exists(BASE_DIR + filePath + '.json');
 	},
 
-	guildPath: (guild, subs) => {
+	guildPath: (guild?: Guild, subs?: (string | Idable)[]) => {
 
 		if (guild == null) return GUILDS_DIR;
 
@@ -185,7 +192,7 @@ module.exports = {
 
 	},
 
-	channelPath: (chan, subs) => {
+	channelPath: (chan?: Channel, subs?: Array<string | Idable>) => {
 		if (chan == null) return CHANNELS_DIR;
 
 		let thepath = CHANNELS_DIR + chan.id;
