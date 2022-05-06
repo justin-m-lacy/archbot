@@ -1,5 +1,5 @@
-const path = require( 'path');
-const afs = require( '../afs.js');
+import path from 'path';
+import afs from '../afs';
 
 /**
  * @constant {string} GUILDS_DIR
@@ -33,8 +33,8 @@ var BASE_DIR = './savedata';
  * @param {string} relPath
  * @returns {Promise<boolean>}
  */
-async function deleteData( relPath ) {
-	return afs.deleteFile( path.join( BASE_DIR, relPath + '.json' ) );
+async function deleteData(relPath) {
+	return afs.deleteFile(path.join(BASE_DIR, relPath + '.json'));
 }
 
 /**
@@ -42,8 +42,8 @@ async function deleteData( relPath ) {
  * @param {string} relPath
  * @returns {Promise<*>}
  */
-async function readData( relPath ) {
-	return afs.readJSON( path.join( BASE_DIR, relPath + '.json' ) );
+async function readData(relPath) {
+	return afs.readJSON(path.join(BASE_DIR, relPath + '.json'));
 }
 
 /**
@@ -52,17 +52,17 @@ async function readData( relPath ) {
  * @param {*} data - data to be JSON-encoded.
  * @returns {Promise<*>}
  */
-async function writeData( relPath, data ) {
+async function writeData(relPath, data) {
 
 	try {
 
-		let absPath = path.join( BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath );
+		let absPath = path.join(BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath);
 
-		await afs.mkdir( path.dirname( absPath ) );
-		return afs.writeJSON( absPath + '.json', data );
+		await afs.mkdir(path.dirname(absPath));
+		return afs.writeJSON(absPath + '.json', data);
 
-	} catch(e){
-		console.error('Failed to write data: ' + e.toString() );
+	} catch (e) {
+		console.error('Failed to write data: ' + e.toString());
 	}
 
 }
@@ -72,8 +72,8 @@ async function writeData( relPath, data ) {
  * @param {string} chan
  * @returns {string}
  */
-function getChannelDir( chan ) {
-	if ( !chan ) return CHANNELS_DIR;
+function getChannelDir(chan) {
+	if (!chan) return CHANNELS_DIR;
 	return CHANNELS_DIR + channel.id + '/';
 }
 
@@ -82,8 +82,8 @@ function getChannelDir( chan ) {
  * @param {Guild} guild
  * @returns {string}
  */
-function getGuildDir( guild ) {
-	if ( guild == null ) return GUILDS_DIR;
+function getGuildDir(guild) {
+	if (guild == null) return GUILDS_DIR;
 	return GUILDS_DIR + guild.id + '/';
 }
 
@@ -92,8 +92,8 @@ function getGuildDir( guild ) {
  * @param {User} user
  * @returns {string} User storage directory.
  */
-function getUserDir( user ) {
-	if ( user == null ) return USERS_DIR;
+function getUserDir(user) {
+	if (user == null) return USERS_DIR;
 	return USERS_DIR + user.id + '/';
 }
 
@@ -102,9 +102,9 @@ function getUserDir( user ) {
  * @param {string} user
  * @returns {string}
  */
-function getUserPath( user ) {
+function getUserPath(user) {
 
-	if ( user == null ) return '';
+	if (user == null) return '';
 	return USERS_DIR + user.id;
 
 }
@@ -114,33 +114,33 @@ function getUserPath( user ) {
  * @param {string} member
  * @returns {string}
  */
-function getMemberPath( member ) {
+function getMemberPath(member) {
 
-	if ( !member || !member.guild ) return '';
+	if (!member || !member.guild) return '';
 	return GUILDS_DIR + member.guild.id + '/' + (member.id);
 
 }
 
 module.exports = {
 
-	readData:readData,
-	writeData:writeData,
-	deleteData:deleteData,
+	readData: readData,
+	writeData: writeData,
+	deleteData: deleteData,
 
-	userPath:getUserPath,
-	memberPath:getMemberPath,
+	userPath: getUserPath,
+	memberPath: getMemberPath,
 
-	getUserDir:getUserDir,
-	getGuildDir:getGuildDir,
-	getChannelDir:getChannelDir,
+	getUserDir: getUserDir,
+	getGuildDir: getGuildDir,
+	getChannelDir: getChannelDir,
 
 	/**
 	 *
 	 * @param {string} plugin
 	 */
-	getPluginDir( plugin ) {
+	getPluginDir(plugin) {
 
-		if ( !plugin ) return BASE_DIR + PLUGINS_DIR;
+		if (!plugin) return BASE_DIR + PLUGINS_DIR;
 		return BASE_DIR + PLUGINS_DIR + plugin + '/';
 
 	},
@@ -148,7 +148,7 @@ module.exports = {
 	/**
 	 * @property {string[]} illegalChars
 	 */
-	illegalChars:[ '/', '\\', ':', '*', '?', '"', '|', '<', '>'],
+	illegalChars: ['/', '\\', ':', '*', '?', '"', '|', '<', '>'],
 
 	getBaseDir() {
 		return BASE_DIR;
@@ -157,24 +157,24 @@ module.exports = {
 		BASE_DIR = v + '/';
 	},
 
-	fileExists:async (filePath) => {
-		return afs.exists( BASE_DIR + filePath + '.json');
+	fileExists: async (filePath) => {
+		return afs.exists(BASE_DIR + filePath + '.json');
 	},
 
-	guildPath:(guild, subs )=> {
+	guildPath: (guild, subs) => {
 
-		if ( guild == null ) return GUILDS_DIR;
+		if (guild == null) return GUILDS_DIR;
 
 		let thepath = GUILDS_DIR + guild.id;
-		if ( subs == null ) return thepath;
+		if (subs == null) return thepath;
 
 		let len = subs.length;
 		let subobj;
 
-		for( let i = 0; i < len; i++ ) {
+		for (let i = 0; i < len; i++) {
 			subobj = subs[i];
 
-			if ( typeof(subobj) == 'string' ) {
+			if (typeof (subobj) == 'string') {
 				thepath += '/' + subobj.toLowerCase();
 			} else {
 				thepath += '/' + subobj.id;
@@ -185,17 +185,17 @@ module.exports = {
 
 	},
 
-	channelPath:( chan, subs ) => {
-		if ( chan == null ) return CHANNELS_DIR;
+	channelPath: (chan, subs) => {
+		if (chan == null) return CHANNELS_DIR;
 
 		let thepath = CHANNELS_DIR + chan.id;
-		if ( subs == null ) return thepath;
+		if (subs == null) return thepath;
 		let len = subs.length;
 
 		let subobj;
-		for( let i = 0; i < len; i++ ) {
+		for (let i = 0; i < len; i++) {
 			subobj = subs[i];
-			if ( typeof(subobj) == 'string' ) {
+			if (typeof (subobj) == 'string') {
 				thepath += '/' + subobj.toLowerCase();
 			} else {
 				thepath += '/' + subobj.id;
