@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/lerpinglemur/archbot#readme",
   "dependencies": {
-    "archcache": "^1.0.3",
+    "archcache": "^1.1.0",
     "archdice": "^1.1.0",
     "bufferutil": "^4.0.3",
     "chargrid": "0.0.3",
