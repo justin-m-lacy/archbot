@@ -63,6 +63,8 @@ export default class Game {
 
 	private readonly _charParties: { [char: string]: Party } = {};
 
+	private readonly guilds: { [char: string]: Guild };
+
 	/**
 	 *
 	 * @param {RPG} rpg
@@ -81,7 +83,7 @@ export default class Game {
 
 	}
 
-	skillRoll(act) { return dice.roll(1, 5 * (act.level + 4)); }
+	skillRoll(act: Action) { return dice.roll(1, 5 * (act.level + 4)); }
 
 	/**
 	 * Determines whether a character can perform a given action
@@ -161,7 +163,7 @@ export default class Game {
 
 	getParty(char: Char) { return this._charParties[char.name]; }
 
-	makeParty(char: Char, ...invites) {
+	makeParty(char: Char, ...invites: string[]) {
 
 		let p = new Party(char, this.charCache);
 		this._charParties[char.name] = p;
@@ -183,7 +185,7 @@ export default class Game {
 		return `Could not set ${tar.name} to party leader.`;
 	}
 
-	async party(char: Char, t) {
+	async party(char: Char, t?: Char) {
 
 		let party = this.getParty(char);
 		if (!t) return party ? await party.getStatus() : "You are not in a party.";
@@ -227,7 +229,7 @@ export default class Game {
 
 		if (p.leave(char)) {
 			// party contains <=1 person, and no invites.
-			p.names.forEach(n => delete this._charParties[n]);
+			p.roster.forEach(n => delete this._charParties[n]);
 			return `${name}'s party has been disbanded.`;
 		}
 
@@ -278,7 +280,7 @@ export default class Game {
 
 	}
 
-	async guildInv(char: Char, who) {
+	async guildInv(char: Char, who: Char) {
 
 		let g = char.guild ? await this.guilds.GetGuild(char.guild) : null;
 		if (!g) {
@@ -300,7 +302,7 @@ export default class Game {
 
 	}
 
-	compare(char: Char, wot) {
+	compare(char: Char, wot: ItemPicker) {
 
 		let it = char.getItem(wot);
 		if (!it) return 'Item not found.';
@@ -324,7 +326,9 @@ export default class Game {
 
 		let res = char.equip(wot);
 		if (res === true) res = char.name + ' equips ' + wot;	// TODO,echo slot used.
-		else if (typeof (res) === 'string');// return res;
+		else if (typeof res === 'string') {
+			return res;
+		}
 		else res = char.name + ' does not have ' + wot;
 
 		return char.output(res);
@@ -374,7 +378,7 @@ export default class Game {
 
 	}
 
-	give(src: Char, dest, expr) {
+	give(src: Char, dest: Char, expr: ItemPicker) {
 
 		if (this.tick(src, 'give') === false) return src.output();
 
@@ -414,7 +418,7 @@ export default class Game {
 
 	}
 
-	craft(char: Char, itemName: string, desc?: string, imgURL = null) {
+	craft(char: Char, itemName: string, desc?: string, imgURL?: string) {
 
 		if (this.tick(char, 'craft') === false) return char.output();
 
@@ -565,7 +569,7 @@ export default class Game {
 
 	}
 
-	async attackNpc(src: Char, npc) {
+	async attackNpc(src: Char, npc: Npc) {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
@@ -595,9 +599,11 @@ export default class Game {
 		if (this.tick(src, 'attack') === false) return src.output();
 
 		let p1 = this.getParty(src) || src;
-		let p2 = this.getParty(dest);
+		let p2: Char | Party = this.getParty(dest);
 
-		if (!p2 || (!p2.isLeader(dest) && !p2.loc.equals(dest.loc))) p2 = dest;
+		if (!p2 || (!p2.isLeader(dest) && !p2.loc.equals(dest.loc))) {
+			p2 = dest;
+		}
 
 		let com = new Combat(p1, p2, this.world);
 		await com.fight();

@@ -124,7 +124,7 @@ export default class Inventory {
 	 * @param {string|number} sub
 	 * @returns {Item|[Item]|null}
 	 */
-	getSub(base, sub) {
+	getSub(base: string | number, sub: string | number) {
 
 		let it = this.get(base);
 		if (!it) return null;

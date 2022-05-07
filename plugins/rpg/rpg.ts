@@ -267,7 +267,7 @@ export class Rpg {
 		} catch (e) { console.log(e); }
 	}
 
-	async cmdDrop(m: Message, what: string, end = null) {
+	async cmdDrop(m: Message, what: string, end?: string) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -480,12 +480,14 @@ export class Rpg {
 
 	}
 
-	async cmdInscribe(m: Message, wot?: string | number, inscrip: string) {
+	async cmdInscribe(m: Message, wot?: string | number, inscrip?: string) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!wot) return m.reply('Inscribe which inventory item?');
+		/// allow clearing existing inscription
+		if (!inscrip) inscrip = '';
 
 		return m.reply(this.game.inscribe(char, wot, inscrip));
 
@@ -580,7 +582,7 @@ export class Rpg {
 
 	}
 
-	async cmdSell(m: Message, first?: string | number, end?: string | number) {
+	async cmdSell(m: Message, first: string | number, end?: string | number) {
 
 		let src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
@@ -588,7 +590,7 @@ export class Rpg {
 		return display.sendBlock(m, this.game.sell(src, first, end));
 	}
 
-	async cmdGive(m: Message, who: string, expr?: string) {
+	async cmdGive(m: Message, who: string, expr: string) {
 
 		let src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
@@ -627,19 +629,19 @@ export class Rpg {
 			let src = await this.userCharOrErr(m, m.author);
 			if (!src) return;
 
-			if (!who) who = 1;
-
-			let targ = await this.world.getNpc(src, who);
+			let targ = await this.world.getNpc(src, who ?? 1);
 			let res;
 
 			if (targ) res = await this.game.attackNpc(src, targ);
-			else {
+			else if (typeof who === 'string') {
 
 				targ = await this.loadChar(who);
 				if (!targ) return m.reply(`'${who}' not found.`);
 
 				res = await this.game.attack(src, targ);
 
+			} else {
+				return m.reply(`'${who}' not found.`);
 			}
 
 
@@ -700,7 +702,7 @@ export class Rpg {
 
 	}
 
-	async cmdAddStat(m: Message, stat) {
+	async cmdAddStat(m: Message, stat: string) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;

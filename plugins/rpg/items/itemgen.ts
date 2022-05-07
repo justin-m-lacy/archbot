@@ -1,23 +1,25 @@
 import { ItemType } from './item';
 import Feature from '../world/feature';
+import Potion from './potion';
+import { HumanSlot } from './wearable';
+import Wearable from './wearable';
+
 const Weapon = require('./weapon');
-const Wearable = require('./wearable');
 const Item = require('./item');
 const Material = require('./material');
-const Potion = require('./potion');
 const Chest = require('./chest');
 const Grave = require('./grave');
 
 let miscItems, allItems;
-let allPots
+let allPots: { [name: string]: Potion };
 let potsByLevel: { [key: number]: Potion[] };
 
 let featureByName: { [key: string]: Feature };
-let featureList;
+let featureList: Feature[];
 
 let baseWeapons = require('../data/items/weapons.json');
 let baseArmors = require('../data/items/armors.json');
-let armorBySlot;
+let armorBySlot: Partial<{ [Property in HumanSlot]: Wearable[] }>;
 let weaponByType;
 
 initItems();
@@ -100,7 +102,7 @@ function initArmors() {
 	for (let k = baseArmors.length - 1; k >= 0; k--) {
 
 		armor = baseArmors[k];
-		slot = armor.slot;
+		slot = armor.slot as HumanSlot;
 
 		list = armorBySlot[slot];
 		if (!list) list = armorBySlot[slot] = [];
@@ -168,7 +170,7 @@ export const genWeapon = (lvl: number) => {
 
 }
 
-export const genArmor = (slot: string | null = null, lvl: number = 0) => {
+export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 
 	let mat = Material.Random(lvl);
 	if (mat === null) { console.log('material is null'); return null; }
@@ -187,7 +189,7 @@ export const genArmor = (slot: string | null = null, lvl: number = 0) => {
 
 }
 
-const getSlotRand = (slot: string, lvl: number = 0) => {
+const getSlotRand = (slot: HumanSlot, lvl: number = 0) => {
 
 	let list = armorBySlot[slot];
 	if (!list) return;

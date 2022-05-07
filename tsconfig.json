@@ -25,7 +25,7 @@
       ]
     },
     "lib": [
-      "es6",
+      "esnext",
       "DOM"
     ]
   },
@@ -41,5 +41,6 @@
     "src/bot/**/*.js",
     "src/bot/**/*.d.ts",
     "src/bot/**/*.tsx",
+    "plugins/rpg/magic/actiontjs",
   ]
 }

@@ -12,7 +12,7 @@ export class ReactSet {
 
 	private _trigger: string | RegExp;
 
-	private _lastUsed: number;
+	private _lastUsed: number = 0;
 
 	toJSON() {
 		return this._reacts;
@@ -65,25 +65,24 @@ export class ReactSet {
 	 * or Array of all Reactions of reactStr is null, or false if no reaction
 	 * matching the string is found.
 	 */
-	findReactions(reactStr = null) {
+	findReactions(reactStr?: string | number | null) {
 
 		if (reactStr === null || reactStr === undefined) return this._reacts;
 
-		var obj;
+		if (typeof reactStr === 'string') {
 
-		if (!isNaN(reactStr)) {
-			obj = this.getNumber(reactStr);
-			if (obj) return obj;
+			if (Number.isNaN(reactStr)) {
+				reactStr = reactStr.toLowerCase();
+
+				for (let i = 0; i < this._reacts.length; i++) {
+					if (this._reacts[i].sameReact(reactStr)) return this._reacts[i];
+				}
+				return null;
+			}
 
 		}
 
-		reactStr = reactStr.toLowerCase();
-
-		for (let i = 0; i < this._reacts.length; i++) {
-			if (this._reacts[i].sameReact(reactStr)) return this._reacts[i];
-		}
-
-		return null;
+		return this.getNumber(typeof reactStr === 'string' ? parseInt(reactStr) : reactStr);
 
 	}
 
@@ -96,9 +95,9 @@ export class ReactSet {
 	 * If no match term is specified, and multiple reactions exist, returns the
 	 * number of reactions found.
 	 */
-	tryRemove(react = null) {
+	tryRemove(react?: string | null) {
 
-		if (react === null) {
+		if (react === null || react === undefined) {
 
 			// ambiguous removal. return the number of reactions.
 			if (this._reacts.length > 1) return this._reacts.length;
@@ -110,12 +109,12 @@ export class ReactSet {
 
 		/**
 		 * Attempt to remove a 1-based indexed reaction.
-		 * Removal attemp continues on failure because a reaction could be an actual number.
+		 * NOTE!! Removal attemp continues on failure because a reaction could be an actual number.
 		 * The 'number reaction' isn't tested first since it would allow users
 		 * to block indexed-removal by flooding number reactions;
 		 * while a 'number reaction' can always be removed by index.
 		 */
-		if (!isNaN(react) && this.removeNumber(react)) return true;
+		if (!Number.isNaN(react) && this.removeNumber(parseInt(react))) return true;
 
 		for (let i = this._reacts.length - 1; i >= 0; i--) {
 
@@ -147,7 +146,7 @@ export class ReactSet {
 	 * @param {number} num - the one-based reaction to remove.
 	 * @returns {boolean} true if reaction removed, false otherwise.
 	 */
-	removeNumber(num) {
+	removeNumber(num: number) {
 
 		num = Number(num);
 		if (num < 1 || num > this._reacts.length) return false;
@@ -161,7 +160,7 @@ export class ReactSet {
 	 * Get random reaction.
 	 * @returns {Reaction|null}
 	 */
-	getReact() {
+	getRandom() {
 		return this._reacts[Math.floor(this._reacts.length * Math.random())];
 	}
 
@@ -178,7 +177,7 @@ export class ReactSet {
 	 * @param {string} uid - disord user snowflake.
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
 	 */
-	add(react, uid, embedUrl = null) {
+	add(react: string, uid: string, embedUrl?: string) {
 		this._reacts.push(new ReactModule.Reaction(react, uid, Date.now(), embedUrl));
 	}
 
