@@ -1,5 +1,3 @@
-let actor = require('./actor.js');
-
 let templates = require('../data/minions.json');
 
 export default class Minion {

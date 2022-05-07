@@ -1,10 +1,10 @@
 import Wearable from "../items/wearable";
 import { ItemType } from '../items/item';
 import { HumanSlot } from '../items/wearable';
+import Weapon from '../items/weapon';
 
 const itemjs = require('../items/item');
 const ItemGen = require('../items/itemgen');
-const Weapon = require('../items/weapon');
 
 var MaxSlots: { [key: string]: number | undefined } = {
 	neck: 3,
@@ -12,7 +12,7 @@ var MaxSlots: { [key: string]: number | undefined } = {
 };
 
 export type HumanSlots = {
-	[key in HumanSlot]: Wearable | null;
+	[key in HumanSlot]: Wearable | Wearable[] | null;
 }
 
 export default class Equip {
@@ -95,16 +95,16 @@ export default class Equip {
 
 	}
 
-	getWeapons() {
+	getWeapons(): Weapon | Weapon[] | null {
 
 		let right = this.slots.right;
 		let left = this.slots.left;
 
-		if (right === null) return left ? (left.type === 'weapon' ? left : null) : null;
-		else if (left === null) return right.type === 'weapon' ? right : null;
+		if (right === null) return left ? (left.type === ItemType.Weapon ? left as Weapon : null) : null;
+		else if (left === null) return right.type === ItemType.Weapon ? right : null;
 
-		if (right.type !== 'weapon') return left.type === 'weapon' ? left : null;
-		if (left.type !== 'weapon') return right.type === 'weapon' ? right : null;
+		if (right.type !== ItemType.Weapon) return left.type === ItemType.Weapon ? left : null;
+		if (left.type !== ItemType.Weapon) return right.type === ItemType.Weapon ? right : null;
 
 		return [left, right];
 
@@ -174,7 +174,7 @@ export default class Equip {
 
 	}
 
-	equipWeap(it: Wearable) {
+	equipWeap(it: Weapon) {
 
 		console.log('equipping weapon...');
 
@@ -198,7 +198,7 @@ export default class Equip {
 				console.log('setting right hand.');
 
 				this.slots.right = it;
-				if (left !== null && left.hands === 2) {
+				if (left !== null && (left as Weapon).hands === 2) {
 					this.slots.left = null;
 					return left;
 				}
@@ -208,7 +208,7 @@ export default class Equip {
 				console.log('setting left hand.');
 
 				this.slots.left = it;
-				if (right !== null && right.hands === 2) {
+				if (right !== null && (right as Weapon).hands === 2) {
 					this.slots.right = null;
 					return right;
 				}
@@ -239,7 +239,7 @@ export default class Equip {
 	 */
 	equip(it: Wearable) {
 
-		if (it.type === 'weapon') return this.equipWeap(it);
+		if (it.type === ItemType.Weapon) return this.equipWeap(it as Weapon);
 
 		let slot = it.slot;
 		if (slot === null || !this.slots.hasOwnProperty(slot)) return it.name + ' cannot be equipped.';
@@ -248,7 +248,7 @@ export default class Equip {
 		if (Array.isArray(cur)) {
 
 			cur.push(it);
-			if (cur.length > MaxSlots[slot]) cur = cur.shift();
+			if (cur.length > (MaxSlots[slot] ?? 1)) cur = cur.shift();
 			else cur = null;
 
 		} else {

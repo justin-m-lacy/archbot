@@ -5,23 +5,16 @@ import Equip from './equip';
 import Inventory from '../inventory';
 import { ItemPicker, ItemIndex } from '../inventory';
 import { roll } from '../dice';
+import Actor from './actor';
+import Race from '../race';
+import CharClass from '../charclass';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
 	'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'talents'];
 
-const Loc = require('../world/loc');
-const Level = require('./level');
 
-const Inv = require('../inventory');
-const actor = require('./actor');
-const effects = require('../magic/effects');
-const Race = require('../race');
-const Class = require('../charclass');
-const stats = require('./stats');
-const Log = require('../display').Log;
-
-export default class Char extends actor.Actor {
+export default class Char extends Actor {
 
 	get charClass() { return this._charClass; }
 	set charClass(c) { this._charClass = c; }
@@ -95,7 +88,7 @@ export default class Char extends actor.Actor {
 
 		if (!json) return null;
 
-		let char = new Char(Race.RandRace(json.race), Class.RandClass(json.charClass));
+		let char = new Char(Race.RandRace(json.race), CharClass.RandClass(json.charClass));
 
 		char.name = json.name;
 		char.exp = Math.floor(json.exp) || 0;
@@ -136,9 +129,13 @@ export default class Char extends actor.Actor {
 
 	}
 
-	private _inv: Inventory;
+	private readonly _inv: Inventory;
+	private readonly _equip: Equip;
+	private _charClass: CharClass;
+	private _statPoints: number;
+	private _spentPoints: number;
 
-	constructor(race, charclass, owner: string) {
+	constructor(race: Race, charclass: CharClass, owner: string) {
 
 		super(race);
 
@@ -147,7 +144,7 @@ export default class Char extends actor.Actor {
 		this._statPoints = 0;
 		this._spentPoints = 0;
 
-		this._inv = new Inv();
+		this._inv = new Inventory();
 		this._equip = new Equip();
 
 		this._history = { explored: 0, crafted: 0 };
@@ -391,7 +388,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	setBaseStats(base) {
+	setBaseStats(base: BaseState) {
 
 		super.setBaseStats(base);
 		this.applyClass();

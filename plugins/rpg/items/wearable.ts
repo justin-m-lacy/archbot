@@ -1,11 +1,10 @@
-import { ItemType } from './item';
+import { ItemType, Item } from './item';
 import Material from './material';
-const Item = require('./item.js');
 
 export type HumanSlot = 'head' | 'hands' | 'back' | 'waist' | 'neck'
 	| 'fingers' | 'chest' | 'legs' | 'shins' | 'feet' | 'left' | 'right'
 
-export default class Wearable extends Item.Item {
+export default class Wearable extends Item {
 
 	/**
 	 * @property {number} armor - armor added. replace with defense?
@@ -44,7 +43,7 @@ export default class Wearable extends Item.Item {
 		armor.armor = material.bonus ? base.armor + material.bonus : base.armor;
 		armor.slot = base.slot;
 
-		if (base.mods) this.mods = Object.assign({}, base.mods);
+		if (base.mods) armor.mods = Object.assign({}, base.mods);
 
 		return armor;
 	}
@@ -56,9 +55,9 @@ export default class Wearable extends Item.Item {
 		a.slot = json.slot;
 		a.armor = json.armor;
 
-		if (json.mods) this.mods = json.mods;
+		if (json.mods) a.mods = json.mods;
 
-		return Item.Item.FromJSON(json, a);
+		return Item.FromJSON(json, a);
 	}
 
 	toJSON() {
@@ -77,6 +76,7 @@ export default class Wearable extends Item.Item {
 	private _armor: number;
 	private _slot!: HumanSlot;
 	private _material: string = '';
+	private _mods: any;
 
 	constructor(name: string, desc?: string) {
 
@@ -86,7 +86,7 @@ export default class Wearable extends Item.Item {
 	}
 
 	getDetails() {
-		return this._name + '\t armor: ' + this.armor + '\t price: ' + this.cost + '\n' + super.getDetails();
+		return this.name + '\t armor: ' + this.armor + '\t price: ' + this.cost + '\n' + super.getDetails();
 	}
 
 

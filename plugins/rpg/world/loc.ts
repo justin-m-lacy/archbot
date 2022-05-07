@@ -2,7 +2,7 @@ import Char from "../char/char";
 import { Item } from "../items/item";
 import Feature from './feature';
 import Inventory from '../inventory';
-import { ItemPicker, ItemIndex } from '../inventory';
+import { ItemIndex } from '../inventory';
 import Monster from '../monster/monster';
 
 export enum Biome {
@@ -239,15 +239,15 @@ export class Loc {
 			desc: this._desc,
 			areaName: this._areaName,
 			name: this._name,
-			biome: this._biome
-		};
+			biome: this._biome,
+			npcs: this._npcs ?? undefined,
+			features: this._features ?? undefined,
+			attach: this._attach ?? undefined,
+			maker: this._maker ?? undefined,
+			time: this._time ?? undefined,
+			owner: this._owner ?? undefined
 
-		if (this._npcs) o.npcs = this._npcs;
-		if (this._features) o.features = this._features;
-		if (this._attach) o.attach = this._attach;
-		if (this._maker) o.maker = this._maker;
-		if (this._time) o.time = this._time;
-		if (this._owner) o.owner = this._owner;
+		};
 
 		return o;
 	}
@@ -348,7 +348,7 @@ export class Loc {
 	 */
 	use(char: Char, wot: string | number | Feature) {
 
-		let f = this._features.get(f);
+		let f = this._features.get(wot);
 		if (!f) return false;
 
 		return f.use(char);
