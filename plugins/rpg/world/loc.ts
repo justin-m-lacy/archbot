@@ -3,34 +3,27 @@ import { Item } from "../items/item";
 import Feature from './feature';
 import Inventory from '../inventory';
 import { ItemPicker, ItemIndex } from '../inventory';
+import Monster from '../monster/monster';
 
-const FOREST = 'forest';
-const TOWN = 'town';
-const SWAMP = 'swamp'
-const PLAINS = 'plains';
-const HILLS = 'hills';
-const MOUNTAIN = 'mountains';
-const UNDER = 'underground';
+export enum Biome {
+	FOREST = 'forest',
+	TOWN = 'town',
+	SWAMP = 'swamp',
+	PLAINS = 'plains',
+	HILLS = 'hills',
+	MOUNTAIN = 'mountains',
+	UNDER = 'underground',
+}
 
 const in_prefix = {
-	[FOREST]: ' in a ', [TOWN]: ' in a ', [SWAMP]: ' in a ', [PLAINS]: ' on the ', [HILLS]: ' in the ',
-	[MOUNTAIN]: ' in the ', [UNDER]: ' '
+	[Biome.FOREST]: ' in a ',
+	[Biome.TOWN]: ' in a ',
+	[Biome.SWAMP]: ' in a ',
+	[Biome.PLAINS]: ' on the ',
+	[Biome.HILLS]: ' in the ',
+	[Biome.MOUNTAIN]: ' in the ',
+	[Biome.UNDER]: ' '
 };
-
-exports.Biomes = [FOREST, TOWN, SWAMP, PLAINS, HILLS, MOUNTAIN, UNDER];
-
-exports.FOREST = FOREST;
-exports.TOWN = TOWN;
-exports.SWAMP = SWAMP;
-exports.PLAINS = PLAINS;
-exports.HILLS = HILLS;
-exports.MOUTANIN = MOUNTAIN;
-exports.UNDER = UNDER;
-
-const Inv = require('../inventory.js');
-const itemjs = require('../items/item.js');
-const Monster = require('../monster/monster.js');
-
 
 export enum Direction {
 
@@ -56,17 +49,17 @@ export enum Direction {
 }
 
 
-const reverses: { [Property in Direction]: Direction } = {
-	enter: 'exit',
-	exit: 'enter',
+const reverses: { [dir: Direction]: Direction } = {
+	enter: Direction.exit,
 	north: Direction.south,
 	south: Direction.north,
 	east: Direction.west,
 	west: Direction.east,
-	left: 'right',
+	left: Direction.right,
 	right: 'left',
 	up: 'down',
-	down: 'up'
+	down: 'up',
+	exit: Direction.enter,
 };
 
 
@@ -167,12 +160,23 @@ export class Loc {
 
 	private _features: Inventory;
 
-	private _key: string;
+	private _key!: string;
 	private _coord: Coord;
 	private _npcs: any[];
-	private _exits: { [dir: string]: Exit };
+	private _exits: Partial<{ [Property in Direction]: Exit }> = {};
 	private readonly _inv: Inventory;
 
+	constructor(coord: Coord, biome: string) {
+
+		this._coord = coord;
+		this._biome = biome;
+
+		this._npcs = [];
+
+		this._features = new Inventory();
+		this._inv = new Inventory();
+
+	}
 
 	static FromJSON(json: any) {
 
@@ -192,11 +196,11 @@ export class Loc {
 
 		}
 
-		if (json.features) Inv.FromJSON(json.features, loc._features);
+		if (json.features) Inventory.FromJSON(json.features, loc._features);
 		if (json.attach) loc._attach = json.attach;
 
 		if (json.inv) {
-			Inv.FromJSON(json.inv, loc._inv);
+			Inventory.FromJSON(json.inv, loc._inv);
 		}
 
 		loc.name = json.name;
@@ -246,20 +250,6 @@ export class Loc {
 		if (this._owner) o.owner = this._owner;
 
 		return o;
-	}
-
-	constructor(coord: Coord, biome: string) {
-
-		this._coord = coord;
-		this._biome = biome;
-
-		this._npcs = [];
-
-		this._features = new Inv();
-		this._inv = new Inv();
-
-		this._exits = {};
-
 	}
 
 	setMaker(n: string) {
@@ -416,30 +406,28 @@ export class Loc {
 		return this._npcs[wot - 1];
 	}
 
-}
+	addNpc(m: Monster) { this._npcs.push(m); }
 
-addNpc(m) { this._npcs.push(m); }
+	removeNpc(m: Monster) {
 
-removeNpc(m) {
+		let ind = this._npcs.indexOf(m);
+		console.log('removing npc at: ' + ind);
+		if (ind >= 0) return this._npcs.splice(ind, 1)[0];
+		return null;
 
-	let ind = this._npcs.indexOf(m);
-	console.log('removing npc at: ' + ind);
-	if (ind >= 0) return this._npcs.splice(ind, 1)[0];
-	return null;
+	}
 
-}
+	npcList() {
 
-npcList() {
+		let len = this._npcs.length;
+		if (len === 0) return 'none';
+		if (len === 1) return this._npcs[0].name;
 
-	let len = this._npcs.length;
-	if (len === 0) return 'none';
-	if (len === 1) return this._npcs[0].name;
+		let s = this._npcs[0].name;
+		for (let i = 1; i < len; i++) s += ', ' + this._npcs[i].name;
+		return s;
 
-	let s = this._npcs[0].name;
-	for (let i = 1; i < len; i++) s += ', ' + this._npcs[i].name;
-	return s;
-
-}
+	}
 
 }
 

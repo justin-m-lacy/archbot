@@ -1,4 +1,7 @@
 import Char from "./char/char";
+import { ItemPicker, ItemIndex } from './inventory';
+import { Item } from './items/item';
+import Wearable from './items/wearable';
 
 const util = require('../../jsutils.js');
 const Material = require('./items/material.js');
@@ -61,7 +64,7 @@ exports.rollArmor = (char: Char, slot: string) => {
 
 }
 
-export const sellRange = (src, start: number, end: number) => {
+export const sellRange = (src: Char, start: number, end: number) => {
 
 	let arr = src.takeRange(start, end);
 	if (arr === null) return 'Invalid item range.';
@@ -82,7 +85,7 @@ export const sellRange = (src, start: number, end: number) => {
 
 }
 
-export const sell = (src, wot, end = null) => {
+export const sell = (src: Char, wot: ItemPicker, end?: ItemIndex) => {
 
 	if (end !== null) return sellRange(src, wot, end);
 
@@ -98,7 +101,7 @@ export const sell = (src, wot, end = null) => {
 
 }
 
-exports.transfer = function transfer(src, dest, what) {
+export const transfer = (src: Char, dest: Char, what: string) => {
 
 	let res = goldAmt.exec(what);
 	if (res !== null) {
@@ -125,10 +128,10 @@ exports.transfer = function transfer(src, dest, what) {
 
 }
 
-function xferGold(src, dest, count) {
+const xferGold = (src: Char, dest: Char, count: number | string) => {
 
 	if (typeof (count) === 'string') count = parseInt(count);
-	if (Number.isNaN(count)) return 'Amount is not a number.';
+	if (isNaN(count)) return 'Amount is not a number.';
 
 	let gold = src.gold;
 
@@ -142,12 +145,11 @@ function xferGold(src, dest, count) {
 
 }
 
-exports.nerfItems = (char) => {
+export const nerfItems = (char: Char) => {
 
-	let inv = char.inv;
 	let maxLevel = char.level + 1;
 
-	let test = (it) => {
+	let test = (it: Wearable) => {
 
 		if (!it) return false;
 
@@ -163,10 +165,8 @@ exports.nerfItems = (char) => {
 	};
 
 	let removed = char.inv.removeWhere(test);
+	removed = removed.concat(char.removeWhere(test)).map((it: Item) => it.name);
 
-	let equip = char.getEquip();
-	removed = removed.concat(char.removeWhere(test)).map(it => it.name);
-
-	return 'DELETED: ' + removed.join(', ');
+	return 'Removed Items: ' + removed.join(', ');
 
 }

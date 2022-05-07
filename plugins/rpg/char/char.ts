@@ -2,6 +2,9 @@ import { Item, ItemType } from '../items/item';
 import Wearable from '../items/wearable';
 import { HumanSlot } from '../items/wearable';
 import Equip from './equip';
+import Inventory from '../inventory';
+import { ItemPicker, ItemIndex } from '../inventory';
+import { roll } from '../dice';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
@@ -133,6 +136,8 @@ export default class Char extends actor.Actor {
 
 	}
 
+	private _inv: Inventory;
+
 	constructor(race, charclass, owner: string) {
 
 		super(race);
@@ -200,7 +205,7 @@ export default class Char extends actor.Actor {
 	 * @param {number|string|Item} what
 	 * @returns {string} result message.
 	 */
-	eat(what: number | string | Item) {
+	eat(what: ItemIndex) {
 
 		let item = this._inv.get(what);
 		if (!item) return 'Item not found.';
@@ -226,9 +231,9 @@ export default class Char extends actor.Actor {
 	 *
 	 * @param {Item|number|string} what - what to cook.
 	 */
-	cook(what: string | number | Item) {
+	cook(what: ItemPicker) {
 
-		let item = this._inv.get(what);
+		let item = what instanceof Item ? what : this._inv.get(what);
 		if (!item) return 'Item not found.';
 
 		if (item.type === ItemType.Food) return item.name + ' is already food.';
@@ -244,7 +249,7 @@ export default class Char extends actor.Actor {
 	 * @param {number|string|Item} what
 	 * @returns {bool|string} Error message or true.
 	 */
-	equip(what: string | number | Item) {
+	equip(what: ItemIndex) {
 
 		let item = this._inv.get(what);
 
@@ -379,7 +384,7 @@ export default class Char extends actor.Actor {
 		let maxHp = Math.floor((this._race.HD + hd) / 2);
 
 		for (let i = this._baseStats.level - 1; i > 0; i--) {
-			maxHp += Dice.roll(1, hd);
+			maxHp += roll(1, hd);
 		}
 
 		this._baseStats.maxHp = maxHp;
@@ -407,8 +412,8 @@ export default class Char extends actor.Actor {
 	getTalents() {
 
 		let s = new Set(this._talents);
-		if (this.charClass.talents) this.charClass.talents.forEach((v) => s.add(v));
-		if (this.race.talents) this.race.talents.forEach((v) => s.add(v));
+		if (this.charClass.talents) this.charClass.talents.forEach((v: string) => s.add(v));
+		if (this.race.talents) this.race.talents.forEach((v: string) => s.add(v));
 
 		if (s.size === 0) return `${this.name} has no talents.`;
 
@@ -468,7 +473,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	log(str) { this._log.log(str); }
+	log(str: string) { this._log.log(str); }
 	getLog() { return this._log.text; }
 	output(str = '') { return this._log.output(str); }
 
