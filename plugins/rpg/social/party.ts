@@ -8,7 +8,7 @@ export default class Party extends SocialGroup {
 
 	static FromJSON(json: any) {
 
-		let p = new Party();
+		let p = new Party(json.leader, null);
 
 		Object.assign(p, json);
 
@@ -26,29 +26,12 @@ export default class Party extends SocialGroup {
 
 	}
 
-	/**
-	 * @deprecated
-	 */
-	get names() { return this.roster; }
-	set names(v) { this.roster = v; }
-
 	get loc() { return this._loc; }
 	set loc(v) { this._loc.setTo(v); }
 
-	async getState() {
+	private _loc: Coord;
 
-		let char;
-		for (let i = this.roster.length - 1; i >= 0; i--) {
-
-			char = await this._cache.fetch(this.roster[i]);
-			if (char && char.isAlive()) return 'alive';
-
-		} //
-		return 'dead';
-
-	}
-
-	constructor(leader: Char, cache: Cache) {
+	constructor(leader: Char, cache: Cache | null) {
 
 		super();
 
@@ -60,6 +43,19 @@ export default class Party extends SocialGroup {
 		this.name = this._leader + "'s Party";
 
 		this._loc = new loc.Coord(leader.loc.x, leader.loc.y);
+
+	}
+
+	async getState() {
+
+		let char;
+		for (let i = this.roster.length - 1; i >= 0; i--) {
+
+			char = await this._cache.fetch(this.roster[i]);
+			if (char && char.isAlive()) return 'alive';
+
+		} //
+		return 'dead';
 
 	}
 

@@ -2,6 +2,7 @@ import Char from "../char/char";
 import { Item } from "../items/item";
 import Feature from './feature';
 import Inventory from '../inventory';
+import { ItemPicker, ItemIndex } from '../inventory';
 
 const FOREST = 'forest';
 const TOWN = 'town';
@@ -48,11 +49,14 @@ export enum Direction {
 	left = 'l',
 	l = 'l',
 	right = 'r',
-	r = 'r'
+	r = 'r',
+	exit = 'x',
+	x = 'x',
+	enter = 'enter'
 }
 
 
-const reverses = {
+const reverses: { [Property in Direction]: Direction } = {
 	enter: 'exit',
 	exit: 'enter',
 	north: Direction.south,
@@ -271,7 +275,7 @@ export class Loc {
 
 	}
 
-	hasExit(dir) {
+	hasExit(dir: Direction) {
 		return this._exits.hasOwnProperty(dir);
 	}
 
@@ -312,7 +316,7 @@ export class Loc {
 
 		for (let k in this._exits) {
 			var e = this._exits[k];
-			if (coord.equals(e.coord)) return e;
+			if (coord.equals(e.to)) return e;
 		}
 		return null;
 
@@ -380,7 +384,7 @@ export class Loc {
 	/**
 	 * Get item data without taking it.
 	 */
-	get(item: string | number | Item) { return this._inv.get(item); }
+	get(item: ItemIndex) { return this._inv.get(item); }
 
 	/**
 	 *
@@ -398,41 +402,44 @@ export class Loc {
 	 */
 	take(what: string) { return this._inv.take(what); }
 
-	getNpc(wot) {
+	getNpc(wot: string | number) {
 
-		let ind = Number.parseInt(wot);
-		if (Number.isNaN(ind)) {
+		if (typeof wot === 'string') {
+			let ind = Number.parseInt(wot);
+			if (Number.isNaN(ind)) {
+				return this._npcs.find((m) => m.name === wot);
 
-			return this._npcs.find((m) => m.name === wot);
-
-		} else {
-			return this._npcs[ind - 1];
+			} else {
+				wot = ind;
+			}
 		}
-
+		return this._npcs[wot - 1];
 	}
 
-	addNpc(m) { this._npcs.push(m); }
+}
 
-	removeNpc(m) {
+addNpc(m) { this._npcs.push(m); }
 
-		let ind = this._npcs.indexOf(m);
-		console.log('removing npc at: ' + ind);
-		if (ind >= 0) return this._npcs.splice(ind, 1)[0];
-		return null;
+removeNpc(m) {
 
-	}
+	let ind = this._npcs.indexOf(m);
+	console.log('removing npc at: ' + ind);
+	if (ind >= 0) return this._npcs.splice(ind, 1)[0];
+	return null;
 
-	npcList() {
+}
 
-		let len = this._npcs.length;
-		if (len === 0) return 'none';
-		if (len === 1) return this._npcs[0].name;
+npcList() {
 
-		let s = this._npcs[0].name;
-		for (let i = 1; i < len; i++) s += ', ' + this._npcs[i].name;
-		return s;
+	let len = this._npcs.length;
+	if (len === 0) return 'none';
+	if (len === 1) return this._npcs[0].name;
 
-	}
+	let s = this._npcs[0].name;
+	for (let i = 1; i < len; i++) s += ', ' + this._npcs[i].name;
+	return s;
+
+}
 
 }
 

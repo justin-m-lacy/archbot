@@ -1,6 +1,6 @@
 import Char from '../char/char';
 const itemjs = require('../items/item.js');
-const actionjs = require('../magic/action.js');
+const acts = require('../magic/action.js');
 
 export default class Feature extends itemjs.Item {
 
@@ -15,7 +15,7 @@ export default class Feature extends itemjs.Item {
 		let f = new Feature(json.name, json.desc);
 
 		if (json.action) {
-			f.action = actionjs.GetAction(json.action);
+			f.action = acts.GetAction(json.action);
 		}
 		if (json.fb) f.fb = json.fb;
 
