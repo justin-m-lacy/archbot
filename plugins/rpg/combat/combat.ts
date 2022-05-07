@@ -1,6 +1,8 @@
 import Char from '../char/char';
 import World from '../world/world';
 import Party from '../social/party';
+import Actor from '../char/actor';
+import Weapon from '../items/weapon';
 
 const forms = require('./formulas');
 const itemgen = require('./items/itemgen.js');
@@ -356,7 +358,7 @@ class AttackInfo {
 
 	}
 
-	skillRoll(act) { return dice.roll(1, 5 * (act.level + 4)); }
+	skillRoll(act: Actor) { return dice.roll(1, 5 * (act.level + 4)); }
 
 	rollHit() {
 
@@ -378,7 +380,7 @@ class AttackInfo {
 		if (hp <= 0) this._killed = true;
 	}
 
-	getWeapon(char) {
+	getWeapon(char: Char) {
 
 		let w = char.getWeapons();
 		if (!w) return fist;

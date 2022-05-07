@@ -4,7 +4,7 @@ const requiredExp = (level: number) => {
 	return Math.floor(100 * (Math.pow(1.5, level)));
 }
 
-const getNextExp = exports.nextExp = (char: Char) => {
+export const getNextExp = (char: Char) => {
 
 	let req = requiredExp(char.level + 1);
 

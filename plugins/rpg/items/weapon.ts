@@ -1,14 +1,14 @@
 import { Item, ItemType } from './item';
 import Material from './material';
 import { DamageSrc } from '../formulas';
+import Wearable from './wearable';
 const DamageSrc = require('../formulas.js').DamageSrc;
 
-export default class Weapon extends Item {
+export default class Weapon extends Wearable {
 
 	toJSON() {
 
 		let json = super.toJSON();
-		json.material = this._material;
 		json.dmg = this.damage;
 		json.hit = this.toHit;
 
@@ -47,14 +47,14 @@ export default class Weapon extends Item {
 	 * @param {Object} tmp 
 	 * @param {Material} mat 
 	 */
-	static FromData(tmp: any, mat = null) {
+	static FromData(tmp: any, mat?: Material) {
 
 		if (!tmp) return null;
 
 		let w = new Weapon(tmp.name);
 
 		if (tmp.hands) w.hands = tmp.hands;
-		if (tmp.mods) w._mods = Object.assign({}, tmp.mods);
+		if (tmp.mods) w.mods = Object.assign({}, tmp.mods);
 
 		w.toHit = tmp.hit || 0;
 
@@ -63,7 +63,7 @@ export default class Weapon extends Item {
 		if (mat) {
 
 			w.name = mat.name + ' ' + w.name;
-			w.mat = mat.name;
+			w.material = mat.name;
 			w.cost = mat.priceMod ? tmp.cost * mat.priceMod : tmp.cost;
 
 			w.damage.bonus += mat.dmg || mat.bonus || 0;
@@ -73,29 +73,22 @@ export default class Weapon extends Item {
 
 	}
 
-	set material(m) { this._material = m; }
-	get material() { return this._material; }
-
 	get toHit() { return this._toHit; }
 	set toHit(v) { this._toHit = v; }
 
 	get bonus() { return this.damage.bonus; }
 	set bonus(v) { if (v < 0) v = 0; this.damage.bonus = v; }
 
-	get mods() { return this._mods; }
-	set mods(v) { this._mods = v; }
-
 	get dmgType() { return this.damage.type; }
 
 	private _toHit: number = 0;
 	hands: number = 1;
-	private _material?: Material;
-	private _mods: any;
 	damage: DamageSrc;
 
 	constructor(name: string, desc?: string) {
 
-		super(name, desc, ItemType.Weapon);
+		super(name, desc);
+		this.type = ItemType.Weapon;
 	}
 
 	getDetails() {

@@ -1,7 +1,29 @@
 // Currently Unused.
-class StatMods {
+export class StatMods {
 
-	static FromJSON(json) {
+	// { stat->mod }
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v; }
+
+	get duration() { return this._duration; }
+	set duration(t) { this._duration = t; }
+
+	get startTime() { return this._start; }
+	set startTime(t) { this._start = t; }
+
+	private _mods: any;
+
+	private _duration: number = 0;
+	private _start: number = 0;
+
+	constructor(mods = null) {
+
+		if (mods) this._mods = mods;
+		else this._mods = {};
+
+	}
+
+	static FromJSON(json: any) {
 
 		let mod = new StatMods(json.mods);
 		mod._start = json.start;
@@ -17,23 +39,6 @@ class StatMods {
 			duration: this._duration
 
 		};
-
-	}
-
-	// { stat->mod }
-	get mods() { return this._mods; }
-	set mods(v) { this._mods = v; }
-
-	get duration() { return this._duration; }
-	set duration(t) { this._duration = t; }
-
-	get startTime() { return this._start; }
-	set startTime(t) { this._start = t; }
-
-	constructor(mods = null) {
-
-		if (mods) this._mods = mods;
-		else this._mods = {};
 
 	}
 
@@ -64,7 +69,7 @@ class StatMods {
 
 }
 
-exports.getEvil = evil => {
+export const getEvil = (evil: number) => {
 
 	if (!evil) return 'neutral';
 
@@ -93,9 +98,9 @@ exports.getEvil = evil => {
 
 };
 
-exports.pointStats = ['str', 'con', 'dex', 'int', 'wis', 'char', 'armor'];
+export const pointStats = ['str', 'con', 'dex', 'int', 'wis', 'char', 'armor'];
 
-class StatBlock {
+export default class StatBlock {
 
 	get evil() { return this._evil; }
 	set evil(v) { this._evil = v; }
@@ -144,7 +149,28 @@ class StatBlock {
 	get cha() { return this._cha; }
 	set cha(v) { this._cha = v; }
 
-	static FromJSON(json) {
+	//----
+	private _evil: number = 0;
+	private _maxHp: number = 0;
+	private _curHp: number = 0;
+	private _maxMp: number = 0;
+	private _curMp: number = 0;
+	private _level: number = 0;
+
+	private _armor: number = 0;
+	private _dr: number = 0;
+	private _resist: any;
+
+	private _str: number = 0;
+	private _con: number = 0;
+	private _dex: number = 0;
+	private _int: number = 0;
+	private _wis: number = 0;
+	private _cha: number = 0;
+
+	constructor() { }
+
+	static FromJSON(json: any) {
 
 		let stats = new StatBlock();
 
@@ -152,7 +178,7 @@ class StatBlock {
 			if (stats.hasOwnProperty(k)) stats[k] = json[k];
 		}
 
-		if (!json.evil) this.evil = 0;
+		if (!json.evil) stats.evil = 0;
 
 		// LEGACY
 		if (json.hp) stats._maxHp = json.hp;
@@ -163,7 +189,7 @@ class StatBlock {
 
 	}
 
-	getDR(type) {
+	getDR(type: string) {
 		if (!this._dr) return 0;
 		return this._dr[type] || 0;
 	}
@@ -198,94 +224,19 @@ class StatBlock {
 
 	}
 
-	constructor() {
-		this._level = 1;
-		this._armor = 0;
-	}
-
 	/**
 	 * Gets a modifier for a base stat.
 	 * @param {*} stat 
 	 */
-	getModifier(stat) {
+	getModifier(stat: string) {
 		let val = this[stat];
 		if (!val) return 0;
 		return Math.floor((val - 10) / 2);
 	}
 
-	addHp(amt) {
+	addHp(amt: number) {
 		this._curHp += amt;
 		this._maxHp += amt;
 	}
 
 }
-
-class CharStats {
-
-	static FromJSON(json) {
-		let s = new CharStats();
-		return s;
-	}
-
-	toJSON() {
-		return this;
-	}
-
-	get evil() { return this._cur.evil; }
-	set evil(v) { this._cur.evil = v; }
-
-	get maxHp() { return this._maxHp; }
-	set maxHp(v) {
-		this._max.hp = v;
-		if (this._cur.hp > v) this._cur.hp = v;
-	}
-
-	get curHp() { return this._cur.hp; }
-	set curHp(v) {
-		this._cur.hp = v > this._max.hp ? this._max.hp : v;
-	}
-
-	get maxMp() { return this._max.mp; }
-	set maxMp(v) { this._max.mp = v; }
-
-	get curMp() { return this._cur.mp; }
-	set curMp(v) { this._cur.mp = v > this._max.mp ? this._max.mp : v; }
-
-	get level() { return this._cur.level; }
-	set level(n) { this._cur.level = n; }
-
-	get armor() { return this._cur.armor; }
-	set armor(v) { this._cur.armor = v; }
-
-	// damage reduction.
-	get dr() { return this._cur.dr || 0; }
-	set dr(v) { this._cur.dr = v; }
-
-	// resistances
-	get resist() { return this._cur.resist || null; }
-	set resist(v) { this._cur.resist = v; }
-
-	get str() { return this._cur.str; }
-	set str(v) { this._cur.str = v; }
-	get con() { return this._cur.con; }
-	set con(v) { this._cur.con = v; }
-	get dex() { return this._cur.dex; }
-	set dex(v) { this._cur.dex = v; }
-	get int() { return this._cur.int; }
-	set int(v) { this._cur.int = v; }
-	get wis() { return this._cur.wis; }
-	set wis(v) { this._cur.wis = v; }
-	get cha() { return this._cur.cha; }
-	set cha(v) { this._cur.cha = v; }
-
-	constructor() {
-
-		this._base = {};
-		this._max = {};
-		this._cur = {};
-
-	}
-
-}
-
-exports.StatBlock = StatBlock;

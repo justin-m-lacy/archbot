@@ -1,5 +1,4 @@
 const dice = require('../dice');
-const Loc = require('../world/loc');
 const stats = require('./stats');
 const effects = require('../magic/effects');
 
