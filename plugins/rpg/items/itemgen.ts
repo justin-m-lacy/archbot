@@ -1,26 +1,26 @@
-import { ItemType } from './item';
+import { ItemType, Item } from './item';
 import Feature from '../world/feature';
 import Potion from './potion';
 import { HumanSlot } from './wearable';
 import Wearable from './wearable';
+import Monster from '../monster/monster';
 
 const Weapon = require('./weapon');
-const Item = require('./item');
 const Material = require('./material');
 const Chest = require('./chest');
 const Grave = require('./grave');
 
-let miscItems, allItems;
+const allItems: { [str: string]: Item } = {};
 let allPots: { [name: string]: Potion };
 let potsByLevel: { [key: number]: Potion[] };
 
+let miscItems: Item[];
 let featureByName: { [key: string]: Feature };
 let featureList: Feature[];
 
 let baseWeapons = require('../data/items/weapons.json');
 let baseArmors = require('../data/items/armors.json');
 let armorBySlot: Partial<{ [Property in HumanSlot]: Wearable[] }>;
-let weaponByType;
 
 initItems();
 initArmors();
@@ -38,7 +38,6 @@ function initItems() {
 	var spec = items.special;
 
 	miscItems = items.misc;
-	allItems = {};
 
 	for (let i = miscItems.length - 1; i >= 0; i--) {
 		allItems[miscItems[i].name.toLowerCase()] = miscItems[i];
@@ -140,7 +139,7 @@ export const fromJSON = (json: any) => {
 			return Chest.FromJSON(json);
 
 		default:
-			return Item.Item.FromJSON(json);
+			return Item.FromJSON(json);
 	}
 
 }
@@ -179,7 +178,7 @@ export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 	if (slot) {
 		tmp = getSlotRand(slot, lvl);
 	} else {
-		let list = baseArmors.filter(t => !t.level || t.level <= lvl);
+		let list = baseArmors.filter(t: Wearable => !t.level || t.level <= lvl);
 		tmp = list[Math.floor(list.length * Math.random())];
 	}
 
@@ -208,7 +207,7 @@ export const randFeature = () => {
 export const genItem = () => {
 }
 
-export const genLoot = (mons) => {
+export const genLoot = (mons: Monster) => {
 
 	let lvl = Math.floor(mons.level);
 
@@ -231,7 +230,7 @@ export const genLoot = (mons) => {
 
 }
 
-const getDrops = (mons) => {
+const getDrops = (mons: Monster) => {
 
 	let drops = mons.drops;
 	if (!drops) return;

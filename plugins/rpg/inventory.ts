@@ -39,6 +39,8 @@ export default class Inventory {
 	}
 
 	private _items: Item[] = [];
+	private type?: string;
+
 	constructor() {
 	}
 
@@ -92,8 +94,9 @@ export default class Inventory {
 	 */
 	get(start?: ItemIndex, sub?: ItemIndex): Item | null {
 
-		if (sub) return this.getSub(start, sub);
+		/// 0 is also not allowed because indices are 1-based.
 		if (!start) return null;
+		if (sub) return this.getSub(start, sub);
 
 		if (typeof start === 'string') {
 			let num = parseInt(start);
@@ -129,7 +132,7 @@ export default class Inventory {
 		let it = this.get(base);
 		if (!it) return null;
 
-		if (it.type === 'chest') return it.get(sub);
+		if (it.type === 'chest') return it.get(sub as Chest);
 		else return this.takeRange(base, sub);
 
 	}
@@ -158,8 +161,14 @@ export default class Inventory {
 	 * @param end number of items to take.
 	 * @returns {[Item]|null} - Range of items found.
 	 */
-	takeRange(start: number, end: number) {
+	takeRange(start: ItemIndex, end: ItemIndex) {
 
+		if (typeof start === 'string') {
+			start = parseInt(start);
+		}
+		if (typeof end === 'string') {
+			end = parseInt(end);
+		}
 		if (isNaN(start) || isNaN(end)) return null;
 
 		if (--start < 0) start = 0;
@@ -189,8 +198,7 @@ export default class Inventory {
 
 		if (typeof which === 'string') {
 
-			let ind = parseInt(which);
-			if (Number.isNaN(ind)) {
+			if (Number.isNaN(which)) {
 
 				which = which.toLowerCase();
 				for (let i = this._items.length - 1; i >= 0; i--) {
@@ -201,7 +209,7 @@ export default class Inventory {
 				return null;
 
 			} else {
-				which = ind;
+				which = parseInt(which);
 			}
 
 		}

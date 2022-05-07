@@ -1,6 +1,7 @@
 import { Formula } from 'formulic';
 import { ValueSource } from 'formulic/src/tokens';
 import { LifeState } from '../char/actor';
+import { Biome } from '../world/loc';
 const form = require('../formulas');
 
 const dice = require('../dice.js');
@@ -205,6 +206,8 @@ export default class Monster {
 	get state() { return this._state; }
 	set state(v) { this._state = v; }
 
+	biome?: Biome;
+
 	private _toHit: number;
 	private _state: LifeState;
 	private _kind?: string;
@@ -216,6 +219,12 @@ export default class Monster {
 	private _armor: number = 0;
 	private _name: string = '';
 	private _evil: number = 0;
+	private _size!: string;
+	private _drops?: any;
+	private _template?: any;
+	private _dmg?: any;
+	private _weap?: any;
+
 
 	constructor() {
 		this._toHit = 0;

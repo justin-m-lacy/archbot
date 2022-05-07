@@ -86,8 +86,8 @@ export class Item {
 
 		if (json.cost) it._cost = json.cost;
 		if (json.attach) it._attach = json.attach;
-		if (json.crafter) this._crafter = json.crafter;
-		if (json.inscrip) this._inscript = json.inscrip;
+		if (json.crafter) it._crafter = json.crafter;
+		if (json.inscrip) it._inscript = json.inscrip;
 
 		if (json.level && !isNaN(json.level)) {
 			it._level = json.level;
@@ -234,9 +234,11 @@ export class Item {
 
 		let adj = adjs[Math.floor(adjs.length * Math.random())];
 
-		if (it.type === ItemType.Armor) {
+		if ('armor' in it) {
+			// @ts-ignore
 			it.armor -= 10;
-		} else if (it.type === ItemType.Weapon) {
+		} else if ('bonus' in it) {
+			// @ts-ignore
 			it.bonus -= 10;
 		}
 		it.type = exports.FOOD;
