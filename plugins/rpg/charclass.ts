@@ -31,11 +31,11 @@ export default class CharClass {
 
 
 	private _talents: string[] = [];
-	private _desc: string;
+	private _desc?: string;
 	private _baseMods: any;
 	private _infoMods: any;
 	private _ver?: number;
-	private _hitdice: string;
+	private _hitdice: number = 0;
 	private _name: string;
 	private _expMod: number = 1;
 

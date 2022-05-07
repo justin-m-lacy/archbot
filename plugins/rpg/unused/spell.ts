@@ -1,5 +1,5 @@
 import { Formula } from 'formulic';
-import { Effect } from './effects';
+import { ProtoEffect } from '../magic/effects';
 class Spell {
 
 	get duration() { return this._duration; }
@@ -19,7 +19,7 @@ class Spell {
 	private _target: any;
 	private _damage?: any;
 	private _formula?: Formula;
-	private _effects?: Effect[];
+	private _effects?: ProtoEffect[];
 	private _mods?: any[];
 
 
