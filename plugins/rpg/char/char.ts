@@ -1,21 +1,22 @@
-import { Item } from "../items/item";
+import { Item, ItemType } from '../items/item';
+import Wearable from '../items/wearable';
+import { HumanSlot } from '../items/wearable';
+import Equip from './equip';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
 	'loc', 'history', 'statPoints', 'spentPoints', 'guild', 'inv', 'talents'];
 
-const Loc = require('../world/loc.js');
-const Level = require('./level.js');
+const Loc = require('../world/loc');
+const Level = require('./level');
 
-const Inv = require('../inventory.js');
-const actor = require('./actor.js');
-const effects = require('../magic/effects.js');
-const Equip = require('./equip.js');
-const Item = require('../items/item.js');
-const Race = require('../race.js');
-const Class = require('../charclass.js');
-const stats = require('./stats.js');
-const Log = require('../display.js').Log;
+const Inv = require('../inventory');
+const actor = require('./actor');
+const effects = require('../magic/effects');
+const Race = require('../race');
+const Class = require('../charclass');
+const stats = require('./stats');
+const Log = require('../display').Log;
 
 export default class Char extends actor.Actor {
 
@@ -69,7 +70,7 @@ export default class Char extends actor.Actor {
 
 	toJSON() {
 
-		let json = {};
+		let json: any = {};
 		for (let i = saveProps.length - 1; i >= 0; i--) {
 
 			var p = saveProps[i];
@@ -87,7 +88,7 @@ export default class Char extends actor.Actor {
 		return json;
 	}
 
-	static FromJSON(json) {
+	static FromJSON(json: any) {
 
 		if (!json) return null;
 
@@ -132,7 +133,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	constructor(race, charclass, owner) {
+	constructor(race, charclass, owner: string) {
 
 		super(race);
 
@@ -173,8 +174,8 @@ export default class Char extends actor.Actor {
 
 	}
 
-	hasTalent(t) {
-		return (this._talents && this._talents.includes(t)) || this.charClass.hasTalent(t) || this.race.hasTalent(t);
+	hasTalent(t: string) {
+		return (this._talents.includes(t)) || this.charClass.hasTalent(t) || this.race.hasTalent(t);
 	}
 
 	addHistory(evt: string) {
@@ -189,7 +190,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	addExp(amt) {
+	addExp(amt: number) {
 		this.exp += amt;
 		return Level.tryLevel(this);
 	}
@@ -204,7 +205,7 @@ export default class Char extends actor.Actor {
 		let item = this._inv.get(what);
 		if (!item) return 'Item not found.';
 
-		if (item.type !== Item.FOOD) return item.name + ' isn\'t food!';
+		if (item.type !== ItemType.Food) return item.name + ' isn\'t food!';
 
 		this._inv.take(item);
 
@@ -225,15 +226,15 @@ export default class Char extends actor.Actor {
 	 *
 	 * @param {Item|number|string} what - what to cook.
 	 */
-	cook(what) {
+	cook(what: string | number | Item) {
 
 		let item = this._inv.get(what);
 		if (!item) return 'Item not found.';
 
-		if (item.type === Item.FOOD) return item.name + ' is already food.';
+		if (item.type === ItemType.Food) return item.name + ' is already food.';
 
 		this.addHistory('cook');
-		Item.Item.Cook(item);
+		Item.Cook(item);
 		return `${this.name} cooks '${item.name}'`;
 
 	}
@@ -243,7 +244,7 @@ export default class Char extends actor.Actor {
 	 * @param {number|string|Item} what
 	 * @returns {bool|string} Error message or true.
 	 */
-	equip(what) {
+	equip(what: string | number | Item) {
 
 		let item = this._inv.get(what);
 
@@ -271,11 +272,11 @@ export default class Char extends actor.Actor {
 	 * Removed items are not added to inventory.
 	 * @param {function} p
 	 */
-	removeWhere(p) {
+	removeWhere(p: (w: Wearable) => boolean) {
 		return this.removeEquip(this._equip.removeWhere(p));
 	}
 
-	unequip(slot) {
+	unequip(slot?: string) {
 
 		let removed = this._equip.removeSlot(slot);
 		if (!removed) return;
@@ -287,7 +288,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	setEquip(e) {
+	setEquip(e: Equip) {
 
 		this._equip = e;
 		for (let it of e.items()) {
@@ -302,7 +303,7 @@ export default class Char extends actor.Actor {
 
 	}
 
-	applyEquip(it) {
+	applyEquip(it: Item) {
 		if (it.mods) {
 			it.mods.apply(this._curStats);
 		}
@@ -316,7 +317,7 @@ export default class Char extends actor.Actor {
 	 *
 	 * @param {Item|Item[]} wot
 	 */
-	removeEquip(wot) {
+	removeEquip(wot: Item | Item[]) {
 
 		if (Array.isArray(wot)) {
 
@@ -339,7 +340,7 @@ export default class Char extends actor.Actor {
 	 * Returns the item in the given equipment slot.
 	 * @param {Item} slot
 	 */
-	getEquip(slot) { return this._equip.get(slot); }
+	getEquip(slot: HumanSlot) { return this._equip.get(slot); }
 
 	listEquip() { return this._equip.getList(); }
 
@@ -352,22 +353,22 @@ export default class Char extends actor.Actor {
 	 * Get an item from inventory without removing it.
 	 * @param {number|string|Item} which
 	 */
-	getItem(which, sub) { return this._inv.get(which, sub); }
+	getItem(which: number | string | Item, sub?: number | string) { return this._inv.get(which, sub); }
 
 	/**
 	 * Add an item to inventory.
 	 * @param {Item|Item[]} it
 	 */
-	addItem(it) { return this._inv.add(it); }
+	addItem(it: Item | Item[]) { return this._inv.add(it); }
 
 	/**
 	 * Remove an item from inventory and return it.
 	 * @param {number|string|Item} which
 	 * @returns {Item} Item removed or null.
 	 */
-	takeItem(which, sub) { return this._inv.take(which, sub); }
+	takeItem(which: number | string | Item, sub?: number | string) { return this._inv.take(which, sub); }
 
-	takeRange(start, end) { return this._inv.takeRange(start, end); }
+	takeRange(start: number, end?: number) { return this._inv.takeRange(start, end); }
 
 	/**
 	 * reroll hp.

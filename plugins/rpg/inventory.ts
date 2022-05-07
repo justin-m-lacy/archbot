@@ -1,5 +1,9 @@
+import { Item } from './items/item';
 const itemjs = require('./items/item.js');
 const ItemGen = require('./items/itemgen.js');
+
+export type ItemPicker = string | number | Item;
+export type ItemIndex = string | number;
 
 export default class Inventory {
 
@@ -14,7 +18,7 @@ export default class Inventory {
 	 */
 	get length() { return this._items.length; }
 
-	static FromJSON(json, inv = null) {
+	static FromJSON(json: any, inv?: Inventory) {
 
 		let arr = json.items;
 		let len = arr.length;
@@ -86,23 +90,28 @@ export default class Inventory {
 	 * @param {string|number} start
 	 * @returns {Item|null} Item found, or null on failure.
 	 */
-	get(start: string | number, sub) {
+	get(start?: ItemIndex, sub?: ItemIndex): Item | null {
 
 		if (sub) return this.getSub(start, sub);
 		if (!start) return null;
 
-		let num = parseInt(start);
-
-		if (Number.isNaN(num)) {
-
-			return this.findItem(start);
-
-		} else {
-
-			num--;
-			if (num >= 0 && num < this._items.length) return this._items[num];
-
+		if (typeof start === 'string') {
+			let num = parseInt(start);
+			if (Number.isNaN(num)) {
+				return this.findItem(start);
+			} else {
+				start = num;
+			}
+		} else if (Number.isNaN(start)) {
+			/// initial index passed was NaN.
+			return null;
 		}
+
+
+		start--;
+		if (start >= 0 && start < this._items.length) return this._items[start];
+
+
 		return null;
 
 	}
@@ -133,9 +142,9 @@ export default class Inventory {
 	 * @param {*} sub
 	 * @returns {Item|[Item]|null}
 	 */
-	takeSub(base, sub) {
+	takeSub(base: ItemPicker, sub: ItemPicker | ItemIndex) {
 
-		let it = this.take(base);
+		let it = this.take(base) as Inventory | null;
 		if (!it) return null;
 
 		if (it.type === 'chest') return it.take(sub);
@@ -165,12 +174,12 @@ export default class Inventory {
 	 * @param {number|string|Item} which
 	 * @returns {Item|null} item removed, or null if none found.
 	 */
-	take(which: number | string | Item, sub) {
+	take(which?: number | string | Item, sub?: ItemPicker): Item | Item[] | null {
 
+		if (which === null || which === undefined) return null;
 		if (sub) return this.takeSub(which, sub);
-		if (!which) return null;
 
-		if (which instanceof itemjs.Item) {
+		if (which instanceof Item) {
 
 			let ind = this._items.indexOf(which);
 			if (ind >= 0) return this._items.splice(ind, 1)[0];
@@ -178,24 +187,27 @@ export default class Inventory {
 
 		}
 
-		let ind = parseInt(which);
-		if (Number.isNaN(ind)) {
+		if (typeof which === 'string') {
 
-			which = which.toLowerCase();
-			for (let i = this._items.length - 1; i >= 0; i--) {
+			let ind = parseInt(which);
+			if (Number.isNaN(ind)) {
 
-				var item = this._items[i];
-				if (!item) continue;
-				if (item.name.toLowerCase() === which) return this._items.splice(i, 1)[0];
+				which = which.toLowerCase();
+				for (let i = this._items.length - 1; i >= 0; i--) {
 
+					if (this._items[i]?.name.toLowerCase() === which) return this._items.splice(i, 1)[0];
+
+				}
+				return null;
+
+			} else {
+				which = ind;
 			}
 
-		} else {
-
-			ind--
-			if (ind >= 0 && ind < this._items.length) return this._items.splice(ind, 1)[0];
-
 		}
+
+		which--;
+		if (which >= 0 && which < this._items.length) return this._items.splice(which, 1)[0];
 
 		return null;
 
@@ -205,7 +217,7 @@ export default class Inventory {
 	 *
 	 * @param {string} name
 	 */
-	findItem(name) {
+	findItem(name: string) {
 
 		name = name.toLowerCase();
 		for (let i = this._items.length - 1; i >= 0; i--) {
@@ -219,10 +231,10 @@ export default class Inventory {
 
 	/**
 	 *
-	 * @param {Item|[Item]} it
-	 * @returns {number} - starting 1-index where items were added.
+	 * @param it
+	 * @returns starting 1-index where items were added.
 	 */
-	add(it) {
+	add(it: Item | Item[]) {
 
 		if (Array.isArray(it)) {
 			let ind = this._items.length + 1;
@@ -239,7 +251,7 @@ export default class Inventory {
 	 * Remove all items matching predicate; returns the list of items removed.
 	 * @param {*} p
 	 */
-	removeWhere(p) {
+	removeWhere(p: (it: Item) => boolean) {
 
 		let r = [];
 
@@ -255,7 +267,7 @@ export default class Inventory {
 	 * Apply function to each item in inventory.
 	 * @param {function} f
 	 */
-	forEach(f) {
+	forEach(f: (it: Item) => void) {
 
 		for (let i = this._items.length - 1; i >= 0; i--) {
 			f(this._items[i]);

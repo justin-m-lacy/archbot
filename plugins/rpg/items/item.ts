@@ -86,9 +86,12 @@ export class Item {
 
 		if (json.cost) it._cost = json.cost;
 		if (json.attach) it._attach = json.attach;
-		if (json.maker) this._crafter = json.maker;
-		if (json.inscrip) this._inscript = json.inscript;
-		if (!isNaN(json.level)) it._level = json.level;
+		if (json.crafter) this._crafter = json.crafter;
+		if (json.inscrip) this._inscript = json.inscrip;
+
+		if (json.level && !isNaN(json.level)) {
+			it._level = json.level;
+		}
 
 		return it;
 
@@ -96,7 +99,7 @@ export class Item {
 
 	toJSON() {
 
-		let json = {
+		let json: any = {
 			name: this._name,
 			desc: this._desc,
 			type: this._type,

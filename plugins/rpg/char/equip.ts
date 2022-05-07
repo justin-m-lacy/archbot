@@ -1,29 +1,37 @@
-const itemjs = require('../items/item.js');
-const ItemGen = require('../items/itemgen.js');
-const Weapon = require('../items/weapon.js');
+import Wearable from "../items/wearable";
+import { ItemType } from '../items/item';
+import { HumanSlot } from '../items/wearable';
 
-var MaxSlots = {
-	"neck": 3,
-	"fingers": 4
+const itemjs = require('../items/item');
+const ItemGen = require('../items/itemgen');
+const Weapon = require('../items/weapon');
+
+var MaxSlots: { [key: string]: number | undefined } = {
+	neck: 3,
+	fingers: 4
 };
 
+export type HumanSlots = {
+	[key in HumanSlot]: Wearable | null;
+}
 
 export default class Equip {
 
-	static FromJSON(json: any) {
+	static FromJSON(json: { slots?: Partial<HumanSlots> }) {
 
 		let e = new Equip();
 		let src = json.slots;
 		let dest = e.slots;
 		if (src == null) return e;
 
-		for (let k in src) {
+		let k: HumanSlot;
+		for (k in src) {
 
 			var wot = src[k];
 			if (!wot) continue;
 			if (Array.isArray(wot)) {
 
-				dest[k] = wot.map(ItemGen.fromJSON);
+				dest[k] = wot.map(ItemG.fromJSON) as Wearable;
 
 			} else dest[k] = ItemGen.fromJSON(wot);
 
@@ -33,22 +41,22 @@ export default class Equip {
 
 	}
 
+	readonly slots: HumanSlots = {
+		head: null,
+		hands: null,
+		back: null,
+		waist: null,
+		neck: null,
+		fingers: null,
+		chest: null,
+		legs: null,
+		shins: null,
+		feet: null,
+		left: null,
+		right: null
+	};
+
 	constructor() {
-
-		this.slots = {
-			"head": null,
-			"hands": null,
-			"back": null,
-			"waist": null,
-			"neck": null,
-			"fingers": null,
-			"chest": null,
-			"shins": null,
-			"feet": null,
-			"left": null,
-			"right": null
-		};
-
 	}
 
 	/**
@@ -58,8 +66,8 @@ export default class Equip {
 
 		let list = '';
 
-		let cur;
-		for (let slot in this.slots) {
+		let cur, slot: HumanSlot;
+		for (slot in this.slots) {
 
 			list += '\n' + slot + ': ';
 
@@ -80,7 +88,7 @@ export default class Equip {
 
 	}
 
-	get(slot) {
+	get(slot: HumanSlot) {
 
 		if (!this.slots.hasOwnProperty(slot)) return null;
 		return this.slots[slot];
@@ -106,9 +114,9 @@ export default class Equip {
 	 *
 	 * @param {Item} it
 	 */
-	remove(it) {
+	remove(it: Wearable) {
 
-		if (it.type === 'weapon') return this.removeWeap(it);
+		if (it.type === ItemType.Weapon) return this.removeWeap(it);
 
 		let cur = this.slots[it.slot];
 
@@ -139,9 +147,8 @@ export default class Equip {
 	/**
 	 * Remove item from slot and return it.
 	 * @param {string} slot
-	 * @returns {Item|null}
 	 */
-	removeSlot(slot) {
+	removeSlot(slot: HumanSlot) {
 
 		if (!slot) return;
 
@@ -158,7 +165,7 @@ export default class Equip {
 
 	}
 
-	removeWeap(it) {
+	removeWeap(it: Wearable) {
 
 		if (this.slots.right == it) this.slots.right = null;
 		else if (this.slots.left == it) this.slots.left = null;
@@ -167,7 +174,7 @@ export default class Equip {
 
 	}
 
-	equipWeap(it) {
+	equipWeap(it: Wearable) {
 
 		console.log('equipping weapon...');
 
@@ -230,7 +237,7 @@ export default class Equip {
 	 * @returns error string if slot does not exist, null if equip
 	 * successful, old item if item replaces previous.
 	 */
-	equip(it) {
+	equip(it: Wearable) {
 
 		if (it.type === 'weapon') return this.equipWeap(it);
 
@@ -270,12 +277,13 @@ export default class Equip {
 	 * @param {*} p - predicate
 	 * @returns {Item[]}
 	 */
-	removeWhere(p) {
+	removeWhere(p: (v: Wearable) => boolean) {
 
 		let v;
 		let removed = [];
 
-		for (let k in this.slots) {
+		let k: HumanSlot;
+		for (k in this.slots) {
 
 			v = this.slots[k];
 			if (v === null || v === undefined) continue;
@@ -303,18 +311,19 @@ export default class Equip {
 
 	}
 
-	forEach(func) {
+	forEach(f: (v: Wearable | null) => any) {
 
 		let v;
 
-		for (let k in this.slots) {
+		let k: HumanSlot
+		for (k in this.slots) {
 
 			v = this.slots[k];
 			if (Array.isArray(v)) {
 
-				for (let i = v.length - 1; i >= 0; i--) func(v[i]);
+				for (let i = v.length - 1; i >= 0; i--) f(v[i]);
 
-			} else func(v);
+			} else f(v);
 
 		}
 
@@ -326,8 +335,9 @@ export default class Equip {
 
 	* items() {
 
-		for (let k in this.slots) {
-			var it = this.slots[k];
+		let k: HumanSlot;
+		for (k in this.slots) {
+			const it = this.slots[k];
 			if (it) yield it;
 		}
 
