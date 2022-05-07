@@ -1,8 +1,9 @@
 import { Formula } from 'formulic';
 import Char from '../char/char';
+import Actor from '../char/actor';
 
 // effect types. loading at bottom.
-const effects: { [name: string]: Effect } = {};
+const effects: { [name: string]: ProtoEffect } = {};
 
 const loadEffects = () => {
 
@@ -11,16 +12,16 @@ const loadEffects = () => {
 
 		var e = efx[i];
 		//console.log('parsing effect: ' + e.name );
-		effects[e.name] = Effect.FromJSON(e);
+		effects[e.name] = ProtoEffect.FromJSON(e);
 
 	} //for
 
 }
 
 /**
- * Effect info only. CharEffect is effect in progress.
+ * Effect info only. Effect is effect in progress.
  */
-export class Effect {
+export class ProtoEffect {
 
 	get name() { return this._name; }
 
@@ -52,14 +53,14 @@ export class Effect {
 
 	static FromJSON(json: any) {
 
-		let e = new Effect();
+		let e = new ProtoEffect();
 		return Object.assign(e, json);
 
 	}
 
 	static FromData(data: any) {
 
-		let e = new Effect();
+		let e = new ProtoEffect();
 		if (data.dot) e._dot = Formula.TryParse(data.dot);
 		if (data.mods) e._mods = data.mods;
 
@@ -80,7 +81,7 @@ export class Effect {
 
 }
 
-export class CharEffect {
+export class Effect {
 
 	get name() { return this._effect.name; }
 
@@ -94,17 +95,17 @@ export class CharEffect {
 
 	get time() { return this._time; }
 
-	private _effect: Effect;
+	private _effect: ProtoEffect;
 	private _time: number;
 
 	static FromJSON(json: any) {
 
 		let e = json.effect;
 		if (typeof (e) === 'string') e = effects[e];
-		else e = Effect.FromJSON(e);
+		else e = ProtoEffect.FromJSON(e);
 		if (!e) return null;
 
-		return new CharEffect(e, json.src, json.time);
+		return new Effect(e, json.src, json.time);
 	}
 
 	toJSON() {
@@ -117,7 +118,7 @@ export class CharEffect {
 
 	}
 
-	constructor(effect: Effect, src, time?: number) {
+	constructor(effect: ProtoEffect, src?: any, time?: number) {
 
 		this._effect = effect;
 		this._source = src;
@@ -125,7 +126,7 @@ export class CharEffect {
 
 	}
 
-	start(char: Char) {
+	start(char: Actor) {
 
 		char.log(`${char.name} is affected by ${this.name}.`);
 

@@ -1,4 +1,3 @@
-// Currently Unused.
 export class StatMods {
 
 	// { stat->mod }
@@ -42,7 +41,7 @@ export class StatMods {
 
 	}
 
-	apply(stats) {
+	apply(stats: StatBlock) {
 
 		for (let k in this._mods) {
 
@@ -55,7 +54,7 @@ export class StatMods {
 
 	}
 
-	remove(stats) {
+	remove(stats: StatBlock) {
 
 		for (let k in this._mods) {
 
