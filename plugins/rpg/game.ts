@@ -4,7 +4,11 @@ import Cache from 'archcache';
 import { Rpg } from "./rpg";
 import World from "./world/world";
 import Char from './char/char';
-const Party = require('./social/party');
+import { Direction } from './world/loc';
+import { Item } from './items/item';
+import { ItemPicker, ItemIndex } from './inventory';
+import Party from './social/party';
+
 const Combat = require('./combat');
 const dice = require('./dice');
 const Guild = require('./social/guild');
@@ -27,7 +31,7 @@ exports.getLore = (wot?: string) => {
 /**
  * actions not allowed for each player state.
 */
-var illegal_acts = {
+const illegal_acts = {
 	"dead": {
 		'brew': 1, 'map': 1, 'hike': 1, 'scout': 1,
 		"take": 1, "attack": 1, 'drop': 1, "equip": 1, "unequip": 1, "steal": 1, "craft": 1, "track": 1, "quaff": 1,
@@ -57,6 +61,8 @@ export default class Game {
 	private readonly charCache: Cache;
 	private readonly world: World
 
+	private readonly _charParties: { [char: string]: Party } = {};
+
 	/**
 	 *
 	 * @param {RPG} rpg
@@ -73,9 +79,6 @@ export default class Game {
 
 		this.guilds = new Guild.Manager(this.cache.subcache('guilds'));
 
-		// parties by char name.
-		this._parties = {};
-
 	}
 
 	skillRoll(act) { return dice.roll(1, 5 * (act.level + 4)); }
@@ -86,7 +89,7 @@ export default class Game {
 	 * @param {Character} char
 	 * @param {string} act - action to attempt to perform.
 	 */
-	canAct(char, act) {
+	canAct(char: Char, act: string) {
 		let illegal = illegal_acts[char.state];
 		if (illegal && illegal.hasOwnProperty(act)) {
 			char.log(`Cannot ${act} while ${char.state}.`);
@@ -96,7 +99,7 @@ export default class Game {
 		return true;
 	}
 
-	tick(char, action) {
+	tick(char: Char, action) {
 
 		char.clearLog();
 
@@ -106,7 +109,7 @@ export default class Game {
 
 	}
 
-	async move(char, dir) {
+	async move(char: Char, dir: Direction) {
 
 		if (this.tick(char, 'move') === false) return char.getLog();
 
@@ -123,7 +126,7 @@ export default class Game {
 		return char.output(res);
 	}
 
-	async hike(char: Char, dir) {
+	async hike(char: Char, dir: Direction) {
 
 		if (this.tick(char, 'hike') === false) return char.getLog();
 
@@ -156,18 +159,18 @@ export default class Game {
 
 	}
 
-	getParty(char: Char) { return this._parties[char.name]; }
+	getParty(char: Char) { return this._charParties[char.name]; }
 
 	makeParty(char: Char, ...invites) {
 
 		let p = new Party(char, this.charCache);
-		this._parties[char.name] = p;
+		this._charParties[char.name] = p;
 
 		for (let i = invites.length - 1; i >= 0; i--) p.invite(invites[i]);
 
 	}
 
-	setLeader(char: Char, tar) {
+	setLeader(char: Char, tar: Char) {
 
 		let party = this.getParty(char);
 		if (!party) return 'You are not in a party.';
@@ -201,7 +204,7 @@ export default class Game {
 			// attempt to accept.
 			if (!other.acceptInvite(char)) return `${other.getList()}\\nnYou have not been invited to ${other.leader}'s awesome party.`;
 
-			this._parties[char.name] = other;
+			this._charParties[char.name] = other;
 			return `${char.name} Joined ${other.leader}'s party.`;
 
 		} else {
@@ -220,11 +223,11 @@ export default class Game {
 
 		let p = this.getParty(char);
 		if (!p) return `${name} is not in a party.`;
-		delete this._parties[name];
+		delete this._charParties[name];
 
 		if (p.leave(char)) {
 			// party contains <=1 person, and no invites.
-			p.names.forEach(n => delete this._parties[n]);
+			p.names.forEach(n => delete this._charParties[n]);
 			return `${name}'s party has been disbanded.`;
 		}
 
@@ -232,7 +235,7 @@ export default class Game {
 
 	}
 
-	async mkGuild(char: Char, gname) {
+	async mkGuild(char: Char, gname: string) {
 
 		if (char.guild) return `${char.name} is already in a guild.`;
 
@@ -246,7 +249,7 @@ export default class Game {
 
 	}
 
-	async joinGuild(char: Char, gname) {
+	async joinGuild(char: Char, gname: string) {
 
 		if (char.guild) return `${char.name} is already in a guild.`;
 
@@ -313,7 +316,7 @@ export default class Game {
 
 	}
 
-	equip(char: Char, wot) {
+	equip(char: Char, wot: string | number | Item) {
 
 		if (!wot) return `${char.name} equip:\n${char.listEquip()}`;
 
@@ -328,7 +331,7 @@ export default class Game {
 
 	}
 
-	inscribe(char: Char, wot, inscrip) {
+	inscribe(char: Char, wot: string | number | Item, inscrip: string) {
 
 		if (this.tick(char, 'inscribe') === false) return char.output();
 
@@ -342,7 +345,7 @@ export default class Game {
 
 	}
 
-	destroy(char: Char, first, end) {
+	destroy(char: Char, first: string | number, end?: string | number) {
 
 		if (this.tick(char, 'destroy') === false) return char.output();
 
@@ -363,7 +366,7 @@ export default class Game {
 
 	}
 
-	sell(char: Char, first, end) {
+	sell(char: Char, first: string | number, end?: string | number) {
 
 		if (this.tick(char, 'sell') === false) return char.output();
 
@@ -379,7 +382,7 @@ export default class Game {
 
 	}
 
-	cook(char: Char, wot) {
+	cook(char: Char, wot: string | number | Item) {
 
 		if (this.tick(char, 'cook') === false) return char.output();
 
@@ -387,7 +390,7 @@ export default class Game {
 
 	}
 
-	brew(char: Char, itemName, imgURL = null) {
+	brew(char: Char, itemName: string, imgURL?: string) {
 
 		if (!char.hasTalent('brew')) return `${char.name} does not know how to brew potions.`;
 
@@ -411,7 +414,7 @@ export default class Game {
 
 	}
 
-	craft(char: Char, itemName, desc, imgURL = null) {
+	craft(char: Char, itemName: string, desc?: string, imgURL = null) {
 
 		if (this.tick(char, 'craft') === false) return char.output();
 
@@ -421,7 +424,7 @@ export default class Game {
 
 	}
 
-	unequip(char: Char, slot) {
+	unequip(char: Char, slot?: string) {
 
 		if (this.tick(char, 'unequip') === false) return char.output();
 
@@ -432,7 +435,7 @@ export default class Game {
 
 	}
 
-	async drop(char: Char, what, end) {
+	async drop(char: Char, what: ItemPicker, end?: ItemIndex) {
 
 		if (this.tick(char, 'drop') === false) return char.output();
 
@@ -440,7 +443,7 @@ export default class Game {
 
 	}
 
-	async take(char: Char, first, end) {
+	async take(char: Char, first: ItemPicker, end?: ItemIndex) {
 
 		if (this.tick(char, 'take') === false) return char.output();
 
@@ -448,7 +451,7 @@ export default class Game {
 
 	}
 
-	revive(char: Char, targ) {
+	revive(char: Char, targ: Char) {
 
 		if (targ.state !== 'dead') return `${targ.name} is not dead.`;
 		let p = this.getParty(char);
@@ -502,7 +505,7 @@ export default class Game {
 
 	}
 
-	tickEffects(char, action) {
+	tickEffects(char: Char, action?: string) {
 
 		let efx = char.effects;
 		if (!efx) return;
@@ -524,7 +527,7 @@ export default class Game {
 
 	}
 
-	track(char: Char, targ) {
+	track(char: Char, targ: Char) {
 
 		if (this.tick(char, 'track') === false) return char.output();
 
@@ -562,7 +565,7 @@ export default class Game {
 
 	}
 
-	async attackNpc(src, npc) {
+	async attackNpc(src: Char, npc) {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
@@ -576,7 +579,7 @@ export default class Game {
 
 	}
 
-	steal(src, dest, wot) {
+	steal(src: Char, dest: Char, wot?: ItemPicker) {
 
 		if (this.tick(src, 'steal') === false) return src.output();
 
@@ -587,7 +590,7 @@ export default class Game {
 
 	}
 
-	async attack(src, dest) {
+	async attack(src: Char, dest: Char) {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
@@ -603,7 +606,7 @@ export default class Game {
 
 	}
 
-	quaff(char: Char, wot) {
+	quaff(char: Char, wot: ItemPicker) {
 
 		if (this.tick(char, 'quaff') === false) return char.output();
 
@@ -620,7 +623,7 @@ export default class Game {
 
 	}
 
-	eat(char: Char, wot) {
+	eat(char: Char, wot: ItemPicker) {
 
 		if (this.tick(char, 'eat') === false) return char.output();
 		return char.output(char.eat(wot));

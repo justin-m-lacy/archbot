@@ -1,5 +1,9 @@
 import { ItemType } from './item';
+import Material from './material';
 const Item = require('./item.js');
+
+export type HumanSlot = 'head' | 'hands' | 'back' | 'waist' | 'neck'
+	| 'fingers' | 'chest' | 'legs' | 'shins' | 'feet' | 'left' | 'right'
 
 export default class Wearable extends Item.Item {
 
@@ -29,7 +33,7 @@ export default class Wearable extends Item.Item {
 	 * @param {*} base
 	 * @param {*} material
 	 */
-	static FromData(base, material: string) {
+	static FromData(base: any, material: Material) {
 
 		let name = material.name + ' ' + base.name;
 		let armor = new Wearable(name);
@@ -45,7 +49,7 @@ export default class Wearable extends Item.Item {
 		return armor;
 	}
 
-	static FromJSON(json) {
+	static FromJSON(json: any) {
 
 		let a = new Wearable(json.name, json.desc);
 		a.material = json.material;
@@ -71,7 +75,7 @@ export default class Wearable extends Item.Item {
 	}
 
 	private _armor: number;
-	private _slot: string = '';
+	private _slot!: HumanSlot;
 	private _material: string = '';
 
 	constructor(name: string, desc?: string) {

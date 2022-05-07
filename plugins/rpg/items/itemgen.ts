@@ -1,17 +1,18 @@
 import { ItemType } from './item';
-const Weapon = require('./weapon.js');
-const Wearable = require('./wearable.js');
-const Item = require('./item.js');
-const Material = require('./material.js');
-const Potion = require('./potion.js');
-const Feature = require('../world/feature.js');
-const Chest = require('./chest.js');
-const Grave = require('./grave.js');
+import Feature from '../world/feature';
+const Weapon = require('./weapon');
+const Wearable = require('./wearable');
+const Item = require('./item');
+const Material = require('./material');
+const Potion = require('./potion');
+const Chest = require('./chest');
+const Grave = require('./grave');
 
 let miscItems, allItems;
-let allPots, potsByLevel;
+let allPots
+let potsByLevel: { [key: number]: Potion[] };
 
-let featureByName;
+let featureByName: { [key: string]: Feature };
 let featureList;
 
 let baseWeapons = require('../data/items/weapons.json');

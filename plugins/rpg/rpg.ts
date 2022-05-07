@@ -1,11 +1,13 @@
+import { Formula } from 'formulic';
 import { Message, User } from "discord.js";
 import { BotContext } from '../../src/bot/botcontext';
 import Cache from 'archcache';
 import Game from './game';
-import Race from './race';
 import { DiscordBot } from '../../src/bot/discordbot';
+import { Direction } from "./world/loc";
+import { HumanSlot } from './items/wearable';
+import type Char from './char/char';
 
-const formula = require('formulic');
 const gamejs = require('./game.js');
 const display = require('./display');
 
@@ -15,7 +17,7 @@ const display = require('./display');
 let initialized = false;
 
 // includes after init.
-let Char, Race, CharClass, CharGen, Trade, World, ItemGen;
+let Race, CharClass, CharGen, Trade, World, ItemGen;
 
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
@@ -207,8 +209,8 @@ export class Rpg {
 		if (!char) return;
 
 		try {
-			let f = formula.Formula.TryParse(str);
-			if (!f) return m.reply('Formula could not parse.');
+			let f = Formula.TryParse(str);
+			if (!f) return m.reply('Incantation malformed.');
 
 			let res = f.eval(char);
 			return m.reply('result: ' + res);
@@ -265,7 +267,7 @@ export class Rpg {
 		} catch (e) { console.log(e); }
 	}
 
-	async cmdDrop(m: Message, what, end = null) {
+	async cmdDrop(m: Message, what: string, end = null) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -283,7 +285,7 @@ export class Rpg {
 
 	}
 
-	async cmdViewLoc(m: Message, what) {
+	async cmdViewLoc(m: Message, what: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -295,7 +297,7 @@ export class Rpg {
 
 	}
 
-	async cmdExamine(m: Message, what) {
+	async cmdExamine(m: Message, what: string) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -304,7 +306,7 @@ export class Rpg {
 
 	}
 
-	async cmdLook(m: Message, what) {
+	async cmdLook(m: Message, what: string) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -313,7 +315,7 @@ export class Rpg {
 
 	}
 
-	async cmdUseLoc(m: Message, wot) {
+	async cmdUseLoc(m: Message, wot: string) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -321,7 +323,7 @@ export class Rpg {
 		return display.sendBlock(m, await this.world.useLoc(char, wot));
 	}
 
-	async cmdHike(m: Message, dir) {
+	async cmdHike(m: Message, dir: Direction) {
 
 		try {
 
@@ -335,7 +337,7 @@ export class Rpg {
 
 	}
 
-	async cmdMove(m: Message, dir) {
+	async cmdMove(m: Message, dir: Direction) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -384,7 +386,7 @@ export class Rpg {
 
 	}
 
-	async cmdUnequip(m: Message, slot) {
+	async cmdUnequip(m: Message, slot: HumanSlot) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -393,7 +395,7 @@ export class Rpg {
 
 	}
 
-	async cmdEquip(m: Message, wot) {
+	async cmdEquip(m: Message, wot: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -404,7 +406,7 @@ export class Rpg {
 
 	}
 
-	async cmdCompare(m: Message, wot) {
+	async cmdCompare(m: Message, wot: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -415,7 +417,7 @@ export class Rpg {
 
 	}
 
-	async cmdWorn(m: Message, slot) {
+	async cmdWorn(m: Message, slot: HumanSlot) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -439,7 +441,7 @@ export class Rpg {
 
 	}
 
-	async cmdEat(m: Message, wot) {
+	async cmdEat(m: Message, wot: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -448,7 +450,7 @@ export class Rpg {
 
 	}
 
-	async cmdQuaff(m: Message, wot) {
+	async cmdQuaff(m: Message, wot: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -462,7 +464,7 @@ export class Rpg {
 		if (char) return m.reply(await this.game.rest(char));
 	}
 
-	async cmdCook(m: Message, what) {
+	async cmdCook(m: Message, what: string | number) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -478,7 +480,7 @@ export class Rpg {
 
 	}
 
-	async cmdInscribe(m: Message, wot?: string | number, inscrip?: string) {
+	async cmdInscribe(m: Message, wot?: string | number, inscrip: string) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -529,10 +531,10 @@ export class Rpg {
 
 	}
 
-	async cmdCraft(m: Message, itemName, desc) {
+	async cmdCraft(m: Message, itemName?: string, desc?: string) {
 
 		if (!itemName) return m.reply('Crafted item must have name.');
-		if (!desc) return m.reply('Crafted item must have a description.');
+		if (!desc) return m.reply('Crafted items require a description.');
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -855,7 +857,7 @@ export class Rpg {
 
 	}
 
-	checkLevel(m: Message, char) {
+	checkLevel(m: Message, char: Char) {
 		if (char.levelFlag) {
 			m.reply(char.name + ' has leveled up.');
 			char.levelFlag = false;
@@ -866,7 +868,7 @@ export class Rpg {
 
 	cacheChar(char: Char) { this.charCache.cache(this.getCharKey(char.name), char); }
 
-	async saveChar(char, forceSave = false) {
+	async saveChar(char: Char, forceSave = false) {
 
 		if (forceSave) return this.charCache.store(this.getCharKey(char.name), char);
 		this.charCache.cache(this.getCharKey(char.name), char);

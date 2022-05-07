@@ -1,5 +1,7 @@
 import Cache from 'archcache';
 import Char from '../char/char';
+import { Item } from '../items/item';
+import { Coord, Direction, Direction, Loc } from './loc';
 const Gen = require('./worldgen.js');
 const Loc = require('./loc.js');
 const Block = require('./block.js');
@@ -64,7 +66,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {*} who
 	 */
-	async removeNpc(char, who) {
+	async removeNpc(char: Char, who) {
 		let loc = await this.getOrGen(char.loc, char);
 		return loc.removeNpc(who);
 
@@ -75,7 +77,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {*} wot
 	 */
-	async useLoc(char, wot) {
+	async useLoc(char: Char, wot) {
 
 		let loc = await this.getOrGen(char.loc, char);
 
@@ -94,7 +96,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {string|number|Item} first
 	 */
-	async take(char, first, end) {
+	async take(char: Char, first: string | number | Item, end?: string | number) {
 
 		let loc = await this.getOrGen(char.loc, char);
 		let it = loc.take(first, end);
@@ -108,7 +110,7 @@ export default class World {
 			`${char.name} took ${it.name}. (${ind})`;
 	}
 
-	async hike(char, dir) {
+	async hike(char: Char, dir: Direction) {
 
 		let coord = char.loc || new Loc.Coord(0, 0);
 		let loc;
@@ -162,7 +164,7 @@ export default class World {
 	 * @param {Char} char
 	 * @returns {string} description of loc maker and time, or error message.
 	 */
-	async explored(char) {
+	async explored(char: Char) {
 
 		let loc = await this.getOrGen(char.loc);
 		if (loc.maker) return loc.explored();
@@ -172,7 +174,7 @@ export default class World {
 
 	}
 
-	async view(char, what) {
+	async view(char: Char, what?: string | number | Item) {
 
 		let loc = await this.getOrGen(char.loc);
 		if (what) {
@@ -192,7 +194,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {string|number|Monster} what
 	 */
-	async examine(char, what) {
+	async examine(char: Char, what: string | number | Monster) {
 
 		let loc = await this.getOrGen(char.loc);
 
@@ -204,12 +206,7 @@ export default class World {
 
 	}
 
-	/**
-	 *
-	 * @param {Char} char
-	 * @param {string|Number|Item} what
-	 */
-	async look(char, what) {
+	async look(char: Char, what: string | number | Item) {
 
 		let loc = await this.getOrGen(char.loc);
 
@@ -228,7 +225,7 @@ export default class World {
 	 * @param {*} char
 	 * @param {Item} what
 	 */
-	async put(char, what) {
+	async put(char: Char, what: Item) {
 
 		let loc = await this.getOrGen(char.loc, char);
 		let ind = loc.drop(what);
@@ -241,9 +238,9 @@ export default class World {
 	/**
 	 * Attempt to drop an item at cur location.
 	 * @param {Char} char
-	 * @param {string|Item|number} what
+	 * @param  what
 	 */
-	async drop(char, what, end) {
+	async drop(char: Char, what: string | number | Item, end?: string | number) {
 
 		let it = end ? char.takeRange(what, end) : char.takeItem(what);
 		if (!it) return 'Invalid item.';
@@ -261,7 +258,7 @@ export default class World {
 	 *
 	 * @param {Char} char
 	 */
-	setHome(char) {
+	setHome(char: Char) {
 
 		if (char.home) {
 			char.home.setTo(char.loc);
@@ -275,7 +272,7 @@ export default class World {
 	 *
 	 * @param {Char} char
 	 */
-	goHome(char) {
+	goHome(char: Char) {
 
 		let coord = char.home;
 		if (!coord) coord = new Loc.Coord(0, 0);
@@ -291,7 +288,7 @@ export default class World {
 	 * @param {string} dir - move direction.
 	 * @returns {Loc|string} - new Loc or error string.
 	 */
-	async tryMove(coord, dir, char) {
+	async tryMove(coord: Coord, dir: Direction, char: Char) {
 
 		let from = await this.getLoc(coord.x, coord.y);
 		if (!from) {
@@ -334,7 +331,7 @@ export default class World {
 	 * Attempt to spawn a monster at the given location.
 	 * @param {Loc} loc
 	 */
-	trySpawn(loc) {
+	trySpawn(loc: Loc) {
 
 		if (Math.random() > 0.5 || loc.npcs.length > 4) return;
 
@@ -356,7 +353,7 @@ export default class World {
 
 	}
 
-	async getOrGen(coord, char = null) {
+	async getOrGen(coord: Coord, char?: Char) {
 
 		let loc = await this.getLoc(coord.x, coord.y);
 
@@ -375,31 +372,7 @@ export default class World {
 
 	}
 
-	/**
-	 * Retrieves the location at x,y. This is a legacy function
-	 * before locations were stored in blocks.
-	 */
-	async legacyLoc(x, y) {
-
-		let key = this.legacyKey(x, y);
-
-		let loc = await this.cache.fetch(key);
-		if (!loc) return null;
-
-		//console.log('REVIVING LEGACY LOC');
-		if (!(loc instanceof Loc.Loc)) loc = Loc.Loc.FromJSON(loc);
-
-		// save the location in the new block system.
-		await this.forceSave(loc);
-
-		// delete legacy location file.
-		await this.cache.delete(key);
-
-		return loc;
-
-	}
-
-	async getLoc(x, y) {
+	async getLoc(x: number, y: number) {
 
 		let bkey = this.getBKey(x, y);
 		let block = await this.cache.fetch(bkey);
@@ -415,12 +388,9 @@ export default class World {
 			if (loc) return loc;
 		}
 
-		// no block location found. search legacy loc storage.
-		return this.legacyLoc(x, y);
-
 	}
 
-	async getBlock(x, y, create = false) {
+	async getBlock(x: number, y: number, create: boolean = false) {
 
 		let bkey = this.getBKey(x, y);
 		let block = await this.cache.fetch(bkey);
@@ -436,7 +406,7 @@ export default class World {
 
 	}
 
-	async quickSave(loc) {
+	async quickSave(loc: Loc) {
 
 		let block = await this.getBlock(loc.x, loc.y, true);
 		block.setLoc(this.coordKey(loc.coord), loc);
@@ -444,7 +414,7 @@ export default class World {
 		this.cache.cache(block.key, block);
 	}
 
-	async forceSave(loc) {
+	async forceSave(loc: Loc) {
 
 		let block = await this.getBlock(loc.x, loc.y, true);
 
@@ -453,7 +423,7 @@ export default class World {
 
 	}
 
-	locKey(x, y) {
+	locKey(x: number, y: number) {
 		return x + ',' + y;
 	}
 
@@ -462,21 +432,15 @@ export default class World {
 	 * @param {number} x
 	 * @param {number} y
 	 */
-	coordKey(coord) {
+	coordKey(coord: Coord) {
 		return coord.x + ',' + coord.y;
 	}
-
-	/**
-	 * Keys for legacy locations.
-	 */
-	legacyKey(x, y) { return 'rpg/locs/' + x + ',' + y }
-
 	/**
 	 *
 	 * @param {number} x
 	 * @param {number} y
 	 */
-	getBKey(x, y) {
+	getBKey(x: number, y: number) {
 		return 'rpg/blocks/' + Math.floor(x / BLOCK_SIZE) + ',' + Math.floor(y / BLOCK_SIZE);
 	}
 
@@ -487,11 +451,11 @@ export default class World {
 	 * @param {number} y
 	 * @returns {Loc.Exit[]} - all exits allowed from this location.
 	 */
-	async getRandExits(x, y) {
-		return [await this.getExitTo(new Loc.Coord(x - 1, y), 'west'),
-		await this.getExitTo(new Loc.Coord(x + 1, y), 'east'),
-		await this.getExitTo(new Loc.Coord(x, y - 1), 'south'),
-		await this.getExitTo(new Loc.Coord(x, y + 1), 'north')].filter(v => v != null);
+	async getRandExits(x: number, y: number) {
+		return [await this.getExitTo(new Loc.Coord(x - 1, y), Direction.west),
+		await this.getExitTo(new Loc.Coord(x + 1, y), Direction.east),
+		await this.getExitTo(new Loc.Coord(x, y - 1), Direction.south),
+		await this.getExitTo(new Loc.Coord(x, y + 1), Direction.north)].filter(v => v != null);
 	}
 
 	/**
@@ -501,7 +465,7 @@ export default class World {
 	 * @param {string} fromDir - arriving from direction.
 	 * @returns {Loc.Exit|null}
 	 */
-	async getExitTo(dest, fromDir) {
+	async getExitTo(dest: Coord, fromDir) {
 		let loc = await this.getLoc(dest.x, dest.y);
 		if (loc) {
 			let e = loc.reverseExit(fromDir);
@@ -518,7 +482,7 @@ export default class World {
 	* @param {number} x
 	* @param {number} y
 	*/
-	async getNear(x, y) {
+	async getNear(x: number, y: number) {
 
 		return [await this.getLoc(x - 1, y), await this.getLoc(x + 1, y),
 		await this.getLoc(x, y - 1), await this.getLoc(x, y + 1)].filter(v => v != null);

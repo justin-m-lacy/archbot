@@ -79,6 +79,8 @@ export default class Material {
 
 	name!: string;
 	level: number = 0;
+	bonus?: number;
+	priceMod?: number;
 
 	constructor() { }
 

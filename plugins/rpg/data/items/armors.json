@@ -1,35 +1,156 @@
 [
-    { "name":"gloves", "armor":1, "slot":"hands", "cost":2 },
-    { "name":"boots", "armor":1, "slot":"feet", "cost":2 },
-    
-    { "name":"cap", "armor":0, "slot":"head", "cost":1 },
-    { "name":"helm", "armor":2, "slot":"head", "cost":3 },
-
-    { "name":"jerkin", "armor":2, "slot":"chest", "cost":10 },
-    { "name":"padded armor", "armor":3, "slot":"chest", "cost":15, "level":4 },
-    { "name":"chainmail", "armor":5, "slot":"chest", "cost":20, "level":5 },
-    { "name":"plate mail", "armor":8, "slot":"chest", "cost":30, "level":12 },
-
-    { "name":"conical helm", "armor":3, "slot":"head", "cost":4 },
-
-    { "name":"girdle", "armor":0, "slot":"waist", "cost":5},
-    { "name":"belt", "armor":0, "slot":"waist", "cost":3},
-    { "name":"cincture", "armor":0, "slot":"waist", "cost":5},
-    { "name":"sash", "armor":0, "slot":"waist", "cost":1},
-
-    { "name":"cape", "armor":0, "slot":"back", "cost":5},
-    { "name":"robe", "armor":0, "slot":"back", "cost":5},
-    { "name":"cloak", "armor":0, "slot":"back", "cost":5},
-    { "name":"wings", "armor":1, "slot":"back", "level":20, "cost":500},
-
-
-    { "name":"greaves", "armor":1, "slot":"shins", "cost":3 },
-    { "name":"pendant", "armor":0, "slot":"neck", "cost":30 },
-    { "name":"collar", "armor":0, "slot":"neck", "cost":3 },
-    { "name":"amulet", "armor":0, "slot":"neck", "cost":50 },
-    { "name":"necklace", "armor":0, "slot":"neck", "cost":5 },
-    { "name":"band", "armor":0, "slot":"fingers", "cost":5 },
-    { "name":"loop", "armor":0, "slot":"fingers", "cost":1 },
-    { "name":"ring", "armor":0, "slot":"fingers", "cost":10 }
-
+    {
+        "name": "gloves",
+        "armor": 1,
+        "slot": "hands",
+        "cost": 2
+    },
+    {
+        "name": "boots",
+        "armor": 1,
+        "slot": "feet",
+        "cost": 2
+    },
+    {
+        "name": "cap",
+        "armor": 0,
+        "slot": "head",
+        "cost": 1
+    },
+    {
+        "name": "helm",
+        "armor": 2,
+        "slot": "head",
+        "cost": 3
+    },
+    {
+        "name": "jerkin",
+        "armor": 2,
+        "slot": "chest",
+        "cost": 10
+    },
+    {
+        "name": "padded armor",
+        "armor": 3,
+        "slot": "chest",
+        "cost": 15,
+        "level": 4
+    },
+    {
+        "name": "chainmail",
+        "armor": 5,
+        "slot": "chest",
+        "cost": 20,
+        "level": 5
+    },
+    {
+        "name": "plate mail",
+        "armor": 8,
+        "slot": "chest",
+        "cost": 30,
+        "level": 12
+    },
+    {
+        "name": "conical helm",
+        "armor": 3,
+        "slot": "head",
+        "cost": 4
+    },
+    {
+        "name": "girdle",
+        "armor": 0,
+        "slot": "waist",
+        "cost": 5
+    },
+    {
+        "name": "belt",
+        "armor": 0,
+        "slot": "waist",
+        "cost": 3
+    },
+    {
+        "name": "cincture",
+        "armor": 0,
+        "slot": "waist",
+        "cost": 5
+    },
+    {
+        "name": "sash",
+        "armor": 0,
+        "slot": "waist",
+        "cost": 1
+    },
+    {
+        "name": "cape",
+        "armor": 0,
+        "slot": "back",
+        "cost": 5
+    },
+    {
+        "name": "robe",
+        "armor": 0,
+        "slot": "back",
+        "cost": 5
+    },
+    {
+        "name": "cloak",
+        "armor": 0,
+        "slot": "back",
+        "cost": 5
+    },
+    {
+        "name": "wings",
+        "armor": 1,
+        "slot": "back",
+        "level": 20,
+        "cost": 500
+    },
+    {
+        "name": "greaves",
+        "armor": 1,
+        "slot": "shins",
+        "cost": 3
+    },
+    {
+        "name": "pendant",
+        "armor": 0,
+        "slot": "neck",
+        "cost": 30
+    },
+    {
+        "name": "collar",
+        "armor": 0,
+        "slot": "neck",
+        "cost": 3
+    },
+    {
+        "name": "amulet",
+        "armor": 0,
+        "slot": "neck",
+        "cost": 50
+    },
+    {
+        "name": "necklace",
+        "armor": 0,
+        "slot": "neck",
+        "cost": 5
+    },
+    {
+        "name": "band",
+        "armor": 0,
+        "slot": "fingers",
+        "cost": 5
+    },
+    {
+        "name": "loop",
+        "armor": 0,
+        "slot": "fingers",
+        "cost": 1
+    },
+    {
+        "name": "ring",
+        "armor": 0,
+        "slot": "fingers",
+        "cost": 10
+    }
 ]

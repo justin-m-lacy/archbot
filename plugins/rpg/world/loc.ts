@@ -1,3 +1,8 @@
+import Char from "../char/char";
+import { Item } from "../items/item";
+import Feature from './feature';
+import Inventory from '../inventory';
+
 const FOREST = 'forest';
 const TOWN = 'town';
 const SWAMP = 'swamp'
@@ -6,7 +11,7 @@ const HILLS = 'hills';
 const MOUNTAIN = 'mountains';
 const UNDER = 'underground';
 
-var in_prefix = {
+const in_prefix = {
 	[FOREST]: ' in a ', [TOWN]: ' in a ', [SWAMP]: ' in a ', [PLAINS]: ' on the ', [HILLS]: ' in the ',
 	[MOUNTAIN]: ' in the ', [UNDER]: ' '
 };
@@ -25,7 +30,41 @@ const Inv = require('../inventory.js');
 const itemjs = require('../items/item.js');
 const Monster = require('../monster/monster.js');
 
-var reverses = { enter: 'exit', exit: 'enter', north: 'south', south: 'north', east: 'west', west: 'east', left: 'right', right: 'left', up: 'down', down: 'up' };
+
+export enum Direction {
+
+	north = 'n',
+	n = 'n',
+	south = 's',
+	s = 's',
+	east = 'e',
+	e = 'e',
+	west = 'w',
+	w = 'w',
+	up = 'u',
+	u = 'u',
+	down = 'd',
+	d = 'd',
+	left = 'l',
+	l = 'l',
+	right = 'r',
+	r = 'r'
+}
+
+
+const reverses = {
+	enter: 'exit',
+	exit: 'enter',
+	north: Direction.south,
+	south: Direction.north,
+	east: Direction.west,
+	west: Direction.east,
+	left: 'right',
+	right: 'left',
+	up: 'down',
+	down: 'up'
+};
+
 
 
 export class Coord {
@@ -71,7 +110,6 @@ export class Loc {
 	set name(v) { this._name = v; }
 
 	get areaName() { return this._areaName; }
-	set areaName(v) { this._areaName = v; }
 
 	/**
 	 * @property {string} - name of the biome.
@@ -112,7 +150,27 @@ export class Loc {
 	get owner() { return this._owner; }
 	set owner(v) { this._owner = v; }
 
-	static FromJSON(json) {
+	private _name?: string;
+	private _desc?: string;
+
+	private _biome: string;
+	private _maker?: string;
+	private _attach: any;
+	private _owner?: string;
+	private _time?: number;
+
+	private _areaName?: string;
+
+	private _features: Inventory;
+
+	private _key: string;
+	private _coord: Coord;
+	private _npcs: any[];
+	private _exits: { [dir: string]: Exit };
+	private readonly _inv: Inventory;
+
+
+	static FromJSON(json: any) {
 
 		let loc = new Loc(new Coord(json.coord.x, json.coord.y), json.biome);
 
@@ -135,14 +193,11 @@ export class Loc {
 
 		if (json.inv) {
 			Inv.FromJSON(json.inv, loc._inv);
-		} else if (json.items) {
-			// legacy
-			loc._inv = Inv.FromJSON({ "items": json.items });
 		}
 
 		loc.name = json.name;
 		loc.desc = json.desc;
-		loc.areaName = json.areaName;
+		loc._areaName = json.areaName;
 
 		if (json.npcs) Loc.ParseNpcs(json.npcs, loc);
 
@@ -154,7 +209,7 @@ export class Loc {
 
 	}
 
-	static ParseNpcs(a, loc) {
+	static ParseNpcs(a: any[], loc: Loc) {
 
 		let len = a.length;
 		for (let i = 0; i < len; i++) {
@@ -189,10 +244,10 @@ export class Loc {
 		return o;
 	}
 
-	constructor(coord: Coord, biomeName: string) {
+	constructor(coord: Coord, biome: string) {
 
-		this.coord = coord;
-		this._biome = biomeName;
+		this._coord = coord;
+		this._biome = biome;
 
 		this._npcs = [];
 
@@ -231,9 +286,9 @@ export class Loc {
 
 	/**
 	 *
-	 * @param {string} dir
+	 * @param dir
 	 */
-	getExit(dir) {
+	getExit(dir: Direction) {
 		return this._exits[dir];
 	}
 
@@ -243,7 +298,7 @@ export class Loc {
 	 * @param {*} fromDir - direction arriving from.
 	 * @returns {Exit|null}
 	 */
-	reverseExit(fromDir) {
+	reverseExit(fromDir: Direction) {
 		return this._exits[reverses[fromDir]];
 	}
 
@@ -253,7 +308,7 @@ export class Loc {
 	 * @param {Coord} coord
 	 * @returns {Exit|null}
 	 */
-	getExitTo(coord) {
+	getExitTo(coord: Coord) {
 
 		for (let k in this._exits) {
 			var e = this._exits[k];
@@ -269,7 +324,7 @@ export class Loc {
 	 * Returns everything seen when 'look'
 	 * is used at this location.
 	*/
-	look(imgTag = true) {
+	look(imgTag: boolean = true) {
 
 		let r = in_prefix[this._biome] + this._biome;//+ ' (' + this._coord.toString() + ')';
 		if (this._attach && imgTag) r += ' [img]';
@@ -297,7 +352,7 @@ export class Loc {
 	 * @param {Char} char
 	 * @param {Feature|string|number} wot
 	 */
-	use(char, wot) {
+	use(char: Char, wot: string | number | Feature) {
 
 		let f = this._features.get(f);
 		if (!f) return false;
@@ -314,27 +369,26 @@ export class Loc {
 	 *
 	 * @param {Feature} f
 	 */
-	addFeature(f) { this._features.add(f); }
+	addFeature(f: Feature) { this._features.add(f); }
 
 	/**
 	 *
 	 * @param {Feature|string|number} wot
 	 */
-	getFeature(wot) { return this._features.get(wot); }
+	getFeature(wot: string | number | Feature) { return this._features.get(wot); }
 
 	/**
-	 * Get item without taking it.
-	 * @param {Item|string|number} item
+	 * Get item data without taking it.
 	 */
-	get(item) { return this._inv.get(item); }
+	get(item: string | number | Item) { return this._inv.get(item); }
 
 	/**
 	 *
 	 * @param {Item|Item[]} item
 	 */
-	drop(item) { return this._inv.add(item); }
+	drop(item: Item | Item[]) { return this._inv.add(item); }
 
-	takeRange(start, end) {
+	takeRange(start: number, end: number) {
 		return this._inv.takeRange(start, end);
 	}
 
@@ -342,7 +396,7 @@ export class Loc {
 	 *
 	 * @param {string} what
 	 */
-	take(what) { return this._inv.take(what); }
+	take(what: string) { return this._inv.take(what); }
 
 	getNpc(wot) {
 
@@ -384,19 +438,22 @@ export class Loc {
 
 export class Exit {
 
-	static Reverse(dir) {
+	static Reverse(dir: Direction) {
 		return reverses[dir];
 	}
 
-	constructor(dir, toCoord) {
+	dir: Direction;
+	to: Coord;
+
+	constructor(dir: Direction, toCoord: Coord) {
 
 		this.dir = dir;
-		this.coord = toCoord;
+		this.to = toCoord;
 
 	}
 
 	toString() {
-		return 'exit ' + this.dir + ' to ' + this.coord;
+		return 'exit ' + this.dir + ' to ' + this.to;
 	}
 
 }

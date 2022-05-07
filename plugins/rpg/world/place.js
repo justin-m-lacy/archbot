@@ -1,4 +1,4 @@
-module.exports = class Place {
+export default class Place {
 
 	get id() { return this._id; }
 	set id(v) { this._id = v; }

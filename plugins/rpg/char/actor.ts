@@ -1,22 +1,21 @@
-const dice = require( '../dice');
-const Loc = require( '../world/loc');
-const stats = require( './stats');
-const effects = require( '../magic/effects');
+const dice = require('../dice');
+const Loc = require('../world/loc');
+const stats = require('./stats');
+const effects = require('../magic/effects');
 
-exports.Alive = 'alive';
-exports.Dead = 'dead';
 
-exports.Actor = class Actor {
+export type LifeState = 'alive' | 'dead';
+export default class Actor {
 
-	static FromJSON( json, act ) {
+	static FromJSON(json, act) {
 
-		if ( json.statMods ) {
+		if (json.statMods) {
 			// apply last.
 			let mods = json.statMods;
 
-			for( let i = mods.length-1; i >= 0; i-- ) {
-				let mod = StatMod.FromJSON( mods[i]);
-				if ( mod ) act.addMod( mod );
+			for (let i = mods.length - 1; i >= 0; i--) {
+				let mod = StatMod.FromJSON(mods[i]);
+				if (mod) act.addMod(mod);
 			}
 		}
 
@@ -25,7 +24,7 @@ exports.Actor = class Actor {
 	// async for combat. TODO: make this better...
 	async getState() { return this._state; }
 
-	getStatus() { return `${this.curHp}/${this.maxHp} [${this._state}]`}
+	getStatus() { return `${this.curHp}/${this.maxHp} [${this._state}]` }
 
 	get state() { return this._state; }
 	set state(v) { this._state = v; }
@@ -46,22 +45,22 @@ exports.Actor = class Actor {
 	set curMp(v) { this._curStats.curMp = v; }
 
 	get maxHp() { return this._curStats._maxHp; }
-	set maxHp(v ) { this._curStats.maxHp = v; }
+	set maxHp(v) { this._curStats.maxHp = v; }
 
-	get name() { return this._name;}
-	set name( v ) { this._name = v; }
+	get name() { return this._name; }
+	set name(v) { this._name = v; }
 
 	get race() { return this._race; }
-	set race( r) { this._race =  r; }
+	set race(r) { this._race = r; }
 
 	get level() { return this._curStats._level; }
-	set level( n ) { this._curStats._level = n; }
+	set level(n) { this._curStats._level = n; }
 
 	get baseLevel() { return this._baseStats._level; }
-	set baseLevel( v ) {  this._baseStats._level = v; }
+	set baseLevel(v) { this._baseStats._level = v; }
 
 	get gold() { return this._info.gold; }
-	set gold( g ) { this._info.gold = g < 0 ? 0 : g; }
+	set gold(g) { this._info.gold = g < 0 ? 0 : g; }
 
 	get guild() { return this._guild; }
 	set guild(v) { this._guild = v; }
@@ -97,7 +96,7 @@ exports.Actor = class Actor {
 	get cha() { return this._curStats._cha; }
 	set cha(v) { this._curStats.cha = v; }
 
-	get HD() { return this._charClass ? Math.floor( (this._charClass.HD + this._race.HD)/2 ) : this._race.HD; }
+	get HD() { return this._charClass ? Math.floor((this._charClass.HD + this._race.HD) / 2) : this._race.HD; }
 
 	get effects() { return this._effects; }
 	set effects(v) { this._effects = v; }
@@ -118,15 +117,15 @@ exports.Actor = class Actor {
 	set curStats(v) { this._curStats = v; }
 
 	get info() { return this._info; }
-	set info( v ) { this._info = v; }
+	set info(v) { this._info = v; }
 
 	get toHit() { return this.getModifier('dex'); }
 
 	// Loc.Coord
 	get loc() { return this._loc; }
-	set loc(v) { this._loc.setTo( v ); }
+	set loc(v) { this._loc.setTo(v); }
 
-	constructor( race ) {
+	constructor(race) {
 
 		this._baseStats = new stats.StatBlock();
 		this._curStats = new stats.StatBlock();
@@ -136,7 +135,7 @@ exports.Actor = class Actor {
 
 		this._race = race;
 
-		this._loc = new Loc.Coord( 0,0);
+		this._loc = new Loc.Coord(0, 0);
 
 		this._state = exports.Alive;
 		this._effects = [];
@@ -147,67 +146,67 @@ exports.Actor = class Actor {
 	 * Removes a gold amount or returns false.
 	 * @param {number} amt
 	 */
-	payOrFail( amt ) {
+	payOrFail(amt: number) {
 
-		if ( amt > this.gold ) return false;
+		if (amt > this.gold) return false;
 		this.gold -= amt;
 		return true;
 
 	}
 
-	statRoll( ...stats ) {
+	statRoll(...stats) {
 		let roll = this.skillRoll();
-		for( let s of stats ) {
+		for (let s of stats) {
 			console.log('stat: ' + s);
-			roll += this.getModifier( s );
+			roll += this.getModifier(s);
 		}
 		return roll;
 
 	}
-	skillRoll() { return dice.roll( 1, 5*( this._curStats._level+4) ) ;}
+	skillRoll() { return dice.roll(1, 5 * (this._curStats._level + 4)); }
 
 	levelUp() {
 
 		this._baseStats.level += 1;
 		this._curStats.level += 1;
 
-		let hpBonus = this.HD + this._baseStats.getModifier( 'con' );
-		this._baseStats.addHp( hpBonus );
-		this._curStats.addHp( hpBonus );
+		let hpBonus = this.HD + this._baseStats.getModifier('con');
+		this._baseStats.addHp(hpBonus);
+		this._curStats.addHp(hpBonus);
 
 		this.levelFlag = true;
 
 	}
 
-	addEffect( e ) {
+	addEffect(e) {
 
-		if ( e instanceof effects.Effect ) {
-			e = new effects.CharEffect( e );
+		if (e instanceof effects.Effect) {
+			e = new effects.CharEffect(e);
 		}
-		this._effects.push( e );
-		e.start( this );
+		this._effects.push(e);
+		e.start(this);
 
 	}
 
-	rmEffect( e ) {}
+	rmEffect(e) { }
 
-	addGold( amt ) { this._info.gold += amt; }
+	addGold(amt: number) { this._info.gold += amt; }
 
 	/**
 	 *
 	 * @param {string} stat
 	 */
-	getModifier( stat ) { return this._curStats.getModifier(stat); }
+	getModifier(stat) { return this._curStats.getModifier(stat); }
 
 	revive() {
 
-		if ( this.curHp <= 0 ) this.curHp = 1;
+		if (this.curHp <= 0) this.curHp = 1;
 		this.state = exports.Alive;
 
 	}
 
 	updateState() {
-		if ( this.curHp <= 0 ) this.state = exports.Dead;
+		if (this.curHp <= 0) this.state = exports.Dead;
 		else this.state = exports.Alive;
 		return this.state;
 	}
@@ -215,9 +214,9 @@ exports.Actor = class Actor {
 	/**
 	 * TODO: temp
 	 */
-	hit( amt ) {
+	hit(amt) {
 		this.curHp -= amt;
-		if ( this.curHp <= 0 ) {
+		if (this.curHp <= 0) {
 			this.state = exports.Dead;
 			return exports.Dead;
 		}
@@ -229,18 +228,18 @@ exports.Actor = class Actor {
 	computeHp() {
 
 		let level = this._curStats.level;
-		let hp = this._baseStats.maxHp + level*this.getModifier('con');
+		let hp = this._baseStats.maxHp + level * this.getModifier('con');
 
-		if ( hp < 1 ) hp = 1;
+		if (hp < 1) hp = 1;
 		this.maxHp = hp;
 
 	}
 
-	setBaseStats( base ) {
+	setBaseStats(base) {
 
 		this._baseStats = base;
 
-		Object.assign( this._curStats, base );
+		Object.assign(this._curStats, base);
 
 		this.applyRace();
 		this.computeHp();
@@ -253,10 +252,10 @@ exports.Actor = class Actor {
 	rollBaseHp() {
 
 		let hd = this.HD;
-		let maxHp = hd + this._baseStats.getModifier( 'con');
+		let maxHp = hd + this._baseStats.getModifier('con');
 
-		for( let i = this._baseStats.level-1; i > 0; i-- ) {
-			maxHp += dice.roll( 1, hd );
+		for (let i = this._baseStats.level - 1; i > 0; i--) {
+			maxHp += dice.roll(1, hd);
 		}
 
 		this._baseStats.maxHp = maxHp;
@@ -265,50 +264,50 @@ exports.Actor = class Actor {
 
 	applyRace() {
 
-		if ( !this._race ) return;
+		if (!this._race) return;
 		//if ( this._race.talents ) this._talents = this._race.talents.concat( this._talents );
-		this.applyBaseMods( this._race.baseMods );
+		this.applyBaseMods(this._race.baseMods);
 
 	}
 
-	heal( amt ) {
+	heal(amt) {
 		let prev = this.curHp;
 		this.curHp += amt;
-		return ( this.curHp - prev );
+		return (this.curHp - prev);
 	}
 
 	// recover hp without rest.
 	recover() {
-		let amt = Math.ceil(this.getModifier('con') + this.getModifier('wis') + this.level)/2;
-		if ( amt < 1 ) amt = 1;
-		return this.heal( amt );
+		let amt = Math.ceil(this.getModifier('con') + this.getModifier('wis') + this.level) / 2;
+		if (amt < 1) amt = 1;
+		return this.heal(amt);
 	}
 
 	rest() {
 		let amt = this.getModifier('con') + this.getModifier('wis') + this.level;
-		if ( amt < 0 ) amt = 1;
-		return this.heal( amt );
+		if (amt < 0) amt = 1;
+		return this.heal(amt);
 	}
 
-	applyBaseMods( mods ) {
+	applyBaseMods(mods) {
 
-		if ( !mods ) return;
+		if (!mods) return;
 		let stats = this._curStats;
 		let mod;
 		let val;
 
-		for( let k in mods ) {
+		for (let k in mods) {
 
 			mod = mods[k];
-			if ( typeof(mod) === 'string' ) {
+			if (typeof (mod) === 'string') {
 				mod = dice.parseRoll(mod);
 			}
 
 			val = stats[k];
-			if ( val ){
+			if (val) {
 
 				val += mod;
-				if ( val < 3 ) val = 3;
+				if (val < 3) val = 3;
 				stats[k] = val;
 
 			}
