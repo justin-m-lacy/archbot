@@ -8,6 +8,7 @@ import { Direction } from './world/loc';
 import { Item } from './items/item';
 import { ItemPicker, ItemIndex } from './inventory';
 import Party from './social/party';
+import Actor from './char/actor';
 
 const Combat = require('./combat');
 const dice = require('./dice');
@@ -83,7 +84,7 @@ export default class Game {
 
 	}
 
-	skillRoll(act: Action) { return dice.roll(1, 5 * (act.level + 4)); }
+	skillRoll(act: Actor) { return dice.roll(1, 5 * (act.level + 4)); }
 
 	/**
 	 * Determines whether a character can perform a given action

@@ -35,17 +35,17 @@ export default class Wearable extends Item {
 	static FromData(base: any, material: Material) {
 
 		let name = material.name + ' ' + base.name;
-		let armor = new Wearable(name);
+		let it = new Wearable(name);
 
-		armor.material = material.name;
-		armor.cost = material.priceMod ? base.cost * material.priceMod : base.cost;
+		it.material = material.name;
+		it.cost = material.priceMod ? base.cost * material.priceMod : base.cost;
 
-		armor.armor = material.bonus ? base.armor + material.bonus : base.armor;
-		armor.slot = base.slot;
+		it.armor = material.bonus ? base.armor + material.bonus : base.armor;
+		it.slot = base.slot;
 
-		if (base.mods) armor.mods = Object.assign({}, base.mods);
+		if (base.mods) it.mods = Object.assign({}, base.mods);
 
-		return armor;
+		return it;
 	}
 
 	static FromJSON(json: any) {

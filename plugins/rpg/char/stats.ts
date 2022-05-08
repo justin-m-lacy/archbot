@@ -43,9 +43,10 @@ export class StatMods {
 
 	apply(stats: StatBlock) {
 
-		for (let k in this._mods) {
+		let k: keyof StatBlock;
+		for (k in this._mods) {
 
-			if (stats.hasOwnProperty[k]) {
+			if (k in stats) {
 				stats[k] += this._mods[k];
 			}
 

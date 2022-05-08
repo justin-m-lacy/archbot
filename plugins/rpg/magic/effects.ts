@@ -1,6 +1,7 @@
 import { Formula } from 'formulic';
 import Char from '../char/char';
 import Actor from '../char/actor';
+import { StatMods } from '../char/stats';
 
 // effect types. loading at bottom.
 const effects: { [name: string]: ProtoEffect } = {};
@@ -89,14 +90,12 @@ export class Effect {
 	get mods() { return this._effect._mods; }
 	get dot() { return this._effect.dot; }
 
-	// source that created the effect.
-	get source() { return this._src; }
-	set source(v) { this._src = v; }
-
 	get time() { return this._time; }
 
 	private _effect: ProtoEffect;
 	private _time: number;
+	// source that created the effect.
+	private readonly source?: string;
 
 	static FromJSON(json: any) {
 
@@ -111,17 +110,17 @@ export class Effect {
 	toJSON() {
 
 		return {
-			src: this._source,
+			src: this.source,
 			effect: this._effect.name,
 			time: this._time
 		};
 
 	}
 
-	constructor(effect: ProtoEffect, src?: any, time?: number) {
+	constructor(effect: ProtoEffect, time?: number, src?: any) {
 
 		this._effect = effect;
-		this._source = src;
+		this.source = src;
 		this._time = time || this._effect.time;
 
 	}
@@ -185,7 +184,7 @@ export class Effect {
 
 	}
 
-	applyMod(m, char: Char) {
+	applyMod(m: StatMods, char: Char) {
 
 		console.log('name: ' + char.name);
 
@@ -201,7 +200,7 @@ export class Effect {
 
 	}
 
-	removeMod(m, char: Char) {
+	removeMod(m: StatMods, char: Char) {
 
 		for (let k in m) {
 

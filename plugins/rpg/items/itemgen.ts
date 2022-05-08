@@ -4,6 +4,7 @@ import Potion from './potion';
 import { HumanSlot } from './wearable';
 import Wearable from './wearable';
 import Monster from '../monster/monster';
+import { Loot } from '../combat/loot';
 
 const Weapon = require('./weapon');
 const Material = require('./material');
@@ -178,7 +179,7 @@ export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 	if (slot) {
 		tmp = getSlotRand(slot, lvl);
 	} else {
-		let list = baseArmors.filter(t: Wearable => !t.level || t.level <= lvl);
+		let list = baseArmors.filter((t: Wearable) => !t.level || t.level <= lvl);
 		tmp = list[Math.floor(list.length * Math.random())];
 	}
 
@@ -204,25 +205,28 @@ export const randFeature = () => {
 
 }
 
-export const genItem = () => {
-}
-
 export const genLoot = (mons: Monster) => {
 
 	let lvl = Math.floor(mons.level);
 
-	let loot = { items: [] };
-	if (Math.random() < 0.5) loot.gold = Math.floor(20 * lvl * Math.random() + 0.1);
+	let loot: Loot = {
+		items: [
+
+		],
+		gold: Math.random() < 0.5 ? Math.floor(20 * lvl * Math.random() + 0.1) : 0
+
+	};
 
 	if (Math.random() < 0.2) {
-		loot.items.push(genArmor(null, lvl));
+		const armor = genArmor(null, lvl);
+		if (armor) loot.items!.push(armor);
 	}
-	if (Math.random() < 0.1) loot.items.push(genWeapon(lvl));
+	if (Math.random() < 0.1) loot.items!.push(genWeapon(lvl));
 
 	if (mons.drops) {
 		console.log('GETTING MONS DROPS.');
 		let itms = getDrops(mons);
-		if (itms) loot.items = loot.items.concat(itms);
+		if (itms) loot.items = loot.items!.concat(itms);
 	}
 
 
@@ -274,7 +278,7 @@ const procItem = (name: string) => {
 /**
  * Returns a useless item.
  */
-const miscItem = () => {
+export const getMiscItem = () => {
 
 	let it = miscItems[Math.floor(miscItems.length * Math.random())];
 	return fromJSON(it);
@@ -285,7 +289,7 @@ const miscItem = () => {
  * Create named feature from data.
  * @param {string} s
  */
-function getFeature(s: string) {
+const getFeature = (s: string) => {
 	let d = featureByName[s];
 	if (d) return Feature.FromJSON(d);
 	return null;
@@ -304,7 +308,7 @@ function initFeatures() {
 
 }
 
-function potsList(level: number) {
+export const potsList = (level: number) => {
 
 	let a = potsByLevel[level];
 	if (!a) return 'No potions of level ' + level + '.';

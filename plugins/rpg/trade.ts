@@ -87,9 +87,10 @@ export const sellRange = (src: Char, start: number, end: number) => {
 
 export const sell = (src: Char, wot: ItemPicker, end?: ItemIndex) => {
 
-	if (end !== null) return sellRange(src, wot, end);
+	// @ts-ignore
+	if (end !== null) return sellRange(src, wot as ItemIndex, end);
 
-	let it = src.takeItem(wot);
+	let it = src.takeItem(wot) as Item | null;
 	if (!it) return 'Item not found.';
 
 	let mod = src.level + src.getModifier('cha');
@@ -112,7 +113,7 @@ export const transfer = (src: Char, dest: Char, what: string) => {
 	} else {
 
 		console.log('item transfer: ' + what);
-		let it = src.takeItem(what);
+		let it = src.takeItem(what) as Item | null;
 		if (it) {
 
 			let ind = dest.addItem(it);
@@ -147,11 +148,11 @@ const xferGold = (src: Char, dest: Char, count: number | string) => {
 
 export const nerfItems = (char: Char) => {
 
-	let maxLevel = char.level + 1;
+	const maxLevel = char.level + 1;
 
-	let test = (it: Wearable) => {
+	const test = (it: Item) => {
 
-		if (!it) return false;
+		if (!it || !(it instanceof Wearable)) return false;
 
 		if (it.level && it.level > maxLevel) return true;
 		if (it.material) {
@@ -164,9 +165,7 @@ export const nerfItems = (char: Char) => {
 		return false;
 	};
 
-	let removed = char.inv.removeWhere(test);
-	removed = removed.concat(char.removeWhere(test)).map((it: Item) => it.name);
-
-	return 'Removed Items: ' + removed.join(', ');
+	const removed = char.removeWhere(test);
+	return 'Removed Items: ' + removed.map(it => it.name).join(', ');
 
 }
