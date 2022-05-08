@@ -4,9 +4,16 @@ import { BotContext } from '../../src/bot/botcontext';
 import Cache from 'archcache';
 import Game from './game';
 import { DiscordBot } from '../../src/bot/discordbot';
-import { DirMap } from "./world/loc";
+import { toDirection } from "./world/loc";
 import { HumanSlot } from './items/wearable';
-import type Char from './char/char';
+
+import type TChar from './char/char';
+import type TWorld from './world/world';
+import type * as TTrade from './trade';
+import type TRace from './char/race';
+import type TClass from './char/charclass';
+import type * as TCharGen from './chargen';
+import type * as TItemGen from './items/itemgen';
 
 const gamejs = require('./game');
 const display = require('./display');
@@ -17,7 +24,9 @@ const display = require('./display');
 let initialized = false;
 
 // includes after init.
-let Race, CharClass, CharGen, Trade, World, ItemGen;
+let Char: typeof TChar, Race: typeof TRace, CharClass: typeof TClass;
+let Trade: typeof TTrade, CharGen: typeof TCharGen, World: typeof TWorld;
+let ItemGen: typeof TItemGen;
 
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
@@ -25,13 +34,13 @@ const LAST_CHARS = '`lastchars`';
 
 function initData() {
 
-	Char = require('./char/char.js');
-	Race = require('./race.js');
-	CharClass = require('./charclass.js');
-	CharGen = require('./chargen.js');
-	Trade = require('./trade.js');
-	World = require('./world/world.js');
-	ItemGen = require('./items/itemgen.js');
+	Char = require('./char/char');
+	Race = require('./race');
+	CharClass = require('./charclass');
+	CharGen = require('./chargen');
+	Trade = require('./trade');
+	World = require('./world/world');
+	ItemGen = require('./items/itemgen');
 
 	initialized = true;
 
@@ -44,7 +53,7 @@ export class Rpg {
 	readonly charCache: Cache;
 	readonly context: BotContext<any>;
 
-	world: World;
+	world: TWorld;
 	game: Game;
 
 	/**
@@ -242,7 +251,7 @@ export class Rpg {
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let resp = await this.world.setDesc(char, desc, m.attachments.first());
+		let resp = await this.world.setDesc(char, desc, m.attachments?.first()?.proxyURL);
 		if (resp) return m.reply(resp);
 
 	}
@@ -323,7 +332,7 @@ export class Rpg {
 		return display.sendBlock(m, await this.world.useLoc(char, wot));
 	}
 
-	async cmdHike(m: Message, dir: DirMap) {
+	async cmdHike(m: Message, dir: string) {
 
 		try {
 
@@ -337,7 +346,7 @@ export class Rpg {
 
 	}
 
-	async cmdMove(m: Message, dir: DirMap) {
+	async cmdMove(m: Message, dir: string) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
@@ -840,7 +849,7 @@ export class Rpg {
 
 	clearUserChar(uid: string) { delete this.lastChars[uid]; }
 
-	async setUserChar(user: User, char: Char) {
+	async setUserChar(user: User, char: TChar) {
 
 		this.lastChars[user.id] = char.name;
 		this.cache.cache(LAST_CHARS, this.lastChars);
@@ -859,7 +868,7 @@ export class Rpg {
 
 	}
 
-	checkLevel(m: Message, char: Char) {
+	checkLevel(m: Message, char: TChar) {
 		if (char.levelFlag) {
 			m.reply(char.name + ' has leveled up.');
 			char.levelFlag = false;
@@ -868,9 +877,9 @@ export class Rpg {
 
 	getCharKey(charname: string) { return charname; }
 
-	cacheChar(char: Char) { this.charCache.cache(this.getCharKey(char.name), char); }
+	cacheChar(char: TChar) { this.charCache.cache(this.getCharKey(char.name), char); }
 
-	async saveChar(char: Char, forceSave = false) {
+	async saveChar(char: TChar, forceSave = false) {
 
 		if (forceSave) return this.charCache.store(this.getCharKey(char.name), char);
 		this.charCache.cache(this.getCharKey(char.name), char);

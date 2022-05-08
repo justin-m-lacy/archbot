@@ -1,13 +1,12 @@
-import { Item } from "./item";
+import { Item, ItemType } from "./item";
+import Inventory from '../inventory';
 
-export default class Chest extends itemjs.Item {
+export default class Chest extends Item {
 
 	static FromJSON(json: any) {
 
-		let p = new Chest();
-
+		let p = new Chest(Inventory.FromJSON(json.inv));
 		p.size = json.size;
-		p.inv = Inv.FromJSON(json.inv, p.inv);
 
 		return super.FromJSON(json, p);
 
@@ -34,10 +33,15 @@ export default class Chest extends itemjs.Item {
 
 	get count() { return this._inv.length; }
 
-	private readonly _inv = new Inv();
+	private _size: number = 0;
+	private _lock: number = 0;
 
-	constructor() {
-		super('', '', 'chest');
+	private readonly _inv;
+
+	constructor(inv: Inventory) {
+		super('', '', ItemType.Chest);
+
+		this._inv = inv;
 
 	}
 
@@ -68,7 +72,7 @@ export default class Chest extends itemjs.Item {
 	 * 
 	 * @param {Item} it 
 	 */
-	add(it) {
+	add(it: Item) {
 
 		if (this.count < this.size) {
 			this._inv.add(it);

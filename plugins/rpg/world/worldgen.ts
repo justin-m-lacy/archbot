@@ -1,4 +1,4 @@
-import { Coord, Loc, Exit, DirMap, Biome } from './loc';
+import { Coord, Loc, Exit, DirVal, Biome } from './loc';
 const itemgen = require('../items/itemgen');
 const biomes = require('../data/world/biomes.json');
 
@@ -103,7 +103,7 @@ function randBiome(prevBiome: string) {
 }
 
 /**
-* Returns and caches total weights in transitions object.
+* Returns and caches total weights in biome-transitions object.
 * @param {*} trans 
 */
 function getTransMax(trans: any) {

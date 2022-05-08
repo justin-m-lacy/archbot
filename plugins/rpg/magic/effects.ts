@@ -13,7 +13,7 @@ const loadEffects = () => {
 
 		var e = efx[i];
 		//console.log('parsing effect: ' + e.name );
-		effects[e.name] = ProtoEffect.FromJSON(e);
+		effects[e.name] = new ProtoEffect(e);
 
 	} //for
 

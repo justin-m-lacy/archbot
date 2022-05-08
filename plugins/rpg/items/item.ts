@@ -9,6 +9,8 @@ export enum ItemType {
 	Drink = 'drink',
 	Scroll = 'scroll',
 	Unique = 'unique',
+	Chest = 'chest',
+	Feature = 'feature',
 	Unknown = 'unknown'
 }
 
@@ -156,6 +158,8 @@ export class Item {
 
 		return s;
 	}
+
+	toString() { return this._name }
 
 	static ItemMenu(a: Item[], start = 1) {
 

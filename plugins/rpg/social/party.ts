@@ -18,9 +18,9 @@ export default class Party extends SocialGroup {
 	toJSON() {
 
 		return {
-			roster: this.names,
+			roster: this.roster,
 			leader: this.leader,
-			invites: this.pending
+			invites: this.invites
 		}
 
 	}
@@ -60,7 +60,7 @@ export default class Party extends SocialGroup {
 	 *
 	 * @param {string} name
 	 */
-	async getChar(name: string) { return this._cache.fetch(name); }
+	async getChar(name: string) { return this.cache.fetch(name); }
 
 	/**
 	 *
@@ -74,7 +74,7 @@ export default class Party extends SocialGroup {
 
 		for (let i = roster.length - 1; i >= 0; i--) {
 
-			var char = await this._cache.fetch(roster[i]);
+			var char = await this.cache.fetch(roster[i]);
 			if (char) {
 				char.loc = coord;
 				if (char.isAlive()) char.recover();
@@ -93,7 +93,7 @@ export default class Party extends SocialGroup {
 
 		for (let i = roster.length - 1; i >= 0; i--) {
 
-			var char = await this._cache.fetch(roster[i]);
+			var char = await this.cache.fetch(roster[i]);
 			if (!char) continue;
 			if (char.isAlive()) char.rest();
 			hp += char.curHp;
@@ -110,7 +110,7 @@ export default class Party extends SocialGroup {
 
 		for (let i = roster.length - 1; i >= 0; i--) {
 
-			var char = await this._cache.fetch(roster[i]);
+			var char = await this.cache.fetch(roster[i]);
 			//console.log( 'moving char: ' + char.name + ' to: ' + coord.toString() );
 			if (char && char.isAlive()) char.recover();
 
@@ -126,7 +126,7 @@ export default class Party extends SocialGroup {
 		let len = roster.length;
 
 		for (let i = 0; i < len; i++) {
-			var char = await this._cache.fetch(roster[i]);
+			var char = await this.cache.fetch(roster[i]);
 			res += `\n${char.name}  ${char.getStatus()}`;
 		}
 
@@ -143,7 +143,7 @@ export default class Party extends SocialGroup {
 
 		for (let i = count - 1; i >= 0; i--) {
 
-			var c = await this._cache.fetch(this.roster[i]);
+			var c = await this.cache.fetch(this.roster[i]);
 			if (c) c.addExp(exp)
 
 		}
@@ -161,7 +161,7 @@ export default class Party extends SocialGroup {
 
 		do {
 
-			var c = await this._cache.fetch(this.roster[ind]);
+			var c = await this.cache.fetch(this.roster[ind]);
 			if (c && c.state === 'alive') return c;
 
 			if (++ind >= len) ind = 0;
@@ -184,7 +184,7 @@ export default class Party extends SocialGroup {
 
 		do {
 
-			var c = await this._cache.fetch(this.roster[ind]);
+			var c = await this.cache.fetch(this.roster[ind]);
 			if (c && c.curHp > 0 && c.state === 'alive') return c;
 
 			console.log(this.roster[ind] + ' NOT A VALID TARGEt.');

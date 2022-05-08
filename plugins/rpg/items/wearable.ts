@@ -1,8 +1,33 @@
 import { ItemType, Item } from './item';
 import Material from './material';
 
+const Slots: { [s: string]: boolean } = {
+	'head': true,
+	'hands': true,
+	'back': true,
+	'waist': true,
+	'neck': true,
+	'fingers': true,
+	'chest': true,
+	'legs': true,
+	'shins': true,
+	'feet': true,
+	'left': true,
+	'right': true,
+}
+
 export type HumanSlot = 'head' | 'hands' | 'back' | 'waist' | 'neck'
-	| 'fingers' | 'chest' | 'legs' | 'shins' | 'feet' | 'left' | 'right'
+	| 'fingers' | 'chest' | 'legs' | 'shins' | 'feet' | 'left' | 'right';
+
+
+export const toSlot = (slot: string) => {
+
+	const s = slot.toLowerCase();
+	if (Slots[s] === true) {
+		return s;
+	}
+	return 'none';
+}
 
 export default class Wearable extends Item {
 

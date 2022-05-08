@@ -46,41 +46,26 @@ export default class Grave extends itemjs.Item {
 
 	}
 
-	get char() { return this._char; }
-	set char(v) { this._char = v; }
-
 	get epitaph() { return this._epitaph; }
 	set epitaph(v) { this._epitaph = v; }
 
-	get slayer() { return this._slayer; }
-	set slayer(v) { this._slayer = v; }
+	private readonly char: string;
+	private readonly slayer: string;
 
-	constructor(char: Char, slayer: Char, epitaph: string) {
+	private _epitaph: string;
+
+	constructor(char: Char | string, slayer: Char | string, epitaph: string) {
 
 		super(`${char}'s Gravestone`, `Here lies ${char}, slain by ${slayer}.`, 'grave');
 
-		this.char = char;
-		this.slayer = slayer;
-		this.epitaph = epitaph;
+		this.char = typeof char === 'string' ? char : char.name;
+		this.slayer = typeof slayer === 'string' ? slayer : slayer.name;
+		this._epitaph = epitaph;
 
 	}
 
 	getDetails(imgTag = true) {
 		return super.getDetails() + '\n' + this.epitaph;
 	}
-
-	/**
-	 * @returns detailed string description of item.
-	*/
-	/*getDetails( imgTag=true ) {
-
-		let s = this._name;
-		if ( this._desc ) s += ': ' + this._desc;
-		if ( this._inscript ) s += ' { ' + this._inscript + ' }';
-		if ( this._attach && imgTag ) s += ' [img]';
-		if ( this._crafter ) s += '\ncreated by ' + this._crafter;
-
-		return s;
-	}*/
 
 }

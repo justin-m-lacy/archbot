@@ -1,14 +1,19 @@
 import Char from '../char/char';
-const itemjs = require('../items/item');
+import { Item, ItemType } from '../items/item';
 const acts = require('../magic/action');
 
-export default class Feature extends itemjs.Item {
+export default class Feature extends Item {
 
 	get action() { return this._action; }
 	set action(v) { this._action = v; }
 
 	get fb() { return this._fb; }
 	set fb(b) { this._fb = b; }
+
+	/**
+	 * feedback when using item.
+	 */
+	private _fb?: string;
 
 	static FromJSON(json: any) {
 
@@ -19,7 +24,7 @@ export default class Feature extends itemjs.Item {
 		}
 		if (json.fb) f.fb = json.fb;
 
-		return itemjs.Item.FromJSON(json, f);
+		return Item.FromJSON(json, f);
 
 	}
 
@@ -37,7 +42,7 @@ export default class Feature extends itemjs.Item {
 	_action?: any;
 
 	constructor(name: string, desc: string) {
-		super(name, desc, 'feature');
+		super(name, desc, ItemType.Feature);
 	}
 
 	use(char: Char) {
