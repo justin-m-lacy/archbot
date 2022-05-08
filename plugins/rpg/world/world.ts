@@ -2,7 +2,7 @@ import Cache from 'archcache';
 import Char from '../char/char';
 import { Item } from '../items/item';
 import { Coord, Loc, DirString, Exit, DirVal } from './loc';
-import { ItemPicker, ItemIndex } from '../items/collection';
+import { ItemPicker, ItemIndex } from '../items/container';
 import Monster from '../monster/monster';
 import Block from './block';
 import * as Gen from './worldgen';
@@ -66,7 +66,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {*} who
 	 */
-	async removeNpc(char: Char, who) {
+	async removeNpc(char: Char, who: Monster) {
 		let loc = await this.getOrGen(char.loc, char);
 		return loc.removeNpc(who);
 
@@ -281,11 +281,11 @@ export default class World {
 
 	/**
 	 * Return the new location after moving from the given coordinate.
-	 * @param {Loc.Coord} coord - current coordinate.
+	 * @param {Coord} coord - current coordinate.
 	 * @param {string} dir - move direction.
 	 * @returns new Loc or error string.
 	 */
-	async tryMove(coord: Coord, dir: DirString, char: Char): Promise<Loc | string> {
+	async tryMove(coord: Coord, dir: DirVal, char: Char): Promise<Loc | string> {
 
 		let from = await this.getLoc(coord.x, coord.y);
 		if (!from) {
@@ -448,10 +448,10 @@ export default class World {
 	 * @returns {Loc.Exit[]} - all exits allowed from this location.
 	 */
 	async getRandExits(x: number, y: number) {
-		return Promise.all([this.getExitTo(new Coord(x - 1, y), DirMap.west),
-		this.getExitTo(new Coord(x + 1, y), DirMap.east),
-		this.getExitTo(new Coord(x, y - 1), DirMap.south),
-		this.getExitTo(new Coord(x, y + 1), DirMap.north)]).then(v => v.filter(e => e != null) as Exit[]);
+		return Promise.all([this.getExitTo(new Coord(x - 1, y), 'w'),
+		this.getExitTo(new Coord(x + 1, y), 'e'),
+		this.getExitTo(new Coord(x, y - 1), 's'),
+		this.getExitTo(new Coord(x, y + 1), 'n')]).then(v => v.filter(e => e != null) as Exit[]);
 
 
 	}
@@ -463,7 +463,7 @@ export default class World {
 	 * @param {string} fromDir - arriving from direction.
 	 * @returns {Loc.Exit|null}
 	 */
-	async getExitTo(dest: Coord, fromDir: DirString) {
+	async getExitTo(dest: Coord, fromDir: DirVal) {
 		let loc = await this.getLoc(dest.x, dest.y);
 		if (loc) {
 			let e = loc.reverseExit(fromDir);
