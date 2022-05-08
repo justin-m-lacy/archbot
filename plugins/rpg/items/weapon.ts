@@ -23,7 +23,7 @@ export default class Weapon extends Wearable {
 
 		if (json.material) w.material = json.material;
 
-		if (json.mods) this.mods = json.mods;
+		if (json.mods) w.mods = json.mods;
 
 		if (json.dmg) {
 			//console.log( 'parsing weap damage.');

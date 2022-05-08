@@ -5,6 +5,13 @@ import Inventory from '../inventory';
 import { ItemIndex } from '../inventory';
 import Monster from '../monster/monster';
 
+export type DirVal = 'n' | 's' | 'e' | 'w' | 'u' | 'd' | 'l' | 'r' | 'x' | 'enter' | 'unknown';
+export type DirString = DirVal | 'north' | 'south' | 'east' | 'west' | 'exit' | 'up' | 'down' | 'left' | 'right';
+
+export const toDirection = (s: string): DirVal => {
+	return DirMap[s.toLowerCase()] ?? 'unknown';
+}
+
 export enum Biome {
 	FOREST = 'forest',
 	TOWN = 'town',
@@ -25,41 +32,41 @@ const in_prefix = {
 	[Biome.UNDER]: ' '
 };
 
-export enum Direction {
+const DirMap: { [s: string]: DirVal } = {
 
-	north = 'n',
-	n = 'n',
-	south = 's',
-	s = 's',
-	east = 'e',
-	e = 'e',
-	west = 'w',
-	w = 'w',
-	up = 'u',
-	u = 'u',
-	down = 'd',
-	d = 'd',
-	left = 'l',
-	l = 'l',
-	right = 'r',
-	r = 'r',
-	exit = 'x',
-	x = 'x',
-	enter = 'enter'
+	north: 'n',
+	n: 'n',
+	south: 's',
+	s: 's',
+	east: 'e',
+	e: 'e',
+	west: 'w',
+	w: 'w',
+	up: 'u',
+	u: 'u',
+	down: 'd',
+	d: 'd',
+	left: 'l',
+	l: 'l',
+	right: 'r',
+	r: 'r',
+	exit: 'x',
+	x: 'x',
+	enter: 'enter',
 }
 
 
-const reverses: { [dir: Direction]: Direction } = {
-	enter: Direction.exit,
-	north: Direction.south,
-	south: Direction.north,
-	east: Direction.west,
-	west: Direction.east,
-	left: Direction.right,
-	right: 'left',
-	up: 'down',
-	down: 'up',
-	exit: Direction.enter,
+const reverses: Partial<Record<DirString, DirVal>> = {
+	enter: DirMap.exit,
+	north: DirMap.south,
+	south: DirMap.north,
+	east: DirMap.west,
+	west: DirMap.east,
+	left: DirMap.right,
+	right: DirMap.left,
+	up: DirMap.down,
+	down: DirMap.up,
+	exit: DirMap.enter,
 };
 
 
@@ -123,7 +130,10 @@ export class Loc {
 	 * @property {Coord} coord
 	*/
 	get coord() { return this._coord; }
-	set coord(v) { this._coord = v; this._key = v.toString(); }
+	set coord(v) {
+		this._coord = v;
+		this._key = v.toString();
+	}
 
 	get time() { return this._time; }
 	set time(v) { this._time = v; }
@@ -163,7 +173,7 @@ export class Loc {
 	private _key!: string;
 	private _coord: Coord;
 	private _npcs: any[];
-	private _exits: Partial<{ [Property in Direction]: Exit }> = {};
+	private _exits: Partial<Record<DirMap, Exit>> = {};
 	private readonly _inv: Inventory;
 
 	constructor(coord: Coord, biome: string) {
@@ -265,7 +275,7 @@ export class Loc {
 
 	}
 
-	hasExit(dir: Direction) {
+	hasExit(dir: DirMap) {
 		return this._exits.hasOwnProperty(dir);
 	}
 
@@ -282,8 +292,8 @@ export class Loc {
 	 *
 	 * @param dir
 	 */
-	getExit(dir: Direction) {
-		return this._exits[dir];
+	getExit(dir: DirString) {
+		return this._exits[DirMap[dir]];
 	}
 
 	/**
@@ -292,8 +302,9 @@ export class Loc {
 	 * @param {*} fromDir - direction arriving from.
 	 * @returns {Exit|null}
 	 */
-	reverseExit(fromDir: Direction) {
-		return this._exits[reverses[fromDir]];
+	reverseExit(fromDir: DirMap) {
+		const reverse = reverses[fromDir];
+		return reverse ? this._exits[reverse] : undefined;
 	}
 
 	/**
@@ -304,9 +315,11 @@ export class Loc {
 	 */
 	getExitTo(coord: Coord) {
 
-		for (let k in this._exits) {
-			var e = this._exits[k];
-			if (coord.equals(e.to)) return e;
+		let k: DirMap;
+		for (k in this._exits) {
+			if (this._exits[k]?.to.equals(coord)) {
+				return this._exits[k];
+			}
 		}
 		return null;
 
@@ -433,14 +446,14 @@ export class Loc {
 
 export class Exit {
 
-	static Reverse(dir: Direction) {
+	static Reverse(dir: DirMap) {
 		return reverses[dir];
 	}
 
-	dir: Direction;
+	dir: DirMap;
 	to: Coord;
 
-	constructor(dir: Direction, toCoord: Coord) {
+	constructor(dir: DirMap, toCoord: Coord) {
 
 		this.dir = dir;
 		this.to = toCoord;

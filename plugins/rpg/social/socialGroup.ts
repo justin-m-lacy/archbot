@@ -35,18 +35,20 @@ export default class SocialGroup {
 	private _roster!: string[];
 	private _leader!: string;
 
-	private _cache!: Cache;
+	private readonly _cache: Cache;
 
-	constructor() {
+	constructor(cache: Cache) {
+
+		this._cache = cache;
 	}
 
 	/**
 	 * Invite character to group.
 	 * @param {Char} char
 	 */
-	invite(char: Char) {
+	invite(char: Char | string) {
 
-		let name = char.name;
+		let name = typeof char === 'string' ? char : char.name;
 
 		if (this._invites.includes(name) || this._roster.includes(name)) return;
 		this._invites.push(name);

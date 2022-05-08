@@ -2,7 +2,7 @@ import { Item, ItemType } from './item';
 import Char from '../char/char';
 import { Formula } from 'formulic';
 
-const effects = require('../magic/effects.js');
+const effects = require('../magic/effects');
 
 export default class Potion extends Item {
 
@@ -23,7 +23,7 @@ export default class Potion extends Item {
 
 		let s = super.toJSON();
 
-		if (this._spell) s.spell = this._spell;
+		//if (this._spell) s.spell = this._spell;
 		if (this._effect) s.effect = this._effect;
 		if (this._form) s.form = this._form;
 
@@ -37,11 +37,12 @@ export default class Potion extends Item {
 	get effect() { return this._effect; }
 	set effect(v) { this._effect = v; }
 
-	get spell() { return this._spell; }
+	/*get spell() { return this._spell; }
 	set spell(v) { this._spell = v; }
+	_spell?: Spell;*/
 
 	_form?: Formula;
-	_spell?: Spell;
+
 	_effect?: any;
 
 	constructor() {

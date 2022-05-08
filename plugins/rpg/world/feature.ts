@@ -1,6 +1,6 @@
 import Char from '../char/char';
-const itemjs = require('../items/item.js');
-const acts = require('../magic/action.js');
+const itemjs = require('../items/item');
+const acts = require('../magic/action');
 
 export default class Feature extends itemjs.Item {
 

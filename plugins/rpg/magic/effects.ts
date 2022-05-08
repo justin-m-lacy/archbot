@@ -24,8 +24,6 @@ const loadEffects = () => {
  */
 export class ProtoEffect {
 
-	get name() { return this._name; }
-
 	get mods() { return this._mods; }
 	set mods(v) { this._mods = v; }
 
@@ -45,27 +43,17 @@ export class ProtoEffect {
 	get time() { return this._time; }
 	set time(v) { this._time = v; }
 
-	private readonly _name: string;
+	readonly name: string;
 	private _mods: any;
 	private _dot: any;
 	private _time: any;
 
-	constructor(props?: any) { }
+	constructor(data: any) {
 
-	static FromJSON(json: any) {
-
-		let e = new ProtoEffect();
-		return Object.assign(e, json);
-
-	}
-
-	static FromData(data: any) {
-
-		let e = new ProtoEffect();
-		if (data.dot) e._dot = Formula.TryParse(data.dot);
-		if (data.mods) e._mods = data.mods;
-
-		return e;
+		this.name = data.name;
+		if (data.dot) this._dot = Formula.TryParse(data.dot);
+		if (data.mods) this._mods = data.mods;
+		this._time = data.time ?? 0;
 
 	}
 
@@ -87,7 +75,7 @@ export class Effect {
 	get name() { return this._effect.name; }
 
 	get effect() { return this._effect; }
-	get mods() { return this._effect._mods; }
+	get mods() { return this._effect.mods; }
 	get dot() { return this._effect.dot; }
 
 	get time() { return this._time; }
@@ -101,7 +89,7 @@ export class Effect {
 
 		let e = json.effect;
 		if (typeof (e) === 'string') e = effects[e];
-		else e = ProtoEffect.FromJSON(e);
+		else e = new ProtoEffect(e);
 		if (!e) return null;
 
 		return new Effect(e, json.src, json.time);
@@ -127,7 +115,10 @@ export class Effect {
 
 	start(char: Actor) {
 
-		char.log(`${char.name} is affected by ${this.name}.`);
+
+		if (char instanceof Char) {
+			char.log(`${char.name} is affected by ${this.name}.`);
+		}
 
 		if (this.mods) {
 			console.log('apply mods');
@@ -184,7 +175,7 @@ export class Effect {
 
 	}
 
-	applyMod(m: StatMods, char: Char) {
+	applyMod(m: StatMods, char: Actor) {
 
 		console.log('name: ' + char.name);
 

@@ -3,11 +3,10 @@ import Race from './race';
 import CharClass from './charclass';
 import { StatMods } from './char/stats';
 import * as ItemGen from './items/itemgen';
-import { genArmor } from './items/itemgen';
 
-const stats = require('./char/stats.js');
+const stats = require('./char/stats');
 
-const Dice = require('./dice.js');
+const Dice = require('./dice');
 
 type ValueRoller = { rolls: number, die: number, mod: number, minVal?: number, maxVal?: number };
 type SetValues = { set: string[] }

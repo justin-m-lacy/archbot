@@ -11,6 +11,9 @@ import { Log } from '../display';
 import { Coord } from '../world/loc';
 import { History } from '../display/history';
 import { tryLevel } from './level';
+import Wearable from '../items/wearable';
+import StatBlock, { getEvil } from './stats';
+import { Effect } from '../magic/effects';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
@@ -119,7 +122,7 @@ export default class Char extends Actor {
 		if (json.effects) {
 			let a = json.effects;
 			for (let i = a.length - 1; i >= 0; i--) {
-				char.addEffect(effects.CharEffect.FromJSON(a[i]));
+				char.addEffect(Effect.FromJSON(a[i]));
 			}
 		}
 
@@ -184,7 +187,7 @@ export default class Char extends Actor {
 	}
 
 	hasTalent(t: string) {
-		return (this._talents.includes(t)) || this.charClass.hasTalent(t) || this.race.hasTalent(t);
+		return (this._talents.includes(t)) || this.charClass!.hasTalent(t) || this.race.hasTalent(t);
 	}
 
 	addHistory(evt: string) {
@@ -257,23 +260,27 @@ export default class Char extends Actor {
 	equip(what: ItemIndex) {
 
 		let item = this._inv.get(what);
-
 		if (!item) return 'No such item.';
 
-		let removed = this._equip.equip(item);
-		if (typeof (removed) !== 'string') {
+		if (item instanceof Wearable) {
 
-			this.applyEquip(item);
-			this._inv.take(item);
-			if (removed) {
-				this.removeEquip(removed);
-				this._inv.add(removed);
+			let removed = this._equip.equip(item);
+			if (typeof (removed) !== 'string') {
+
+				this.applyEquip(item);
+				this._inv.take(item);
+				if (removed) {
+					this.removeEquip(removed);
+					this._inv.add(removed);
+				}
+
+				return true;
+
 			}
-
-			return true;
-
+			return removed;
+		} else {
+			return 'Item cannot be equipped.'
 		}
-		return removed;
 
 	}
 
@@ -287,7 +294,6 @@ export default class Char extends Actor {
 		const equips = this._equip.removeWhere(p);
 		this.removeEquip(equips);
 		return this.inv.removeWhere(p).concat(equips);
-	);
 	}
 
 	unequip(slot?: string) {
@@ -382,7 +388,7 @@ export default class Char extends Actor {
 	 */
 	takeItem(which: number | string | Item, sub?: number | string) { return this._inv.take(which, sub); }
 
-	takeRange(start: number, end?: number) { return this._inv.takeRange(start, end); }
+	takeRange(start: ItemIndex, end: ItemIndex) { return this._inv.takeRange(start, end); }
 
 	/**
 	 * reroll hp.
@@ -400,7 +406,7 @@ export default class Char extends Actor {
 
 	}
 
-	setBaseStats(base: BaseState) {
+	setBaseStats(base: StatBlock) {
 
 		super.setBaseStats(base);
 		this.applyClass();
@@ -411,17 +417,17 @@ export default class Char extends Actor {
 
 	applyClass() {
 
-		if (!this._charClass) return;
+		if (!this.charClass) return;
 		//if ( this._charClass.talents ) this.talents = this._charClass.talents.concat( this._talents );
 
-		super.applyBaseMods(this._charClass.statMods);
+		super.applyBaseMods(this.charClass.statMods);
 
 	}
 
 	getTalents() {
 
 		let s = new Set(this._talents);
-		if (this.charClass.talents) this.charClass.talents.forEach((v: string) => s.add(v));
+		if (this.charClass?.talents) this.charClass.talents.forEach((v: string) => s.add(v));
 		if (this.race.talents) this.race.talents.forEach((v: string) => s.add(v));
 
 		if (s.size === 0) return `${this.name} has no talents.`;
@@ -453,7 +459,7 @@ export default class Char extends Actor {
 
 	getLongDesc() {
 
-		let desc = `level ${this.level} ${stats.getEvil(this.evil)} ${this._race.name} ${this._charClass.name} [${this._state}]`;
+		let desc = `level ${this.level} ${getEvil(this.evil)} ${this.race.name} ${this.charClass!.name} [${this.state}]`;
 		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${Level.nextExp(this)}`;
 		desc += `\nhp: ${this.curHp}/${this.maxHp} armor: ${this.armor}\n`;
 		desc += this.getStatString();
@@ -470,12 +476,12 @@ export default class Char extends Actor {
 		let len = statTypes.length;
 
 		let stat = statTypes[0];
-		str += stat + ': ' + this._curStats[stat];
+		str += stat + ': ' + this.curStats[stat];
 
 		for (let i = 1; i < len; i++) {
 
 			stat = statTypes[i];
-			str += '\n' + stat + ': ' + this._curStats[stat];
+			str += '\n' + stat + ': ' + this.curStats[stat];
 
 		}
 		return str;

@@ -1,14 +1,13 @@
 import Char from '../char/char';
 import Cache from 'archcache';
 import { Coord } from '../world/loc';
-const loc = require('../world/loc.js');
-const SocialGroup = require('./socialGroup');
+import SocialGroup from './socialGroup';
 
 export default class Party extends SocialGroup {
 
-	static FromJSON(json: any) {
+	static FromJSON(json: any, cache: Cache) {
 
-		let p = new Party(json.leader, null);
+		let p = new Party(json.leader, cache);
 
 		Object.assign(p, json);
 
@@ -31,18 +30,16 @@ export default class Party extends SocialGroup {
 
 	private _loc: Coord;
 
-	constructor(leader: Char, cache: Cache | null) {
+	constructor(leader: Char, cache: Cache) {
 
-		super();
-
-		this._cache = cache;
+		super(cache);
 
 		this.roster = [leader.name];
 
 		this.leader = leader.name;
-		this.name = this._leader + "'s Party";
+		this.name = this.leader + "'s Party";
 
-		this._loc = new loc.Coord(leader.loc.x, leader.loc.y);
+		this._loc = new Coord(leader.loc.x, leader.loc.y);
 
 	}
 
@@ -51,7 +48,7 @@ export default class Party extends SocialGroup {
 		let char;
 		for (let i = this.roster.length - 1; i >= 0; i--) {
 
-			char = await this._cache.fetch(this.roster[i]);
+			char = await this.cache.fetch(this.roster[i]);
 			if (char && char.isAlive()) return 'alive';
 
 		} //

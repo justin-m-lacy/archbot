@@ -1,8 +1,8 @@
 import Cache from 'archcache';
 import Char from '../char/char';
 import Inventory from '../inventory';
-
-const SocialGroup = require('./socialGroup');
+import SocialGroup from './socialGroup';
+import { Coord } from '../world/loc';
 
 /**
  * Can't use statics because static variables from
@@ -31,7 +31,7 @@ export class GuildManager {
 
 		if (data instanceof Guild) return data;
 
-		data = Guild.FromJSON(data);
+		data = Guild.FromJSON(data, this.cache);
 		this.cache.cache(name, data);
 
 		return data;
@@ -44,10 +44,10 @@ export class GuildManager {
 	 */
 	async MakeGuild(name: string, leader: Char) {
 
-		let g = new Guild(name);
+		let g = new Guild(name, this.cache);
 		g.leader = leader.name;
 		g.roster.push(leader.name);
-		g.time = Date.now();
+		g.createdAt = Date.now();
 
 		await this.cache.store(name, g);
 		return g;
@@ -58,14 +58,14 @@ export class GuildManager {
 
 export class Guild extends SocialGroup {
 
-	static FromJSON(json: any) {
+	static FromJSON(json: any, cache: Cache) {
 
-		let g = new Guild(json.name);
+		let g = new Guild(json.name, cache);
 
 		Object.assign(g, json);
 
-		if (g._inv) g._inv = Inventory.FromJSON(g._inv);
-		else g._inv = new Inventory();
+		if (g.inv) g.inv = Inventory.FromJSON(g.inv);
+		else g.inv = new Inventory();
 
 		return g;
 
@@ -75,15 +75,15 @@ export class Guild extends SocialGroup {
 
 		return {
 
-			name: this._name,
-			leader: this._leader,
+			name: this.name,
+			leader: this.leader,
 			desc: this._desc,
-			roster: this._roster,
-			invites: this._invites,
+			roster: this.roster,
+			invites: this.invites,
 			inv: this.inv,
 			level: this._level,
 			loc: this._loc,
-			time: this._time,
+			created: this.createdAt,
 			exp: this._exp
 
 		};
@@ -105,15 +105,16 @@ export class Guild extends SocialGroup {
 	get exp() { return this._exp; }
 	set exp(v) { this._exp = v; }
 
-	get time() { return this._time; }
-	set time(v) { this._time = v; }
-
 	private _level: number = 1;
 	private _exp: number = 0;
+	createdAt: number = 0;
+	private _desc?: string;
+	private _inv: Inventory;
+	private _loc: Coord = new Coord(0, 0);
 
-	constructor(name: string) {
+	constructor(name: string, cache: Cache) {
 
-		super();
+		super(cache);
 
 		this.name = name;
 

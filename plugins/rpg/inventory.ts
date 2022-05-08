@@ -1,14 +1,15 @@
 import { Item } from './items/item';
-const itemjs = require('./items/item.js');
-const ItemGen = require('./items/itemgen.js');
+import Chest from './items/chest';
+const itemjs = require('./items/item');
+const ItemGen = require('./items/itemgen');
 
 export type ItemPicker = string | number | Item;
 export type ItemIndex = string | number;
 
-export default class Inventory {
+export default class Inventory<T = Item> {
 
 	/**
-	 * @property {Item[]} items
+	 * @property items
 	 */
 	get items() { return this._items; }
 	set items(v) { this._items = v; }
@@ -38,7 +39,7 @@ export default class Inventory {
 
 	}
 
-	private _items: Item[] = [];
+	private _items: T[] = [];
 	private type?: string;
 
 	constructor() {
@@ -150,8 +151,9 @@ export default class Inventory {
 		let it = this.take(base) as Inventory | null;
 		if (!it) return null;
 
+		/// TODO: this is clearly wrong.
 		if (it.type === 'chest') return it.take(sub);
-		else return this.takeRange(base, sub);
+		else return this.takeRange(base as ItemIndex, sub as ItemIndex);
 
 	}
 
@@ -242,7 +244,7 @@ export default class Inventory {
 	 * @param it
 	 * @returns starting 1-index where items were added.
 	 */
-	add(it: Item | Item[]) {
+	add(it: T | T[]) {
 
 		if (Array.isArray(it)) {
 			let ind = this._items.length + 1;
@@ -259,7 +261,7 @@ export default class Inventory {
 	 * Remove all items matching predicate; returns the list of items removed.
 	 * @param {*} p
 	 */
-	removeWhere(p: (it: Item) => boolean) {
+	removeWhere(p: (it: T) => boolean) {
 
 		let r = [];
 

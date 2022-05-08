@@ -4,11 +4,11 @@ import { BotContext } from '../../src/bot/botcontext';
 import Cache from 'archcache';
 import Game from './game';
 import { DiscordBot } from '../../src/bot/discordbot';
-import { Direction } from "./world/loc";
+import { DirMap } from "./world/loc";
 import { HumanSlot } from './items/wearable';
 import type Char from './char/char';
 
-const gamejs = require('./game.js');
+const gamejs = require('./game');
 const display = require('./display');
 
 /**
@@ -323,7 +323,7 @@ export class Rpg {
 		return display.sendBlock(m, await this.world.useLoc(char, wot));
 	}
 
-	async cmdHike(m: Message, dir: Direction) {
+	async cmdHike(m: Message, dir: DirMap) {
 
 		try {
 
@@ -337,7 +337,7 @@ export class Rpg {
 
 	}
 
-	async cmdMove(m: Message, dir: Direction) {
+	async cmdMove(m: Message, dir: DirMap) {
 
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
