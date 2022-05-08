@@ -403,7 +403,7 @@ export class Loc {
 	 *
 	 * @param {string} what
 	 */
-	take(what: string) { return this._inv.take(what); }
+	take(what: string | number) { return this._inv.take(what); }
 
 	getNpc(wot: string | number) {
 

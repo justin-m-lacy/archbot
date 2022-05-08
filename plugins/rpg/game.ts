@@ -4,7 +4,7 @@ import Cache from 'archcache';
 import { Rpg } from "./rpg";
 import World from "./world/world";
 import Char from './char/char';
-import { DirMap } from './world/loc';
+import { toDirection } from './world/loc';
 import { Item } from './items/item';
 import { ItemPicker, ItemIndex } from './inventory';
 import Party from './social/party';
@@ -115,11 +115,11 @@ export default class Game {
 
 	}
 
-	async move(char: Char, dir: DirMap) {
+	async move(char: Char, dir: string) {
 
 		if (this.tick(char, 'move') === false) return char.getLog();
 
-		let res = await this.world.move(char, dir);
+		let res = await this.world.move(char, toDirection(dir));
 
 		let p = this.getParty(char);
 		if (p && p.leader === char.name) {
@@ -132,7 +132,7 @@ export default class Game {
 		return char.output(res);
 	}
 
-	async hike(char: Char, dir: DirMap) {
+	async hike(char: Char, dir: string) {
 
 		if (this.tick(char, 'hike') === false) return char.getLog();
 
@@ -151,7 +151,7 @@ export default class Game {
 		}
 		else if (r < 10) return char.output('You failed to find your way.');
 
-		let loc = await this.world.hike(char, dir);
+		let loc = await this.world.hike(char, toDirection(dir));
 		if (!loc) return char.output('You failed to find your way.');
 
 		if (p && p.leader === char.name) {
