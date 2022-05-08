@@ -1,12 +1,6 @@
 import { Item } from "./item";
 
-const itemjs = require('./item.js');
-const effects = require('../magic/effects.js');
-const forms = require('../formulas.js');
-const Inv = require('../inventory.js');
-
-
-module.exports = class Chest extends itemjs.Item {
+export default class Chest extends itemjs.Item {
 
 	static FromJSON(json: any) {
 

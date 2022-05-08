@@ -4,15 +4,18 @@ import Cache from 'archcache';
 import { Rpg } from "./rpg";
 import World from "./world/world";
 import Char from './char/char';
-import { Direction } from './world/loc';
+import { DirMap } from './world/loc';
 import { Item } from './items/item';
 import { ItemPicker, ItemIndex } from './inventory';
 import Party from './social/party';
 import Actor from './char/actor';
+import { GuildManager, Guild } from './social/guild';
+import { LifeState } from './char/actor';
+import Monster from './monster/monster';
 
 const Combat = require('./combat');
 const dice = require('./dice');
-const Guild = require('./social/guild');
+const guilds = require('./social/guild');
 const util = require('../../jsutils');
 const Trade = require('./trade');
 const item = require('./items/item');
@@ -32,7 +35,7 @@ exports.getLore = (wot?: string) => {
 /**
  * actions not allowed for each player state.
 */
-const illegal_acts = {
+const illegal_acts: Partial<{ [Property in LifeState]: any }> = {
 	"dead": {
 		'brew': 1, 'map': 1, 'hike': 1, 'scout': 1,
 		"take": 1, "attack": 1, 'drop': 1, "equip": 1, "unequip": 1, "steal": 1, "craft": 1, "track": 1, "quaff": 1,
@@ -64,7 +67,7 @@ export default class Game {
 
 	private readonly _charParties: { [char: string]: Party } = {};
 
-	private readonly guilds: { [char: string]: Guild };
+	private readonly guilds: GuildManager;
 
 	/**
 	 *
@@ -80,7 +83,7 @@ export default class Game {
 		this.cache = this.rpg.cache;
 		this.charCache = charCache;
 
-		this.guilds = new Guild.Manager(this.cache.subcache('guilds'));
+		this.guilds = new GuildManager(this.cache.subcache('guilds'));
 
 	}
 
@@ -102,7 +105,7 @@ export default class Game {
 		return true;
 	}
 
-	tick(char: Char, action) {
+	tick(char: Char, action: string) {
 
 		char.clearLog();
 
@@ -112,7 +115,7 @@ export default class Game {
 
 	}
 
-	async move(char: Char, dir: Direction) {
+	async move(char: Char, dir: DirMap) {
 
 		if (this.tick(char, 'move') === false) return char.getLog();
 
@@ -129,7 +132,7 @@ export default class Game {
 		return char.output(res);
 	}
 
-	async hike(char: Char, dir: Direction) {
+	async hike(char: Char, dir: DirMap) {
 
 		if (this.tick(char, 'hike') === false) return char.getLog();
 
@@ -213,7 +216,7 @@ export default class Game {
 		} else {
 
 			// neither has party. new party with invite.
-			this.makeParty(char, t);
+			this.makeParty(char, t.name);
 			return `${char.name} has invited ${t.name} to join their party.`;
 
 		} //
@@ -275,7 +278,7 @@ export default class Game {
 		}
 
 		g.leave(char);
-		char.guild = null;
+		char.guild = undefined;
 
 		return `${char.name} has left ${g.name}.`;
 
@@ -356,7 +359,7 @@ export default class Game {
 
 		if (end) {
 
-			let itms = char.takeItems(first, end);
+			let itms = char.takeRange(first, end);
 			if (!itms) return char.output('Invalid item range.');
 			return char.output(itms.length + ' items destroyed.');
 
@@ -570,7 +573,7 @@ export default class Game {
 
 	}
 
-	async attackNpc(src: Char, npc: Npc) {
+	async attackNpc(src: Char, npc: Actor | Monster) {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 

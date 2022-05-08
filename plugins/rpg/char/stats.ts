@@ -1,74 +1,3 @@
-export class StatMods {
-
-	// { stat->mod }
-	get mods() { return this._mods; }
-	set mods(v) { this._mods = v; }
-
-	get duration() { return this._duration; }
-	set duration(t) { this._duration = t; }
-
-	get startTime() { return this._start; }
-	set startTime(t) { this._start = t; }
-
-	private _mods: any;
-
-	private _duration: number = 0;
-	private _start: number = 0;
-
-	constructor(mods = null) {
-
-		if (mods) this._mods = mods;
-		else this._mods = {};
-
-	}
-
-	static FromJSON(json: any) {
-
-		let mod = new StatMods(json.mods);
-		mod._start = json.start;
-		mod._duration = json._duration;
-
-	}
-
-	toJSON() {
-
-		return {
-			mods: this._mods,
-			start: this._start,
-			duration: this._duration
-
-		};
-
-	}
-
-	apply(stats: StatBlock) {
-
-		let k: keyof StatBlock;
-		for (k in this._mods) {
-
-			if (k in stats) {
-				stats[k] += this._mods[k];
-			}
-
-		}
-		if (this._duration > 0) this._start = Date.now();
-
-	}
-
-	remove(stats: StatBlock) {
-
-		for (let k in this._mods) {
-
-			if (stats.hasOwnProperty[k]) {
-				stats[k] -= this._mods[k];
-			}
-
-		}
-
-	}
-
-}
-
 export const getEvil = (evil: number) => {
 
 	if (!evil) return 'neutral';
@@ -99,6 +28,8 @@ export const getEvil = (evil: number) => {
 };
 
 export const pointStats = ['str', 'con', 'dex', 'int', 'wis', 'char', 'armor'];
+
+export type StatName = 'evil' | 'str' | 'con' | 'dex' | 'int' | 'wis' | 'char' | 'armor' | 'maxHp' | 'maxMp' | 'level' | 'dr';
 
 export default class StatBlock {
 
@@ -237,6 +168,77 @@ export default class StatBlock {
 	addHp(amt: number) {
 		this._curHp += amt;
 		this._maxHp += amt;
+	}
+
+}
+
+
+export class StatMods {
+
+	// { stat->mod }
+	get mods() { return this._mods; }
+	set mods(v) { this._mods = v; }
+
+	get duration() { return this._duration; }
+	set duration(t) { this._duration = t; }
+
+	get startTime() { return this._start; }
+	set startTime(t) { this._start = t; }
+
+	private _mods: any;
+
+	private _duration: number = 0;
+	private _start: number = 0;
+
+	constructor(mods = null) {
+
+		if (mods) this._mods = mods;
+		else this._mods = {};
+
+	}
+
+	static FromJSON(json: any) {
+
+		let mod = new StatMods(json.mods);
+		mod._start = json.start;
+		mod._duration = json._duration;
+
+	}
+
+	toJSON() {
+
+		return {
+			mods: this._mods,
+			start: this._start,
+			duration: this._duration
+
+		};
+
+	}
+
+	apply(stats: StatBlock) {
+
+		for (let k in this._mods) {
+
+			if (k in stats) {
+				stats[k] += this._mods[k];
+			}
+
+		}
+		if (this._duration > 0) this._start = Date.now();
+
+	}
+
+	remove(stats: StatBlock) {
+
+		for (let k in this._mods) {
+
+			if (k in stats) {
+				stats[k] -= this._mods[k];
+			}
+
+		}
+
 	}
 
 }

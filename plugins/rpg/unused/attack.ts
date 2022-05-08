@@ -1,9 +1,10 @@
 import { Effect } from '../magic/effects';
-const forms = require('formulic');
+import Actor from '../char/actor';
+import { Formula } from 'formulic';
 
 export class Attack {
 
-	static FromJSON(json) {
+	static FromJSON(json: any) {
 
 		let a = new Attack();
 
@@ -37,15 +38,16 @@ export class Attack {
 	set effect(v) {
 
 		if (typeof (v) === 'string') {
-			this._effect = forms.Formula.TryParse(v);
+			this._effect = Formula.TryParse(v);
 		} else this._effect = v;
 
 	}
 
-	// hp by default.
-	get targetStat() { }
-
-	get saveStat() { }
+	private _effect?: any;
+	private _dmgStat: any;
+	private _hitstat: any;
+	private _dmg: any;
+	private _hitStat: any;
 
 	constructor() { }
 
@@ -55,10 +57,10 @@ export class Attack {
 	rollDmg() {
 	}
 
-	applyHit(actor, target) {
+	applyHit(actor: Actor, target: Actor) {
 
 		let e = this._effect;
-		if (Array.isArray(e)) {
+		/*if (Array.isArray(e)) {
 
 			for (i = e.length - 1; i >= 0; i--) {
 				target.effects.push(new Effect(e[i]), 0);
@@ -66,7 +68,7 @@ export class Attack {
 
 		} else {
 			target.effects.push(new Effect(e, 0));
-		}
+		}*/
 
 	}
 
