@@ -1,11 +1,12 @@
 import Cache from 'archcache';
 import Char from '../char/char';
 import { Item } from '../items/item';
-import { Coord, DirMap, Loc, DirString, Exit } from './loc';
+import { Coord, Loc, DirString, Exit, DirVal } from './loc';
 import { ItemPicker, ItemIndex } from '../items/collection';
 import Monster from '../monster/monster';
 import Block from './block';
 import * as Gen from './worldgen';
+import Feature from './feature';
 
 // Locations are merged into blocks of width/block_size, height/block_size.
 // WARNING: Changing block size will break the fetching of existing world data.
@@ -55,7 +56,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {*} who
 	 */
-	async getNpc(char: Char, who) {
+	async getNpc(char: Char, who: ItemIndex) {
 		let loc = await this.getOrGen(char.loc, char);
 		return loc.getNpc(who);
 	}
@@ -76,7 +77,7 @@ export default class World {
 	 * @param {Char} char
 	 * @param {*} wot
 	 */
-	async useLoc(char: Char, wot) {
+	async useLoc(char: Char, wot: string | number | Feature) {
 
 		let loc = await this.getOrGen(char.loc, char);
 
@@ -95,17 +96,17 @@ export default class World {
 	 * @param {Char} char
 	 * @param {string|number|Item} first
 	 */
-	async take(char: Char, first: string | number | Item, end?: string | number) {
+	async take(char: Char, first: string | number, end?: string | number) {
 
 		let loc = await this.getOrGen(char.loc, char);
-		let it = loc.take(first, end);
+
+		let it = (end != null) ? loc.takeRange(first as number, end as number) : loc.take(first);
 		if (!it) return 'Item not found.';
 
 		let ind = char.addItem(it);
-
 		await this.quickSave(loc);
 
-		return end ? `${char.name} took ${it.length} items.` :
+		return Array.isArray(it) ? `${char.name} took ${it.length} items.` :
 			`${char.name} took ${it.name}. (${ind})`;
 	}
 
@@ -140,21 +141,18 @@ export default class World {
 
 	}
 
-	async move(char: Char, dir: DirString) {
+	async move(char: Char, dir: DirVal) {
 
 		if (!dir) return 'Must specify movement direction.';
 
-		let loc = char.loc;
-		if (!loc) {
-			console.error('Char loc null');
-			loc = new Loc.Coord(0, 0);
+		let loc = await this.tryMove(char.loc ?? new Coord(0, 0), dir, char);
+		if (typeof loc === 'string') {
+			return loc;
+		} else {
+
+			char.loc = loc.coord;
+			return char.name + ' is' + loc.look()
 		}
-
-		loc = await this.tryMove(loc, dir, char);
-		if (typeof (loc) === 'string') return loc;
-
-		char.loc = loc.coord;
-		return char.name + ' is' + loc.look()
 
 	}
 
@@ -173,7 +171,7 @@ export default class World {
 
 	}
 
-	async view(char: Char, what?: string | number | Item) {
+	async view(char: Char, what?: string | number) {
 
 		let loc = await this.getOrGen(char.loc);
 		if (what) {
@@ -191,9 +189,9 @@ export default class World {
 	/**
 	 * Examine world at character location.
 	 * @param {Char} char
-	 * @param {string|number|Monster} what
+	 * @param {string|number} what
 	 */
-	async examine(char: Char, what: string | number | Monster) {
+	async examine(char: Char, what: string | number) {
 
 		let loc = await this.getOrGen(char.loc);
 
@@ -205,7 +203,7 @@ export default class World {
 
 	}
 
-	async look(char: Char, what: string | number | Item) {
+	async look(char: Char, what: string | number) {
 
 		let loc = await this.getOrGen(char.loc);
 
@@ -285,9 +283,9 @@ export default class World {
 	 * Return the new location after moving from the given coordinate.
 	 * @param {Loc.Coord} coord - current coordinate.
 	 * @param {string} dir - move direction.
-	 * @returns {Loc|string} - new Loc or error string.
+	 * @returns new Loc or error string.
 	 */
-	async tryMove(coord: Coord, dir: DirString, char: Char) {
+	async tryMove(coord: Coord, dir: DirString, char: Char): Promise<Loc | string> {
 
 		let from = await this.getLoc(coord.x, coord.y);
 		if (!from) {
@@ -299,13 +297,13 @@ export default class World {
 
 		if (!exit) return 'You cannot move in that direction.';
 
-		let destCoord = exit.coord;
+		let destCoord = exit.to;
 		let x = destCoord.x;
 		let y = destCoord.y;
 
 		let dest = await this.getLoc(x, y);
 
-		if (dest === null) {
+		if (dest == null) {
 
 			let exits = await this.getRandExits(x, y);
 			// must use NEW coord so avoid references.
@@ -450,10 +448,12 @@ export default class World {
 	 * @returns {Loc.Exit[]} - all exits allowed from this location.
 	 */
 	async getRandExits(x: number, y: number) {
-		return [await this.getExitTo(new Coord(x - 1, y), DirMap.west),
-		await this.getExitTo(new Coord(x + 1, y), DirMap.east),
-		await this.getExitTo(new Coord(x, y - 1), DirMap.south),
-		await this.getExitTo(new Coord(x, y + 1), DirMap.north)].filter(v => v != null);
+		return Promise.all([this.getExitTo(new Coord(x - 1, y), DirMap.west),
+		this.getExitTo(new Coord(x + 1, y), DirMap.east),
+		this.getExitTo(new Coord(x, y - 1), DirMap.south),
+		this.getExitTo(new Coord(x, y + 1), DirMap.north)]).then(v => v.filter(e => e != null) as Exit[]);
+
+
 	}
 
 	/**
