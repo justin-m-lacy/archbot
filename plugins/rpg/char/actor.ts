@@ -98,6 +98,8 @@ export default class Actor {
 
 	get HD() { return this._charClass ? Math.floor((this._charClass.HD + this._race.HD) / 2) : this._race.HD; }
 
+	get charClass() { return this._charClass }
+
 	/**
 	 * Base stats before race/class modifiers.
 	 */
@@ -133,10 +135,12 @@ export default class Actor {
 	private _statMods: StatMods[];
 	private _state: LifeState;
 
-	constructor(race: Race) {
+	constructor(race: Race, rpgClass?: CharClass) {
 
 		this._baseStats = new StatBlock();
 		this._curStats = new StatBlock();
+
+		this._charClass = rpgClass;
 
 		this._statMods = [];
 		this._info = {};
@@ -161,10 +165,9 @@ export default class Actor {
 
 	}
 
-	statRoll(...stats) {
+	statRoll(...stats: string[]) {
 		let roll = this.skillRoll();
 		for (let s of stats) {
-			console.log('stat: ' + s);
 			roll += this.getModifier(s);
 		}
 		return roll;
@@ -180,8 +183,6 @@ export default class Actor {
 		let hpBonus = this.HD + this._baseStats.getModifier('con');
 		this._baseStats.addHp(hpBonus);
 		this._curStats.addHp(hpBonus);
-
-		this.levelFlag = true;
 
 	}
 

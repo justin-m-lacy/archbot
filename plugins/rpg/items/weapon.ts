@@ -2,7 +2,6 @@ import { Item, ItemType } from './item';
 import Material from './material';
 import { DamageSrc } from '../formulas';
 import Wearable from './wearable';
-const DamageSrc = require('../formulas.js').DamageSrc;
 
 export default class Weapon extends Wearable {
 
@@ -30,7 +29,7 @@ export default class Weapon extends Wearable {
 			//console.log( 'parsing weap damage.');
 			w.damage = DamageSrc.FromJSON(json.dmg);
 		} else {
-			console.log('ERR: parsing weap dmg. no dmg.')
+			console.log('Error parsing weap dmg. no dmg found.')
 			w.damage = new DamageSrc(null, json.dmgType);
 		}
 
@@ -48,8 +47,6 @@ export default class Weapon extends Wearable {
 	 * @param {Material} mat 
 	 */
 	static FromData(tmp: any, mat?: Material) {
-
-		if (!tmp) return null;
 
 		let w = new Weapon(tmp.name);
 

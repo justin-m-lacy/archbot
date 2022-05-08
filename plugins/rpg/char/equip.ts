@@ -1,10 +1,8 @@
 import Wearable from "../items/wearable";
-import { ItemType } from '../items/item';
+import { ItemType, Item } from '../items/item';
 import { HumanSlot } from '../items/wearable';
 import Weapon from '../items/weapon';
-
-const itemjs = require('../items/item');
-const ItemGen = require('../items/itemgen');
+import * as ItemGen from '../items/itemgen';
 
 var MaxSlots: { [key: string]: number | undefined } = {
 	neck: 3,
@@ -29,9 +27,9 @@ export default class Equip {
 
 			var wot = src[k];
 			if (!wot) continue;
-			if (Array.isArray(wot)) {
+			else if (Array.isArray(wot)) {
 
-				dest[k] = wot.map(ItemG.fromJSON) as Wearable;
+				dest[k] = wot.map(ItemGen.fromJSON);
 
 			} else dest[k] = ItemGen.fromJSON(wot);
 
@@ -76,7 +74,7 @@ export default class Equip {
 				list += 'nothing'
 			} else if (Array.isArray(cur)) {
 
-				list += itemjs.Item.ItemList(cur);
+				list += Item.ItemList(cur);
 
 			} else {
 				list += cur.name;
@@ -97,8 +95,8 @@ export default class Equip {
 
 	getWeapons(): Weapon | Weapon[] | null {
 
-		let right = this.slots.right;
-		let left = this.slots.left;
+		let right = this.slots.right as Weapon | null;
+		let left = this.slots.left as Weapon | null;
 
 		if (right === null) return left ? (left.type === ItemType.Weapon ? left as Weapon : null) : null;
 		else if (left === null) return right.type === ItemType.Weapon ? right : null;
@@ -156,7 +154,11 @@ export default class Equip {
 		if (!it) return;
 
 		if (Array.isArray(it)) {
-			it = it.shift();
+			if (it.length > 0) {
+				it = it.shift()!;
+			} else {
+				return;
+			}
 		} else {
 			this.slots[slot] = null;
 		}
@@ -178,8 +180,8 @@ export default class Equip {
 
 		console.log('equipping weapon...');
 
-		let right = this.slots.right;
-		let left = this.slots.left;
+		let right = this.slots.right as Weapon;
+		let left = this.slots.left as Weapon;
 
 		if (it.hands === 2) {
 
@@ -248,7 +250,7 @@ export default class Equip {
 		if (Array.isArray(cur)) {
 
 			cur.push(it);
-			if (cur.length > (MaxSlots[slot] ?? 1)) cur = cur.shift();
+			if (cur.length > (MaxSlots[slot] ?? 1)) cur = cur.shift()!;
 			else cur = null;
 
 		} else {
@@ -277,7 +279,7 @@ export default class Equip {
 	 * @param {*} p - predicate
 	 * @returns {Item[]}
 	 */
-	removeWhere(p: (v: Wearable) => boolean) {
+	removeWhere(p: (v: Item) => boolean) {
 
 		let v;
 		let removed = [];

@@ -1,5 +1,4 @@
 import { Item, ItemType } from '../items/item';
-import Wearable from '../items/wearable';
 import { HumanSlot } from '../items/wearable';
 import Equip from './equip';
 import Inventory from '../inventory';
@@ -8,6 +7,10 @@ import { roll } from '../dice';
 import Actor from './actor';
 import Race from '../race';
 import CharClass from '../charclass';
+import { Log } from '../display';
+import { Coord } from '../world/loc';
+import { History } from '../display/history';
+import { tryLevel } from './level';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
@@ -15,9 +18,6 @@ const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effect
 
 
 export default class Char extends Actor {
-
-	get charClass() { return this._charClass; }
-	set charClass(c) { this._charClass = c; }
 
 	get owner() { return this._owner; }
 	set owner(v) { this._owner = v; }
@@ -29,7 +29,6 @@ export default class Char extends Actor {
 	set exp(v) { this._exp = v; }
 
 	get inv() { return this._inv; }
-	set inv(v) { this._inv = v; }
 
 	getEquips() { return this._equip; }
 
@@ -78,8 +77,8 @@ export default class Char extends Actor {
 
 		json.equip = this._equip;
 
-		json.race = this._race.name;
-		json.charClass = this._charClass.name;
+		json.race = this.race.name;
+		json.charClass = this.charClass?.name;
 
 		return json;
 	}
@@ -88,7 +87,10 @@ export default class Char extends Actor {
 
 		if (!json) return null;
 
-		let char = new Char(Race.RandRace(json.race), CharClass.RandClass(json.charClass));
+		let char = new Char(
+			Race.RandRace(json.race),
+			CharClass.RandClass(json.charClass),
+			json.owner);
 
 		char.name = json.name;
 		char.exp = Math.floor(json.exp) || 0;
@@ -96,24 +98,22 @@ export default class Char extends Actor {
 
 		char.guild = json.guild;
 
-		char.owner = json.owner;
-
 		if (json.talents) char.talents = json.talents;
 		if (json.history) Object.assign(char.history, json.history);
-		if (json.home) char._home = new Loc.Coord(json.home.x, json.home.y);
+		if (json.home) char._home = new Coord(json.home.x, json.home.y);
 
-		if (json.baseStats) Object.assign(char._baseStats, json.baseStats);
-		if (json.info) Object.assign(char._info, json.info);
-		if (json.loc) Object.assign(char._loc, json.loc);
+		if (json.baseStats) Object.assign(char.baseStats, json.baseStats);
+		if (json.info) Object.assign(char.info, json.info);
+		if (json.loc) Object.assign(char.loc, json.loc);
 
 		if (json.state) char.state = json.state;
 
-		char.statPoints = json.statPoints || char._baseStats.level;
+		char.statPoints = json.statPoints || char.baseStats.level;
 		char.spentPoints = json.spentPoints || 0;
 
-		if (json.inv) Inv.FromJSON(json.inv, char._inv);
+		if (json.inv) Inventory.FromJSON(json.inv, char._inv);
 
-		char.setBaseStats(char._baseStats);
+		char.setBaseStats(char.baseStats);
 
 		// SET AFTER BASE STATS.
 		if (json.effects) {
@@ -131,15 +131,23 @@ export default class Char extends Actor {
 
 	private readonly _inv: Inventory;
 	private readonly _equip: Equip;
-	private _charClass: CharClass;
 	private _statPoints: number;
 	private _spentPoints: number;
+	private _skillPts: number = 0;
+	private _owner: string;
+	private _id: string;
+	private _exp: number = 0;
+	private readonly _log: Log;
+	private _home?: Coord;
+	private _skills: any;
+	// TODO: replace with events.
+	private _levelUp: boolean = false;
+	private _talents: string[] = [];
+	private _history: History;
 
 	constructor(race: Race, charclass: CharClass, owner: string) {
 
-		super(race);
-
-		this._charClass = charclass;
+		super(race, charclass);
 
 		this._statPoints = 0;
 		this._spentPoints = 0;
@@ -151,7 +159,6 @@ export default class Char extends Actor {
 
 		this._log = new Log();
 
-		this._exp = 0;
 		this._owner = owner;
 
 	}
@@ -167,8 +174,8 @@ export default class Char extends Actor {
 		if (statTypes.indexOf(stat) < 0) return 'Stat not found.';
 		if (this._spentPoints >= this._statPoints) return 'No stat points available.';
 
-		this._baseStats[stat]++;
-		this._curStats[stat]++;
+		this.baseStats[stat]++;
+		this.curStats[stat]++;
 
 		this._spentPoints++;
 
@@ -188,13 +195,14 @@ export default class Char extends Actor {
 	levelUp() {
 
 		super.levelUp();
+		this._levelUp = true;
 		this._statPoints++;
 
 	}
 
 	addExp(amt: number) {
 		this.exp += amt;
-		return Level.tryLevel(this);
+		return tryLevel(this);
 	}
 
 	/**
@@ -274,8 +282,12 @@ export default class Char extends Actor {
 	 * Removed items are not added to inventory.
 	 * @param {function} p
 	 */
-	removeWhere(p: (w: Wearable) => boolean) {
-		return this.removeEquip(this._equip.removeWhere(p));
+	removeWhere(p: (w: Item) => boolean) {
+
+		const equips = this._equip.removeWhere(p);
+		this.removeEquip(equips);
+		return this.inv.removeWhere(p).concat(equips);
+	);
 	}
 
 	unequip(slot?: string) {

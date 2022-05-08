@@ -29,7 +29,6 @@ export default class CharClass {
 	get name() { return this._name; }
 	get expMod() { return this._expMod ?? 1; }
 
-
 	private _talents: string[] = [];
 	private _desc?: string;
 	private _baseMods: any;
@@ -39,35 +38,28 @@ export default class CharClass {
 	private _name: string;
 	private _expMod: number = 1;
 
-	constructor() {
-	}
+	constructor(json: any) {
 
-	static FromJSON(json: any) {
+		this._name = json.name ?? 'None';
 
-		let o = new CharClass();
+		this._hitdice = json.hitdice ?? 1;
 
-		if (json.hasOwnProperty('name')) o._name = json.name;
+		if (json.hasOwnProperty('baseMods')) this._baseMods = json.baseMods;
 
-		if (json.hasOwnProperty('hitdice')) {
-			o._hitdice = json.hitdice;
-		}
-		if (json.hasOwnProperty('baseMods')) o._baseMods = json.baseMods;
+		if (json.talents) this._talents = json.talents;
 
-		if (json.talents) o._talents = json.talents;
+		this._desc = json.desc;
 
-		o._desc = json.desc;
-
-		if (json.exp) o._expMod = json.exp;
+		if (json.exp) this._expMod = json.exp;
 
 		if (json.hasOwnProperty('infoMods')) {
-			o._infoMods = json.infoMods;
+			this._infoMods = json.infoMods;
 		}
-		return o;
 
 	}
 
 	hasTalent(t: string) {
-		return this._talents && this._talents.includes(t);
+		return this._talents.includes(t);
 	}
 
 }
@@ -85,7 +77,7 @@ function initClasses() {
 		for (let i = a.length - 1; i >= 0; i--) {
 
 			classObj = a[i];
-			charclass = CharClass.FromJSON(classObj);
+			charclass = new CharClass(classObj);
 			classByName[charclass.name] = charclass;
 			classes.push(charclass);
 

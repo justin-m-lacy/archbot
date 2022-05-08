@@ -1,3 +1,4 @@
+import { Effect } from '../magic/effects';
 const forms = require('formulic');
 
 export class Attack {
@@ -60,11 +61,11 @@ export class Attack {
 		if (Array.isArray(e)) {
 
 			for (i = e.length - 1; i >= 0; i--) {
-				target.effects.push(new effects.CharEffect(e[i]), 0);
+				target.effects.push(new Effect(e[i]), 0);
 			}
 
 		} else {
-			target.effects.push(new effects.CharEffect(e, 0));
+			target.effects.push(new Effect(e, 0));
 		}
 
 	}
