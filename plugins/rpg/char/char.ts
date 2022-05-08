@@ -5,8 +5,8 @@ import Inventory from '../inventory';
 import { ItemPicker, ItemIndex } from '../inventory';
 import { roll } from '../dice';
 import Actor from './actor';
-import Race from '../race';
-import CharClass from '../charclass';
+import Race from './race';
+import CharClass from './charclass';
 import { Log } from '../display';
 import { Coord } from '../world/loc';
 import { History } from '../display/history';
@@ -122,7 +122,12 @@ export default class Char extends Actor {
 		if (json.effects) {
 			let a = json.effects;
 			for (let i = a.length - 1; i >= 0; i--) {
-				char.addEffect(Effect.FromJSON(a[i]));
+
+				let effect = Effect.FromJSON(a[i]);
+				if (effect) {
+					char.addEffect(effect);
+				}
+
 			}
 		}
 
@@ -373,7 +378,9 @@ export default class Char extends Actor {
 	 * Get an item from inventory without removing it.
 	 * @param {number|string|Item} which
 	 */
-	getItem(which: number | string | Item, sub?: number | string) { return this._inv.get(which, sub); }
+	getItem(which: number | string, sub?: number | string) {
+		return this._inv.getSub(which, sub);
+	}
 
 	/**
 	 * Add an item to inventory.

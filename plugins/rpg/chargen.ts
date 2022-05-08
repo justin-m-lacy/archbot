@@ -1,6 +1,6 @@
 import Char from './char/char';
-import Race from './race';
-import CharClass from './charclass';
+import Race from './char/race';
+import CharClass from './char/charclass';
 import { StatMods } from './char/stats';
 import * as ItemGen from './items/itemgen';
 

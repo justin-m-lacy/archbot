@@ -20,7 +20,7 @@ const rollCost = (lvl: number) => {
 	return 40 * lvl * (Math.floor(Math.pow(1.5, Math.floor(lvl / 2))));
 }
 
-const rollWeap = (char: Char) => {
+export const rollWeap = (char: Char) => {
 
 	let level = char.level;
 	let cost = rollCost(level);
@@ -41,7 +41,7 @@ const rollWeap = (char: Char) => {
 
 }
 
-exports.rollArmor = (char: Char, slot: string) => {
+export const rollArmor = (char: Char, slot: string) => {
 
 	let level = char.level;
 	let cost = rollCost(level);

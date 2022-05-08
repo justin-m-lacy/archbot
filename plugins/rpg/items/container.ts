@@ -2,10 +2,16 @@ import { Item } from './item';
 const itemjs = require('./items/item');
 const ItemGen = require('./items/itemgen');
 
-export type ItemPicker = string | number | Item;
+export type ItemPicker<T = Item> = string | number | T;
 export type ItemIndex = string | number;
 
-export default class Collection<T = Item> {
+type SimpleItem = {
+    name: string,
+    type: string,
+    attach?: string,
+    toString(): string
+}
+export default class Container<T extends SimpleItem = Item> {
 
     /**
      * @property items
@@ -18,28 +24,8 @@ export default class Collection<T = Item> {
      */
     get length() { return this._items.length; }
 
-    static FromJSON(json: any, inv?: Inventory) {
-
-        let arr = json.items;
-        let len = arr.length;
-
-        if (!inv) inv = new Inventory();
-        let items = inv.items;
-
-        for (let i = 0; i < len; i++) {
-
-            var it = ItemGen.fromJSON(arr[i]);
-            if (it) items.push(it);
-            else console.log('Inventory.js: ERR PARSING: ' + arr[i]);
-
-        }
-
-        return inv;
-
-    }
-
-    private _items: T[] = [];
-    private type?: string;
+    protected _items: T[] = [];
+    protected type?: string;
 
     constructor() {
     }
@@ -48,7 +34,7 @@ export default class Collection<T = Item> {
 
     /**
      * Removes and returns random item from inventory.
-     * @returns {Item} random item from Inventory, or null.
+     * @returns random item from Inventory, or null.
      */
     randItem() {
 
@@ -73,7 +59,7 @@ export default class Collection<T = Item> {
         if (len === 0) return '';
 
         let it = this._items[0];
-        let list = '1) ' + it.name;
+        let list = '1) ' + `${it}`;
         if (it.attach) list += '\t[img]';
 
         for (let i = 1; i < len; i++) {
@@ -89,14 +75,13 @@ export default class Collection<T = Item> {
 
     /**
      * Retrieve item by name or index.
-     * @param {string|number} start
-     * @returns {Item|null} Item found, or null on failure.
+     * @param  start
+     * @returns  Item found, or null on failure.
      */
-    get(start?: ItemIndex, sub?: ItemIndex): Item | null {
+    get(start?: ItemIndex,): T | null {
 
         /// 0 is also not allowed because indices are 1-based.
         if (!start) return null;
-        if (sub) return this.getSub(start, sub);
 
         if (typeof start === 'string') {
             let num = parseInt(start);
@@ -120,47 +105,10 @@ export default class Collection<T = Item> {
     }
 
     /**
-     * Returns an item from a sub-inventory, or a range of items
-     * if the base item is not an inventory, and the second param
-     * is a number.
-     * @param {string|number} base
-     * @param {string|number} sub
-     * @returns {Item|[Item]|null}
-     */
-    getSub(base: string | number, sub: string | number) {
-
-        let it = this.get(base);
-        if (!it) return null;
-
-        if (it.type === 'chest') return it.get(sub as Chest);
-        else return this.takeRange(base, sub);
-
-    }
-
-    /**
-     * Takes an item from a sub-inventory, or a range of items
-     * if the base item is not an inventory, and the second param
-     * is a number.
-     * @param {*} base
-     * @param {*} sub
-     * @returns {Item|[Item]|null}
-     */
-    takeSub(base: ItemPicker, sub: ItemPicker | ItemIndex) {
-
-        let it = this.take(base) as Inventory | null;
-        if (!it) return null;
-
-        /// TODO: this is clearly wrong.
-        if (it.type === 'chest') return it.take(sub);
-        else return this.takeRange(base as ItemIndex, sub as ItemIndex);
-
-    }
-
-    /**
      *
      * @param {number} start - start number of items to take.
      * @param end number of items to take.
-     * @returns {[Item]|null} - Range of items found.
+     * @returns {T[]|null} - Range of items found.
      */
     takeRange(start: ItemIndex, end: ItemIndex) {
 
@@ -182,14 +130,13 @@ export default class Collection<T = Item> {
     /**
      * Attempts to remove an item by name or index.
      * @param {number|string|Item} which
-     * @returns {Item|null} item removed, or null if none found.
+     * @returns {T|null} item removed, or null if none found.
      */
-    take(which?: number | string | Item, sub?: ItemPicker): Item | Item[] | null {
+    take(which?: number | string | T): T | T[] | null {
 
         if (which === null || which === undefined) return null;
-        if (sub) return this.takeSub(which, sub);
 
-        if (which instanceof Item) {
+        if (typeof which === 'object') {
 
             let ind = this._items.indexOf(which);
             if (ind >= 0) return this._items.splice(ind, 1)[0];
@@ -276,7 +223,7 @@ export default class Collection<T = Item> {
      * Apply function to each item in inventory.
      * @param {function} f
      */
-    forEach(f: (it: Item) => void) {
+    forEach(f: (it: T) => void) {
 
         for (let i = this._items.length - 1; i >= 0; i--) {
             f(this._items[i]);

@@ -173,7 +173,7 @@ export class Loc {
 	private _key!: string;
 	private _coord: Coord;
 	private _npcs: any[];
-	private _exits: Partial<Record<DirMap, Exit>> = {};
+	private _exits: Partial<Record<DirVal, Exit>> = {};
 	private readonly _inv: Inventory;
 
 	constructor(coord: Coord, biome: string) {
@@ -275,7 +275,7 @@ export class Loc {
 
 	}
 
-	hasExit(dir: DirMap) {
+	hasExit(dir: DirVal) {
 		return this._exits.hasOwnProperty(dir);
 	}
 
@@ -292,8 +292,8 @@ export class Loc {
 	 *
 	 * @param dir
 	 */
-	getExit(dir: DirString) {
-		return this._exits[DirMap[dir]];
+	getExit(dir: DirVal) {
+		return this._exits[dir];
 	}
 
 	/**
@@ -302,7 +302,7 @@ export class Loc {
 	 * @param {*} fromDir - direction arriving from.
 	 * @returns {Exit|null}
 	 */
-	reverseExit(fromDir: DirMap) {
+	reverseExit(fromDir: DirVal) {
 		const reverse = reverses[fromDir];
 		return reverse ? this._exits[reverse] : undefined;
 	}
@@ -315,7 +315,7 @@ export class Loc {
 	 */
 	getExitTo(coord: Coord) {
 
-		let k: DirMap;
+		let k: DirVal;
 		for (k in this._exits) {
 			if (this._exits[k]?.to.equals(coord)) {
 				return this._exits[k];
@@ -361,8 +361,13 @@ export class Loc {
 	 */
 	use(char: Char, wot: string | number | Feature) {
 
-		let f = this._features.get(wot);
-		if (!f) return false;
+		let f: Feature | null;
+		if (typeof wot !== 'object') {
+			f = this._features.get(wot) as Feature;
+			if (!f) return false;
+		} else {
+			f = wot;
+		}
 
 		return f.use(char);
 
@@ -380,9 +385,9 @@ export class Loc {
 
 	/**
 	 *
-	 * @param {Feature|string|number} wot
+	 * @param {string|number} wot
 	 */
-	getFeature(wot: string | number | Feature) { return this._features.get(wot); }
+	getFeature(wot: string | number) { return this._features.get(wot) as Feature; }
 
 	/**
 	 * Get item data without taking it.
@@ -446,14 +451,14 @@ export class Loc {
 
 export class Exit {
 
-	static Reverse(dir: DirMap) {
+	static Reverse(dir: DirVal) {
 		return reverses[dir];
 	}
 
-	dir: DirMap;
+	dir: DirVal;
 	to: Coord;
 
-	constructor(dir: DirMap, toCoord: Coord) {
+	constructor(dir: DirVal, toCoord: Coord) {
 
 		this.dir = dir;
 		this.to = toCoord;

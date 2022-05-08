@@ -1,9 +1,9 @@
 import { Coord } from '../world/loc';
-import Race from '../race';
+import Race from './race';
 import StatBlock from './stats';
 import { StatMods } from './stats';
 import { ProtoEffect, Effect } from '../magic/effects';
-import CharClass from '../charclass';
+import CharClass from './charclass';
 import { roll, parseRoll } from '../dice';
 
 export type LifeState = 'alive' | 'dead';

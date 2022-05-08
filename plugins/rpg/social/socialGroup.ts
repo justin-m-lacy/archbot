@@ -30,6 +30,8 @@ export default class SocialGroup {
 	get invites() { return this._invites; }
 	set invites(v) { this._invites = v; }
 
+	get cache() { return this._cache }
+
 	private _name?: string;
 	private _invites!: string[];
 	private _roster!: string[];

@@ -41,7 +41,7 @@ export default class Potion extends Item {
 	set spell(v) { this._spell = v; }
 	_spell?: Spell;*/
 
-	_form?: Formula;
+	_form?: Formula | string;
 
 	_effect?: any;
 
@@ -53,9 +53,13 @@ export default class Potion extends Item {
 
 		if (this._form) {
 
-			//if ( this._form instanceof forms.Formula ) this._form.eval( char );
-			let f = Formula.TryParse(this._form);
-			f.eval(char);
+			if (typeof this._form === 'string') {
+				const f = Formula.TryParse(this._form);
+				if (f !== false) this._form = f;
+			}
+			if (this._form instanceof Formula) {
+				this._form.eval(char);
+			}
 
 		} else if (this._effect) {
 

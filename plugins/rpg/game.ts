@@ -1,10 +1,10 @@
-import Race from "./race";
-import Class from './charclass';
+import Race from "./char/race";
+import Class from './char/charclass';
 import Cache from 'archcache';
 import { Rpg } from "./rpg";
 import World from "./world/world";
 import Char from './char/char';
-import { toDirection } from './world/loc';
+import { toDirection, DirVal } from './world/loc';
 import { Item } from './items/item';
 import { ItemPicker, ItemIndex } from './inventory';
 import Party from './social/party';
@@ -12,6 +12,8 @@ import Actor from './char/actor';
 import { GuildManager, Guild } from './social/guild';
 import { LifeState } from './char/actor';
 import Monster from './monster/monster';
+import Wearable from './items/wearable';
+import Potion from './items/potion';
 
 const Combat = require('./combat');
 const dice = require('./dice');
@@ -132,7 +134,7 @@ export default class Game {
 		return char.output(res);
 	}
 
-	async hike(char: Char, dir: string) {
+	async hike(char: Char, dir: DirVal) {
 
 		if (this.tick(char, 'hike') === false) return char.getLog();
 
@@ -312,17 +314,21 @@ export default class Game {
 		if (!it) return 'Item not found.';
 
 		let res = 'In Pack: ' + it.getDetails() + '\n';
-		let eq = char.getEquip(it.slot);
+		if (it instanceof Wearable) {
+			let eq = char.getEquip(it.slot);
 
-		if (!eq) res += 'Equip: nothing';
-		else if (Array.isArray(eq)) res += 'Equip: ' + item.Item.DetailsList(eq);
-		else res += 'Equip: ' + eq.getDetails();
+			if (!eq) res += 'Equip: nothing';
+			else if (Array.isArray(eq)) res += 'Equip: ' + item.Item.DetailsList(eq);
+			else res += 'Equip: ' + eq.getDetails();
 
-		return res;
+			return res;
+		} else {
+			res += `${it.name} cannot be equipped.\n`;
+		}
 
 	}
 
-	equip(char: Char, wot: string | number | Item) {
+	equip(char: Char, wot: ItemIndex) {
 
 		if (!wot) return `${char.name} equip:\n${char.listEquip()}`;
 
@@ -339,7 +345,7 @@ export default class Game {
 
 	}
 
-	inscribe(char: Char, wot: string | number | Item, inscrip: string) {
+	inscribe(char: Char, wot: ItemIndex, inscrip: string) {
 
 		if (this.tick(char, 'inscribe') === false) return char.output();
 
@@ -367,8 +373,11 @@ export default class Game {
 
 			let item = char.takeItem(first);
 			if (!item) return char.output(`'${first}' not in inventory.`);
-
-			return char.output(item.name + ' is gone forever.');
+			if (Array.isArray(item)) {
+				return char.output(`${item.length} items are gone forever.`);
+			} else {
+				return char.output(item.name + ' is gone forever.');
+			}
 
 		} //
 
@@ -451,7 +460,7 @@ export default class Game {
 
 	}
 
-	async take(char: Char, first: ItemPicker, end?: ItemIndex) {
+	async take(char: Char, first: ItemIndex, end?: ItemIndex) {
 
 		if (this.tick(char, 'take') === false) return char.output();
 
@@ -577,7 +586,7 @@ export default class Game {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
-		let p1 = this.getParty(src);
+		let p1: Char | Party = this.getParty(src);
 		if (!p1 || !p1.isLeader(src)) p1 = src;
 
 		let com = new Combat(p1, npc, this.world);
@@ -626,14 +635,18 @@ export default class Game {
 
 		// remove the potion.
 		char.takeItem(p);
-		char.addHistory('quaff');
-		p.quaff(char);
+		if (p instanceof Potion) {
+			char.addHistory('quaff');
+			p.quaff(char);
 
-		return char.output(`${char.name} quaffs ${p.name}.`);
+			return char.output(`${char.name} quaffs ${p.name}.`);
+		} else {
+			return char.output(`${p} cannot be quaffed.`);
+		}
 
 	}
 
-	eat(char: Char, wot: ItemPicker) {
+	eat(char: Char, wot: ItemIndex) {
 
 		if (this.tick(char, 'eat') === false) return char.output();
 		return char.output(char.eat(wot));

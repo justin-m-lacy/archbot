@@ -109,7 +109,7 @@ export class Guild extends SocialGroup {
 	private _exp: number = 0;
 	createdAt: number = 0;
 	private _desc?: string;
-	private _inv: Inventory;
+	private _inv?: Inventory;
 	private _loc: Coord = new Coord(0, 0);
 
 	constructor(name: string, cache: Cache) {
