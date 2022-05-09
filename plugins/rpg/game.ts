@@ -308,9 +308,9 @@ export default class Game {
 
 	}
 
-	compare(char: Char, wot: ItemPicker) {
+	compare(char: Char, wot: ItemIndex) {
 
-		let it = char.getItem(wot);
+		let it = char.getItem(wot) as Item | undefined;
 		if (!it) return 'Item not found.';
 
 		let res = 'In Pack: ' + it.getDetails() + '\n';
@@ -349,7 +349,7 @@ export default class Game {
 
 		if (this.tick(char, 'inscribe') === false) return char.output();
 
-		let item = char.getItem(wot);
+		let item = char.getItem(wot) as Item | undefined;
 		if (!item) return char.output('Item not found.');
 
 		item.inscription = inscrip;
@@ -625,11 +625,11 @@ export default class Game {
 
 	}
 
-	quaff(char: Char, wot: ItemPicker) {
+	quaff(char: Char, wot: ItemIndex) {
 
 		if (this.tick(char, 'quaff') === false) return char.output();
 
-		let p = char.getItem(wot);
+		let p = char.getItem(wot) as Item | undefined;
 		if (!p) return char.output('Item not found.');
 		if (p.type !== 'potion') return char.output(`${p.name} cannot be quaffed.`);
 

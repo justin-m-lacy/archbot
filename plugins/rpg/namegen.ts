@@ -6,8 +6,17 @@ export const init = (bot: DiscordBot) => {
 
 }
 
-export const genName = getName;
 type SexType = 'm' | 'f';
+
+const toSex = (s?: string) => {
+
+	if (s != null) {
+		s = s.toLowerCase();
+		if (s === 'm' || s === 'f') return s;
+	}
+	return Math.random() < 0.5 ? 'm' : 'f';
+
+}
 
 export enum Sex {
 	m = 'm',
@@ -162,8 +171,9 @@ nameParts['hobbit'] = nameParts['halfling'];
  * @exported
  * @param {string} race
  */
-function getName(race: string = "human", sex: SexType) {
+export const genName = (race: string = "human", sex?: string) => {
 
+	sex = toSex(sex);
 	let ind = race.indexOf('half');
 	if (ind >= 0) {
 
@@ -185,12 +195,11 @@ function getName(race: string = "human", sex: SexType) {
 
 }
 
-const cmdRollName = (m: Message, race?: string, sex?: SexType) => {
+const cmdRollName = (m: Message, race?: string, sex?: string) => {
 
 	try {
-		if (sex == null) sex = Math.random() < 0.5 ? 'm' : 'f';
-
-		const name = getName(race, sex!);
+		sex = toSex(sex);
+		const name = genName(race, sex!);
 		if (name) {
 			m.channel.send(name);
 		}
@@ -199,9 +208,9 @@ const cmdRollName = (m: Message, race?: string, sex?: SexType) => {
 
 }
 
-const getMixRace = (race?: string, sex?: SexType) => {
+const getMixRace = (race?: string, sex?: string) => {
 
-	if (sex == null) sex = Math.random() < 0.5 ? 'm' : 'f';
+	sex = toSex(sex);
 	let hLists = nameParts['human'][sex];
 
 	if (race == null) return buildName(hLists.parts, hLists.roots, hLists.ends);

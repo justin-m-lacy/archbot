@@ -81,7 +81,7 @@ export default class World {
 
 		let loc = await this.getOrGen(char.loc, char);
 
-		let f = loc.getFeature(wot);
+		let f = typeof wot !== 'object' ? loc.getFeature(wot) : wot;
 		if (!f) return 'You do not see any such thing here.';
 
 		let res = f.use(char);

@@ -2,6 +2,8 @@ import Char from "./char/char";
 import { ItemPicker, ItemIndex } from './inventory';
 import { Item } from './items/item';
 import Wearable from './items/wearable';
+import * as ItemGen from './items/itemgen';
+import { toSlot } from './items/wearable';
 
 const util = require('../../jsutils.js');
 const Material = require('./items/material.js');
@@ -41,20 +43,18 @@ export const rollWeap = (char: Char) => {
 
 }
 
-export const rollArmor = (char: Char, slot: string) => {
+export const rollArmor = (char: Char, slot?: string) => {
 
 	let level = char.level;
 	let cost = rollCost(level);
 	if (!char.payOrFail(cost))
 		return `${char.name} cannot afford to roll new armor. (${cost} gold)`;
 
-	let gen = require('./items/itemgen.js');
-
 	let mod = 1 + char.getModifier('cha');
 	if (mod < 0) mod = 0;
 
 	level = Math.max(0, level + util.random(-1, mod));
-	let it = gen.genArmor(slot, level);
+	let it = ItemGen.genArmor(slot ? toSlot(slot) : null, level);
 
 	if (!it) return 'Failed to roll armor.';
 

@@ -14,6 +14,7 @@ import type TRace from './char/race';
 import type TClass from './char/charclass';
 import type * as TCharGen from './chargen';
 import type * as TItemGen from './items/itemgen';
+import type * as TNameGen from './namegen';
 
 const gamejs = require('./game');
 const display = require('./display');
@@ -339,7 +340,7 @@ export class Rpg {
 			let char = await this.userCharOrErr(m, m.author);
 			if (!char) return;
 
-			await display.sendBlock(m, await this.game.hike(char, dir));
+			await display.sendBlock(m, await this.game.hike(char, toDirection(dir)));
 			this.checkLevel(m, char);
 
 		} catch (e) { console.log(e); }
@@ -386,7 +387,7 @@ export class Rpg {
 	 * Roll a new armor for testing.
 	 * @param {Message} m
 	 */
-	async cmdRollArmor(m: Message, slot = null) {
+	async cmdRollArmor(m: Message, slot?: string) {
 
 		let char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
@@ -485,6 +486,7 @@ export class Rpg {
 	cmdPotList(m: Message, level?: string | number) {
 
 		if (!level) return m.reply('List potions for which level?');
+		if (typeof level === 'string') level = parseInt(level);
 		return m.reply(ItemGen.potsList(level));
 
 	}
@@ -524,7 +526,10 @@ export class Rpg {
 		if (!item) return m.reply('Item not found.');
 
 		let view = item.getView();
-		if (view[1]) await m.reply(view[0], { embed: { image: { url: view[1] } } });
+		if (view[1]) await m.reply({
+			content: view[0],
+			embeds: [{ image: { url: view[1] } }]
+		});
 		else await m.reply(view[0]);
 
 	}
@@ -807,7 +812,7 @@ export class Rpg {
 
 			} else charname = await this.uniqueName(race, sex);
 
-			let char = CharGen.genChar(m.author.id, race, charclass, charname, null);
+			let char = CharGen.genChar(m.author.id, race, charclass, charname);
 			console.log('char rolled: ' + char.name);
 
 			await this.setUserChar(m.author, char);
@@ -886,12 +891,12 @@ export class Rpg {
 
 	}
 
-	async uniqueName(race: Race, sex?: string) {
+	async uniqueName(race: TRace, sex?: string) {
 
-		let namegen = require('./namegen.js');
+		let namegen: typeof TNameGen = require('./namegen.js');
 		do {
 			var name = namegen.genName(race.name, sex);
-		} while (await this.charExists(name))
+		} while (name == null || await this.charExists(name))
 
 		return name;
 

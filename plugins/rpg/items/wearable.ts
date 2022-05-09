@@ -24,9 +24,9 @@ export const toSlot = (slot: string) => {
 
 	const s = slot.toLowerCase();
 	if (Slots[s] === true) {
-		return s;
+		return s as HumanSlot;
 	}
-	return 'none';
+	return null;
 }
 
 export default class Wearable extends Item {
