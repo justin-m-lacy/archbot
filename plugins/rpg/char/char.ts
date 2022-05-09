@@ -10,10 +10,11 @@ import CharClass from './charclass';
 import { Log } from '../display';
 import { Coord } from '../world/loc';
 import { History } from '../display/history';
-import { tryLevel } from './level';
+import { getNextExp, tryLevel } from './level';
 import Wearable from '../items/wearable';
 import StatBlock, { getEvil } from './stats';
 import { Effect } from '../magic/effects';
+import { StatKey } from './stats';
 
 const statTypes = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
 const saveProps = ['name', 'exp', 'owner', 'state', 'info', 'baseStats', 'effects',
@@ -25,8 +26,11 @@ export default class Char extends Actor {
 	get owner() { return this._owner; }
 	set owner(v) { this._owner = v; }
 
-	get id() { return this._id; }
+	/**
+	 * TODO: not yet implemented.
+	 * get id() { return this._id; }
 	set id(v) { this._id = v; }
+	**/
 
 	get exp() { return this._exp; }
 	set exp(v) { this._exp = v; }
@@ -72,7 +76,7 @@ export default class Char extends Actor {
 		for (let i = saveProps.length - 1; i >= 0; i--) {
 
 			var p = saveProps[i];
-			json[p] = this[p];
+			json[p] = this[p as keyof Char];
 
 		}
 
@@ -138,19 +142,17 @@ export default class Char extends Actor {
 	}
 
 	private readonly _inv: Inventory;
-	private readonly _equip: Equip;
+	private _equip: Equip;
 	private _statPoints: number;
 	private _spentPoints: number;
 	private _skillPts: number = 0;
 	private _owner: string;
-	private _id: string;
 	private _exp: number = 0;
 	private readonly _log: Log;
 	private _home?: Coord;
 	private _skills: any;
 	// TODO: replace with events.
 	private _levelUp: boolean = false;
-	private _talents: string[] = [];
 	private _history: History;
 
 	constructor(race: Race, charclass: CharClass, owner: string) {
@@ -182,8 +184,10 @@ export default class Char extends Actor {
 		if (statTypes.indexOf(stat) < 0) return 'Stat not found.';
 		if (this._spentPoints >= this._statPoints) return 'No stat points available.';
 
-		this.baseStats[stat]++;
-		this.curStats[stat]++;
+		if (stat in this.baseStats) {
+			this.baseStats[stat as keyof StatBlock]++;
+			this.curStats[stat as keyof StatBlock]++;
+		}
 
 		this._spentPoints++;
 
@@ -192,7 +196,7 @@ export default class Char extends Actor {
 	}
 
 	hasTalent(t: string) {
-		return (this._talents.includes(t)) || this.charClass!.hasTalent(t) || this.race.hasTalent(t);
+		return (this._talents?.includes(t)) || this.charClass!.hasTalent(t) || this.race.hasTalent(t);
 	}
 
 	addHistory(evt: string) {
@@ -328,12 +332,12 @@ export default class Char extends Actor {
 
 	}
 
-	applyEquip(it: Item) {
+	applyEquip(it: Wearable) {
 		if (it.mods) {
-			it.mods.apply(this._curStats);
+			it.mods.apply(this.curStats);
 		}
 		if (it.armor) {
-			this._curStats.armor += it.armor;
+			this.curStats.armor += it.armor;
 			//console.log('adding armor: ' + it.armor);
 		}
 	}
@@ -348,15 +352,13 @@ export default class Char extends Actor {
 
 			let it;
 			for (let i = wot.length - 1; i >= 0; i--) {
-				it = wot[i];
-				if (it.mods) it.mods.remove(this._curStats);
-				if (it.armor) this._curStats._armor -= it.armor;
+				this.removeEquip(wot[i]);
 			}
 
-		} else if (wot) {
-			if (wot.mods) { wot.mods.remove(this._curStats); }
-			console.log('removing armor: ' + wot.armor);
-			if (wot.armor) this._curStats._armor -= wot.armor;
+		} else if (wot instanceof Wearable) {
+
+			if (wot.mods) { wot.mods.remove(this.curStats); }
+			if (wot.armor) this.curStats.armor -= wot.armor;
 		}
 
 	}
@@ -393,7 +395,9 @@ export default class Char extends Actor {
 	 * @param {number|string|Item} which
 	 * @returns {Item} Item removed or null.
 	 */
-	takeItem(which: number | string | Item, sub?: number | string) { return this._inv.take(which, sub); }
+	takeItem(which: number | string | Item, sub?: number | string) {
+		return this._inv.take(which, sub);
+	}
 
 	takeRange(start: ItemIndex, end: ItemIndex) { return this._inv.takeRange(start, end); }
 
@@ -402,14 +406,14 @@ export default class Char extends Actor {
 	*/
 	rollBaseHp() {
 
-		let hd = this._charClass.HD;
-		let maxHp = Math.floor((this._race.HD + hd) / 2);
+		let hd = this.charClass!.HD;
+		let maxHp = Math.floor((this.race.HD + hd) / 2);
 
-		for (let i = this._baseStats.level - 1; i > 0; i--) {
+		for (let i = this.baseStats.level - 1; i > 0; i--) {
 			maxHp += roll(1, hd);
 		}
 
-		this._baseStats.maxHp = maxHp;
+		this.baseStats.maxHp = maxHp;
 
 	}
 
@@ -427,7 +431,7 @@ export default class Char extends Actor {
 		if (!this.charClass) return;
 		//if ( this._charClass.talents ) this.talents = this._charClass.talents.concat( this._talents );
 
-		super.applyBaseMods(this.charClass.statMods);
+		super.applyBaseMods(this.charClass!.baseMods);
 
 	}
 
@@ -467,7 +471,7 @@ export default class Char extends Actor {
 	getLongDesc() {
 
 		let desc = `level ${this.level} ${getEvil(this.evil)} ${this.race.name} ${this.charClass!.name} [${this.state}]`;
-		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${Level.nextExp(this)}`;
+		desc += `\nage: ${this.age} sex: ${this.sex} gold: ${this.gold} exp: ${this._exp}/ ${getNextExp(this)}`;
 		desc += `\nhp: ${this.curHp}/${this.maxHp} armor: ${this.armor}\n`;
 		desc += this.getStatString();
 
@@ -483,12 +487,12 @@ export default class Char extends Actor {
 		let len = statTypes.length;
 
 		let stat = statTypes[0];
-		str += stat + ': ' + this.curStats[stat];
+		str += stat + ': ' + (this.curStats[stat as StatKey] ?? 0);
 
 		for (let i = 1; i < len; i++) {
 
 			stat = statTypes[i];
-			str += '\n' + stat + ': ' + this.curStats[stat];
+			str += '\n' + stat + ': ' + (this.curStats[stat as StatKey] ?? 0);
 
 		}
 		return str;

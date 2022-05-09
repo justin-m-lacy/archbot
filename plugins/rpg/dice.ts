@@ -29,7 +29,7 @@ export class Roller {
 
 	readonly count: number;
 	readonly sides: number;
-	readonly bonus: number;
+	bonus: number;
 
 	constructor(count: number = 1, sides: number = 0, bonus: number = 0) {
 

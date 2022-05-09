@@ -5,8 +5,9 @@
   "main": "archbot.js",
   "scripts": {
     "start": "node .",
+    "minify": "uglifyjs --compress --mangle -o archbot.min.js dist/archbot.js",
     "dev": "cross-env NODE_ENV=development && ts-node server.ts",
-    "build": "rimraf dist && cross-env NODE_ENV=production && ts-patch",
+    "build": "rimraf dist && cross-env NODE_ENV=production && npm run minify ",
     "host": "cross-env NODE_ENV=production && ts-node server.ts"
   },
   "repository": {
@@ -27,7 +28,7 @@
     "chess-rules": "^1.1.0",
     "discord.js": "^13.6.0",
     "djs-embed": "^0.1.4",
-    "formulic": "^2.0.2",
+    "formulic": "^2.0.3",
     "jimp": "^0.16.1",
     "uws": "^9.148.0"
   },
@@ -44,6 +45,7 @@
   ],
   "devDependencies": {
     "cross-env": "^7.0.3",
-    "ts-node": "^10.7.0"
+    "ts-node": "^10.7.0",
+    "uglify-js": "^3.15.4"
   }
 }

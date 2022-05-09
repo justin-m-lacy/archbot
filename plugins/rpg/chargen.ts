@@ -1,7 +1,7 @@
 import Char from './char/char';
 import Race from './char/race';
 import CharClass from './char/charclass';
-import { StatMods } from './char/stats';
+import { StatMod } from './char/stats';
 import * as ItemGen from './items/itemgen';
 
 const stats = require('./char/stats');
@@ -57,7 +57,7 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 
 }
 
-function modStats(statMods: StatMods, destObj: any) {
+function modStats(statMods: StatMod[], destObj: any) {
 
 	let cur, mod;
 	for (let stat in statMods) {

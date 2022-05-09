@@ -48,14 +48,14 @@ export default class Weapon extends Wearable {
 	 */
 	static FromData(tmp: any, mat?: Material) {
 
-		let w = new Weapon(tmp.name);
+		const damage = DamageSrc.FromString(tmp.dmg, tmp.type);
+
+		let w = new Weapon(tmp.name, damage);
 
 		if (tmp.hands) w.hands = tmp.hands;
 		if (tmp.mods) w.mods = Object.assign({}, tmp.mods);
 
 		w.toHit = tmp.hit || 0;
-
-		w.damage = DamageSrc.FromString(tmp.dmg, tmp.type);
 
 		if (mat) {
 
@@ -77,14 +77,17 @@ export default class Weapon extends Wearable {
 	set bonus(v) { if (v < 0) v = 0; this.damage.bonus = v; }
 
 	get dmgType() { return this.damage.type; }
+	set dmgType(s: string) { this.damage.type = s; }
 
 	private _toHit: number = 0;
 	hands: number = 1;
 	damage: DamageSrc;
 
-	constructor(name: string, desc?: string) {
+	constructor(name: string, dmg: DamageSrc, desc?: string) {
 
 		super(name, desc);
+		this.damage = dmg;
+
 		this.type = ItemType.Weapon;
 	}
 

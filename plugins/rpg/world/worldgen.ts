@@ -48,10 +48,10 @@ export const genLoc = (coord: Coord, from: Loc, exits: Exit[]) => {
 export const genExits = (x: number, y: number) => {
 
 	return {
-		west: new Exit(DirMap.w, new Coord(x - 1, y)),
-		east: new Exit(DirMap.e, new Coord(x + 1, y)),
-		north: new Exit(DirMap.n, new Coord(x, y + 1)),
-		south: new Exit(DirMap.s, new Coord(x, y - 1))
+		w: new Exit('w', new Coord(x - 1, y)),
+		e: new Exit('e', new Coord(x + 1, y)),
+		n: new Exit('n', new Coord(x, y + 1)),
+		s: new Exit('s', new Coord(x, y - 1))
 	};
 
 }
@@ -92,7 +92,7 @@ function randBiome(prevBiome: string) {
 	let w = Math.random() * getTransMax(trans);
 
 	let tot = 0;
-	for (k in trans) {
+	for (let k in trans) {
 
 		tot += trans[k];
 		if (w <= tot) {
@@ -110,7 +110,7 @@ function getTransMax(trans: any) {
 
 	if (trans.max) return trans.max;
 	let max = 0;
-	for (k in trans) {
+	for (let k in trans) {
 		max += trans[k];
 	}
 	trans.max = max;

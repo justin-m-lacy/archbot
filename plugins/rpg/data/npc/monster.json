@@ -1,2029 +1,2202 @@
 [
     {
-        "name":"elfroid",
-        "level":0.1,
-        "kind":"humanoid",
-        "desc":"Completely harmless.",
-        "hp":"1d1",
-        "armor":"0",
-        "weap":{
-            "name":"blathering",
-            "type":"noob",
-            "dmg":"1d1"
-        }, "biome":["town","plains"],
-        "drops":["elfroid beer", "ear of elfroid", "spine of elfroid", "nose of elfroid", "eye of elfroid"]
-
-    },
-    {
-        "name":"newt",
-        "level":0.2,
-        "kind":"beast",
-        "desc":"Wriggly.",
-        "hp":"1d2",
-        "armor":"1",
-        "weap":{
-            "name":"newting",
-            "type":"squiggly",
-            "dmg":"1d2"
+        "name": "elfroid",
+        "level": 0.1,
+        "kind": "humanoid",
+        "desc": "Completely harmless.",
+        "hp": "1d1",
+        "armor": 0,
+        "weap": {
+            "name": "blathering",
+            "type": "noob",
+            "dmg": "1d1"
         },
-        "biome":["swamp","plains","forest","hills"],
-        "drops":["eye of newt"]
-
+        "biome": [
+            "town",
+            "plains"
+        ],
+        "drops": [
+            "elfroid beer",
+            "ear of elfroid",
+            "spine of elfroid",
+            "nose of elfroid",
+            "eye of elfroid"
+        ]
     },
     {
-        "name":"wombat",
-        "level":1,
-        "kind":"beast",
-        "evil":-2,
-        "desc":"Just wombatting around.",
-        "hp":"2d6+4",
-        "armor":"10",
-        "weap":{
-            "name":"wombatting",
-            "type":"blunt",
-            "dmg":"1d4"
-        }
-
-    },
-    {
-        "name":"gremlin",
-        "level":0.5,
-        "kind":"goblinoid",
-        "evil":5,
-        "desc":"Na-na-na-na-Na-na Na-na-na-na-Na-na...",
-        "hp":"1d3+1",
-        "armor":"4",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"1d2"
-        }, "drops":{"potion of cure minor wounds":5}
-
-    },
-    {
-        "name":"rat",
-        "level":0.5,
-        "desc":"Smelly rat.",
-        "kind":"beast",
-        "hp":"1d4",
-        "toHit":-1,
-        "armor":"5",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",   
-            "dmg":"1d2+1"
-        },"drops":["rat tail"]
-
-    },
-    {
-        "name":"kakapo",
-        "level":0.5,
-        "kind":"beast",
-        "desc":"Don't kill it! They're endangered!",
-        "hp":"1d3+1",
-        "toHit":1,
-        "armor":"7",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"1d4"
+        "name": "newt",
+        "level": 0.2,
+        "kind": "beast",
+        "desc": "Wriggly.",
+        "hp": "1d2",
+        "armor": 1,
+        "weap": {
+            "name": "newting",
+            "type": "squiggly",
+            "dmg": "1d2"
         },
-        "drops":{ "kakapo feather":10 }
-
+        "biome": [
+            "swamp",
+            "plains",
+            "forest",
+            "hills"
+        ],
+        "drops": [
+            "eye of newt"
+        ]
     },
     {
-        "name":"Pukeko",
-        "level":0.75,
-        "kind":"beast",
-        "desc":"Useless swamp hen.",
-        "hp":"1d3+2",
-        "toHit":2,
-        "armor":"7",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"1d4"
-        }, "biome":"swamp"
-    },
-    {
-        "name":"bat",
-        "level":0.5,
-        "kind":"beast",
-        "desc":"Careful. They carry rabies.",
-        "hp":"1d2",
-        "toHit":4,
-        "armor":"15",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d2+1"
-        }, "drops":"bat wing"
-
-    },
-    {
-        "name":"kobold",
-        "level":0.75,
-        "desc":"You no take candle!",
-        "hp":"1d4+1",
-        "armor":"7",
-        "weap":{
-            "name":"pointy stick",
-            "type":"pierce",
-            "dmg":"1d4"
-        }, "biome":["mountains","hills","swamp"],
-        "drops":{"potion of cure minor wounds":3}
-
-    },
-    {
-        "name":"goblin",
-        "level":0.75,
-        "desc":"It reminds you of the babe...",
-        "hp":"1d4+2",
-        "armor":"6",
-        "weap":{
-            "name":"scimitar",
-            "type":"slash",
-            "dmg":"1d4"
-        }, "drops":{"potion of cure minor wounds":5, "potion of cure light wounds":1}
-
-    },
-    {
-        "name":"garden gnome",
-        "level":0.75,
-        "desc":"Standard variety garden gnome.",
-        "hp":"1d4+2",
-        "armor":"4",
-        "toHit":2,
-        "weap":{
-            "name":"magic missile",
-            "type":"magic",
-            "dmg":"2d4"
-        },"biome":["town","plains","hills"],
-        "drops":{ "potion of cure light wounds":5, "potion of cure minor wounds":5 }
-
-    },
-    {
-        "name":"orc",
-        "level":1,
-        "kind":"humanoid",
-        "desc":"For the Horde!",
-        "hp":"3d4+3",
-        "armor":"8",
-        "toHit":1,
-        "weap":{
-            "name":"spear",
-            "type":"pierce",
-            "dmg":"1d6"
-        }, "drops":{"potion of cure light wounds":3}
-
-    },
-    {
-        "name":"cutpurse",
-        "level":1,
-        "kind":"humanoid",
-        "evil":7,
-        "desc":"Wants to steal your stuff.",
-        "hp":"3d3+2",
-        "armor":"8",
-        "toHit":2,
-        "weap":{
-            "name":"dagger",
-            "type":"pierce",
-            "dmg":"1d5"
-        },"biome":"town", "drops":{"potion of cure light wounds":3}
-
-    },
-    {
-        "name":"zombie",
-        "level":1,
-        "kind":"undead",
-        "evil":8,
-        "desc":"Slow and rotting corpse.",
-        "hp":"1d4+1",
-        "toHit":-1,
-        "armor":"4",
-        "weap":{
-            "name":"smash",
-            "type":"blunt",
-            "dmg":"1d6+2"
+        "name": "wombat",
+        "level": 1,
+        "kind": "beast",
+        "evil": -2,
+        "desc": "Just wombatting around.",
+        "hp": "2d6+4",
+        "armor": 10,
+        "weap": {
+            "name": "wombatting",
+            "type": "blunt",
+            "dmg": "1d4"
         }
-
     },
     {
-        "name":"homonculus",
-        "level":1,
-        "kind":"construct",
-        "desc":"Must have escaped from its jar.",
-        "hp":"1d4+1",
-        "toHit":-1,
-        "armor":"5",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d4+1"
-        }
-
-    },
-    {
-        "name":"skeleton",
-        "level":1.5,
-        "kind":"undead",
-        "evil":7,
-        "desc":"It appears to be missing all its fleshy bits.",
-        "hp":"2d4+2",
-        "toHit":1,
-        "armor":"10",
-        "weap":{
-            "name":"cursed blade",
-            "type":"slash",
-            "dmg":"1d4+1"
-        }, "drops":{"bone":10, "potion of light agony":5}
-
-    },
-    {
-        "name":"jackal",
-        "level":1,
-        "kind":"beast",
-        "desc":"They're tricksy.",
-        "hp":"2d4+1",
-        "toHit":0,
-        "armor":"8",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d4+1"
-        },"biome":"plains"
-
-    },
-    {
-        "name":"elf",
-        "level":1,
-        "kind":"humanoid",
-        "evil":-1,
-        "desc":"So lithe. So graceful.",
-        "hp":"3d3+4",
-        "toHit":1,
-        "armor":"10",
-        "weap":{
-            "name":"bow",
-            "type":"pierce",
-            "dmg":"1d6"
-        }, "drops":{"potion of cure light wounds":5}
-
-    },
-    {
-        "name":"hobbit slinger",
-        "level":1,
-        "biome":["town","plains","forest","hills"],
-        "kind":"humanoid",
-        "evil":-1,
-        "desc":"How much damage could he do with just a sling?",
-        "hp":"3d3+2",
-        "toHit":3,
-        "armor":"8",
-        "weap":{
-            "name":"sling",
-            "type":"blunt",
-            "dmg":"1d4"}
-
-    },
-    {
-        "name":"dire bat",
-        "level":1,
-        "kind":"magic beast",
-        "evil":5,
-        "desc":"That's one large bat.",
-        "hp":"1d4+1",
-        "toHit":3,
-        "armor":"17",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d2+2"
-        }
-
-    },
-    {
-        "name":"dire rat",
-        "level":1,
-        "kind":"magic beast",
-        "evil":5,
-        "desc":"Red eyes... that's different.",
-        "hp":"2d3+3",
-        "toHit":1,
-        "armor":"8",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d6"}, "drops":"rat tail"
-
-    },
-    {
-        "name":"eel",
-        "level":1,
-        "kind":"beast",
-        "biome":"swamp",
-        "desc":"It's wriggly.",
-        "hp":"2d4+1",
-        "toHit":1,
-        "armor":"14",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d4"
-        }
-
-    },
-    {
-        "name":"piranha",
-        "level":1,
-        "kind":"beast",
-        "biome":"swamp",
-        "desc":"It's bitey.",
-        "hp":"2d3+1",
-        "toHit":1,
-        "armor":"16",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"2d4"
-        }
-
-    },
-    {
-        "name":"ranger",
-        "level":2,
-        "kind":"humanoid",
-        "evil":-5,
-        "desc":"Rangers aren't very good with people.",
-        "hp":"2d6+5",
-        "armor":"19",
-        "weap":{
-            "name":"longbow",
-            "type":"pierce",
-            "dmg":"1d6"
-        }, "drops":{"potion of cure light wounds":10 }
-
-    },
-    {
-        "name":"thrall",
-        "level":2,
-        "kind":"undead",
-        "evil":8,
-        "desc":"One isn't very bad. 100 can be a problem.",
-        "hp":"5d5+5",
-        "toHit":-1,
-        "armor":"5",
-        "weap":{
-            "name":"axe",
-            "type":"slash",
-            "dmg":"2d6+2"
-        }
-
-    },
-    {
-        "name":"bandit",
-        "level":2,
-        "kind":"humanoid",
-        "evil":7,
-        "desc":"Wants to steal your stuff.",
-        "hp":"3d5+4",
-        "armor":"15",
-        "toHit":1,
-        "weap":{
-            "name":"short sword",
-            "type":"slash",
-            "dmg":"1d6+1"
-        }
-
-    },
-    {
-        "name":"bre'unor",
-        "level":2,
-        "kind":"humanoid",
-        "evil":7,
-        "desc":"Why is it wearing a skull on its face?",
-        "hp":"2d5+5",
-        "armor":"21",
-        "weap":{
-            "name":"bone boomerang",
-            "type":"slash",
-            "dmg":"1d5"
-        }, "biome":["forest","swamp","hills"],
-        "drops":{"bone":10}
-
-    },
-    {
-        "name":"undead kakapo",
-        "level":2,
-        "kind":"undead",
-        "evil":5,
-        "desc":"It ambles about, looking for living flesh.",
-        "hp":"4d4+5",
-        "toHit":0,
-        "armor":"15",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"1d4+2"
-        }
-
-    },
-    {
-        "name":"orc warrior",
-        "level":2,
-        "desc":"",
-        "hp":"4d4+8",
-        "armor":"18",
-        "toHit":2,
-        "weap":{
-            "name":"orc hammer",
-            "type":"blunt",
-            "dmg":"1d6+2"
-        }
-
-    },
-    {
-        "name":"hobgoblin",
-        "level":2,
-        "desc":"",
-        "evil":7,
-        "hp":"3d4+4",
-        "armor":"17",
-        "toHit":2,
-        "weap":{
-            "name":"dagger",
-            "type":"pierce",
-            "dmg":"1d6+1"
-        }, "drops":{"potion of cure light wounds":10}
-
-    },
-    {
-        "name":"giant centipede",
-        "level":2,
-        "desc":"creepy crawly",
-        "hp":"3d6+4",
-        "armor":"15",
-        "weap":{
-            "name":"sting",
-            "type":"pierce",
-            "dmg":"1d6+1"
-        }
-
-    },
-    {
-        "name":"ghoul",
-        "level":2,
-        "kind":"undead",
-        "evil":8,
-        "desc":"",
-        "hp":"3d6+2",
-        "toHit":2,
-        "armor":"18",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"1d6+1"
-        }
-
-    },
-    {
-        "name":"wolf",
-        "level":2,
-        "kind":"beast",
-        "desc":"",
-        "hp":"2d6+2",
-        "armor":"12",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"2d4+1"
-        }
-
-    },
-    {
-        "name":"slime",
-        "level":2,
-        "desc":"",
-        "hp":"2d10+10",
-        "armor":"8",
-        "weap":{
-            "name":"squelch",
-            "type":"acid",
-            "dmg":"1d4+1"
-        }
-
-    },
-    {
-        "name":"soulless",
-        "level":2,
-        "evil":15,
-        "kind":"myth",
-        "desc":"",
-        "hp":"3d5+4",
-        "armor":"10",
-        "weap":{
-            "name":"javelin",
-            "type":"pierce",
-            "dmg":"3d4+1"
-        }
-
-    },
-    {
-        "name":"minotaur",
-        "level":3,
-        "kind":"humanoid",
-        "desc":"",
-        "hp":"4d6+5",
-        "armor":"18",
-        "weap":{
-            "name":"mallet",
-            "type":"blunt",
-            "dmg":"1d6+5"
-        }, "drops":{"potion of cure light wounds":10}
-
-    },
-    {
-        "name":"crocodile",
-        "biome":"swamp",
-        "level":3,
-        "kind":"beast",
-        "desc":"They're wild!",
-        "hp":"4d5+3",
-        "toHit":3,
-        "armor":"20",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d5+2"
-        },"drops":{"crocodile tooth":10, "crocodile tears":5}
-
-    },
-    {
-        "name":"werewolf",
-        "level":3,
-        "kind":"humanoid",
-        "evil":5,
-        "desc":"",
-        "toHit":7,
-        "hp":"4d4+5",
-        "armor":"25",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"1d6"
-        }
-
-    },
-    {
-        "name":"mechanical swordsman",
-        "level":3,
-        "kind":"construct",
-        "evil":0,
-        "desc":"Durable, but not very good at his job.",
-        "toHit":0,
-        "hp":"4d5+6",
-        "armor":"28",
-        "weap":{
-            "name":"short sword",
-            "type":"slash",
-            "dmg":"1d6"
-        }
-
-    },
-    {
-        "name":"harpy",
-        "level":3,
-        "kind":"humanoid",
-        "evil":13,
-        "desc":"She doesn't look harpy to see you.",
-        "toHit":5,
-        "hp":"4d5+2",
-        "armor":"22",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"3d6"
-        }
-
-    },
-    {
-        "name":"drunken boxer",
-        "level":3,
-        "kind":"humanoid",
-        "evil":-2,
-        "desc":"This monk has had a bit too much to drink...",
-        "toHit":7,
-        "hp":"4d3+4",
-        "armor":"29",
-        "weap":{
-            "name":"fists",
-            "type":"blunt",
-            "dmg":"2d6"
-        }, "drops":{"whiskey":10}
-
-    },
-    {
-        "name":"dire kakapo",
-        "level":3,
-        "kind":"magic beast",
-        "evil":5,
-        "desc":"This kakapo has been touched by evil!",
-        "hp":"4d4+5",
-        "toHit":3,
-        "armor":"22",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"3d4"
-        }, "biome":"hills"
-
-    },
-    {
-        "name":"imp",
-        "level":3,
-        "kind":"demon",
-        "evil":5,
-        "desc":"",
-        "hp":"2d6+8",
-        "armor":"30",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-        "dmg":"1d6+2"
-        },"drops":{"sulfur dust":5, "potion of cure light wounds":10, "potion of cure moderate wounds":10}
-
-    },
-    {
-        "name":"giant spider",
-        "level":3,
-        "kind":"arachnid",
-        "evil":1,
-        "desc":"You can't tell if she looks hungry.",
-        "hp":"3d6",
-        "armor":"15",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"1d6+3"
-        }, "biome":["swamp", "forest", "mountains"]
-
-    },
-    {
-        "name":"vampire bat",
-        "level":3,
-        "kind":"magic beast",
-        "evil":5,
-        "desc":"It vants to zuck your blood.",
-        "hp":"3d4+3",
-        "toHit":2,
-        "armor":"25",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",   
-            "dmg":"3d2+2"
-        },"drops":"bat wing"
-
-    },
-    {
-        "name":"wight",
-        "level":3,
-        "desc":"",
-        "kind":"undead",
-        "evil":12,
-        "hp":"3d6+4",
-        "toHit":1,
-        "armor":"22",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"1d6+2"
+        "name": "gremlin",
+        "level": 0.5,
+        "kind": "goblinoid",
+        "evil": 5,
+        "desc": "Na-na-na-na-Na-na Na-na-na-na-Na-na...",
+        "hp": "1d3+1",
+        "armor": 4,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d2"
         },
-        "drops":{"wight pus":40}
-
-    },
-    {
-        "name":"dire wolf",
-        "level":4,
-        "kind":"magic beast",
-        "evil":7,
-        "desc":"",
-        "hp":"3d6+3",
-        "toHit":2,
-        "armor":"20",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"3d6+2"
+        "drops": {
+            "potion of cure minor wounds": 5
         }
-
     },
     {
-        "name":"ghast",
-        "level":4,
-        "kind":"undead",
-        "evil":14,
-        "desc":"",
-        "hp":"4d6+7",
-        "toHit":3,
-        "armor":"26",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"2d6+3"
-        }
-
-    },
-    {
-        "name":"ghost",
-        "level":4,
-        "kind":"undead",
-        "evil":5,
-        "desc":"Boo!",
-        "hp":"4d5+5",
-        "toHit":4,
-        "armor":"30",
-        "weap":{
-            "name":"death touch",
-            "type":"drain",
-            "dmg":"1d6+2"
-        },"drops":{"spectral essence":5}
-
-    },
-    {
-        "name":"salamander",
-        "level":4,
-        "desc":"",
-        "kind":"magic beast",
-        "hp":"4d7+5",
-        "toHit":2,
-        "armor":"23",
-        "weap":{
-            "name":"flame claws",
-            "type":"fire",
-            "dmg":"3d6"
-        }
-
-    },
-    {
-        "name":"beserker",
-        "level":4,
-        "kind":"humanoid",
-        "evil":-8,
-        "desc":"You gotta... dance.",
-        "hp":"4d5+5",
-        "toHit":5,
-        "armor":"29",
-        "weap":{
-            "name":"claymore",
-            "type":"slash",
-            "dmg":"3d6"
-        }
-
-    },
-    {
-        "name":"bugbear",
-        "level":4,
-        "desc":"",
-        "evil":10,
-        "hp":"4d8+15",
-        "armor":"25",
-        "toHit":2,
-        "weap":{
-            "name":"mace",
-            "type":"blunt",
-            "dmg":"2d6+1"
-        }
-
-    },
-    {
-        "name":"giant snake",
-        "level":4,
-        "kind":"beast",
-        "desc":"",
-        "hp":"4d8+15",
-        "armor":"23",
-        "toHit":0,
-        "weap":{
-            "name":"constrict",
-            "type":"blunt",
-            "dmg":"3d6+1"
-        }
-
-    },
-    {
-        "name":"evil priest",
-        "level":4,
-        "kind":"humanoid",
-        "evil":10,
-        "desc":"He worships evil.",
-        "hp":"4d8+10",
-        "armor":"32",
-        "toHit":5,
-        "weap":{
-            "name":"harm",
-            "type":"evil",
-            "dmg":"2d6"
-        },"drops":{ "potion of cure moderate wounds":20, "potion of cure serious wounds":10}
-
-    },
-    {
-        "name":"quasit",
-        "level":4,
-        "kind":"demon",
-        "evil":14,
-        "desc":"Looks a bit like a demonic humanoid vulture.",
-        "toHit":3,
-        "hp":"2d7+8",
-        "armor":"30",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"1d6+3"
+        "name": "rat",
+        "level": 0.5,
+        "desc": "Smelly rat.",
+        "kind": "beast",
+        "hp": "1d4",
+        "toHit": -1,
+        "armor": 5,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d2+1"
         },
-        "drops":{ "sulfur dust":10,"potion of cure moderate wounds":10, "potion of cure serious wounds":10}
-
+        "drops": [
+            "rat tail"
+        ]
     },
     {
-        "name":"greater zombie",
-        "level":4,
-        "kind":"undead",
-        "evil":13,
-        "desc":"It ate up all the smaller zombies.",
-        "hp":"4d8+25",
-        "armor":"22",
-        "toHit":0,
-        "weap":{
-            "name":"slam",
-            "type":"blunt",
-            "dmg":"1d8+1"
-        }
-
-    },
-    {
-        "name":"ogre",
-        "level":4,
-        "evil":7,
-        "desc":"Ever wonder what orcs would look like if they were three times as large?",
-        "hp":"5d8+25",
-        "toHit":1,
-        "armor":"20",
-        "weap":{
-            "name":"spiked club",
-            "type":"blunt",
-            "dmg":"2d6+3"
-        }
-
-    },
-    {
-        "name":"clay golem",
-        "level":5,
-        "kind":"construct",
-        "desc":"I made you out of clay...",
-        "hp":"8d8+25",
-        "toHit":-1,
-        "armor":"33",
-        "weap":{
-            "name":"smash",
-            "type":"blunt",
-            "dmg":"1d6+1"
-        }
-
-    },
-    {
-        "name":"dire crocodile",
-        "kind":"magic beast",
-        "evil":5,
-        "biome":"swamp",
-        "level":5,
-        "desc":"",
-        "hp":"4d7+12",
-        "toHit":5,
-        "armor":"32",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"2d5+5"
-        },"drops":{"crocodile tooth":10, "crocodile tears":5}
-
-    },
-    {
-        "name":"ettin",
-        "level":5,
-        "evil":8,
-        "kind":"giant",
-        "biome":["hills","forest","swamp","mountains"],
-        "desc":"Two heads is better than one.",
-        "hp":"5d10+25",
-        "toHit":3,
-        "armor":"30",
-        "weap":{
-            "name":"spiked club",
-            "type":"blunt",
-            "dmg":"2d6+4"
-        }
-
-    },
-    {
-        "name":"yeti",
-        "biome":"mountains",
-        "kind":"giant",
-        "evil":5,
-        "level":5,
-        "desc":"You ain't seen nothing yeti.",
-        "hp":"5d9+25",
-        "toHit":4,
-        "armor":"25",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"2d6+2"
-        }
-
-    },
-    {
-        "name":"kakapo lord",
-        "kind":"beast",
-        "level":5,
-        "biome":"hills",
-        "desc":"Kakapo is pleased with himself.",
-        "hp":"5d5+12",
-        "toHit":5,
-        "armor":"30",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"4d4"
-        }
-
-    },
-    {
-        "name":"shade",
-        "level":5,
-        "evil":14,
-        "kind":"undead",
-        "desc":"",
-        "hp":"3d7+3",
-        "toHit":3,
-        "armor":"38",
-        "weap":{
-            "name":"cold touch",
-            "type":"cold",
-            "dmg":"3d5+5"
-        },"drops":{"spectral essence":5}
-
-    },
-    {
-        "name":"invisible stalker",
-        "level":5,
-        "evil":13,
-        "desc":"You don't see a thing.",
-        "hp":"3d8+5",
-        "toHit":26,
-        "armor":"42",
-        "weap":{
-            "name":"slam",
-            "type":"blunt",
-            "dmg":"3d3+2"
-        }
-
-    },
-    {
-        "name":"master swordsman",
-        "level":5,
-        "kind":"humanoid",
-        "evil":-11,
-        "desc":"He's looking for a six-fingered man.",
-        "hp":"5d8+5",
-        "toHit":5,
-        "armor":"35",
-        "weap":{
-            "name":"longsword",
-            "type":"slash",
-            "dmg":"1d6+5"
-        }
-
-    },
-    {
-        "name":"heron guard",
-        "level":5,
-        "kind":"humanoid",
-        "evil":-20,
-        "desc":"Something, something, myth quote.",
-        "hp":"5d8+5",
-        "toHit":3,
-        "armor":"40",
-        "weap":{
-            "name":"swords",
-            "type":"slash",
-            "dmg":"1d6+3"
-        },"drops":{"mandrake root":10, "potion of cure moderate wounds":20, "potion of cure serious wounds":10}
-
-    },
-    {
-        "name":"doppelganger",
-        "level":5,
-        "evil":22,
-        "desc":"What a handsome fellow!",
-        "hp":"7d7+7",
-        "toHit":4,
-        "armor":"32",
-        "weap":{
-            "name":"slam",
-            "type":"blunt",
-            "dmg":"1d6+2"
-        }
-
-    },
-    {
-        "name":"magic blade",
-        "level":5,
-        "kind":"construct",
-        "desc":"It just floats there...",
-        "hp":"5d5+9",
-        "toHit":8,
-        "armor":"35",
-        "weap":{
-            "name":"magic sword",
-            "type":"slash",
-            "dmg":"1d6+3"
-        }
-
-    },
-    {
-        "name":"bear",
-        "level":5,
-        "biome":["forest","hills","mountains"],
-        "kind":"beast",
-        "desc":"He's angry now!!!",
-        "hp":"5d12+12",
-        "toHit":1,
-        "armor":"30",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"2d6+2"
-        }, "drops":["bear claw"]
-
-    },
-    {
-        "name":"wood golem",
-        "level":5,
-        "kind":"construct",
-        "desc":"A golem crafted on a budget.",
-        "toHit":5,
-        "hp":"3d10+12",
-        "armor":"28",
-        "weap":{
-            "name":"punch",
-            "type":"blunt",
-            "dmg":"2d6"
-        }, "drops":{"raw wood":5}
-
-    },
-    {
-        "name":"pegasus",
-        "level":5,
-        "kind":"magic beast",
-        "evil":-13,
-        "desc":"It's a unicorn with wings and no horn.",
-        "hp":"5d10+15",
-        "toHit":3,
-        "armor":"27",
-        "weap":{
-            "name":"trample",
-            "type":"blunt",
-            "dmg":"2d10"
-        }
-
-    },
-    {
-        "name":"earth elemental",
-        "level":5,
-        "kind":"elemental",
-        "desc":"How do you fight dirt?",
-        "toHit":2,
-        "hp":"4d8+32",
-        "armor":"30",
-        "weap":{
-            "name":"pound",
-            "type":"blunt",
-            "dmg":"3d6"
-        },"drops":{"raw earth":5}
-
-    },
-    {
-        "name":"air elemental",
-        "kind":"elemental",
-        "level":6,
-        "desc":"Wispy.",
-        "toHit":8,
-        "hp":"3d4+10",
-        "armor":"48",
-        "weap":{
-            "name":"air whip",
-            "type":"slash",
-            "dmg":"3d4+2"
+        "name": "kakapo",
+        "level": 0.5,
+        "kind": "beast",
+        "desc": "Don't kill it! They're endangered!",
+        "hp": "1d3+1",
+        "toHit": 1,
+        "armor": 7,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "1d4"
         },
-        "drops":{"air essence":10}
-
-    },
-    {
-        "name":"stone golem",
-        "level":6,
-        "kind":"construct",
-        "desc":"The head stone's connected to the... spine stone.",
-        "hp":"8d10+20",
-        "toHit":-1,
-        "armor":"40",
-        "weap":{
-            "name":"smash",
-            "type":"blunt",
-            "dmg":"1d6+5"
-        },"drops":{"raw stone":5}
-
-    },
-    {
-        "name":"maul",
-        "level":6,
-        "evil":5,
-        "biome":"forest",
-        "desc":"This is what you get for passing through the Ermine.",
-        "hp":"6d10+34",
-        "toHit":7,
-        "armor":"30",
-        "weap":{
-            "name":"club",
-            "type":"blunt",
-            "dmg":"3d4+4"
-        }
-
-    },
-    {
-        "name":"myrkridia",
-        "level":6,
-        "evil":17,
-        "desc":"Balor is not going to like this...",
-        "hp":"6d7+24",
-        "toHit":7,
-        "armor":"32",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"3d5+2"
-        }
-
-    },
-    {
-        "name":"skeleton lord",
-        "level":6,
-        "kind":"undead",
-        "evil":16,
-        "desc":"Are those rubies in its eyes?",
-        "hp":"5d7+17",
-        "toHit":7,
-        "armor":"34",
-        "weap":{
-            "name":"longsword",
-            "type":"slash",
-            "dmg":"1d8+4"
-        }, "drops":{"bone":10, "potion of moderate agony":10}
-
-    },
-    {
-        "name":"unicorn",
-        "level":6,
-        "kind":"magic beast",
-        "evil":-17,
-        "desc":"Its horn is full of magic.",
-        "hp":"5d12+17",
-        "toHit":3,
-        "armor":"32",
-        "weap":{
-            "name":"horn",
-            "type":"pierce",
-            "dmg":"2d12"
-        }, "biome":["plains","forest"]
-
-    },
-    {
-        "name":"vampire",
-        "level":6,
-        "kind":"undead",
-        "evil":16,
-        "desc":"Standard blood sucking variety.",
-        "hp":"5d8+19",
-        "toHit":8,
-        "armor":"37",
-        "weap":{
-            "name":"bite",
-            "type":"drain",
-            "dmg":"1d5+3"
-        }, "drops":{"vampire fang":5, "potion of moderate agony":10}
-
-    },
-    {
-        "name":"wraith",
-        "level":6,
-        "kind":"undead",
-        "evil":15,
-        "desc":"A ghostly black form.",
-        "hp":"5d5+15",
-        "toHit":8,
-        "armor":"40",
-        "weap":{
-            "name":"death touch",
-            "type":"drain",
-            "dmg":"1d5+3"
-        },"drops":{"spectral essence":5}
-
-    },
-    {
-        "name":"roc",
-        "level":6,
-        "desc":"It's the biggest bird you've ever seen!",
-        "toHit":3,
-        "kind":"magic beast",
-        "hp":"5d5+18",
-        "armor":"32",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"3d6+3"
-        },"biome":"mountains"
-
-    },
-    {
-        "name":"incubus",
-        "level":6,
-        "evil":17,
-        "kind":"demon",
-        "desc":"You could bounce a coin off those abs.",
-        "toHit":3,
-        "hp":"5d4+24",
-        "armor":"25",
-        "weap":{
-            "name":"seduction",
-            "type":"sexy",
-            "dmg":"2d6+2"
-        }, "drops":{"sulfur dust":10, "potion of moderate agony":10}
-
-    },
-    {
-        "name":"phoenix",
-        "level":7,
-        "desc":"It's more fire than bird.",
-        "toHit":4,
-        "kind":"magic beast",
-        "evil":-13,
-        "hp":"5d7+27",
-        "armor":"40",
-        "weap":{
-            "name":"flame wing",
-            "type":"fire",
-            "dmg":"3d4+8"
-        }, "drops":{"phoenix feather":5, "phoenix ashes":1, "potion of cure critical wounds":5}
-
-    },
-    {
-        "name":"mystic wombat",
-        "level":7,
-        "kind":"magic beast",
-        "evil":-17,
-        "desc":"Just wombatting magically around.",
-        "hp":"5d7+30",
-        "armor":"38",
-        "weap":{
-            "name":"wombat magic",
-            "type":"magic",
-            "dmg":"8d4"
-        }, "drops":{"potion of cure serious wounds":20}
-
-    },
-    {
-        "name":"cave troll",
-        "level":7,
-        "evil":15,
-        "biome":["hills","mountains"],
-        "desc":"They have a cave troll...",
-        "hp":"9d10+27",
-        "toHit":4,
-        "armor":"35",
-        "weap":{
-            "name":"club",
-            "type":"blunt",
-            "dmg":"3d6+5"
-        }
-
-    },
-    {
-        "name":"iron golem",
-        "level":7,
-        "kind":"construct",
-        "desc":"It moves with heavy clonking steps.",
-        "hp":"8d12+32",
-        "toHit":1,
-        "armor":"45",
-        "weap":{
-            "name":"smash",
-            "type":"blunt",
-            "dmg":"2d6+4"
-        },"drops":{"raw iron":10}
-
-    },
-    {
-        "name":"medusa",
-        "level":7,
-        "desc":"Kind of ugly.",
-        "evil":20,
-        "toHit":2,
-        "hp":"7d8+8",
-        "armor":"40",
-        "weap":{
-            "name":"stare",
-            "type":"magic",
-            "dmg":"4d8+12"
-        },"drops":{"medusa head":5, "potion of light agony":5, "potion of cure light wounds":5}
-
-    },
-    {
-        "name":"succubus",
-        "level":7,
-        "kind":"demon",
-        "evil":27,
-        "desc":"Oh my!",
-        "hp":"5d7+15",
-        "toHit":20,
-        "armor":"35",
-        "weap":{
-            "name":"seduction",
-            "type":"sexy",
-            "dmg":"3d5+5"
-        }, "drops":{"sulfur dust":15, "potion of serious agony":10}
-
-    },
-    {
-        "name":"naga",
-        "level":7,
-        "evil":12,
-        "desc":"From the waist up, it doesn't look that bad.",
-        "hp":"5d6+15",
-        "toHit":8,
-        "armor":"48",
-        "weap":{
-            "name":"scimitars",
-            "type":"slash",
-            "dmg":"1d10+4"
-        }, "drops":{"potion of cure light wounds":20}
-
-    },
-    {
-        "name":"poltergeist",
-        "level":7,
-        "kind":"undead",
-        "evil":14,
-        "desc":"Only the objects flying at your head alert you to its presence.",
-        "toHit":7,
-        "hp":"4d9+24",
-        "armor":"40",
-        "weap":{
-            "name":"chill touch",
-            "type":"drain",
-            "dmg":"3d4+3"
-        }, "drops":{"spectral essence":10}
-
-    },
-    {
-        "name":"ice elemental",
-        "level":7,
-        "kind":"elemental",
-        "desc":"What's so scary about a bunch of icicles?",
-        "toHit":2,
-        "hp":"8d9+20",
-        "armor":"35",
-        "weap":{
-            "name":"ice shard",
-            "type":"cold",
-            "dmg":"2d6+3"
-        },"drops":{"Ice Essence":10}
-
-    },
-    {
-        "name":"fire elemental",
-        "level":8,
-        "kind":"elemental",
-        "desc":"Too hot to get close to.",
-        "toHit":9,
-        "hp":"5d5+27",
-        "armor":"55",
-        "weap":{
-            "name":"flame",
-            "type":"fire",
-            "dmg":"3d6+2"
-        },"drops":{"Fire Essence":10}
-
-    },
-    {
-        "name":"drunken master",
-        "level":8,
-        "evil":-10,
-        "kind":"humanoid",
-        "desc":"Master Wong Fei-Hung.",
-        "hp":"5d7+21",
-        "toHit":10,
-        "armor":"44",
-        "weap":{
-            "name":"fists",
-            "type":"blunt",
-            "dmg":"2d5+5"
-        }, "drops":{"whiskey":20}
-
-    },
-    {
-        "name":"orc champion",
-        "level":8,
-        "kind":"humanoid",
-        "desc":"The strongest orc in the whole tribe!",
-        "hp":"7d7+27",
-        "toHit":4,
-        "armor":"40",
-        "weap":{
-            "name":"broadsword",
-            "type":"slash",
-            "dmg":"2d6+8"
-        }, "drops":{ "potion of cure major wounds":15}
-
-    },
-    {
-        "name":"undead horror",
-        "level":8,
-        "kind":"undead",
-        "evil":14,
-        "desc":"You need to stop looking at it before you go insane.",
-        "hp":"5d7+15",
-        "toHit":10,
-        "armor":"50",
-        "weap":{
-            "name":"chill touch",
-            "type":"drain",
-            "dmg":"2d6+4"
-        }
-
-    },
-    {
-        "name":"mahir",
-        "level":8,
-        "kind":"myth",
-        "evil":17,
-        "desc":"Can't click on the damn thing.",
-        "hp":"5d5+10",
-        "toHit":15,
-        "armor":"58",
-        "weap":{
-            "name":"life drain",
-            "type":"drain",
-            "dmg":"2d5+4"
-        }
-
-    },
-    {
-        "name":"mind flayer",
-        "level":8,
-        "evil":24,
-        "desc":"It licks your brain with its mind.",
-        "hp":"5d7+15",
-        "toHit":12,
-        "armor":"44",
-        "weap":{
-            "name":"mind flay",
-            "type":"psionic",
-            "dmg":"2d6+7"
-        }, "drops":{"potion of cure serious wounds":15}
-
-    },
-    {
-        "name":"lesser wyrm",
-        "level":8,
-        "desc":"A cross between a worm and a dragon.",
-        "toHit":5,
-        "hp":"9d8+30",
-        "armor":"42",
-        "weap":{
-            "name":"bite",
-            "type":"pierce",
-            "dmg":"4d7+5"
-        }
-
-    },
-    {
-        "name":"basilisk",
-        "level":8,
-        "kind":"magic beast",
-        "desc":"Looking at this one is a bad idea.",
-        "toHit":5,
-        "hp":"7d7+30",
-        "armor":"32",
-        "weap":{
-            "name":"stare",
-            "type":"magic",
-            "dmg":"5d10+8"
-        }
-
-    },
-    {
-        "name":"dire bear",
-        "level":8,
-        "kind":"magic beast",
-        "evil":17,
-        "desc":"He's angrier now!!!",
-        "hp":"7d10+32",
-        "toHit":1,
-        "armor":"30",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"5d6+3"
-        }, "biome":["hills","forest"],
-        "drops":["bear claw"]
-
-    },
-    {
-        "name":"hill giant",
-        "level":8,
-        "biome":"hills",
-        "kind":"giant",
-        "evil":17,
-        "desc":"You've seen bigger.",
-        "hp":"10d10+50",
-        "toHit":2,
-        "armor":"45",
-        "weap":{"name":"club",
-            "type":"blunt",
-            "dmg":"4d6+5"
-        }, "drops":{"potion of cure serious wounds":15}
-
-    },
-    {
-        "name":"troll",
-        "level":9,
-        "evil":25,
-        "desc":"tro lo lo.",
-        "hp":"9d8+40",
-        "toHit":3,
-        "armor":"50",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"3d8+5"
-        }, "biome":["forest","hills","mountains","swamp"]
-
-    },
-    {
-        "name":"vampire master",
-        "level":9,
-        "kind":"undead",
-        "evil":30,
-        "desc":"Worked his way up the vampire ranks, and has his very own brood now.",
-        "hp":"5d9+34",
-        "toHit":10,
-        "armor":"42",
-        "weap":{
-            "name":"bite",
-            "type":"drain",
-            "dmg":"5d5+3"
-        }, "drops":{"vampire fang":10, "potion of major agony":10}
-
-    },
-    {
-        "name":"dullahan",
-        "level":9,
-        "evil":20,
-        "desc":"It doesn't seem to have a head. But you do.",
-        "hp":"5d9+30",
-        "toHit":7,
-        "armor":"45",
-        "weap":{
-            "name":"vorpal sword",
-            "type":"slash",
-            "dmg":"5d6+3"
-        }, "biome":["town","forest","plains"]
-
-    },
-    {
-        "name":"bog witch",
-        "level":9,
-        "evil":29,
-        "kind":"humanoid",
-        "biome":"swamp",
-        "desc":"Nasty witch that lives in the waters of a bog. Have you ever seen legend?",
-        "hp":"9d9+40",
-        "toHit":5,
-        "armor":"48",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"4d5+3"
-        }, "drops":{ "potion of major agony":15}
-
-    },
-    {
-        "name":"valkyrie",
-        "level":9,
-        "evil":-8,
-        "desc":"She'll take you to Valhalla.",
-        "hp":"7d7+25",
-        "toHit":10,
-        "armor":"54",
-        "weap":{
-            "name":"claymore",
-            "type":"slash",
-            "dmg":"3d5+5"
-        }, "drops":{ "potion of cure major wounds":15}
-
-    },
-    {
-        "name":"fire golem",
-        "level":9,
-        "kind":"construct",
-        "desc":"Crafted from only the finest phlogiston.",
-        "hp":"9d7+40",
-        "toHit":8,
-        "armor":"53",
-        "weap":{
-            "name":"fire punch",
-            "type":"fire",
-            "dmg":"3d6+5"
-        }
-
-    },
-    {
-        "name":"wyvern",
-        "level":9,
-        "evil":5,
-        "desc":"Not a dragon. But it will kill you like one.",
-        "hp":"9d12+40",
-        "toHit":5,
-        "armor":"42",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"3d10+2"
-        }
-
-    },
-    {
-        "name":"gryffon",
-        "level":9,
-        "kind":"magic beast",
-        "evil":-8,
-        "desc":"Body of a lion. Face of a giant eagle.",
-        "hp":"10d12+34",
-        "toHit":5,
-        "armor":"40",
-        "weap":{
-            "name":"beak",
-            "type":"pierce",
-            "dmg":"3d12+3"
-        }
-
-    },
-    {
-        "name":"grimstalk",
-        "level":9,
-        "biome":"forest",
-        "desc":"Slashy wood demon.",
-        "kind":"demon",
-        "evil":19,
-        "hp":"9d8+20",
-        "toHit":7,
-        "armor":"43",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"4d8+4"
-        }, "drops":{"raw wood":5}
-
-    },
-    {
-        "name":"green dragon",
-        "level":10,
-        "kind":"dragon",
-        "desc":"Just your standard green dragon.",
-        "hp":"10d10+70",
-        "toHit":10,
-        "armor":"55",
-        "weap":{
-            "name":"claws",
-            "type":"slash",
-            "dmg":"4d8+5"
+        "drops": {
+            "kakapo feather": 10
         }
     },
     {
-        "name":"trow",
-        "level":10,
-        "evil":5,
-        "desc":"You should have stayed out of the cloudspine.",
-        "hp":"9d11+35",
-        "toHit":5,
-        "armor":"50",
-        "weap":{
-            "name":"kik",
-            "type":"blunt",
-            "dmg":"5d9+8"
-        },"drops":{"raw stone":25}
-
+        "name": "Pukeko",
+        "level": 0.75,
+        "kind": "beast",
+        "desc": "Useless swamp hen.",
+        "hp": "1d3+2",
+        "toHit": 2,
+        "armor": 7,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "1d4"
+        },
+        "biome": "swamp"
     },
     {
-        "name":"king kakapo",
-        "level":10,
-        "biome":"hills",
-        "kind":"beast",
-        "desc":"kakapo gets what kakapo wants.",
-        "hp":"9d10+45",
-        "toHit":3,
-        "armor":"45",
-        "weap":{
-            "name":"sexual aggression",
-            "type":"slap",
-            "dmg":"5d10"
-        }
-
+        "name": "bat",
+        "level": 0.5,
+        "kind": "beast",
+        "desc": "Careful. They carry rabies.",
+        "hp": "1d2",
+        "toHit": 4,
+        "armor": 15,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d2+1"
+        },
+        "drops": "bat wing"
     },
     {
-        "name":"manticore",
-        "level":10,
-        "kind":"magic beast",
-        "evil":5,
-        "desc":"",
-        "hp":"10d13+25",
-        "toHit":8,
-        "armor":"48",
-        "weap":{
-            "name":"sting",
-            "type":"pierce",
-            "dmg":"5d10+7"
-        }
-
-    },
-    {
-        "name":"lightning elemental",
-        "level":10,
-        "desc":"All your hairs feel prickly.",
-        "kind":"elemental",
-        "toHit":14,
-        "hp":"4d7+3",
-        "armor":"63",
-        "weap":{
-            "name":"lightning",
-            "type":"electric",
-            "dmg":"7d6+4"
-        }
-
-    },
-    {
-        "name":"ent",
-        "level":10,
-        "biome":"forest",
-        "desc":"Out cruising for some ent-wives.",
-        "hp":"10d12+40",
-        "evil":-18,
-        "toHit":2,
-        "armor":"50",
-        "weap":{
-            "name":"pound",
-            "type":"blunt",
-            "dmg":"4d10+10"
-        }, "drops":{"raw wood":15}
-    },
-    {
-        "name":"red dragon",
-        "level":11,
-        "kind":"dragon",
-        "evil":8,
-        "desc":"",
-        "hp":"10d11+55",
-        "toHit":10,
-        "armor":"60",
-        "weap":{
-            "name":"fire breath",
-            "type":"fire",
-            "dmg":"4d10+7"
+        "name": "kobold",
+        "level": 0.75,
+        "desc": "You no take candle!",
+        "hp": "1d4+1",
+        "armor": 7,
+        "weap": {
+            "name": "pointy stick",
+            "type": "pierce",
+            "dmg": "1d4"
+        },
+        "biome": [
+            "mountains",
+            "hills",
+            "swamp"
+        ],
+        "drops": {
+            "potion of cure minor wounds": 3
         }
     },
     {
-        "name":"beholder",
-        "level":11,
-        "kind":"magic beast",
-        "evil":23,
-        "desc":"It seeeeees you.",
-        "hp":"11d9+35",
-        "toHit":12,
-        "armor":"50",
-        "weap":{
-            "name":"eye beam",
-            "type":"magic",
-            "dmg":"5d8+3"
+        "name": "goblin",
+        "level": 0.75,
+        "desc": "It reminds you of the babe...",
+        "hp": "1d4+2",
+        "armor": 6,
+        "weap": {
+            "name": "scimitar",
+            "type": "slash",
+            "dmg": "1d4"
+        },
+        "drops": {
+            "potion of cure minor wounds": 5,
+            "potion of cure light wounds": 1
         }
     },
     {
-        "name":"angel",
-        "level":12,
-        "kind":"celestial",
-        "evil":-30,
-        "desc":"It has wings and a halo of light.",
-        "hp":"9d11+73",
-        "toHit":10,
-        "armor":"70",
-        "weap":{
-            "name":"light sword",
-            "type":"holy",
-            "dmg":"5d9+5"
-        }, "drops":{"angel wing":10, "halo":5, "potion of cure critical wounds":20 }
-
-    },
-    {
-        "name":"lich",
-        "level":12,
-        "kind":"undead",
-        "evil":30,
-        "desc":"It was a wizard, once.",
-        "hp":"10d11+53",
-        "toHit":8,
-        "armor":"68",
-        "weap":{
-            "name":"death touch",
-            "type":"drain",
-            "dmg":"5d8+4"
-        }, "drops":{ "potion of critical agony":15}
-
-    },
-    {
-        "name":"cyclops",
-        "level":12,
-        "kind":"giant",
-        "evil":9,
-        "desc":"",
-        "hp":"10d12+55",
-        "toHit":5,
-        "armor":"65",
-        "weap":{
-            "name":"punch",
-            "type":"blunt",
-            "dmg":"5d10+7"
-         } , "drops":{ "potion of major agony":15, "potion of cure major wounds":15}
-
-    },
-    {
-        "name":"demon",
-        "level":12,
-        "kind":"demon",
-        "evil":32,
-        "desc":"",
-        "hp":"9d12+57",
-        "toHit":10,
-        "armor":"70",
-        "weap":{
-            "name":"darksword",
-            "type":"evil",
-            "dmg":"5d9+7"
-        },"drops":{"sulfur":30, "fire essence":1, "potion of critical agony":15}
-
-    },
-    {
-        "name":"behemoth",
-        "level":13,
-        "kind":"beast",
-        "desc":"",
-        "hp":"10d14+75",
-        "toHit":5,
-        "armor":"75",
-        "weap":{
-            "name":"trample",
-            "type":"blunt",
-            "dmg":"6d10+7"
-        }
-
-    },
-    {
-        "name":"magma elemental",
-        "kind":"elemental",
-        "biome":"mountains",
-        "level":13,
-        "desc":"It looks like a small mountain of magma.",
-        "hp":"10d11+55",
-        "toHit":0,
-        "armor":"65",
-        "weap":{
-            "name":"lava slam",
-            "type":"fire",
-            "dmg":"7d10+8"
-        }, "drops":{"raw iron":15, "raw stone":10, "fire essence":10}
-    },
-    {
-        "name":"vampire lord",
-        "level":13,
-        "kind":"undead",
-        "evil":40,
-        "desc":"This one uses Vampire Masters as lackeys.",
-        "hp":"9d7+57",
-        "toHit":15,
-        "armor":"70",
-        "weap":{
-            "name":"bite",
-            "type":"drain",
-            "dmg":"5d8+7"
-        }, "drops":{"vampire fang":15, "potion of critical agony":20}
-
-    },
-    {
-        "name":"mithril golem",
-        "level":14,
-        "kind":"construct",
-        "desc":"Would be worth a fortune if you could actually make a dent in it.",
-        "hp":"10d12+70",
-        "toHit":8,
-        "armor":"80",
-        "weap":{
-            "name":"pound",
-            "type":"blunt",
-            "dmg":"5d10+15"
-        },"drops":{"raw mithril":25}
-    },
-    {
-        "name":"ancient vampire",
-        "level":17,
-        "kind":"undead",
-        "evil":60,
-        "desc":"Probably on a first name basis with Dracula.",
-        "hp":"9d10+77",
-        "toHit":15,
-        "armor":"75",
-        "weap":{
-            "name":"bite",
-            "type":"drain",
-            "dmg":"9d8+14"
-        }, "drops":{"vampire fang":25, "potion of critical agony":30}
-
-    },
-    {
-        "name":"balrog",
-        "level":18,
-        "kind":"maiar",
-        "evil":70,
-        "desc":"A servant of Morgoth.",
-        "hp":"10d12+80",
-        "toHit":17,
-        "armor":"80",
-        "weap":{
-            "name":"flame whip",
-            "type":"fire",
-            "dmg":"9d15+15"
-        }, "drops":{"fire essence":10}
-
-    },
-    {
-        "name":"adamant golem",
-        "level":20,
-        "kind":"construct",
-        "desc":"Unbreakable",
-        "hp":"15d20+140",
-        "toHit":15,
-        "armor":"115",
-        "weap":{
-            "name":"SMASH",
-            "type":"blunt",
-            "dmg":"5d20+20"
-        },"drops":{"raw adamant":25}
-    },
-    {
-        "name":"mature red dragon",
-        "level":20,
-        "kind":"dragon",
-        "evil":20,
-        "desc":"",
-        "hp":"14d15+100",
-        "toHit":20,
-        "armor":"90",
-        "weap":{
-            "name":"fire breath",
-            "type":"fire",
-            "dmg":"5d25+10"
+        "name": "garden gnome",
+        "level": 0.75,
+        "desc": "Standard variety garden gnome.",
+        "hp": "1d4+2",
+        "armor": 4,
+        "toHit": 2,
+        "weap": {
+            "name": "magic missile",
+            "type": "magic",
+            "dmg": "2d4"
+        },
+        "biome": [
+            "town",
+            "plains",
+            "hills"
+        ],
+        "drops": {
+            "potion of cure light wounds": 5,
+            "potion of cure minor wounds": 5
         }
     },
     {
-        "name":"Cthulhu",
-        "level":30,
-        "evil":100,
-        "kind":"outsider",
-        "desc":"In his house at R'lyeh dead Cthulhu waits dreaming.",
-        "hp":"15d25+240",
-        "toHit":30,
-        "armor":"175",
-        "weap":{
-            "name":"Madness",
-            "type":"psychic",
-            "dmg":"10d25+50"
+        "name": "orc",
+        "level": 1,
+        "kind": "humanoid",
+        "desc": "For the Horde!",
+        "hp": "3d4+3",
+        "armor": 8,
+        "toHit": 1,
+        "weap": {
+            "name": "spear",
+            "type": "pierce",
+            "dmg": "1d6"
+        },
+        "drops": {
+            "potion of cure light wounds": 3
+        }
+    },
+    {
+        "name": "cutpurse",
+        "level": 1,
+        "kind": "humanoid",
+        "evil": 7,
+        "desc": "Wants to steal your stuff.",
+        "hp": "3d3+2",
+        "armor": 8,
+        "toHit": 2,
+        "weap": {
+            "name": "dagger",
+            "type": "pierce",
+            "dmg": "1d5"
+        },
+        "biome": "town",
+        "drops": {
+            "potion of cure light wounds": 3
+        }
+    },
+    {
+        "name": "zombie",
+        "level": 1,
+        "kind": "undead",
+        "evil": 8,
+        "desc": "Slow and rotting corpse.",
+        "hp": "1d4+1",
+        "toHit": -1,
+        "armor": 4,
+        "weap": {
+            "name": "smash",
+            "type": "blunt",
+            "dmg": "1d6+2"
+        }
+    },
+    {
+        "name": "homonculus",
+        "level": 1,
+        "kind": "construct",
+        "desc": "Must have escaped from its jar.",
+        "hp": "1d4+1",
+        "toHit": -1,
+        "armor": 5,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d4+1"
+        }
+    },
+    {
+        "name": "skeleton",
+        "level": 1.5,
+        "kind": "undead",
+        "evil": 7,
+        "desc": "It appears to be missing all its fleshy bits.",
+        "hp": "2d4+2",
+        "toHit": 1,
+        "armor": 10,
+        "weap": {
+            "name": "cursed blade",
+            "type": "slash",
+            "dmg": "1d4+1"
+        },
+        "drops": {
+            "bone": 10,
+            "potion of light agony": 5
+        }
+    },
+    {
+        "name": "jackal",
+        "level": 1,
+        "kind": "beast",
+        "desc": "They're tricksy.",
+        "hp": "2d4+1",
+        "toHit": 0,
+        "armor": 8,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d4+1"
+        },
+        "biome": "plains"
+    },
+    {
+        "name": "elf",
+        "level": 1,
+        "kind": "humanoid",
+        "evil": -1,
+        "desc": "So lithe. So graceful.",
+        "hp": "3d3+4",
+        "toHit": 1,
+        "armor": 10,
+        "weap": {
+            "name": "bow",
+            "type": "pierce",
+            "dmg": "1d6"
+        },
+        "drops": {
+            "potion of cure light wounds": 5
+        }
+    },
+    {
+        "name": "hobbit slinger",
+        "level": 1,
+        "biome": [
+            "town",
+            "plains",
+            "forest",
+            "hills"
+        ],
+        "kind": "humanoid",
+        "evil": -1,
+        "desc": "How much damage could he do with just a sling?",
+        "hp": "3d3+2",
+        "toHit": 3,
+        "armor": 8,
+        "weap": {
+            "name": "sling",
+            "type": "blunt",
+            "dmg": "1d4"
+        }
+    },
+    {
+        "name": "dire bat",
+        "level": 1,
+        "kind": "magic beast",
+        "evil": 5,
+        "desc": "That's one large bat.",
+        "hp": "1d4+1",
+        "toHit": 3,
+        "armor": 17,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d2+2"
+        }
+    },
+    {
+        "name": "dire rat",
+        "level": 1,
+        "kind": "magic beast",
+        "evil": 5,
+        "desc": "Red eyes... that's different.",
+        "hp": "2d3+3",
+        "toHit": 1,
+        "armor": 8,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d6"
+        },
+        "drops": "rat tail"
+    },
+    {
+        "name": "eel",
+        "level": 1,
+        "kind": "beast",
+        "biome": "swamp",
+        "desc": "It's wriggly.",
+        "hp": "2d4+1",
+        "toHit": 1,
+        "armor": 14,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d4"
+        }
+    },
+    {
+        "name": "piranha",
+        "level": 1,
+        "kind": "beast",
+        "biome": "swamp",
+        "desc": "It's bitey.",
+        "hp": "2d3+1",
+        "toHit": 1,
+        "armor": 16,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "2d4"
+        }
+    },
+    {
+        "name": "ranger",
+        "level": 2,
+        "kind": "humanoid",
+        "evil": -5,
+        "desc": "Rangers aren't very good with people.",
+        "hp": "2d6+5",
+        "armor": 19,
+        "weap": {
+            "name": "longbow",
+            "type": "pierce",
+            "dmg": "1d6"
+        },
+        "drops": {
+            "potion of cure light wounds": 10
+        }
+    },
+    {
+        "name": "thrall",
+        "level": 2,
+        "kind": "undead",
+        "evil": 8,
+        "desc": "One isn't very bad. 100 can be a problem.",
+        "hp": "5d5+5",
+        "toHit": -1,
+        "armor": 5,
+        "weap": {
+            "name": "axe",
+            "type": "slash",
+            "dmg": "2d6+2"
+        }
+    },
+    {
+        "name": "bandit",
+        "level": 2,
+        "kind": "humanoid",
+        "evil": 7,
+        "desc": "Wants to steal your stuff.",
+        "hp": "3d5+4",
+        "armor": 15,
+        "toHit": 1,
+        "weap": {
+            "name": "short sword",
+            "type": "slash",
+            "dmg": "1d6+1"
+        }
+    },
+    {
+        "name": "bre'unor",
+        "level": 2,
+        "kind": "humanoid",
+        "evil": 7,
+        "desc": "Why is it wearing a skull on its face?",
+        "hp": "2d5+5",
+        "armor": 21,
+        "weap": {
+            "name": "bone boomerang",
+            "type": "slash",
+            "dmg": "1d5"
+        },
+        "biome": [
+            "forest",
+            "swamp",
+            "hills"
+        ],
+        "drops": {
+            "bone": 10
+        }
+    },
+    {
+        "name": "undead kakapo",
+        "level": 2,
+        "kind": "undead",
+        "evil": 5,
+        "desc": "It ambles about, looking for living flesh.",
+        "hp": "4d4+5",
+        "toHit": 0,
+        "armor": 15,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "1d4+2"
+        }
+    },
+    {
+        "name": "orc warrior",
+        "level": 2,
+        "desc": "",
+        "hp": "4d4+8",
+        "armor": 18,
+        "toHit": 2,
+        "weap": {
+            "name": "orc hammer",
+            "type": "blunt",
+            "dmg": "1d6+2"
+        }
+    },
+    {
+        "name": "hobgoblin",
+        "level": 2,
+        "desc": "",
+        "evil": 7,
+        "hp": "3d4+4",
+        "armor": 17,
+        "toHit": 2,
+        "weap": {
+            "name": "dagger",
+            "type": "pierce",
+            "dmg": "1d6+1"
+        },
+        "drops": {
+            "potion of cure light wounds": 10
+        }
+    },
+    {
+        "name": "giant centipede",
+        "level": 2,
+        "desc": "creepy crawly",
+        "hp": "3d6+4",
+        "armor": 15,
+        "weap": {
+            "name": "sting",
+            "type": "pierce",
+            "dmg": "1d6+1"
+        }
+    },
+    {
+        "name": "ghoul",
+        "level": 2,
+        "kind": "undead",
+        "evil": 8,
+        "desc": "",
+        "hp": "3d6+2",
+        "toHit": 2,
+        "armor": 18,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d6+1"
+        }
+    },
+    {
+        "name": "wolf",
+        "level": 2,
+        "kind": "beast",
+        "desc": "",
+        "hp": "2d6+2",
+        "armor": 12,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "2d4+1"
+        }
+    },
+    {
+        "name": "slime",
+        "level": 2,
+        "desc": "",
+        "hp": "2d10+10",
+        "armor": 8,
+        "weap": {
+            "name": "squelch",
+            "type": "acid",
+            "dmg": "1d4+1"
+        }
+    },
+    {
+        "name": "soulless",
+        "level": 2,
+        "evil": 15,
+        "kind": "myth",
+        "desc": "",
+        "hp": "3d5+4",
+        "armor": 10,
+        "weap": {
+            "name": "javelin",
+            "type": "pierce",
+            "dmg": "3d4+1"
+        }
+    },
+    {
+        "name": "minotaur",
+        "level": 3,
+        "kind": "humanoid",
+        "desc": "",
+        "hp": "4d6+5",
+        "armor": 18,
+        "weap": {
+            "name": "mallet",
+            "type": "blunt",
+            "dmg": "1d6+5"
+        },
+        "drops": {
+            "potion of cure light wounds": 10
+        }
+    },
+    {
+        "name": "crocodile",
+        "biome": "swamp",
+        "level": 3,
+        "kind": "beast",
+        "desc": "They're wild!",
+        "hp": "4d5+3",
+        "toHit": 3,
+        "armor": 20,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d5+2"
+        },
+        "drops": {
+            "crocodile tooth": 10,
+            "crocodile tears": 5
+        }
+    },
+    {
+        "name": "werewolf",
+        "level": 3,
+        "kind": "humanoid",
+        "evil": 5,
+        "desc": "",
+        "toHit": 7,
+        "hp": "4d4+5",
+        "armor": 25,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d6"
+        }
+    },
+    {
+        "name": "mechanical swordsman",
+        "level": 3,
+        "kind": "construct",
+        "evil": 0,
+        "desc": "Durable, but not very good at his job.",
+        "toHit": 0,
+        "hp": "4d5+6",
+        "armor": 28,
+        "weap": {
+            "name": "short sword",
+            "type": "slash",
+            "dmg": "1d6"
+        }
+    },
+    {
+        "name": "harpy",
+        "level": 3,
+        "kind": "humanoid",
+        "evil": 13,
+        "desc": "She doesn't look harpy to see you.",
+        "toHit": 5,
+        "hp": "4d5+2",
+        "armor": 22,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "3d6"
+        }
+    },
+    {
+        "name": "drunken boxer",
+        "level": 3,
+        "kind": "humanoid",
+        "evil": -2,
+        "desc": "This monk has had a bit too much to drink...",
+        "toHit": 7,
+        "hp": "4d3+4",
+        "armor": 29,
+        "weap": {
+            "name": "fists",
+            "type": "blunt",
+            "dmg": "2d6"
+        },
+        "drops": {
+            "whiskey": 10
+        }
+    },
+    {
+        "name": "dire kakapo",
+        "level": 3,
+        "kind": "magic beast",
+        "evil": 5,
+        "desc": "This kakapo has been touched by evil!",
+        "hp": "4d4+5",
+        "toHit": 3,
+        "armor": 22,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "3d4"
+        },
+        "biome": "hills"
+    },
+    {
+        "name": "imp",
+        "level": 3,
+        "kind": "demon",
+        "evil": 5,
+        "desc": "",
+        "hp": "2d6+8",
+        "armor": 30,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d6+2"
+        },
+        "drops": {
+            "sulfur dust": 5,
+            "potion of cure light wounds": 10,
+            "potion of cure moderate wounds": 10
+        }
+    },
+    {
+        "name": "giant spider",
+        "level": 3,
+        "kind": "arachnid",
+        "evil": 1,
+        "desc": "You can't tell if she looks hungry.",
+        "hp": "3d6",
+        "armor": 15,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "1d6+3"
+        },
+        "biome": [
+            "swamp",
+            "forest",
+            "mountains"
+        ]
+    },
+    {
+        "name": "vampire bat",
+        "level": 3,
+        "kind": "magic beast",
+        "evil": 5,
+        "desc": "It vants to zuck your blood.",
+        "hp": "3d4+3",
+        "toHit": 2,
+        "armor": 25,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "3d2+2"
+        },
+        "drops": "bat wing"
+    },
+    {
+        "name": "wight",
+        "level": 3,
+        "desc": "",
+        "kind": "undead",
+        "evil": 12,
+        "hp": "3d6+4",
+        "toHit": 1,
+        "armor": 22,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d6+2"
+        },
+        "drops": {
+            "wight pus": 40
+        }
+    },
+    {
+        "name": "dire wolf",
+        "level": 4,
+        "kind": "magic beast",
+        "evil": 7,
+        "desc": "",
+        "hp": "3d6+3",
+        "toHit": 2,
+        "armor": 20,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "3d6+2"
+        }
+    },
+    {
+        "name": "ghast",
+        "level": 4,
+        "kind": "undead",
+        "evil": 14,
+        "desc": "",
+        "hp": "4d6+7",
+        "toHit": 3,
+        "armor": 26,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "2d6+3"
+        }
+    },
+    {
+        "name": "ghost",
+        "level": 4,
+        "kind": "undead",
+        "evil": 5,
+        "desc": "Boo!",
+        "hp": "4d5+5",
+        "toHit": 4,
+        "armor": 30,
+        "weap": {
+            "name": "death touch",
+            "type": "drain",
+            "dmg": "1d6+2"
+        },
+        "drops": {
+            "spectral essence": 5
+        }
+    },
+    {
+        "name": "salamander",
+        "level": 4,
+        "desc": "",
+        "kind": "magic beast",
+        "hp": "4d7+5",
+        "toHit": 2,
+        "armor": 23,
+        "weap": {
+            "name": "flame claws",
+            "type": "fire",
+            "dmg": "3d6"
+        }
+    },
+    {
+        "name": "beserker",
+        "level": 4,
+        "kind": "humanoid",
+        "evil": -8,
+        "desc": "You gotta... dance.",
+        "hp": "4d5+5",
+        "toHit": 5,
+        "armor": 29,
+        "weap": {
+            "name": "claymore",
+            "type": "slash",
+            "dmg": "3d6"
+        }
+    },
+    {
+        "name": "bugbear",
+        "level": 4,
+        "desc": "",
+        "evil": 10,
+        "hp": "4d8+15",
+        "armor": 25,
+        "toHit": 2,
+        "weap": {
+            "name": "mace",
+            "type": "blunt",
+            "dmg": "2d6+1"
+        }
+    },
+    {
+        "name": "giant snake",
+        "level": 4,
+        "kind": "beast",
+        "desc": "",
+        "hp": "4d8+15",
+        "armor": 23,
+        "toHit": 0,
+        "weap": {
+            "name": "constrict",
+            "type": "blunt",
+            "dmg": "3d6+1"
+        }
+    },
+    {
+        "name": "evil priest",
+        "level": 4,
+        "kind": "humanoid",
+        "evil": 10,
+        "desc": "He worships evil.",
+        "hp": "4d8+10",
+        "armor": 32,
+        "toHit": 5,
+        "weap": {
+            "name": "harm",
+            "type": "evil",
+            "dmg": "2d6"
+        },
+        "drops": {
+            "potion of cure moderate wounds": 20,
+            "potion of cure serious wounds": 10
+        }
+    },
+    {
+        "name": "quasit",
+        "level": 4,
+        "kind": "demon",
+        "evil": 14,
+        "desc": "Looks a bit like a demonic humanoid vulture.",
+        "toHit": 3,
+        "hp": "2d7+8",
+        "armor": 30,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "1d6+3"
+        },
+        "drops": {
+            "sulfur dust": 10,
+            "potion of cure moderate wounds": 10,
+            "potion of cure serious wounds": 10
+        }
+    },
+    {
+        "name": "greater zombie",
+        "level": 4,
+        "kind": "undead",
+        "evil": 13,
+        "desc": "It ate up all the smaller zombies.",
+        "hp": "4d8+25",
+        "armor": 22,
+        "toHit": 0,
+        "weap": {
+            "name": "slam",
+            "type": "blunt",
+            "dmg": "1d8+1"
+        }
+    },
+    {
+        "name": "ogre",
+        "level": 4,
+        "evil": 7,
+        "desc": "Ever wonder what orcs would look like if they were three times as large?",
+        "hp": "5d8+25",
+        "toHit": 1,
+        "armor": 20,
+        "weap": {
+            "name": "spiked club",
+            "type": "blunt",
+            "dmg": "2d6+3"
+        }
+    },
+    {
+        "name": "clay golem",
+        "level": 5,
+        "kind": "construct",
+        "desc": "I made you out of clay...",
+        "hp": "8d8+25",
+        "toHit": -1,
+        "armor": 33,
+        "weap": {
+            "name": "smash",
+            "type": "blunt",
+            "dmg": "1d6+1"
+        }
+    },
+    {
+        "name": "dire crocodile",
+        "kind": "magic beast",
+        "evil": 5,
+        "biome": "swamp",
+        "level": 5,
+        "desc": "",
+        "hp": "4d7+12",
+        "toHit": 5,
+        "armor": 32,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "2d5+5"
+        },
+        "drops": {
+            "crocodile tooth": 10,
+            "crocodile tears": 5
+        }
+    },
+    {
+        "name": "ettin",
+        "level": 5,
+        "evil": 8,
+        "kind": "giant",
+        "biome": [
+            "hills",
+            "forest",
+            "swamp",
+            "mountains"
+        ],
+        "desc": "Two heads is better than one.",
+        "hp": "5d10+25",
+        "toHit": 3,
+        "armor": 30,
+        "weap": {
+            "name": "spiked club",
+            "type": "blunt",
+            "dmg": "2d6+4"
+        }
+    },
+    {
+        "name": "yeti",
+        "biome": "mountains",
+        "kind": "giant",
+        "evil": 5,
+        "level": 5,
+        "desc": "You ain't seen nothing yeti.",
+        "hp": "5d9+25",
+        "toHit": 4,
+        "armor": 25,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "2d6+2"
+        }
+    },
+    {
+        "name": "kakapo lord",
+        "kind": "beast",
+        "level": 5,
+        "biome": "hills",
+        "desc": "Kakapo is pleased with himself.",
+        "hp": "5d5+12",
+        "toHit": 5,
+        "armor": 30,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "4d4"
+        }
+    },
+    {
+        "name": "shade",
+        "level": 5,
+        "evil": 14,
+        "kind": "undead",
+        "desc": "",
+        "hp": "3d7+3",
+        "toHit": 3,
+        "armor": 38,
+        "weap": {
+            "name": "cold touch",
+            "type": "cold",
+            "dmg": "3d5+5"
+        },
+        "drops": {
+            "spectral essence": 5
+        }
+    },
+    {
+        "name": "invisible stalker",
+        "level": 5,
+        "evil": 13,
+        "desc": "You don't see a thing.",
+        "hp": "3d8+5",
+        "toHit": 26,
+        "armor": 42,
+        "weap": {
+            "name": "slam",
+            "type": "blunt",
+            "dmg": "3d3+2"
+        }
+    },
+    {
+        "name": "master swordsman",
+        "level": 5,
+        "kind": "humanoid",
+        "evil": -11,
+        "desc": "He's looking for a six-fingered man.",
+        "hp": "5d8+5",
+        "toHit": 5,
+        "armor": 35,
+        "weap": {
+            "name": "longsword",
+            "type": "slash",
+            "dmg": "1d6+5"
+        }
+    },
+    {
+        "name": "heron guard",
+        "level": 5,
+        "kind": "humanoid",
+        "evil": -20,
+        "desc": "Something, something, myth quote.",
+        "hp": "5d8+5",
+        "toHit": 3,
+        "armor": 40,
+        "weap": {
+            "name": "swords",
+            "type": "slash",
+            "dmg": "1d6+3"
+        },
+        "drops": {
+            "mandrake root": 10,
+            "potion of cure moderate wounds": 20,
+            "potion of cure serious wounds": 10
+        }
+    },
+    {
+        "name": "doppelganger",
+        "level": 5,
+        "evil": 22,
+        "desc": "What a handsome fellow!",
+        "hp": "7d7+7",
+        "toHit": 4,
+        "armor": 32,
+        "weap": {
+            "name": "slam",
+            "type": "blunt",
+            "dmg": "1d6+2"
+        }
+    },
+    {
+        "name": "magic blade",
+        "level": 5,
+        "kind": "construct",
+        "desc": "It just floats there...",
+        "hp": "5d5+9",
+        "toHit": 8,
+        "armor": 35,
+        "weap": {
+            "name": "magic sword",
+            "type": "slash",
+            "dmg": "1d6+3"
+        }
+    },
+    {
+        "name": "bear",
+        "level": 5,
+        "biome": [
+            "forest",
+            "hills",
+            "mountains"
+        ],
+        "kind": "beast",
+        "desc": "He's angry now!!!",
+        "hp": "5d12+12",
+        "toHit": 1,
+        "armor": 30,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "2d6+2"
+        },
+        "drops": [
+            "bear claw"
+        ]
+    },
+    {
+        "name": "wood golem",
+        "level": 5,
+        "kind": "construct",
+        "desc": "A golem crafted on a budget.",
+        "toHit": 5,
+        "hp": "3d10+12",
+        "armor": 28,
+        "weap": {
+            "name": "punch",
+            "type": "blunt",
+            "dmg": "2d6"
+        },
+        "drops": {
+            "raw wood": 5
+        }
+    },
+    {
+        "name": "pegasus",
+        "level": 5,
+        "kind": "magic beast",
+        "evil": -13,
+        "desc": "It's a unicorn with wings and no horn.",
+        "hp": "5d10+15",
+        "toHit": 3,
+        "armor": 27,
+        "weap": {
+            "name": "trample",
+            "type": "blunt",
+            "dmg": "2d10"
+        }
+    },
+    {
+        "name": "earth elemental",
+        "level": 5,
+        "kind": "elemental",
+        "desc": "How do you fight dirt?",
+        "toHit": 2,
+        "hp": "4d8+32",
+        "armor": 30,
+        "weap": {
+            "name": "pound",
+            "type": "blunt",
+            "dmg": "3d6"
+        },
+        "drops": {
+            "raw earth": 5
+        }
+    },
+    {
+        "name": "air elemental",
+        "kind": "elemental",
+        "level": 6,
+        "desc": "Wispy.",
+        "toHit": 8,
+        "hp": "3d4+10",
+        "armor": 48,
+        "weap": {
+            "name": "air whip",
+            "type": "slash",
+            "dmg": "3d4+2"
+        },
+        "drops": {
+            "air essence": 10
+        }
+    },
+    {
+        "name": "stone golem",
+        "level": 6,
+        "kind": "construct",
+        "desc": "The head stone's connected to the... spine stone.",
+        "hp": "8d10+20",
+        "toHit": -1,
+        "armor": 40,
+        "weap": {
+            "name": "smash",
+            "type": "blunt",
+            "dmg": "1d6+5"
+        },
+        "drops": {
+            "raw stone": 5
+        }
+    },
+    {
+        "name": "maul",
+        "level": 6,
+        "evil": 5,
+        "biome": "forest",
+        "desc": "This is what you get for passing through the Ermine.",
+        "hp": "6d10+34",
+        "toHit": 7,
+        "armor": 30,
+        "weap": {
+            "name": "club",
+            "type": "blunt",
+            "dmg": "3d4+4"
+        }
+    },
+    {
+        "name": "myrkridia",
+        "level": 6,
+        "evil": 17,
+        "desc": "Balor is not going to like this...",
+        "hp": "6d7+24",
+        "toHit": 7,
+        "armor": 32,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "3d5+2"
+        }
+    },
+    {
+        "name": "skeleton lord",
+        "level": 6,
+        "kind": "undead",
+        "evil": 16,
+        "desc": "Are those rubies in its eyes?",
+        "hp": "5d7+17",
+        "toHit": 7,
+        "armor": 34,
+        "weap": {
+            "name": "longsword",
+            "type": "slash",
+            "dmg": "1d8+4"
+        },
+        "drops": {
+            "bone": 10,
+            "potion of moderate agony": 10
+        }
+    },
+    {
+        "name": "unicorn",
+        "level": 6,
+        "kind": "magic beast",
+        "evil": -17,
+        "desc": "Its horn is full of magic.",
+        "hp": "5d12+17",
+        "toHit": 3,
+        "armor": 32,
+        "weap": {
+            "name": "horn",
+            "type": "pierce",
+            "dmg": "2d12"
+        },
+        "biome": [
+            "plains",
+            "forest"
+        ]
+    },
+    {
+        "name": "vampire",
+        "level": 6,
+        "kind": "undead",
+        "evil": 16,
+        "desc": "Standard blood sucking variety.",
+        "hp": "5d8+19",
+        "toHit": 8,
+        "armor": 37,
+        "weap": {
+            "name": "bite",
+            "type": "drain",
+            "dmg": "1d5+3"
+        },
+        "drops": {
+            "vampire fang": 5,
+            "potion of moderate agony": 10
+        }
+    },
+    {
+        "name": "wraith",
+        "level": 6,
+        "kind": "undead",
+        "evil": 15,
+        "desc": "A ghostly black form.",
+        "hp": "5d5+15",
+        "toHit": 8,
+        "armor": 40,
+        "weap": {
+            "name": "death touch",
+            "type": "drain",
+            "dmg": "1d5+3"
+        },
+        "drops": {
+            "spectral essence": 5
+        }
+    },
+    {
+        "name": "roc",
+        "level": 6,
+        "desc": "It's the biggest bird you've ever seen!",
+        "toHit": 3,
+        "kind": "magic beast",
+        "hp": "5d5+18",
+        "armor": 32,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "3d6+3"
+        },
+        "biome": "mountains"
+    },
+    {
+        "name": "incubus",
+        "level": 6,
+        "evil": 17,
+        "kind": "demon",
+        "desc": "You could bounce a coin off those abs.",
+        "toHit": 3,
+        "hp": "5d4+24",
+        "armor": 25,
+        "weap": {
+            "name": "seduction",
+            "type": "sexy",
+            "dmg": "2d6+2"
+        },
+        "drops": {
+            "sulfur dust": 10,
+            "potion of moderate agony": 10
+        }
+    },
+    {
+        "name": "phoenix",
+        "level": 7,
+        "desc": "It's more fire than bird.",
+        "toHit": 4,
+        "kind": "magic beast",
+        "evil": -13,
+        "hp": "5d7+27",
+        "armor": 40,
+        "weap": {
+            "name": "flame wing",
+            "type": "fire",
+            "dmg": "3d4+8"
+        },
+        "drops": {
+            "phoenix feather": 5,
+            "phoenix ashes": 1,
+            "potion of cure critical wounds": 5
+        }
+    },
+    {
+        "name": "mystic wombat",
+        "level": 7,
+        "kind": "magic beast",
+        "evil": -17,
+        "desc": "Just wombatting magically around.",
+        "hp": "5d7+30",
+        "armor": 38,
+        "weap": {
+            "name": "wombat magic",
+            "type": "magic",
+            "dmg": "8d4"
+        },
+        "drops": {
+            "potion of cure serious wounds": 20
+        }
+    },
+    {
+        "name": "cave troll",
+        "level": 7,
+        "evil": 15,
+        "biome": [
+            "hills",
+            "mountains"
+        ],
+        "desc": "They have a cave troll...",
+        "hp": "9d10+27",
+        "toHit": 4,
+        "armor": 35,
+        "weap": {
+            "name": "club",
+            "type": "blunt",
+            "dmg": "3d6+5"
+        }
+    },
+    {
+        "name": "iron golem",
+        "level": 7,
+        "kind": "construct",
+        "desc": "It moves with heavy clonking steps.",
+        "hp": "8d12+32",
+        "toHit": 1,
+        "armor": 45,
+        "weap": {
+            "name": "smash",
+            "type": "blunt",
+            "dmg": "2d6+4"
+        },
+        "drops": {
+            "raw iron": 10
+        }
+    },
+    {
+        "name": "medusa",
+        "level": 7,
+        "desc": "Kind of ugly.",
+        "evil": 20,
+        "toHit": 2,
+        "hp": "7d8+8",
+        "armor": 40,
+        "weap": {
+            "name": "stare",
+            "type": "magic",
+            "dmg": "4d8+12"
+        },
+        "drops": {
+            "medusa head": 5,
+            "potion of light agony": 5,
+            "potion of cure light wounds": 5
+        }
+    },
+    {
+        "name": "succubus",
+        "level": 7,
+        "kind": "demon",
+        "evil": 27,
+        "desc": "Oh my!",
+        "hp": "5d7+15",
+        "toHit": 20,
+        "armor": 35,
+        "weap": {
+            "name": "seduction",
+            "type": "sexy",
+            "dmg": "3d5+5"
+        },
+        "drops": {
+            "sulfur dust": 15,
+            "potion of serious agony": 10
+        }
+    },
+    {
+        "name": "naga",
+        "level": 7,
+        "evil": 12,
+        "desc": "From the waist up, it doesn't look that bad.",
+        "hp": "5d6+15",
+        "toHit": 8,
+        "armor": 48,
+        "weap": {
+            "name": "scimitars",
+            "type": "slash",
+            "dmg": "1d10+4"
+        },
+        "drops": {
+            "potion of cure light wounds": 20
+        }
+    },
+    {
+        "name": "poltergeist",
+        "level": 7,
+        "kind": "undead",
+        "evil": 14,
+        "desc": "Only the objects flying at your head alert you to its presence.",
+        "toHit": 7,
+        "hp": "4d9+24",
+        "armor": 40,
+        "weap": {
+            "name": "chill touch",
+            "type": "drain",
+            "dmg": "3d4+3"
+        },
+        "drops": {
+            "spectral essence": 10
+        }
+    },
+    {
+        "name": "ice elemental",
+        "level": 7,
+        "kind": "elemental",
+        "desc": "What's so scary about a bunch of icicles?",
+        "toHit": 2,
+        "hp": "8d9+20",
+        "armor": 35,
+        "weap": {
+            "name": "ice shard",
+            "type": "cold",
+            "dmg": "2d6+3"
+        },
+        "drops": {
+            "Ice Essence": 10
+        }
+    },
+    {
+        "name": "fire elemental",
+        "level": 8,
+        "kind": "elemental",
+        "desc": "Too hot to get close to.",
+        "toHit": 9,
+        "hp": "5d5+27",
+        "armor": 55,
+        "weap": {
+            "name": "flame",
+            "type": "fire",
+            "dmg": "3d6+2"
+        },
+        "drops": {
+            "Fire Essence": 10
+        }
+    },
+    {
+        "name": "drunken master",
+        "level": 8,
+        "evil": -10,
+        "kind": "humanoid",
+        "desc": "Master Wong Fei-Hung.",
+        "hp": "5d7+21",
+        "toHit": 10,
+        "armor": 44,
+        "weap": {
+            "name": "fists",
+            "type": "blunt",
+            "dmg": "2d5+5"
+        },
+        "drops": {
+            "whiskey": 20
+        }
+    },
+    {
+        "name": "orc champion",
+        "level": 8,
+        "kind": "humanoid",
+        "desc": "The strongest orc in the whole tribe!",
+        "hp": "7d7+27",
+        "toHit": 4,
+        "armor": 40,
+        "weap": {
+            "name": "broadsword",
+            "type": "slash",
+            "dmg": "2d6+8"
+        },
+        "drops": {
+            "potion of cure major wounds": 15
+        }
+    },
+    {
+        "name": "undead horror",
+        "level": 8,
+        "kind": "undead",
+        "evil": 14,
+        "desc": "You need to stop looking at it before you go insane.",
+        "hp": "5d7+15",
+        "toHit": 10,
+        "armor": 50,
+        "weap": {
+            "name": "chill touch",
+            "type": "drain",
+            "dmg": "2d6+4"
+        }
+    },
+    {
+        "name": "mahir",
+        "level": 8,
+        "kind": "myth",
+        "evil": 17,
+        "desc": "Can't click on the damn thing.",
+        "hp": "5d5+10",
+        "toHit": 15,
+        "armor": 58,
+        "weap": {
+            "name": "life drain",
+            "type": "drain",
+            "dmg": "2d5+4"
+        }
+    },
+    {
+        "name": "mind flayer",
+        "level": 8,
+        "evil": 24,
+        "desc": "It licks your brain with its mind.",
+        "hp": "5d7+15",
+        "toHit": 12,
+        "armor": 44,
+        "weap": {
+            "name": "mind flay",
+            "type": "psionic",
+            "dmg": "2d6+7"
+        },
+        "drops": {
+            "potion of cure serious wounds": 15
+        }
+    },
+    {
+        "name": "lesser wyrm",
+        "level": 8,
+        "desc": "A cross between a worm and a dragon.",
+        "toHit": 5,
+        "hp": "9d8+30",
+        "armor": 42,
+        "weap": {
+            "name": "bite",
+            "type": "pierce",
+            "dmg": "4d7+5"
+        }
+    },
+    {
+        "name": "basilisk",
+        "level": 8,
+        "kind": "magic beast",
+        "desc": "Looking at this one is a bad idea.",
+        "toHit": 5,
+        "hp": "7d7+30",
+        "armor": 32,
+        "weap": {
+            "name": "stare",
+            "type": "magic",
+            "dmg": "5d10+8"
+        }
+    },
+    {
+        "name": "dire bear",
+        "level": 8,
+        "kind": "magic beast",
+        "evil": 17,
+        "desc": "He's angrier now!!!",
+        "hp": "7d10+32",
+        "toHit": 1,
+        "armor": 30,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "5d6+3"
+        },
+        "biome": [
+            "hills",
+            "forest"
+        ],
+        "drops": [
+            "bear claw"
+        ]
+    },
+    {
+        "name": "hill giant",
+        "level": 8,
+        "biome": "hills",
+        "kind": "giant",
+        "evil": 17,
+        "desc": "You've seen bigger.",
+        "hp": "10d10+50",
+        "toHit": 2,
+        "armor": 45,
+        "weap": {
+            "name": "club",
+            "type": "blunt",
+            "dmg": "4d6+5"
+        },
+        "drops": {
+            "potion of cure serious wounds": 15
+        }
+    },
+    {
+        "name": "troll",
+        "level": 9,
+        "evil": 25,
+        "desc": "tro lo lo.",
+        "hp": "9d8+40",
+        "toHit": 3,
+        "armor": 50,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "3d8+5"
+        },
+        "biome": [
+            "forest",
+            "hills",
+            "mountains",
+            "swamp"
+        ]
+    },
+    {
+        "name": "vampire master",
+        "level": 9,
+        "kind": "undead",
+        "evil": 30,
+        "desc": "Worked his way up the vampire ranks, and has his very own brood now.",
+        "hp": "5d9+34",
+        "toHit": 10,
+        "armor": 42,
+        "weap": {
+            "name": "bite",
+            "type": "drain",
+            "dmg": "5d5+3"
+        },
+        "drops": {
+            "vampire fang": 10,
+            "potion of major agony": 10
+        }
+    },
+    {
+        "name": "dullahan",
+        "level": 9,
+        "evil": 20,
+        "desc": "It doesn't seem to have a head. But you do.",
+        "hp": "5d9+30",
+        "toHit": 7,
+        "armor": 45,
+        "weap": {
+            "name": "vorpal sword",
+            "type": "slash",
+            "dmg": "5d6+3"
+        },
+        "biome": [
+            "town",
+            "forest",
+            "plains"
+        ]
+    },
+    {
+        "name": "bog witch",
+        "level": 9,
+        "evil": 29,
+        "kind": "humanoid",
+        "biome": "swamp",
+        "desc": "Nasty witch that lives in the waters of a bog. Have you ever seen legend?",
+        "hp": "9d9+40",
+        "toHit": 5,
+        "armor": 48,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "4d5+3"
+        },
+        "drops": {
+            "potion of major agony": 15
+        }
+    },
+    {
+        "name": "valkyrie",
+        "level": 9,
+        "evil": -8,
+        "desc": "She'll take you to Valhalla.",
+        "hp": "7d7+25",
+        "toHit": 10,
+        "armor": 54,
+        "weap": {
+            "name": "claymore",
+            "type": "slash",
+            "dmg": "3d5+5"
+        },
+        "drops": {
+            "potion of cure major wounds": 15
+        }
+    },
+    {
+        "name": "fire golem",
+        "level": 9,
+        "kind": "construct",
+        "desc": "Crafted from only the finest phlogiston.",
+        "hp": "9d7+40",
+        "toHit": 8,
+        "armor": 53,
+        "weap": {
+            "name": "fire punch",
+            "type": "fire",
+            "dmg": "3d6+5"
+        }
+    },
+    {
+        "name": "wyvern",
+        "level": 9,
+        "evil": 5,
+        "desc": "Not a dragon. But it will kill you like one.",
+        "hp": "9d12+40",
+        "toHit": 5,
+        "armor": 42,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "3d10+2"
+        }
+    },
+    {
+        "name": "gryffon",
+        "level": 9,
+        "kind": "magic beast",
+        "evil": -8,
+        "desc": "Body of a lion. Face of a giant eagle.",
+        "hp": "10d12+34",
+        "toHit": 5,
+        "armor": 40,
+        "weap": {
+            "name": "beak",
+            "type": "pierce",
+            "dmg": "3d12+3"
+        }
+    },
+    {
+        "name": "grimstalk",
+        "level": 9,
+        "biome": "forest",
+        "desc": "Slashy wood demon.",
+        "kind": "demon",
+        "evil": 19,
+        "hp": "9d8+20",
+        "toHit": 7,
+        "armor": 43,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "4d8+4"
+        },
+        "drops": {
+            "raw wood": 5
+        }
+    },
+    {
+        "name": "green dragon",
+        "level": 10,
+        "kind": "dragon",
+        "desc": "Just your standard green dragon.",
+        "hp": "10d10+70",
+        "toHit": 10,
+        "armor": 55,
+        "weap": {
+            "name": "claws",
+            "type": "slash",
+            "dmg": "4d8+5"
+        }
+    },
+    {
+        "name": "trow",
+        "level": 10,
+        "evil": 5,
+        "desc": "You should have stayed out of the cloudspine.",
+        "hp": "9d11+35",
+        "toHit": 5,
+        "armor": 50,
+        "weap": {
+            "name": "kik",
+            "type": "blunt",
+            "dmg": "5d9+8"
+        },
+        "drops": {
+            "raw stone": 25
+        }
+    },
+    {
+        "name": "king kakapo",
+        "level": 10,
+        "biome": "hills",
+        "kind": "beast",
+        "desc": "kakapo gets what kakapo wants.",
+        "hp": "9d10+45",
+        "toHit": 3,
+        "armor": 45,
+        "weap": {
+            "name": "sexual aggression",
+            "type": "slap",
+            "dmg": "5d10"
+        }
+    },
+    {
+        "name": "manticore",
+        "level": 10,
+        "kind": "magic beast",
+        "evil": 5,
+        "desc": "",
+        "hp": "10d13+25",
+        "toHit": 8,
+        "armor": 48,
+        "weap": {
+            "name": "sting",
+            "type": "pierce",
+            "dmg": "5d10+7"
+        }
+    },
+    {
+        "name": "lightning elemental",
+        "level": 10,
+        "desc": "All your hairs feel prickly.",
+        "kind": "elemental",
+        "toHit": 14,
+        "hp": "4d7+3",
+        "armor": 63,
+        "weap": {
+            "name": "lightning",
+            "type": "electric",
+            "dmg": "7d6+4"
+        }
+    },
+    {
+        "name": "ent",
+        "level": 10,
+        "biome": "forest",
+        "desc": "Out cruising for some ent-wives.",
+        "hp": "10d12+40",
+        "evil": -18,
+        "toHit": 2,
+        "armor": 50,
+        "weap": {
+            "name": "pound",
+            "type": "blunt",
+            "dmg": "4d10+10"
+        },
+        "drops": {
+            "raw wood": 15
+        }
+    },
+    {
+        "name": "red dragon",
+        "level": 11,
+        "kind": "dragon",
+        "evil": 8,
+        "desc": "",
+        "hp": "10d11+55",
+        "toHit": 10,
+        "armor": 60,
+        "weap": {
+            "name": "fire breath",
+            "type": "fire",
+            "dmg": "4d10+7"
+        }
+    },
+    {
+        "name": "beholder",
+        "level": 11,
+        "kind": "magic beast",
+        "evil": 23,
+        "desc": "It seeeeees you.",
+        "hp": "11d9+35",
+        "toHit": 12,
+        "armor": 50,
+        "weap": {
+            "name": "eye beam",
+            "type": "magic",
+            "dmg": "5d8+3"
+        }
+    },
+    {
+        "name": "angel",
+        "level": 12,
+        "kind": "celestial",
+        "evil": -30,
+        "desc": "It has wings and a halo of light.",
+        "hp": "9d11+73",
+        "toHit": 10,
+        "armor": 70,
+        "weap": {
+            "name": "light sword",
+            "type": "holy",
+            "dmg": "5d9+5"
+        },
+        "drops": {
+            "angel wing": 10,
+            "halo": 5,
+            "potion of cure critical wounds": 20
+        }
+    },
+    {
+        "name": "lich",
+        "level": 12,
+        "kind": "undead",
+        "evil": 30,
+        "desc": "It was a wizard, once.",
+        "hp": "10d11+53",
+        "toHit": 8,
+        "armor": 68,
+        "weap": {
+            "name": "death touch",
+            "type": "drain",
+            "dmg": "5d8+4"
+        },
+        "drops": {
+            "potion of critical agony": 15
+        }
+    },
+    {
+        "name": "cyclops",
+        "level": 12,
+        "kind": "giant",
+        "evil": 9,
+        "desc": "",
+        "hp": "10d12+55",
+        "toHit": 5,
+        "armor": 65,
+        "weap": {
+            "name": "punch",
+            "type": "blunt",
+            "dmg": "5d10+7"
+        },
+        "drops": {
+            "potion of major agony": 15,
+            "potion of cure major wounds": 15
+        }
+    },
+    {
+        "name": "demon",
+        "level": 12,
+        "kind": "demon",
+        "evil": 32,
+        "desc": "",
+        "hp": "9d12+57",
+        "toHit": 10,
+        "armor": 70,
+        "weap": {
+            "name": "darksword",
+            "type": "evil",
+            "dmg": "5d9+7"
+        },
+        "drops": {
+            "sulfur": 30,
+            "fire essence": 1,
+            "potion of critical agony": 15
+        }
+    },
+    {
+        "name": "behemoth",
+        "level": 13,
+        "kind": "beast",
+        "desc": "",
+        "hp": "10d14+75",
+        "toHit": 5,
+        "armor": 75,
+        "weap": {
+            "name": "trample",
+            "type": "blunt",
+            "dmg": "6d10+7"
+        }
+    },
+    {
+        "name": "magma elemental",
+        "kind": "elemental",
+        "biome": "mountains",
+        "level": 13,
+        "desc": "It looks like a small mountain of magma.",
+        "hp": "10d11+55",
+        "toHit": 0,
+        "armor": 65,
+        "weap": {
+            "name": "lava slam",
+            "type": "fire",
+            "dmg": "7d10+8"
+        },
+        "drops": {
+            "raw iron": 15,
+            "raw stone": 10,
+            "fire essence": 10
+        }
+    },
+    {
+        "name": "vampire lord",
+        "level": 13,
+        "kind": "undead",
+        "evil": 40,
+        "desc": "This one uses Vampire Masters as lackeys.",
+        "hp": "9d7+57",
+        "toHit": 15,
+        "armor": 70,
+        "weap": {
+            "name": "bite",
+            "type": "drain",
+            "dmg": "5d8+7"
+        },
+        "drops": {
+            "vampire fang": 15,
+            "potion of critical agony": 20
+        }
+    },
+    {
+        "name": "mithril golem",
+        "level": 14,
+        "kind": "construct",
+        "desc": "Would be worth a fortune if you could actually make a dent in it.",
+        "hp": "10d12+70",
+        "toHit": 8,
+        "armor": 80,
+        "weap": {
+            "name": "pound",
+            "type": "blunt",
+            "dmg": "5d10+15"
+        },
+        "drops": {
+            "raw mithril": 25
+        }
+    },
+    {
+        "name": "ancient vampire",
+        "level": 17,
+        "kind": "undead",
+        "evil": 60,
+        "desc": "Probably on a first name basis with Dracula.",
+        "hp": "9d10+77",
+        "toHit": 15,
+        "armor": 75,
+        "weap": {
+            "name": "bite",
+            "type": "drain",
+            "dmg": "9d8+14"
+        },
+        "drops": {
+            "vampire fang": 25,
+            "potion of critical agony": 30
+        }
+    },
+    {
+        "name": "balrog",
+        "level": 18,
+        "kind": "maiar",
+        "evil": 70,
+        "desc": "A servant of Morgoth.",
+        "hp": "10d12+80",
+        "toHit": 17,
+        "armor": 80,
+        "weap": {
+            "name": "flame whip",
+            "type": "fire",
+            "dmg": "9d15+15"
+        },
+        "drops": {
+            "fire essence": 10
+        }
+    },
+    {
+        "name": "adamant golem",
+        "level": 20,
+        "kind": "construct",
+        "desc": "Unbreakable",
+        "hp": "15d20+140",
+        "toHit": 15,
+        "armor": 115,
+        "weap": {
+            "name": "SMASH",
+            "type": "blunt",
+            "dmg": "5d20+20"
+        },
+        "drops": {
+            "raw adamant": 25
+        }
+    },
+    {
+        "name": "mature red dragon",
+        "level": 20,
+        "kind": "dragon",
+        "evil": 20,
+        "desc": "",
+        "hp": "14d15+100",
+        "toHit": 20,
+        "armor": 90,
+        "weap": {
+            "name": "fire breath",
+            "type": "fire",
+            "dmg": "5d25+10"
+        }
+    },
+    {
+        "name": "Cthulhu",
+        "level": 30,
+        "evil": 100,
+        "kind": "outsider",
+        "desc": "In his house at R'lyeh dead Cthulhu waits dreaming.",
+        "hp": "15d25+240",
+        "toHit": 30,
+        "armor": 175,
+        "weap": {
+            "name": "Madness",
+            "type": "psychic",
+            "dmg": "10d25+50"
         }
     }
-
 ]

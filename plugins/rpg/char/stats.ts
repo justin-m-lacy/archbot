@@ -1,7 +1,5 @@
 export const getEvil = (evil: number) => {
 
-	if (!evil) return 'neutral';
-
 	if (evil >= 5) {
 
 		if (evil > 40) return 'diabolical';
@@ -29,9 +27,46 @@ export const getEvil = (evil: number) => {
 
 export const pointStats = ['str', 'con', 'dex', 'int', 'wis', 'char', 'armor'];
 
-export type StatName = 'evil' | 'str' | 'con' | 'dex' | 'int' | 'wis' | 'char' | 'armor' | 'maxHp' | 'maxMp' | 'level' | 'dr';
+export type StatName = 'evil' | 'str' | 'con' | 'dex' | 'int' | 'wis' | 'cha' | 'armor' | 'maxHp' | 'maxMp' | 'level' | 'dr' | 'age';
 
-export default class StatBlock {
+export type StatKey = keyof StatBlock;
+
+export type StatMod = Partial<{ [Property in StatName]: number }>;
+
+export interface IStatBlock {
+
+	evil: number;
+
+	maxHp: number;
+
+	curHp: number;
+
+	maxMp: number;
+
+	curMp: number;
+
+	level: number;
+
+	armor: number;
+
+	// damage reduction.
+	dr: number;
+
+	// resistances
+	get resist();
+	set resist(v: number);
+
+	str: number;
+	con: number;
+	dex: number;
+	int: number;
+	wis: number;
+	cha: number;
+	/*get cha() { return this._cha; }
+	set cha(v) { this._cha = v; }*/
+
+}
+export default class StatBlock implements IStatBlock {
 
 	get evil() { return this._evil; }
 	set evil(v) { this._evil = v; }
@@ -106,7 +141,7 @@ export default class StatBlock {
 		let stats = new StatBlock();
 
 		for (let k in json) {
-			if (stats.hasOwnProperty(k)) stats[k] = json[k];
+			if (stats.hasOwnProperty(k)) stats[k as StatKey] = json[k];
 		}
 
 		if (!json.evil) stats.evil = 0;
@@ -120,14 +155,15 @@ export default class StatBlock {
 
 	}
 
-	getDR(type: string) {
+	/// TODO: damage reduction.
+	/*getDR(type: string) {
 		if (!this._dr) return 0;
 		return this._dr[type] || 0;
-	}
+	}*/
 
 	toJSON() {
 
-		let o = {
+		let o: any = {
 
 			maxHp: this._maxHp,
 			curHp: this._curHp,
@@ -148,8 +184,8 @@ export default class StatBlock {
 
 		};
 
-		if (this._dr) json.dr = this._dr;
-		if (this._resist) json.resist = this._resist;
+		if (this._dr) o.dr = this._dr;
+		if (this._resist) o.resist = this._resist;
 
 		return o;
 
@@ -160,7 +196,7 @@ export default class StatBlock {
 	 * @param {*} stat 
 	 */
 	getModifier(stat: string) {
-		let val = this[stat];
+		let val = stat in this ? this[stat as StatKey] : 0;
 		if (!val) return 0;
 		return Math.floor((val - 10) / 2);
 	}
@@ -173,6 +209,9 @@ export default class StatBlock {
 }
 
 
+/**
+ * Class Not yet used.
+ */
 export class StatMods {
 
 	// { stat->mod }
@@ -203,6 +242,7 @@ export class StatMods {
 		mod._start = json.start;
 		mod._duration = json._duration;
 
+		return mod;
 	}
 
 	toJSON() {
@@ -221,7 +261,7 @@ export class StatMods {
 		for (let k in this._mods) {
 
 			if (k in stats) {
-				stats[k] += this._mods[k];
+				stats[k as StatKey] += this._mods[k];
 			}
 
 		}
@@ -234,7 +274,7 @@ export class StatMods {
 		for (let k in this._mods) {
 
 			if (k in stats) {
-				stats[k] -= this._mods[k];
+				stats[k as StatKey] -= this._mods[k];
 			}
 
 		}

@@ -11,6 +11,7 @@ export enum ItemType {
 	Unique = 'unique',
 	Chest = 'chest',
 	Feature = 'feature',
+	Grave = 'grave',
 	Unknown = 'unknown'
 }
 

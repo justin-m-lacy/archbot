@@ -2,6 +2,7 @@ import Char from '../char/char';
 import Cache from 'archcache';
 import { Coord } from '../world/loc';
 import SocialGroup from './socialGroup';
+import Actor from '../char/actor';
 
 export default class Party extends SocialGroup {
 
@@ -23,6 +24,10 @@ export default class Party extends SocialGroup {
 			invites: this.invites
 		}
 
+	}
+
+	get state() {
+		return this._lastState;
 	}
 
 	get loc() { return this._loc; }
@@ -185,7 +190,7 @@ export default class Party extends SocialGroup {
 		do {
 
 			var c = await this.cache.fetch(this.roster[ind]);
-			if (c && c.curHp > 0 && c.state === 'alive') return c;
+			if (c && c.curHp > 0 && c.state === 'alive') return c as Actor;
 
 			console.log(this.roster[ind] + ' NOT A VALID TARGEt.');
 			if (++ind >= len) ind = 0;

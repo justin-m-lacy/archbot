@@ -1,14 +1,16 @@
 import { Coord } from '../world/loc';
 import Race from './race';
 import StatBlock from './stats';
-import { StatMods } from './stats';
+import { StatMods, StatKey, IStatBlock, StatMod, StatName } from './stats';
 import { ProtoEffect, Effect } from '../magic/effects';
 import CharClass from './charclass';
 import { roll, parseRoll } from '../dice';
+import { ItemIndex } from '../items/container';
+import { Item } from '../items/item';
 
 export type LifeState = 'alive' | 'dead';
 
-export default class Actor {
+export default class Actor implements IStatBlock {
 
 	static FromJSON(json: any, act: Actor) {
 
@@ -16,10 +18,8 @@ export default class Actor {
 			// apply last.
 			let mods = json.statMods;
 
-			for (let i = mods.length - 1; i >= 0; i--) {
-				let mod = StatMods.FromJSON(mods[i]);
-				if (mod) act.addMod(mod);
-			}
+			act.statMods = mods as StatMod[];
+
 		}
 
 	}
@@ -33,9 +33,18 @@ export default class Actor {
 	set state(v) { this._state = v; }
 	isAlive() { return this._state !== exports.Dead; }
 
+	get evil() { return this._baseStats.evil; }
+	set evil(v) { this._baseStats.evil = v; }
+
 	// convenience for shorter formulas.
 	get hp() { return this._curStats.curHp; }
 	set hp(v) { this._curStats.curHp = v; }
+
+	get dr() { return this._curStats.dr; }
+	set dr(v) { this._curStats.dr = v; }
+
+	get resist() { return this._curStats.resist }
+	set resist(v) { this._curStats.resist = v; }
 
 	get curHp() { return this._curStats.curHp; }
 	set curHp(v) { this._curStats.curHp = v; }
@@ -49,6 +58,9 @@ export default class Actor {
 
 	get maxHp() { return this._curStats.maxHp; }
 	set maxHp(v) { this._curStats.maxHp = v; }
+
+	get maxMp() { return this._curStats.maxMp; }
+	set maxMp(v) { this._curStats.maxMp = v; }
 
 	get name() { return this._name; }
 	set name(v) { this._name = v; }
@@ -75,6 +87,7 @@ export default class Actor {
 	set height(s) { this._info.height = s; }
 
 	get armor() { return this._curStats.armor; }
+	set armor(v) { this._curStats.armor = v; }
 
 	get str() { return this._curStats.str; }
 	set str(v) { this._curStats.str = v; }
@@ -130,9 +143,11 @@ export default class Actor {
 	private _curStats: StatBlock;
 	readonly effects: Effect[] = [];
 	private _charClass?: CharClass;
+	protected _talents?: string[];
+
 	guild?: string;
 
-	private _statMods: StatMods[];
+	private _statMods: StatMod[];
 	private _state: LifeState;
 
 	constructor(race: Race, rpgClass?: CharClass) {
@@ -229,6 +244,15 @@ export default class Actor {
 		}
 	}
 
+	hasTalent(s: string) {
+		return this._talents?.includes(s);
+	}
+
+	/// TODO
+	addItem(it: Item) { }
+	randItem() { null; }
+	takeItem(which: number | string | Item, sub?: number | string): any { return null; }
+
 	/**
 	 * Computes current, as opposed to base hp.
 	*/
@@ -296,7 +320,7 @@ export default class Actor {
 		return this.heal(amt);
 	}
 
-	applyBaseMods(mods: StatMods) {
+	applyBaseMods(mods?: StatMod) {
 
 		if (!mods) return;
 		let stats = this._curStats;
@@ -305,20 +329,20 @@ export default class Actor {
 
 		for (let k in mods) {
 
-			mod = mods[k];
+			mod = mods[k as StatName];
 			if (typeof (mod) === 'string') {
 				mod = parseRoll(mod);
 			}
 
-			val = stats[k];
+			val = stats[k as StatKey];
 			if (val) {
 
 				val += mod;
 				if (val < 3) val = 3;
-				stats[k] = val;
+				stats[k as StatKey] = val;
 
 			}
-			else stats[k] = mod;
+			else stats[k as StatKey] = mod;
 
 		}
 
