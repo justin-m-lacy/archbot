@@ -18,6 +18,10 @@ class Action {
 	private readonly name: string;
 	private effects?: Effect[];
 
+	private err?: string;
+
+	private require?: any;
+
 	constructor(name: string) {
 
 		this.name = name;
@@ -51,14 +55,14 @@ class Action {
 		if (this.err) return this.err.replace('%c', char.name);
 	}
 
-	checkRequire(char: Char, req) {
+	checkRequire(char: Char, req: any) {
 		for (let k in req) {
-			if (char[k] !== req[k]) return false;
+			if (char[k as keyof Char] !== req[k]) return false;
 		}
 		return true;
 	}
 
-	applyEffect(char: Char, eff) {
+	applyEffect(char: Char, eff: any) {
 
 		let apply = eff.apply;
 		for (let k in apply) {
@@ -66,9 +70,13 @@ class Action {
 			var val = apply[k];
 			if (typeof (val) === 'object') {
 
+				// @ts-ignore
 				if (val.roll) char[k] += dice.parseRoll(val.roll);
 
-			} else char[k] = val;
+			} else {
+				// @ts-ignore
+				char[k] = val;
+			}
 
 
 		}
@@ -94,7 +102,12 @@ loadActions();
 
 class Effect {
 
-	constructor(require, apply, fb, err) {
+	err?: string;
+	fb?: string;
+	apply: any;
+	require: any;
+
+	constructor(require?: any, apply?: any, fb?: string, err?: string) {
 
 		this.require = require;
 		this.apply = apply;

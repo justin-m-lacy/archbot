@@ -20,11 +20,13 @@ export type HumanSlot = 'head' | 'hands' | 'back' | 'waist' | 'neck'
 	| 'fingers' | 'chest' | 'legs' | 'shins' | 'feet' | 'left' | 'right';
 
 
-export const toSlot = (slot: string) => {
+export const toSlot = (slot?: string | null) => {
 
-	const s = slot.toLowerCase();
-	if (Slots[s] === true) {
-		return s as HumanSlot;
+	if (slot) {
+		const s = slot.toLowerCase();
+		if (Slots[s] === true) {
+			return s as HumanSlot;
+		}
 	}
 	return null;
 }

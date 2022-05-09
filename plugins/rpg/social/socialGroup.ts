@@ -82,7 +82,10 @@ export default class SocialGroup {
 	}
 
 	async randChar() {
-		return this._cache.fetch(this.roster[Math.floor(this.roster.length * Math.random())]);
+		const char = await this._cache.fetch(
+			this.roster[Math.floor(this.roster.length * Math.random())]
+		);
+		return char as Char | undefined;
 	}
 
 	/**

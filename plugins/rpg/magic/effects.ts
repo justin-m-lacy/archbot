@@ -1,7 +1,7 @@
 import { Formula } from 'formulic';
 import Char from '../char/char';
 import Actor from '../char/actor';
-import { StatMods } from '../char/stats';
+import { StatMod, StatName, StatKey } from '../char/stats';
 
 // effect types. loading at bottom.
 const effects: { [name: string]: ProtoEffect } = {};
@@ -157,8 +157,8 @@ export class Effect {
 
 					s += ' ( ';
 					for (let k of v.setProps.keys()) {
-						if (--len > 0) s += `${k}: ${char[k]}, `;
-						else s += `${k}: ${char[k]}`;
+						if (--len > 0) s += `${k}: ${char[k as keyof Char]}, `;
+						else s += `${k}: ${char[k as keyof Char]}`;
 					}
 					s += ' )';
 
@@ -175,29 +175,33 @@ export class Effect {
 
 	}
 
-	applyMod(m: StatMods, char: Actor) {
+	applyMod(m: StatMod, char: Actor) {
 
 		console.log('name: ' + char.name);
 
 		for (let k in m) {
 
-			let cur = char[k];
-			if (char[k]) {
-				char[k] += m[k];
-				char.log(`${char.name} ${k}: ${char[k]}`);
+			let cur = char[k as keyof (typeof char)];
+			if (cur) {
+				char[k as StatName] = cur + m[k as StatName];
+				if (char instanceof Char) {
+					char.log(`${char.name} ${k}: ${char[k as keyof (typeof char)]}`);
+				}
 			}
 
 		}
 
 	}
 
-	removeMod(m: StatMods, char: Char) {
+	removeMod(m: StatMod, char: Actor) {
 
 		for (let k in m) {
 
-			if (char[k]) {
-				char[k] -= m[k];
-				char.log(`${char.name} ${k}: ${char[k]}`);
+			if (char[k as keyof Actor]) {
+				char[k as StatName] -= m[k as StatName] ?? 0;
+				if (char instanceof Char) {
+					char.log(`${char.name} ${k}: ${char[k as keyof Char]}`);
+				}
 			}
 
 		}

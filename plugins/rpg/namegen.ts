@@ -6,8 +6,6 @@ export const init = (bot: DiscordBot) => {
 
 }
 
-type SexType = 'm' | 'f';
-
 const toSex = (s?: string) => {
 
 	if (s != null) {
@@ -16,11 +14,6 @@ const toSex = (s?: string) => {
 	}
 	return Math.random() < 0.5 ? 'm' : 'f';
 
-}
-
-export enum Sex {
-	m = 'm',
-	f = 'f'
 }
 
 type NameBuilder = {

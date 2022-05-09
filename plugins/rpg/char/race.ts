@@ -1,3 +1,5 @@
+import { StatMod } from "./stats";
+
 let races: Race[];
 
 let raceByName: { [race: string]: Race };
@@ -22,8 +24,7 @@ export default class Race {
 		let r = new Race();
 		r._name = name;
 		r._hitdice = hitdice;
-		r._statMods = statMods;
-		r._createMods = {};
+		r._baseMods = statMods;
 
 		return r;
 
@@ -59,6 +60,11 @@ export default class Race {
 
 	private _name: string = '';
 	private _desc?: string;
+	private _baseMods?: StatMod;
+	private _infoMods?: StatMod;
+	private _hitdice: number = 0;
+	private _expMod: number = 1;
+	private _talents?: string[];
 
 	constructor() {
 	}
@@ -71,11 +77,10 @@ export default class Race {
 
 	get desc() { return this._desc; }
 	get infoMods() { return this._infoMods; }
-	get ver() { return this._ver; }
 	get HD() { return this._hitdice; }
 	get name() { return this._name; }
 	get baseMods() { return this._baseMods; }
-	get expMod() { return this._expMod || 1; }
+	get expMod() { return this._expMod; }
 
 }
 

@@ -1,9 +1,11 @@
 import Char from "../char/char";
+import { Item, ItemType } from "./item";
 
-const itemjs = require('./item.js');
 const gender = require('../social/gender.js');
 
-export default class Grave extends itemjs.Item {
+export default class Grave extends Item {
+
+	static _Epitaphs?: string[];
 
 	/**
 	 *
@@ -19,7 +21,7 @@ export default class Grave extends itemjs.Item {
 		// @deprecated killer
 		let p = new Grave(json.char, json.slayer, json.epitaph);
 
-		itemjs.Item.FromJSON(json, p);
+		Item.FromJSON(json, p);
 
 		return p;
 
@@ -56,7 +58,7 @@ export default class Grave extends itemjs.Item {
 
 	constructor(char: Char | string, slayer: Char | string, epitaph: string) {
 
-		super(`${char}'s Gravestone`, `Here lies ${char}, slain by ${slayer}.`, 'grave');
+		super(`${char}'s Gravestone`, `Here lies ${char}, slain by ${slayer}.`, ItemType.Grave);
 
 		this.char = typeof char === 'string' ? char : char.name;
 		this.slayer = typeof slayer === 'string' ? slayer : slayer.name;

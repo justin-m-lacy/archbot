@@ -1,6 +1,6 @@
 import Wearable from "../items/wearable";
 import { ItemType, Item } from '../items/item';
-import { HumanSlot } from '../items/wearable';
+import { HumanSlot, toSlot } from '../items/wearable';
 import Weapon from '../items/weapon';
 import * as ItemGen from '../items/itemgen';
 
@@ -146,11 +146,13 @@ export default class Equip {
 	 * Remove item from slot and return it.
 	 * @param {string} slot
 	 */
-	removeSlot(slot: HumanSlot) {
+	removeSlot(slot: string | HumanSlot | null | undefined) {
 
-		if (!slot) return;
+		const my = toSlot(slot);
+		if (!my) return;
 
-		let it = this.slots[slot];
+
+		let it = this.slots[my];
 		if (!it) return;
 
 		if (Array.isArray(it)) {
@@ -160,7 +162,7 @@ export default class Equip {
 				return;
 			}
 		} else {
-			this.slots[slot] = null;
+			this.slots[my] = null;
 		}
 
 		return it;

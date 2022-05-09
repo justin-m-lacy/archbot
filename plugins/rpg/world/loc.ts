@@ -22,7 +22,7 @@ export enum Biome {
 	UNDER = 'underground',
 }
 
-const in_prefix = {
+const in_prefix: { [Property in Biome]: string } = {
 	[Biome.FOREST]: ' in a ',
 	[Biome.TOWN]: ' in a ',
 	[Biome.SWAMP]: ' in a ',
@@ -333,7 +333,7 @@ export class Loc {
 	*/
 	look(imgTag: boolean = true) {
 
-		let r = in_prefix[this._biome] + this._biome;//+ ' (' + this._coord.toString() + ')';
+		let r = in_prefix[this._biome as Biome] + this._biome;//+ ' (' + this._coord.toString() + ')';
 		if (this._attach && imgTag) r += ' [img]';
 		r += '\n' + this._desc;
 

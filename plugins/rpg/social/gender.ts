@@ -1,22 +1,24 @@
-type Gender = {
-	// subject
-	'sub': string,
-	// object
-	'ob': string,
-	/// adjectival
-	'adj': string,
-	// possessive
-	'pos': string,
-	/// self-referential
-	'ref': string,
-	/// 'x is' contraction
-	'is': string,
-	'sex': string,
-	'adult': string,
-	'child': string
-}
+type SexType = 'm' | 'f';
 
-let m: Gender = {
+type Pronoun =
+	// subject
+	'sub' |
+	// object
+	'ob' |
+	/// adjectival
+	'adj' |
+	// possessive
+	'pos' |
+	/// self-referential
+	'ref' |
+	/// 'x is' contraction
+	'is' |
+	'sex' |
+	'adult' |
+	'child';
+
+type PronounMap = { [Property in Pronoun]: string };
+let m: PronounMap = {
 
 	"sub": "he",
 	"ob": "him",
@@ -29,7 +31,7 @@ let m: Gender = {
 	'child': 'boy'
 
 };
-let f: Gender = {
+let f: PronounMap = {
 	"sub": "she",
 	"ob": "her",
 	"adj": "her",
@@ -41,7 +43,7 @@ let f: Gender = {
 	'child': 'girl'
 };
 
-let genders: { [types: string]: Gender } = {
+let genders: { [types: string]: PronounMap } = {
 
 	m: m,
 	male: m,
@@ -60,20 +62,28 @@ let genReg = /%sub|%ob|%adj|%pos|%ref|%is/g
  */
 const genderfy = (gender: string, str: string) => {
 
-	let g = genders[gender.toLowerCase()];
-	if (!g) return;
+	let pronouns = genders[gender.toLowerCase()];
+	if (!pronouns) return;
 
-	return str.replace(genReg, (match) => {
+	return str.replace(genReg, (orig) => {
 
 		/// cut '%
-		match = match.slice(1).toLowerCase() as keyof Gender;
-		let s = g[match];
-		if (!s) return match;
+		let match = orig.slice(1).toLowerCase();
 
-		if (match[0] === match[0].toUpperCase()) {
-			return s[0].toUpperCase() + s.slice(1);
+		if (match in pronouns) {
+
+			/// map pronoun token to actual pronoun.
+			let actual = pronouns[match as Pronoun];
+			if (!actual) return orig;
+
+			if (orig[0] === orig[0].toUpperCase()) {
+				return actual[0].toUpperCase() + actual.slice(1);
+			}
+			return actual;
+
+		} else {
+			return orig;
 		}
-		return s;
 
 	});
 

@@ -1,6 +1,6 @@
 import { Formula } from 'formulic';
-import { ValueSource } from 'formulic/src/tokens';
 import { LifeState } from '../char/actor';
+import { Item } from '../items/item';
 import { Biome } from '../world/loc';
 const form = require('../formulas');
 
@@ -12,14 +12,14 @@ const stats = require('../char/stats.js');
 const parseVars = ['hp', 'armor', 'toHit', 'mp'];
 
 // monster template objects.
-const templates: { [name: string]: Monster } = {};
-const byLevel: (Monster[])[] = [];
+const templates: { [name: string]: MonsterTemplate } = {};
+const byLevel: (MonsterTemplate[])[] = [];
 
 const initTemplates = () => {
 
-	let raw = require('../data/npc/monster.json');
+	let raw = require('../data/npc/monster.json') as MonsterTemplate[];
 
-	let a: Monster[];
+	let a: MonsterTemplate[];
 	let tot = 0;
 	for (let k = raw.length - 1; k >= 0; k--) {
 
@@ -84,6 +84,29 @@ const create = (template: any) => {
 	} //for
 
 	return m;
+
+}
+
+
+export type MonsterTemplate = {
+
+	biome?: Biome;
+
+	name: string;
+	level: number;
+	kind?: string;
+	desc?: string;
+	hp: string | number;
+	toHit: number;
+
+	curHp: number;
+	maxHp: number;
+	armor: number;
+	evil: number;
+	size: string;
+	drops?: any;
+	dmg?: any;
+	weap?: any;
 
 }
 
@@ -164,6 +187,7 @@ export default class Monster {
 
 	get template() { return this._template; }
 	set template(t) { this._template = t; }
+
 	get name() { return this._name; }
 	set name(v) { this._name = v; }
 
@@ -197,8 +221,11 @@ export default class Monster {
 	get dmg() { return this._dmg; }
 	set dmg(v) { this._dmg = v; }
 
+	/**
+	 * Not yet implemented.
 	get attacks() { return this._attacks; }
 	set attacks(v) { this._attacks = v; }
+	*/
 
 	get weap() { return this._weap; }
 	set weap(v) { this._weap = v; }
@@ -221,14 +248,61 @@ export default class Monster {
 	private _evil: number = 0;
 	private _size!: string;
 	private _drops?: any;
-	private _template?: any;
+	private _template?: MonsterTemplate;
 	private _dmg?: any;
 	private _weap?: any;
+	private _attacks: any;
+	private _talents?: string[];
 
+	private _held?: Item[];
 
 	constructor() {
 		this._toHit = 0;
 		this._state = 'alive';
+	}
+
+	hasTalent(s: string) {
+		return this._talents?.includes(s);
+	}
+
+	addItem(it: Item) {
+
+		if (!this._held) this._held = [];
+		this._held.push(it);
+	}
+
+	randItem() {
+		if (this._held && this._held.length > 0) {
+			return this.takeItem(Math.floor(Math.random() * this._held.length));
+		}
+		return null;
+	}
+	takeItem(which: number | string | Item, sub?: number | string) {
+
+		if (this._held) {
+
+			if (typeof which === 'string') {
+
+				const asInt = parseInt(which);
+				if (isNaN(asInt)) {
+					which = which.toLowerCase();
+					which = this._held.findIndex(v => v.name == which);
+				} else which = asInt;
+
+
+			} else if (typeof which === 'object') {
+				which = this._held.indexOf(which);
+			}
+
+			if (which >= this._held.length || which < 0) {
+				return null;
+			}
+			return this._held.splice(which)[0];
+
+
+		}
+		return null;
+
 	}
 
 	getDetails() {
