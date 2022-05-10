@@ -2,7 +2,7 @@ const ChessGame = require( './chessgame');
 const Display = require( './display' );
 const Export = require( './export' );
 
-const GameCache = require( '../../gamecache');
+const GameCache = require( '../../src/gamecache');
 
 const game_dir = 'chess/';
 

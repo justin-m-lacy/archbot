@@ -1,6 +1,7 @@
+import Game from '../../src/game';
+
 const Chess = require( 'chess-rules');
 const Export = require( './export');
-const Game = require( '../../src/game');
 
 const ID_SEPARATOR = '-';
 
