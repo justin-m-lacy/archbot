@@ -1,4 +1,4 @@
-import { Channel, Guild, User, GuildMember, Message, TextBasedChannel } from 'discord.js';
+import { Channel, Guild, User, GuildMember, Message, TextBasedChannel, PermissionResolvable } from 'discord.js';
 import { DiscordBot } from './discordbot';
 import Command from './command';
 import ArchCache from 'archcache';
@@ -59,7 +59,7 @@ export abstract class BotContext<T extends ContextSource> {
 	/**
 	 * Maps class-names to class instances.
 	 */
-	readonly _instances: Map<string, ContextClass<ContextSource>> = new Map();
+	readonly _instances: Map<string, InstanceType<ContextClass<ContextSource>>> = new Map();
 
 	/**
 	 * @property {Access} access - Information about access to settings and commands.
@@ -138,7 +138,7 @@ export abstract class BotContext<T extends ContextSource> {
 	 * @param {number|string} perm
 	 * @returns {boolean}
 	 */
-	setAccess(cmd: string, perm: string | number) {
+	setAccess(cmd: string, perm: PermissionResolvable) {
 		return this.access?.setAccess(cmd, perm);
 	}
 
@@ -363,13 +363,13 @@ export abstract class BotContext<T extends ContextSource> {
 	 * @param {class} cls
 	 * @returns {Promise<Object>}
 	 */
-	async addClass(cls: ContextClass<ContextSource>) {
+	async addClass(cls: ContextClass<ContextSource>): Promise<InstanceType<ContextClass<ContextSource>>> {
 
 		console.log('adding class: ' + cls.name);
 
 		if (this._instances.get(cls.name)) {
 			console.log('class ' + cls.name + ' already exists for ' + this.idObject.id);
-			return this._instances.get(cls.name);
+			return this._instances.get(cls.name)!;
 		}
 
 		let inst = new cls(this);

@@ -31,22 +31,12 @@ const USERS_DIR = 'users/';
  */
 var BASE_DIR = './savedata';
 
-
-/**
- *
- * @param {string} relPath
- * @returns {Promise<boolean>}
- */
-async function deleteData(relPath: string) {
-	return afs.deleteFile(path.join(BASE_DIR, relPath + '.json'));
-}
-
 /**
  *
  * @param {string} relPath
  * @returns {Promise<*>}
  */
-async function readData(relPath: string) {
+async function readData(relPath: string): Promise<any> {
 	return afs.readJSON(path.join(BASE_DIR, relPath + '.json'));
 }
 
@@ -129,7 +119,9 @@ export default {
 
 	readData: readData,
 	writeData: writeData,
-	deleteData: deleteData,
+	deleteData(relPath: string): Promise<boolean> {
+		return afs.deleteFile(path.join(BASE_DIR, relPath + '.json')).then((v: any) => true, err => false);
+	},
 
 	userPath: getUserPath,
 	memberPath: getMemberPath,
