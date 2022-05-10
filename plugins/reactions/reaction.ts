@@ -8,10 +8,10 @@ export class Reaction {
 	/*toJSON(){
 	}*/
 
-	private r: string;
-	private uid?: string;
-	private t: number;
-	private embed?: string;
+	r: string;
+	uid?: string;
+	t: number;
+	embed?: string;
 
 	/**
 	 *
@@ -63,7 +63,7 @@ export class Reaction {
 	 * @param {string} str - input string that triggered reaction.
 	 * @returns {string}
 	 */
-	getResponse(trig, str) {
+	getResponse(trig: string | RegExp, str: string) {
 
 		if (typeof trig === 'string') return this.r;
 
@@ -88,7 +88,7 @@ export class Reaction {
 	 */
 	groupReplace(trig: RegExp, text: string) {
 
-		var res, resLen;
+		let res: RegExpExecArray | null, resLen: number;
 		let resp = this.r;
 
 		trig.lastIndex = 0;	// reset from test()
@@ -103,11 +103,11 @@ export class Reaction {
 				let n = Number(p1);
 				if (Number.isNaN(n) === true) {
 
-					if (p1 === '`') return text.slice(0, res.index);
+					if (p1 === '`') return text.slice(0, res!.index);
 					else if (p1 === "'") return text.slice(trig.lastIndex);	// TODO: Wrong.
-					else if (p1 === '&') return res[0];
+					else if (p1 === '&') return res![0];
 
-				} else if (n < resLen) return res[n];
+				} else if (n < resLen) return res![n];
 
 				return match;
 
@@ -125,7 +125,7 @@ export class Reaction {
 	 * the regex with the full response string.
 	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
 	 */
-	fullReplace(trig: string, text: string) {
+	fullReplace(trig: RegExp, text: string) {
 		return text.replace(trig, this.r);
 	}
 
@@ -170,7 +170,7 @@ export const parseReaction = (r: Reaction | { r: string, uid?: string, t?: numbe
  * @param {Array} a
  * @returns {Reaction[]}
  */
-export const parseReactions = (a) => {
+export const parseReactions = (a: Reaction[]) => {
 
 	let d = [];
 

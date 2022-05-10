@@ -1,3 +1,10 @@
-
-[{ "name":"rpg", "plugin":"rpg.js"},
-{"name":"namegen", "plugin":"namegen.js"}]
+[
+    {
+        "name": "rpg",
+        "plugin": "rpg"
+    },
+    {
+        "name": "namegen",
+        "plugin": "namegen"
+    }
+]

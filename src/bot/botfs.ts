@@ -55,8 +55,8 @@ async function writeData(relPath: string, data: any) {
 		await afs.mkdir(path.dirname(absPath));
 		return afs.writeJSON(absPath + '.json', data);
 
-	} catch (e) {
-		console.error('Failed to write data: ' + e.toString());
+	} catch (e: any) {
+		console.error(`Failed to write data: ${e}`);
 	}
 
 }

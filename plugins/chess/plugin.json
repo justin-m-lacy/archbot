@@ -1,1 +1,4 @@
-{ "name":"chess", "plugin":"chess.js"}
+{
+    "name": "chess",
+    "plugin": "chess"
+}

@@ -1,1 +1,3 @@
-{ "plugin":"8ball.js" }
+{
+    "plugin": "8ball"
+}

@@ -1,11 +1,15 @@
-const Display = require('../../display');
-
-
+import { Message } from 'discord.js';
+import { ReactSet } from './reactset';
+import { Display } from '../../src/display';
+import { BotContext, ContextSource } from '../../src/bot/botcontext';
+import { Reaction } from './reaction';
+import { DiscordBot } from '../../src/bot/discordbot';
+import { PermissionFlagsBits } from 'discord-api-types';
 
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
  */
-const PROC_RATE = 0.1;
+const PROC_RATE: number = 0.1;
 
 /**
  * @const {RegEx} regExTest - test if string defines a regex.
@@ -13,9 +17,10 @@ const PROC_RATE = 0.1;
 const regExTest = /^\s*\/(.+)\/([gim]{0,3})\s*$/;
 
 const Embeds = require('djs-embed');
-const ReactSet = require('./reactset');
 
-var globalReacts, globalRegEx;
+type ReactMap = Map<string, ReactSet>;
+
+let globalReacts: ReactMap, globalRegEx: ReactMap;
 
 
 /**
@@ -28,52 +33,54 @@ class GuildReactions {
 	 */
 	get context() { return this._context; }
 
+	private _context: BotContext<ContextSource>;
+
+	private allReacts: {
+		regex: ReactMap,
+		strings: ReactMap
+	} = {
+			regex: new Map(),
+			strings: new Map()
+		};
+
+	private reactions: ReactMap = new Map();
+
+	/**
+	 * @property reMap - Reactions with Regular Expression triggers.
+	 * Map key is the string version of the RegEx object.
+	 */
+	private reMap = new Map<string, ReactSet>();
+
+	private _procPct: number = PROC_RATE;
+
+	/**
+	 * @property minWait - minimum time in milliseconds between
+	 * repeats of a single trigger.
+	 */
+	private minWait: number = 1000;
+
+	/**
+	 * @property {number} gWait - global wait in milliseconds between
+	 * any reactions at all (per Context.)
+	 */
+	private gWait: number = 20000;
+
+	/**
+	 * @property {number} msgTime - last time message was received in this context.
+	 */
+	private msgTime: number = 0;
+
+	private gTime: number = 0;
+
 	/**
 	 * @constructor
 	 * @param {BotContext} context
 	 */
-	constructor(context) {
-
-		/**
-		 * @property {object} allReacts
-		 * @property {Map<string,ReactSet>} allReacts.strings
-		 * @property {Map<RegEx,ReactSet>} allReacts.regex
-		 */
-		this.allReacts = {};
-
-		/**
-		 * @property {Map<string,ReactSet} reactions
-		 */
-		this.reactions = new Map();
-
-		/**
-		 * @property {Map<String,ReactSet>} reMap - Reactions with Regular Expression triggers.
-		 * Map key is the string version of the RegEx object.
-		 */
-		this.reMap = new Map();
+	constructor(context: BotContext<ContextSource>) {
 
 		this._context = context;
 
-		this._procPct = PROC_RATE;
-
 		this.loadReactions();
-
-		/**
-		 * @property {number} minWait - minimum time in milliseconds between
-		 * repeats of a single trigger.
-		 */
-		this.minWait = 1000;
-
-		/**
-		 * @property {number} gWait - global wait in milliseconds between
-		 * any reactions at all (per Context.)
-		 */
-		this.gWait = 20000;
-
-		/**
-		 * @property {number} msgTime - last time message was received in this context.
-		 */
-		this.msgTime = 0;
 
 		// begin listening for messages to react to.
 		this.listen();
@@ -95,7 +102,7 @@ class GuildReactions {
 				this.msgTime = now;
 
 				let rset = this.findSet(m.content);
-				if (rset !== null) {
+				if (rset != null) {
 
 					return this.respond(m, rset);
 
@@ -113,7 +120,7 @@ class GuildReactions {
 	 * @param {ReactSet} rset
 	 * @returns {Promise}
 	 */
-	async respond(m, rset) {
+	async respond(m: Message, rset: ReactSet) {
 
 		var last = rset.lastUsed;
 		if (last && (this.msgTime - last) < this.minWait) return;
@@ -121,13 +128,13 @@ class GuildReactions {
 		this.gTime = this.msgTime;
 
 		// get random reaction from set.
-		let react = rset.getReact();
+		let react = rset.getRandom();
 
 		if (!react) return null;
 
 		let resp = react.getResponse(rset.trigger, m.content);
-		if (rset.embed) {
-			return Embeds.replyEmbed(m, resp || ' ', rset.embed);
+		if (react.embed) {
+			return Embeds.replyEmbed(m, resp || ' ', react.embed);
 		} else if (resp) return m.channel.send(resp);
 
 	}
@@ -138,16 +145,16 @@ class GuildReactions {
 	 * @param {ReactSet} rset
 	 * @returns {Promise}
 	 */
-	async respondTest(m, rset, input) {
+	async respondTest(m: Message, rset: ReactSet, input: string) {
 
 		// get random reaction from set.
-		let react = rset.getReact();
+		let react = rset.getRandom();
 
 		if (!react) return m.reply('No reactions found for "' + input + '"');
 
 		let resp = react.getResponse(input, input);
-		if (rset.embed) {
-			return Embeds.replyEmbed(m, resp || ' ', rset.embed);
+		if (react.embed) {
+			return Embeds.replyEmbed(m, resp || ' ', react.embed);
 		} else if (resp) return m.reply(resp);
 
 	}
@@ -160,7 +167,7 @@ class GuildReactions {
 	 * @param {string} react - the reaction or reaction template to respond with.
 	 * @returns {Promise}
 	 */
-	async cmdAddReact(m, trig, react) {
+	async cmdAddReact(m: Message, trig: string, react: string) {
 
 		let embedUrl = Embeds.getSingle(m);
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
@@ -176,7 +183,7 @@ class GuildReactions {
 
 	}
 
-	async cmdTestReact(m, trig) {
+	async cmdTestReact(m: Message, trig: string) {
 
 		let rset = this.findSet(trig);
 		if (rset !== null) {
@@ -193,7 +200,7 @@ class GuildReactions {
 	 * @param {string} which
 	 * @returns {Promise}
 	 */
-	async cmdRmReact(m, trig, which) {
+	async cmdRmReact(m: Message, trig?: string, which?: string) {
 
 		if (trig) {
 
@@ -227,7 +234,7 @@ class GuildReactions {
 	 * to get information for.
 	 * @returns {Promise}
 	 */
-	async cmdReactInfo(m, trig, which = null) {
+	async cmdReactInfo(m: Message, trig: string, which?: string) {
 
 		let reacts = this.getReactions(trig, which);
 		if (!reacts) return m.channel.send('No reaction found.');
@@ -246,7 +253,7 @@ class GuildReactions {
 	 * @param {number} [page=1] - The page of text.
 	 * @returns {Promise}
 	 */
-	async cmdReacts(m, trig, page = 1) {
+	async cmdReacts(m: Message, trig: string, page: number = 1) {
 
 		if (trig == '/') {
 			return this.cmdRegexReacts(m, page);
@@ -270,18 +277,18 @@ class GuildReactions {
 
 	}
 
-	async cmdRegexReacts(m, page = 1) {
+	async cmdRegexReacts(m: Message, page: number = 1) {
 
 		let reacts = this.getAllRegEx();
 
-		if (reacts.isEmpty) {
+		if (reacts.length == 0) {
 			return m.channel.send('No regular expressions found.');
 		}
 
 		return reacts.map(
 
 			(v) => {
-				v[0] + ': ' + this.infoString(v[1]);
+				v.trigger.toString() + ': ' + this.infoString(v.reacts);
 			}
 
 		).join(
@@ -289,16 +296,16 @@ class GuildReactions {
 		);
 
 		// must save before response is extended by total reaction count.
-		let pagingFooter = Display.pageFooter(resp);
+		//let pagingFooter = Display.pageFooter(resp);
 
 		// get a single page of the response.
-		resp = Display.getPageText(resp, page - 1);
+		//resp = Display.getPageText(resp, page - 1);
 
 		// append reaction count.
-		if (Array.isArray(reacts)) resp += `\n\n${reacts.length} total reactions`;
-		resp += '\n\n' + pagingFooter;
+		//if (Array.isArray(reacts)) resp += `\n\n${reacts.length} total reactions`;
+		//resp += '\n\n' + pagingFooter;
 
-		return m.channel.send(resp);
+		//return m.channel.send(resp);
 	}
 
 	/**
@@ -307,7 +314,7 @@ class GuildReactions {
 	 * @param {number} [page=1]
 	 * @returns {Promise}
 	 */
-	async cmdTriggers(m, page = 1) {
+	async cmdTriggers(m: Message, page: number = 1) {
 
 		// list of all triggers defined for server.
 		let triggers = this.getTriggers();
@@ -338,7 +345,7 @@ class GuildReactions {
 	 * If multiple reactions match, none are removed, and the number found is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
-	removeReact(map, trig, reaction = null, isRegex = false) {
+	removeReact(map: Map<string, ReactSet>, trig: string, reaction?: string, isRegex: boolean = false) {
 
 		if (isRegex === false) trig = trig.toLowerCase();
 		//else console.log('REMOVING REGEX TRIGGER: ' + trig );
@@ -375,7 +382,7 @@ class GuildReactions {
 	 * @param {string} uid - discord id of creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addRegEx(trig, react, uid, embedUrl = null) {
+	addRegEx(trig: string, react: string, uid: string, embedUrl?: string) {
 
 		let rset = this.reMap.get(trig);
 
@@ -383,12 +390,14 @@ class GuildReactions {
 
 			let regex = toRegEx(trig);	// takes flags into account.
 
-			rset = new ReactSet(regex);
-			// @note map key is string. ReactSet trigger is regex.
-			this.reMap.set(trig, rset);
+			if (regex) {
+				rset = new ReactSet(regex);
+				// @note map key is string. ReactSet trigger is regex.
+				this.reMap.set(trig, rset);
+			} else return;
 
 		}
-		rset.add(react, uid, embedUrl);
+		rset!.add(react, uid, embedUrl);
 
 	}
 
@@ -399,7 +408,7 @@ class GuildReactions {
 	 * @param {string} uid - discord id of reaction creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addString(trig, react, uid, embedUrl = null) {
+	addString(trig: string, react: string, uid: string, embedUrl?: string) {
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get(trig);
@@ -418,7 +427,7 @@ class GuildReactions {
 	 * @returns {ReactSet|null} Reaction string for the message, or null
 	 * if no match found.
 	 */
-	findSet(str) {
+	findSet(str: string): ReactSet | null {
 
 		let rset = this.tryRegEx(this.reMap, str);
 		if (rset !== null) return rset;
@@ -436,11 +445,11 @@ class GuildReactions {
 
 	/**
 	 *
-	 * @param {Map<string,ReactSet>} map
-	 * @param {string} str - input string to test.
+	 * @param map
+	 * @param str - input string to test.
 	 * @returns {ReactSet|null} string reaction or null.
 	 */
-	tryReact(map, str) {
+	tryReact(map: Map<string, ReactSet>, str: string) {
 
 		for (let k of map.keys()) {
 
@@ -457,15 +466,15 @@ class GuildReactions {
 
 	/**
 	 * Determine if string matches a regex trigger.
-	 * @param {Map<RegEx,Reaction>} reMap - Map of regular expressions being tested.
-	 * @param {string} str - string being tested.
+	 * @param reMap - Map of regular expressions being tested.
+	 * @param  str - string being tested.
 	 * @returns {ReactSet|null}
 	 */
-	tryRegEx(map, str) {
+	tryRegEx(map: Map<string, ReactSet>, str: string) {
 
 		for (let rset of map.values()) {
 
-			if (rset.trigger.test(str) === true) {
+			if ((rset.trigger as RegExp).test(str) === true) {
 
 				return rset;
 
@@ -483,7 +492,7 @@ class GuildReactions {
 	 * @param {boolean} [details=false] return extended reaction details.
 	 * @returns {Promise<string>}
 	 */
-	async infoString(react, details = false) {
+	async infoString(react: string | Reaction | Array<any> | null, details: boolean = false) {
 
 		if (react === null || react === undefined) return '';
 		if (typeof react === 'string') return react + (details ? ' ( Creator unknown )' : '');
@@ -529,7 +538,7 @@ class GuildReactions {
 	/**
 	 * @returns {string[]} - array of all string/regex string triggers.
 	 */
-	getTriggers() {
+	getTriggers(): string[] {
 
 		let a = [];
 
@@ -553,7 +562,7 @@ class GuildReactions {
 	 * if no reactStr is specified.
 	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */
-	getReactions(trig, reactStr = null) {
+	getReactions(trig: string, reactStr?: string) {
 
 		if (!trig) return false;
 
@@ -568,11 +577,11 @@ class GuildReactions {
 	}
 
 	/**
-	 * @returns {[String,Reaction][]} - All reactions from regular expressions.
+	 * @returns - All reactions from regular expressions.
 	 */
 	getAllRegEx() {
 
-		return Array.from(this.reMap.entries);
+		return Array.from(this.reMap.values());
 	}
 
 	/**
@@ -589,7 +598,7 @@ class GuildReactions {
 			this.allReacts = parseReacts(reactData);
 
 			this.reactions = this.allReacts.strings;
-			this.reMap = this.allReacts.regex;
+			this.allReacts.regex.forEach((v, k) => this.reMap.set(k, v));
 
 			this._procPct = await this._context.getSetting('reactPct') || this._procPct;
 
@@ -604,7 +613,7 @@ class GuildReactions {
  * @param {Object} reactData - reaction data.
  * @returns {Object}
  */
-const parseReacts = (reactData) => {
+const parseReacts = (reactData: any) => {
 	return {
 		toJSON() {
 
@@ -624,7 +633,7 @@ const parseReacts = (reactData) => {
  * @param {*} data
  * @returns {Map} - Reaction map.
  */
-function parseStrings(data) {
+function parseStrings(data: any) {
 
 	let map = new Map();
 
@@ -641,15 +650,16 @@ function parseStrings(data) {
  * @param {Object|null} data
  * @returns {Map} - Reaction map.
  */
-function parseRe(data) {
+function parseRe(data: any) {
 
 	let map = new Map();
 
 	if (data) {
 
+		let r: RegExp | boolean;
 		for (let p in data) {
 
-			if ((p = toRegEx(p)) !== false) map.set(p, new ReactSet(p, data[p]));
+			if ((r = toRegEx(p)) !== false) map.set(r, new ReactSet(r, data[p]));
 
 		}
 
@@ -664,9 +674,9 @@ function parseRe(data) {
  * @param {Map} map
  * @returns {Object}
  */
-function mapToJSON(map) {
+function mapToJSON(map: any) {
 
-	let o = {};
+	let o: any = {};
 	for (let [k, v] of map) {
 		o[k] = v;
 	}
@@ -680,7 +690,7 @@ function mapToJSON(map) {
  * @param {string} s
  * @returns {RegExp|false}
  */
-const toRegEx = (s) => {
+const toRegEx = (s: string) => {
 
 	let res = regExTest.exec(s);
 	if (res === null) return false;
@@ -696,12 +706,11 @@ const toRegEx = (s) => {
  * Initialize plugin.
  * @param {DiscordBot} bot
  */
-exports.init = function (bot) {
+export const init = (bot: DiscordBot) => {
 
 	console.log('loading reacts.');
 
-	let reactData = require('./reactions.json');
-	reactData = parseReacts(reactData);
+	const reactData = parseReacts(require('./reactions.json'));
 
 	globalReacts = reactData.strings;
 	globalRegEx = reactData.regex;
@@ -729,6 +738,6 @@ exports.init = function (bot) {
 
 	bot.addContextCmd('rmreact', 'rmreact <trigger> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
-		{ minArgs: 1, maxArgs: 2, group: 'right', access: 2 });
+		{ minArgs: 1, maxArgs: 2, group: 'right', access: PermissionFlagsBits.Administrator });
 
 }

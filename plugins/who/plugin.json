@@ -1,1 +1,4 @@
-{ "name":"who", "plugin":"who.js"}
+{
+    "name": "who",
+    "plugin": "who"
+}

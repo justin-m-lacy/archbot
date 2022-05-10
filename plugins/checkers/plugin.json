@@ -1,4 +1,4 @@
 {
-    "name":"checkers",
-    "plugin":"checkers.js"
+    "name": "checkers",
+    "plugin": "checkers"
 }
