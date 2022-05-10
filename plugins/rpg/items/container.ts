@@ -184,16 +184,20 @@ export default class Container<T extends SimpleItem = Item> {
      * @param it
      * @returns starting 1-index where items were added.
      */
-    add(it: T | T[]) {
+    add(it?: T | T[] | (T | null | undefined)[] | null) {
 
         if (Array.isArray(it)) {
             let ind = this._items.length + 1;
-            this._items = this._items.concat(it);
+
+            it = it.filter(v => v != null);
+            this._items = this._items.concat(it as T[]);
             return ind;
         }
 
-        this._items.push(it);
-        return this._items.length;
+        if (it != null) {
+            this._items.push(it);
+            return this._items.length;
+        }
 
     }
 
