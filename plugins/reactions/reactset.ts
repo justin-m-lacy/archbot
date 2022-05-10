@@ -177,7 +177,7 @@ export class ReactSet {
 	 * @param {string} uid - disord user snowflake.
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
 	 */
-	add(react: string, uid: string, embedUrl?: string) {
+	add(react: string, uid: string, embedUrl?: string | null) {
 		this._reacts.push(new ReactModule.Reaction(react, uid, Date.now(), embedUrl));
 	}
 

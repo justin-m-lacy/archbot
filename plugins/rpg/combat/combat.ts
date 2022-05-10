@@ -9,12 +9,11 @@ import * as forms from '../formulas';
 import Grave from '../items/grave';
 import { Item } from '../items/item';
 import { ItemPicker } from '../inventory';
-
-const itemgen = require('./items/itemgen');
-const dice = require('./dice');
+import * as itemgen from '../items/itemgen';
+import { roll, Roller } from '../dice';
 
 const fist = new Weapon('fists',
-	new forms.DamageSrc(new dice.Roller(1, 2, 0), 'blunt'),
+	new forms.DamageSrc(new Roller(1, 2, 0), 'blunt'),
 	'Just plain fists.');
 
 /**
@@ -391,7 +390,7 @@ class AttackInfo {
 
 	}
 
-	skillRoll(act: Actor | Monster) { return dice.roll(1, 5 * (act.level + 4)); }
+	skillRoll(act: Actor | Monster) { return roll(1, 5 * (act.level + 4)); }
 
 	rollHit() {
 

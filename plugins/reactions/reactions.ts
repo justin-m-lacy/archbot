@@ -16,8 +16,6 @@ const PROC_RATE: number = 0.1;
  */
 const regExTest = /^\s*\/(.+)\/([gim]{0,3})\s*$/;
 
-const Embeds = require('djs-embed');
-
 type ReactMap = Map<string, ReactSet>;
 
 let globalReacts: ReactMap, globalRegEx: ReactMap;
@@ -134,7 +132,18 @@ class GuildReactions {
 
 		let resp = react.getResponse(rset.trigger, m.content);
 		if (react.embed) {
-			return Embeds.replyEmbed(m, resp || ' ', react.embed);
+
+			return m.reply(
+
+				{
+					content: resp || '',
+					embeds: [
+						{ url: react.embed }
+					]
+
+
+				});
+
 		} else if (resp) return m.channel.send(resp);
 
 	}
@@ -154,7 +163,7 @@ class GuildReactions {
 
 		let resp = react.getResponse(input, input);
 		if (react.embed) {
-			return Embeds.replyEmbed(m, resp || ' ', react.embed);
+			return m.reply({ content: resp || ' ', embeds: [{ url: react.embed }] });
 		} else if (resp) return m.reply(resp);
 
 	}
@@ -169,7 +178,8 @@ class GuildReactions {
 	 */
 	async cmdAddReact(m: Message, trig: string, react: string) {
 
-		let embedUrl = Embeds.getSingle(m);
+		let embedUrl = m.embeds.find(v => v.url != null)?.url;
+
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
 
 		if (regExTest.test(trig)) {
@@ -382,7 +392,7 @@ class GuildReactions {
 	 * @param {string} uid - discord id of creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addRegEx(trig: string, react: string, uid: string, embedUrl?: string) {
+	addRegEx(trig: string, react: string, uid: string, embedUrl?: string | null) {
 
 		let rset = this.reMap.get(trig);
 
@@ -408,7 +418,7 @@ class GuildReactions {
 	 * @param {string} uid - discord id of reaction creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addString(trig: string, react: string, uid: string, embedUrl?: string) {
+	addString(trig: string, react: string, uid: string, embedUrl?: string | null) {
 
 		trig = trig.toLowerCase();
 		let rset = this.reactions.get(trig);
