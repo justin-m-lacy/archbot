@@ -5,10 +5,9 @@
   "main": "archbot.js",
   "scripts": {
     "start": "node .",
-    "minify": "uglifyjs --compress --mangle -o archbot.min.js dist/archbot.js",
-    "dev": "cross-env NODE_ENV=development && ts-node server.ts",
-    "build": "rimraf dist && cross-env NODE_ENV=production && tsc && npm run minify ",
-    "host": "cross-env NODE_ENV=production && ts-node server.ts"
+    "minify": "node mterser --glob dist/**/*.js --outdir dist --compress --mangle",
+    "dev": "cross-env NODE_ENV=development && ts-node archbot.ts",
+    "build": "rimraf dist && cross-env NODE_ENV=production && tsc && npm run minify "
   },
   "repository": {
     "type": "git",
@@ -45,8 +44,9 @@
   ],
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "glob": "^8.0.1",
     "rimraf": "^3.0.2",
-    "ts-node": "^10.7.0",
-    "uglify-js": "^3.15.4"
+    "terser": "^5.13.1",
+    "ts-node": "^10.7.0"
   }
 }

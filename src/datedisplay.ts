@@ -27,7 +27,7 @@ export default {
 			part = parts[i];
 
 			if (part.indexOf(':') > 0) {
-				this.setTime(part);
+				this.setTime(date, part);
 				continue;
 			}
 
@@ -66,6 +66,7 @@ export default {
 
 		try {
 			let parts = str.split(':').map(v => parseInt(v));
+			// @ts-ignore
 			date.setHours.apply(date, parts);
 		} catch (err) {
 			console.warn(`failed to parse ${str} date parts: ${err}`);

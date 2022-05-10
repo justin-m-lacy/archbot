@@ -1,8 +1,8 @@
-const ChessGame = require( './chessgame.js');
-const Display = require( './display.js' );
-const Export = require( './export.js' );
+const ChessGame = require( './chessgame');
+const Display = require( './display' );
+const Export = require( './export' );
 
-const GameCache = require( '../../gamecache.js');
+const GameCache = require( '../../gamecache');
 
 const game_dir = 'chess/';
 

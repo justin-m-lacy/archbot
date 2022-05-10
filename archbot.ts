@@ -2,10 +2,10 @@ import Discord, { Activity, Client, GuildMember, Intents, Message, Presence, Tex
 import auth from './auth.json';
 import { UserHistory } from './src/history';
 
-const DateFormat = require('./datedisplay.js');
+const DateFormat = require('./src/datedisplay');
 const dice = require('archdice');
-const jsutils = require('./jsutils.js');
-const DiscordBot = require('./bot/discordbot.js');
+const jsutils = require('./src/jsutils');
+const DiscordBot = require('./src/bot/discordbot');
 
 // init bot
 const client: Client = new Discord.Client({

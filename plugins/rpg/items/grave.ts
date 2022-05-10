@@ -1,7 +1,7 @@
 import Char from "../char/char";
 import { Item, ItemType } from "./item";
 
-const gender = require('../social/gender.js');
+const gender = require('../social/gender');
 
 export default class Grave extends Item {
 

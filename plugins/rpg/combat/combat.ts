@@ -6,13 +6,12 @@ import Weapon from '../items/weapon';
 import Monster from '../monster/monster';
 import { Loot } from './loot';
 import * as forms from '../formulas';
-import { ItemIndex } from '../items/container';
 import Grave from '../items/grave';
 import { Item } from '../items/item';
 import { ItemPicker } from '../inventory';
 
 const itemgen = require('./items/itemgen');
-const dice = require('./dice.js');
+const dice = require('./dice');
 
 const fist = new Weapon('fists',
 	new forms.DamageSrc(new dice.Roller(1, 2, 0), 'blunt'),
