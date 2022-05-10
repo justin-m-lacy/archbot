@@ -35,7 +35,7 @@ export default class Combat {
 
 	readonly attacks: any[] = [];
 
-	constructor(c1: Char | Monster, c2: Char | Monster, world: World) {
+	constructor(c1: Char | Monster | Party, c2: Char | Monster | Party, world: World) {
 
 		this.attacker = c1;
 		this.defender = c2;
