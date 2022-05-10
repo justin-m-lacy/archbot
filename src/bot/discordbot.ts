@@ -208,7 +208,7 @@ export class DiscordBot {
 
 		try {
 
-			var plugins = require('./plugsupport.js').loadPlugins(this._plugsdir);
+			var plugins = require('./plugsupport').loadPlugins(this._plugsdir);
 			this.addPlugins(plugins);
 
 		} catch (e) { console.error(e); }
@@ -231,10 +231,9 @@ export class DiscordBot {
 	 */
 	addPlugins(plug_files: PluginFile[]) {
 
-		let plug;
 		for (let i = plug_files.length - 1; i >= 0; i--) {
 
-			plug = plug_files[i];
+			const plug = plug_files[i];
 			if (plug.init) {
 				plug.init(this);
 			}

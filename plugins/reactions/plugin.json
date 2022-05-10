@@ -1,1 +1,4 @@
-{ "name":"reactions", "plugin":"reactions.js" }
+{
+    "name": "reactions",
+    "plugin": "reactions"
+}

@@ -1,7 +1,7 @@
 import { DiscordBot } from "./discordbot";
+import path from 'path';
 
 const fs = require('fs');
-const path = require('path');
 
 type InitFunc = (bot: DiscordBot) => void;
 
@@ -57,8 +57,7 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 		let file = files[0];
 		if (!file.isFile()) return null;
 
-		var plug = requirePlugin(dirPath, file.name, init_func);
-		return plug;
+		return requirePlugin(dirPath, file.name, init_func);
 
 	}
 
@@ -69,7 +68,7 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 
 			if (!file.isFile()) continue;
 
-			if (path.extname(file.name) !== '.json') continue;
+			if (file.name !== 'plugin.json') continue;
 
 			//file = path.resolve( dir, file );
 
@@ -95,7 +94,8 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc) => {
 
 	console.log('loading plugin file: ' + fileName);
-	if (path.extname(fileName) !== '.js') return null;
+	const ext = path.extname(fileName).toLowerCase();
+	if (ext != '' && ext !== '.js' && ext !== '.ts') return null;
 
 	fileName = path.resolve(plugPath, fileName);
 
@@ -137,8 +137,6 @@ const loadPlugDesc = (plugDir: string, descFile: string, init_func?: InitFunc) =
 
 			desc = a[i];
 			if (desc.plugin) {
-
-				//if ( !desc.hasOwnProperty('name')) desc.name = desc.plugin;
 
 				plug = requirePlugin(plugDir, desc.plugin, init_func);
 				if (plug) plugs.push(plug);

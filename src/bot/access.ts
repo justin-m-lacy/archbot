@@ -44,7 +44,7 @@ export default class Access {
 	 * @param {string} cmd
 	 * @param {number|string} perm
 	 */
-	setAccess(cmd: string, perm: PermissionResolvable) {
+	setAccess(cmd: string, perm: PermissionResolvable | 'all' | 'public' | 'true') {
 
 		if (perm === null || perm === undefined) this.perms[cmd] = Discord.Permissions.DEFAULT;
 		else if (typeof (perm) === 'string') {
