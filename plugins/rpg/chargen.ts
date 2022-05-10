@@ -1,7 +1,7 @@
 import Char from './char/char';
 import Race from './char/race';
 import CharClass from './char/charclass';
-import { StatMod } from './char/stats';
+import { StatMod, StatName } from './char/stats';
 import * as ItemGen from './items/itemgen';
 
 const stats = require('./char/stats');
@@ -38,7 +38,7 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 	char.name = name;
 
 	let info = rollStats(stat_rolls.info, {});
-	modStats(race.infoMods, info);
+	if (race.infoMods) modStats(race.infoMods, info);
 	modStats(charClass.infoMods, info);
 	char.info = info;
 
@@ -57,18 +57,18 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 
 }
 
-function modStats(statMods: StatMod[], destObj: any) {
+function modStats(statMods: StatMod, destObj: any) {
 
 	let cur, mod;
 	for (let stat in statMods) {
 
 		cur = destObj[stat];
 
-		if (typeof (statMods[stat]) === 'string') {
-			mod = Dice.parseRoll(statMods[stat]);
+		if (typeof (statMods[stat as StatName]) === 'string') {
+			mod = Dice.parseRoll(statMods[stat as StatName]);
 
 		} else {
-			mod = statMods[stat];
+			mod = statMods[stat as StatName];
 		}
 
 		if (cur == null) destObj[stat] = mod;

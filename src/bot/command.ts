@@ -88,7 +88,7 @@ export default class Command {
 	 * Default permissions required to use this command.
 	 * Can be overridden by BotContext Access.
 	 */
-	readonly access: PermissionResolvable;
+	readonly access?: PermissionResolvable;
 
 	/**
 	 * immutable commands cannot have their access level changed.
