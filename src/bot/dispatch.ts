@@ -111,12 +111,12 @@ export default class CmdDispatch {
 	 * @param {Function} func
 	 * @param {Object} [opts=null]
 	 */
-	add(name: string, desc: string, func: Function, opts?: CommandOpts) {
+	add(name: string, desc: string | null | undefined, func: Function, opts?: CommandOpts) {
 
 		try {
 
 			//console.log( 'static command: ' + name );
-			let cmd = new Command(name, func, { desc: desc, ...opts });
+			let cmd = new Command(name, func, { desc: desc ?? '', ...opts });
 			this.regCmd(cmd);
 
 		} catch (e) { console.error(e); }
