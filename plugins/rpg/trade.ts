@@ -120,7 +120,7 @@ export const transfer = (src: Char, dest: Char, what: string) => {
 			src.addHistory('gave');
 			dest.addHistory('recieved');
 
-			return (it.name) ? `Gave ${dest.name} ${it.name}. (${ind})` : 'Transfer complete.';
+			return (it.name) ? `Gave ${dest.name} ${it.name}. (${ind})` : `Gave ${dest.name} the item.`;
 
 		}
 	}
@@ -142,7 +142,7 @@ const xferGold = (src: Char, dest: Char, count: number | string) => {
 	src.gold = gold;
 	dest.addGold(count);
 
-	return true;
+	return `Gave ${dest.name} ${count} gold.`;
 
 }
 

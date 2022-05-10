@@ -198,6 +198,7 @@ export default class Container<T extends SimpleItem = Item> {
             this._items.push(it);
             return this._items.length;
         }
+        return -1;
 
     }
 

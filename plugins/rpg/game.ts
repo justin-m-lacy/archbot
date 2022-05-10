@@ -5,29 +5,27 @@ import { Rpg } from "./rpg";
 import World from "./world/world";
 import Char from './char/char';
 import { toDirection, DirVal } from './world/loc';
-import { Item } from './items/item';
+import { Craft, Item } from './items/item';
 import { ItemPicker, ItemIndex } from './inventory';
 import Party from './social/party';
 import Actor from './char/actor';
-import { GuildManager, Guild } from './social/guild';
+import { GuildManager } from './social/guild';
 import { LifeState } from './char/actor';
 import Monster from './monster/monster';
 import Wearable from './items/wearable';
 import Potion from './items/potion';
+import * as jsutils from '../../src/jsutils';
+import * as Trade from './trade';
+import * as dice from './dice';
+import Combat from "./combat/combat";
 
-const Combat = require('./combat');
-const dice = require('./dice');
-const guilds = require('./social/guild');
-const util = require('../../jsutils');
-const Trade = require('./trade');
-const item = require('./items/item');
 const itgen = require('./items/itemgen');
 
 var events = ['explored', 'crafted', 'levelup', 'died', 'pks', 'eaten'];
 
-exports.getLore = (wot?: string) => {
+export const getLore = (wot?: string) => {
 
-	let val = Race.GetRace(wot) ?? Class.GetClass(wot);
+	const val = Race.GetRace(wot) ?? Class.GetClass(wot);
 	if (val) return wot + ': ' + val.desc;
 
 	return 'Unknown entity: ' + wot;
@@ -318,7 +316,7 @@ export default class Game {
 			let eq = char.getEquip(it.slot);
 
 			if (!eq) res += 'Equip: nothing';
-			else if (Array.isArray(eq)) res += 'Equip: ' + item.Item.DetailsList(eq);
+			else if (Array.isArray(eq)) res += 'Equip: ' + Item.DetailsList(eq);
 			else res += 'Equip: ' + eq.getDetails();
 
 			return res;
@@ -391,7 +389,7 @@ export default class Game {
 
 	}
 
-	give(src: Char, dest: Char, expr: ItemPicker) {
+	give(src: Char, dest: Char, expr: string) {
 
 		if (this.tick(src, 'give') === false) return src.output();
 
@@ -435,7 +433,7 @@ export default class Game {
 
 		if (this.tick(char, 'craft') === false) return char.output();
 
-		let ind = item.Craft(char, itemName, desc, imgURL);
+		let ind = Craft(char, itemName, desc, imgURL);
 
 		return char.output(`${char.name} crafted ${itemName}. (${ind})`);
 
@@ -535,7 +533,7 @@ export default class Game {
 			if (e.tick(char)) {
 				// efx end.
 				console.log('EFFECT END: ' + e.name);
-				util.fastCut(efx, i);
+				jsutils.fastCut(efx, i);
 				e.end(char);
 
 			}
@@ -582,7 +580,7 @@ export default class Game {
 
 	}
 
-	async attackNpc(src: Char, npc: Actor | Monster) {
+	async attackNpc(src: Char, npc: Monster) {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
