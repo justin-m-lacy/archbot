@@ -1,7 +1,7 @@
 import { Message } from "discord.js";
 import { DiscordBot } from '../../src/bot/discordbot';
 import { IncomingMessage } from 'http';
-const promisify = require('../../jsutils').promisify;
+const promisify = require('../../src/jsutils').promisify;
 const promiseGet = promisify(require('http').get);
 
 /**

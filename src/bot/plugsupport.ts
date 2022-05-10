@@ -1,7 +1,6 @@
 import { DiscordBot } from "./discordbot";
 import path from 'path';
-
-const fs = require('fs');
+import fs from 'fs';
 
 type InitFunc = (bot: DiscordBot) => void;
 
@@ -54,8 +53,9 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 
 		// If a single file, attempt to load that file as plugin.
 
-		let file = files[0];
-		if (!file.isFile()) return null;
+		const file = files[0];
+		const ext = path.extname(file.name).toLowerCase();
+		if (!file.isFile() || (ext !== '.js' && ext !== '.ts')) return null;
 
 		return requirePlugin(dirPath, file.name, init_func);
 
@@ -125,7 +125,7 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
 const loadPlugDesc = (plugDir: string, descFile: string, init_func?: InitFunc) => {
 
 	let data = fs.readFileSync(path.resolve(plugDir, descFile));
-	let desc = JSON.parse(data);
+	let desc = JSON.parse(data.toString());
 
 	let plug;
 

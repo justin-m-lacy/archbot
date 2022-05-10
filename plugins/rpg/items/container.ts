@@ -1,6 +1,4 @@
 import { Item } from './item';
-const itemjs = require('./items/item');
-const ItemGen = require('./items/itemgen');
 
 export type ItemPicker<T = Item> = string | number | T;
 export type ItemIndex = string | number;
@@ -44,10 +42,6 @@ export default class Container<T extends SimpleItem = Item> {
         let ind = Math.floor(len * Math.random());
         return this._items.splice(ind, 1)[0];
 
-    }
-
-    getList() {
-        return itemjs.Item.ItemList(this._items);
     }
 
     /**

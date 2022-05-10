@@ -1,7 +1,6 @@
 import { Item, ItemType } from './items/item';
 import Chest from './items/chest';
 import Container from './items/container';
-const itemjs = require('./items/item');
 const ItemGen = require('./items/itemgen');
 
 export type ItemPicker = string | number | Item;
@@ -36,7 +35,7 @@ export default class Inventory extends Container<Item> {
 	toJSON() { return { items: this._items }; }
 
 	getList() {
-		return itemjs.Item.ItemList(this._items);
+		return Item.ItemList(this._items);
 	}
 
 	/**

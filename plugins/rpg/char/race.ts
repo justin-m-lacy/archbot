@@ -93,7 +93,7 @@ const initRaces = () => {
 
 	try {
 
-		let a = require('./data/races.json');
+		let a = require('../data/races.json');
 
 		let raceObj, race;
 		for (let i = a.length - 1; i >= 0; i--) {
