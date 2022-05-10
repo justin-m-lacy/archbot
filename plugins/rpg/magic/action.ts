@@ -1,5 +1,5 @@
 import Char from '../char/char';
-const dice = require('../dice.js');
+const dice = require('../dice');
 
 class Action {
 

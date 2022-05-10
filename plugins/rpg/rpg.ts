@@ -894,7 +894,7 @@ export class Rpg {
 
 	async uniqueName(race: TRace, sex?: string) {
 
-		let namegen: typeof TNameGen = require('./namegen.js');
+		let namegen: typeof TNameGen = require('./namegen');
 		do {
 			var name = namegen.genName(race.name, sex);
 		} while (name == null || await this.charExists(name))

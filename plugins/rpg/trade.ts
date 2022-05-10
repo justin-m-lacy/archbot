@@ -5,8 +5,8 @@ import Wearable from './items/wearable';
 import * as ItemGen from './items/itemgen';
 import { toSlot } from './items/wearable';
 
-const util = require('../../jsutils.js');
-const Material = require('./items/material.js');
+const util = require('../../jsutils');
+const Material = require('./items/material');
 
 /**
  * @const {RegExp} isGold - Regexp testing for a gold amount.
@@ -29,7 +29,7 @@ export const rollWeap = (char: Char) => {
 	if (!char.payOrFail(cost))
 		return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`;
 
-	let gen = require('./items/itemgen.js');
+	let gen = require('./items/itemgen');
 	let mod = 1 + char.getModifier('cha');
 	if (mod < 0) mod = 0;
 

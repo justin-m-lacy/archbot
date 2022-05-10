@@ -1,4 +1,4 @@
-let actor = require('./actor.js');
+let actor = require('./actor');
 
 export default class Roster {
 

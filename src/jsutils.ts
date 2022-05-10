@@ -4,9 +4,9 @@
  * Unlike node Utilities promisify, the first callback param
  * is not a rejection error.
  */
-export const promisify = (f: Function, fthis = null) => {
+export const promisify = (f: Function, fthis?: any) => {
 
-	return (...args) => {
+	return (...args: any[]) => {
 
 		return new Promise((res) => {
 
@@ -62,11 +62,11 @@ export const random = (min: number, max: number) => {
  * @param {Array} a - array.
  * @param {number} i - index to remove.
  */
-export const fastCut = (a, i) => { a[i] = a[a.length - 1]; a.pop(); }
+export const fastCut = <T>(a: T[], i: number) => { a[i] = a[a.length - 1]; a.pop(); }
 
 // Performs a recursive merge of variables from src to dest.
 // Variables from src override variables in dest.
-export const recurMerge = (dest, src) => {
+export const recurMerge = (dest: any, src: any) => {
 
 	if (typeof src !== 'object') return dest;
 	if (typeof dest !== 'object') return Object.assign({}, src);
@@ -94,7 +94,7 @@ export const recurMerge = (dest, src) => {
 
 // merges all variables of src into dest.
 // values from src overwrite dest.
-export const merge = (src, dest) => {
+export const merge = (src: any, dest: any) => {
 
 	for (var key in src) {
 
