@@ -26,10 +26,6 @@ export default class Party extends SocialGroup {
 
 	}
 
-	get state() {
-		return this._lastState;
-	}
-
 	get loc() { return this._loc; }
 	set loc(v) { this._loc.setTo(v); }
 

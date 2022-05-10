@@ -7,6 +7,7 @@ import CharClass from './charclass';
 import { roll, parseRoll } from '../dice';
 import { ItemIndex } from '../items/container';
 import { Item } from '../items/item';
+import Weapon from '../items/weapon';
 
 export type LifeState = 'alive' | 'dead';
 
@@ -226,6 +227,8 @@ export default class Actor implements IStatBlock {
 		this.state = exports.Alive;
 
 	}
+
+	getWeapons(): Weapon | Weapon[] | null { return null; }
 
 	updateState() {
 		if (this.curHp <= 0) this.state = exports.Dead;
