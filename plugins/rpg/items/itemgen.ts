@@ -5,11 +5,10 @@ import { HumanSlot } from './wearable';
 import Wearable from './wearable';
 import Monster from '../monster/monster';
 import { Loot } from '../combat/loot';
-
-const Weapon = require('./weapon');
-const Material = require('./material');
-const Chest = require('./chest');
-const Grave = require('./grave');
+import Material from './material';
+import Weapon from './weapon';
+import Grave from './grave';
+import Chest from './chest';
 
 const allItems: { [str: string]: Item } = {};
 let allPots: { [name: string]: Potion };
@@ -221,7 +220,12 @@ export const genLoot = (mons: Monster) => {
 		const armor = genArmor(null, lvl);
 		if (armor) loot.items!.push(armor);
 	}
-	if (Math.random() < 0.1) loot.items!.push(genWeapon(lvl));
+	if (Math.random() < 0.1) {
+		const weap = genWeapon(lvl);
+		if (weap) {
+			loot.items!.push(weap);
+		}
+	}
 
 	if (mons.drops) {
 		console.log('GETTING MONS DROPS.');

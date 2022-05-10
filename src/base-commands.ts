@@ -3,10 +3,10 @@ import { Client, GuildMember, Message, TextBasedChannel, User } from 'discord.js
 import { UserHistory } from './history';
 import * as jsutils from './jsutils';
 import DateFormat from './datedisplay';
-import { parseRoll } from 'plugins/rpg/dice';
+import { parseRoll } from '../plugins/rpg/dice';
 
-var bot: DiscordBot;
-var client: Client;
+let bot: DiscordBot;
+let client: Client;
 
 export const initBasicCommands = (bot: DiscordBot) => {
 

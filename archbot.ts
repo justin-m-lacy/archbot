@@ -30,7 +30,7 @@ console.log('client created.');
 const initBot = () => {
 
 	try {
-		var bot = InitBot(client, auth);
+		const bot = InitBot(client, auth);
 		initBasicCommands(bot);
 
 		return bot;
@@ -51,7 +51,9 @@ client.on('error', err => {
 });
 
 console.log('logging in...');
-client.login((process.env.NODE_ENV !== 'production' && auth.dev) ? auth.dev.token || auth.token : auth.token);
+client.login(auth.token);
+
+/*client.login((process.env.NODE_ENV !== 'production' && auth.dev) ? auth.dev.token || auth.token : auth.token);*/
 
 
 

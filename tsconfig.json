@@ -42,5 +42,6 @@
     "src/bot/**/*.js",
     "src/bot/**/*.d.ts",
     "src/bot/**/*.tsx",
+    "plugins/checkers/checkers",
   ]
 }

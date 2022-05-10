@@ -29,9 +29,9 @@ export default class Equip {
 			if (!wot) continue;
 			else if (Array.isArray(wot)) {
 
-				dest[k] = wot.map(ItemGen.fromJSON);
+				dest[k] = wot.map(v => ItemGen.fromJSON(v) as Wearable);
 
-			} else dest[k] = ItemGen.fromJSON(wot);
+			} else dest[k] = ItemGen.fromJSON(wot) as Wearable;
 
 		}
 
