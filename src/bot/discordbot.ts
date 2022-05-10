@@ -9,7 +9,6 @@ import Cache from 'archcache';
 import fsys from './botfs';
 import { Display } from '../display';
 
-const Dispatch = require('./dispatch');
 const Discord = require('discord.js');
 const path = require('path');
 
@@ -109,6 +108,7 @@ export class DiscordBot {
 		this.client = client;
 
 		this.loadConfig();
+		console.log(`using save dir: ${this._saveDir}`);
 		fsys.setBaseDir(this._saveDir);
 
 		this.cache = new Cache({
@@ -120,7 +120,7 @@ export class DiscordBot {
 
 		});
 
-		this._dispatch = new Dispatch(this.cmdPrefix);
+		this._dispatch = new CmdDispatch(this.cmdPrefix);
 
 		// maps id->context id.
 		this.restoreProxies();
@@ -180,7 +180,7 @@ export class DiscordBot {
 
 		try {
 
-			let config = require('../archconfig.json');
+			let config = require('../../archconfig.json');
 
 			if (process.env.NODE_ENV !== 'production' && config.dev) {
 				Object.assign(config, config.dev);

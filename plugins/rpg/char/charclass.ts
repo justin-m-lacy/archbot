@@ -71,7 +71,7 @@ function initClasses() {
 
 	try {
 
-		let a = require('./data/classes.json');
+		let a = require('../data/classes.json');
 
 		let classObj, charclass;
 		for (let i = a.length - 1; i >= 0; i--) {

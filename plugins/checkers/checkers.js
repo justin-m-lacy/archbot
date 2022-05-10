@@ -1,5 +1,5 @@
 const Discord = require( 'discord.js');
-const GameCache = require( '../../gamecache');
+const GameCache = require( '../../src/gamecache');
 
 const game_dir = 'checkers/';
 

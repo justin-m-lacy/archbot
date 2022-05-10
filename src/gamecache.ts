@@ -110,7 +110,7 @@ export default class GameCache {
 	 * @param {?number} [gnum=null]
 	 * @returns {Promise}
 	 */
-	async activeOrErr(m: Message, u1: User, u2?: User | null, gnum?) {
+	async activeOrErr(m: Message, u1: User, u2?: User | null, gnum?: number) {
 
 		//console.log( 'p1 not null. p2 null');
 		let games = await this.activeGames(u1);
@@ -136,7 +136,7 @@ export default class GameCache {
 	 * @param {?number} num
 	 * @returns {Promise}
 	 */
-	async getGame(u1, u2, num = null) {
+	async getGame(u1: User, u2: User, num?: number) {
 
 		try {
 
@@ -195,7 +195,7 @@ export default class GameCache {
 					return null;
 				};
 
-				let game = await this.getGame(p1, p2, gnum);
+				let game = await this.getGame(p1 as User, p2 as User, gnum);
 
 				if (!game) {
 					m.reply('No game between ' + this.context.userString(p1) +
@@ -322,7 +322,7 @@ export default class GameCache {
 	 * @param {Discord.User} [user=null]
 	 * @param {?number} [gnum=null]
 	 */
-	filterList(list: GameInfo[], user: User | null = null, gnum: number = null) {
+	filterList(list: GameInfo[], user: User | null = null, gnum?: number) {
 
 		let len = list.length;
 		var results;
