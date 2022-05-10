@@ -1,4 +1,4 @@
-import { GuildMember } from 'discord.js';
+import { GuildMember, PermissionResolvable } from 'discord.js';
 const Discord = require('discord.js');
 
 /**
@@ -44,12 +44,11 @@ export default class Access {
 	 * @param {string} cmd
 	 * @param {number|string} perm
 	 */
-	setAccess(cmd: string, perm: number | string) {
+	setAccess(cmd: string, perm: PermissionResolvable) {
 
 		if (perm === null || perm === undefined) this.perms[cmd] = Discord.Permissions.DEFAULT;
 		else if (typeof (perm) === 'string') {
 
-			perm = perm.toLowerCase();
 			if (perm === 'all' || perm === 'public' || perm === 'true') {
 
 				this.perms[cmd] = Discord.Permissions.ALL;
@@ -70,7 +69,7 @@ export default class Access {
 
 			}
 
-		} else if (!isNaN(perm)) this.perms[cmd] = Number(perm);
+		} else if (!Number.isNaN(perm)) this.perms[cmd] = Number(perm);
 		else return false;
 
 		return true;
@@ -131,7 +130,7 @@ export default class Access {
 	 * @param {GuildMember} gm
 	 * @param {number|string} perm
 	 */
-	checkPerms(gm: GuildMember, perm: string | number) {
+	checkPerms(gm: GuildMember, perm: PermissionResolvable) {
 
 		if (typeof perm === 'number' && isNaN(perm) === false) {
 

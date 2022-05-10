@@ -129,13 +129,13 @@ export default class CmdDispatch {
 	 */
 	regCmd(cmd: Command) {
 
-		this.cmdLine.commands.set(cmd.name, cmd);
+		this.cmdLine.commands[cmd.name] = cmd;
 		let alias = cmd.alias;
 		if (alias) {
 
-			if (typeof (alias) === 'string') this.cmdLine.commands.set(alias, cmd);
+			if (typeof (alias) === 'string') this.cmdLine.commands[alias] = cmd;
 			else if (Array.isArray(alias)) {
-				alias.every(v => this.cmdLine.commands.set(v, cmd));
+				alias.every(v => this.cmdLine.commands[v] = cmd);
 			}
 
 		}
@@ -151,13 +151,13 @@ export default class CmdDispatch {
 	 *
 	 * @param {string} name
 	 */
-	clearCmd(name: string) { return this.commands.delete(name); }
+	clearCmd(name: string) { return delete this.commands[name]; }
 
 }
 
 class CmdLine {
 
-	readonly _cmds: Map<string, Command> = new Map();
+	readonly _cmds: { [name: string]: Command } = {};
 	get commands() { return this._cmds; }
 
 	/**
@@ -189,7 +189,7 @@ class CmdLine {
 	 * @param {string} name
 	 */
 	getCommand(name: string) {
-		return this._cmds.get(name.toLowerCase());
+		return this._cmds[name.toLowerCase()];
 	}
 
 
@@ -207,12 +207,12 @@ class CmdLine {
 		let cmd, ind = str.indexOf(' ', this._prefixLen);
 		if (ind < 0) {
 
-			cmd = this._cmds.get(str.slice(this._prefixLen).toLowerCase());
+			cmd = this._cmds[str.slice(this._prefixLen).toLowerCase()];
 			this._args = null;
 
 		} else {
 
-			cmd = this._cmds.get(str.slice(this._prefixLen, ind).toLowerCase());
+			cmd = this._cmds[str.slice(this._prefixLen, ind).toLowerCase()];
 			if (!cmd) return null;
 
 			this.readArgs(str.slice(ind), cmd);

@@ -6,6 +6,7 @@ auth.json
 
 savedata
 devdata
+dist
 
 node_modules
 *.lnk

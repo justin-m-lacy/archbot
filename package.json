@@ -7,7 +7,7 @@
     "start": "node .",
     "minify": "uglifyjs --compress --mangle -o archbot.min.js dist/archbot.js",
     "dev": "cross-env NODE_ENV=development && ts-node server.ts",
-    "build": "rimraf dist && cross-env NODE_ENV=production && npm run minify ",
+    "build": "rimraf dist && cross-env NODE_ENV=production && tsc && npm run minify ",
     "host": "cross-env NODE_ENV=production && ts-node server.ts"
   },
   "repository": {
@@ -45,6 +45,7 @@
   ],
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "rimraf": "^3.0.2",
     "ts-node": "^10.7.0",
     "uglify-js": "^3.15.4"
   }

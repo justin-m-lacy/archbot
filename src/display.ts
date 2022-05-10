@@ -1,10 +1,17 @@
-import Discord, { Message } from 'discord.js';
+import Discord, { Message, TextBasedChannel } from 'discord.js';
 
 export const Display = {
 
 	CONTENT_MAX: 1600,
 
 	capsRegEx: /(?:\b(\w*)\b)*/g,
+
+	sendAll: async (ch: TextBasedChannel, strings: string[]) => {
+
+		for (let i = 0; i < strings.length; i++) {
+			ch.send(strings[i]);
+		}
+	},
 
 	blockText: (s: string) => '```' + s + '```',
 

@@ -29,7 +29,7 @@ export const deleteFile = (path: string) => new Promise((res, rej) => {
  * @param {string} path
  * @returns {Promise<boolean>}
  */
-export const exists = (path: string) => new Promise((res) => {
+export const exists = (path: string): Promise<boolean> => new Promise((res) => {
 
 	fs.access(path,
 
