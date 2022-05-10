@@ -388,7 +388,10 @@ export default class Char extends Actor {
 	 * Add an item to inventory.
 	 * @param {Item|Item[]} it
 	 */
-	addItem(it: Item | Item[]) { return this._inv.add(it); }
+	addItem(it?: Item | (Item | null | undefined)[] | null) {
+		return this._inv.add(it);
+
+	}
 
 	/**
 	 * Remove an item from inventory and return it.

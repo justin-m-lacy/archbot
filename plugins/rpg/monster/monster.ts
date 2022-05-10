@@ -3,11 +3,11 @@ import { LifeState } from '../char/actor';
 import { Item } from '../items/item';
 import { Biome } from '../world/loc';
 import { roll } from '../dice';
+import Weapon from '../items/weapon';
 const form = require('../formulas');
 
-const dice = require('../dice.js');
-const Weapon = require('../items/weapon.js');
-const stats = require('../char/stats.js');
+const dice = require('../dice');
+const stats = require('../char/stats');
 
 // var formulas to parse.
 const parseVars = ['hp', 'armor', 'toHit', 'mp'];
@@ -41,7 +41,7 @@ const initTemplates = () => {
 }
 initTemplates();
 
-const parseTemplate = (json: any) => {
+function parseTemplate(json: any) {
 
 	let t = Object.assign({}, json);
 

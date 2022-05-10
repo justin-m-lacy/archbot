@@ -8,7 +8,7 @@ import { parseRoll } from '../plugins/rpg/dice';
 let bot: DiscordBot;
 let client: Client;
 
-export const initBasicCommands = (bot: DiscordBot) => {
+export function initBasicCommands(bot: DiscordBot) {
 
     bot = bot;
     client = bot.client;
@@ -552,7 +552,7 @@ const sendHistory = async (channel: TextBasedChannel, name: string, statuses: st
  * @param {Object} newData - data to merge into existing data.
  * @returns {Promise}
  */
-export const mergeMember = async (uObject: GuildMember | User, newData: any) => {
+export async function mergeMember(uObject: GuildMember | User, newData: any) {
 
     try {
 
