@@ -4,7 +4,6 @@ import Command from './command';
 import ArchCache from 'archcache';
 import Access from './access';
 
-const Discord = require('discord');
 const fsys = require('./botfs');
 const afs = require('../afs');
 

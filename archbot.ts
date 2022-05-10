@@ -1,14 +1,15 @@
-import Discord, { Activity, Client, GuildMember, Intents, Message, Presence, TextBasedChannel, User } from 'discord.js';
+import { Activity, Client, GuildMember, Intents, Message, Presence, TextBasedChannel, User } from 'discord.js';
+
 import auth from './auth.json';
 import { UserHistory } from './src/history';
+import { DiscordBot, InitBot } from './src/bot/discordbot';
 
 const DateFormat = require('./src/datedisplay');
 const dice = require('archdice');
 const jsutils = require('./src/jsutils');
-const DiscordBot = require('./src/bot/discordbot');
 
 // init bot
-const client: Client = new Discord.Client({
+const client: Client = new Client({
 
 	intents: [Intents.FLAGS.GUILDS,
 	Intents.FLAGS.DIRECT_MESSAGES,
@@ -27,14 +28,22 @@ const client: Client = new Discord.Client({
 
 console.log('client created.');
 
-try {
-	var bot = DiscordBot.InitBot(client, auth);
-	console.log('bot created.');
-} catch (e) {
-	console.error(e);
-}
+const initBot = () => {
 
-initCmds();
+	try {
+		var bot = InitBot(client, auth);
+		initCmds(bot);
+
+		return bot;
+
+	} catch (e) {
+		console.error(e);
+	}
+
+
+}
+const bot = initBot()!;
+
 
 client.on('presenceUpdate', presenceUpdate);
 client.on('error', err => {
@@ -45,7 +54,7 @@ console.log('logging in...');
 client.login((process.env.NODE_ENV !== 'production' && auth.dev) ? auth.dev.token || auth.token : auth.token);
 
 
-function initCmds() {
+function initCmds(bot: DiscordBot) {
 
 	let cmds = bot.dispatch;
 
@@ -99,7 +108,7 @@ const cmdUptime = async (m: Message) => {
 const cmdUName = async (msg: Message, name: string) => {
 
 	let gMember = bot.userOrSendErr(msg.channel, name);
-	if (!gMember) return;
+	if (!gMember || !(gMember instanceof GuildMember)) return;
 	return msg.channel.send(name + ' user name: ' + gMember.user.username)
 
 }
@@ -113,7 +122,7 @@ const cmdUName = async (msg: Message, name: string) => {
 const cmdNick = async (msg: Message, name: string) => {
 
 	let gMember = bot.userOrSendErr(msg.channel, name);
-	if (!gMember) return;
+	if (!gMember || !(gMember instanceof GuildMember)) return;
 	return msg.channel.send(name + ' nickname: ' + gMember.nickname)
 
 }
@@ -139,14 +148,14 @@ const cmdHelp = (msg: Message, cmd?: string) => {
 const cmdUid = async (msg: Message, name: string) => {
 
 	let gMember = bot.userOrSendErr(msg.channel, name);
-	if (!gMember) return;
+	if (!gMember || !(gMember instanceof GuildMember)) return;
 	return msg.channel.send(name + ' uid: ' + gMember.user.id)
 
 }
 
 /**
  * @async
- * @param {Discord.Message} msg
+ * @param msg
  * @param {string} dicestr - roll formatted string.
  * @returns {Promise}
  */
@@ -255,9 +264,10 @@ const cmdFuck = (m: Message) => {
 const sendGameTime = async (channel: TextBasedChannel, displayName: string, gameName: string) => {
 
 	let uObject = bot.userOrSendErr(channel, displayName);
-	if (!uObject) return;
+	if (!uObject || !(uObject instanceof GuildMember)) return;
 
-	if (uObject.presence.game && uObject.presence.game.name === gameName) {
+	gameName = gameName.toLowerCase();
+	if (uObject.presence?.activities?.find(v => v.name.toLowerCase() === gameName)) {
 		return channel.send(displayName + ' is playing ' + gameName);
 	}
 
@@ -285,11 +295,11 @@ const cmdPlayTime = async (msg: Message, name: string) => {
 
 	let chan = msg.channel;
 	let gMember = bot.userOrSendErr(chan, name);
-	if (!gMember) return;
+	if (!gMember || !('presence' in gMember)) return;
 
-	if (!gMember.presence.game) return chan.send(name + ' is not playing a game.');
+	if (!gMember.presence?.activities || gMember.presence!.activities.length == 0) return chan.send(name + ' is not playing a game.');
 
-	let gameName = gMember.presence.game.name;
+	let gameName = gMember.presence!.activities[0].name;
 
 	try {
 
@@ -451,8 +461,9 @@ const sendHistory = async (channel: TextBasedChannel, name: string, statuses: st
  * @param {string[]|string} statuses
  * @returns {boolean}
  */
-const hasStatus = (gMember: GuildMember, statuses: string | string[]) => {
+const hasStatus = (gMember: GuildMember | User, statuses: string | string[]) => {
 
+	if (gMember instanceof User) { return false; }
 	let status = gMember.presence?.status;
 	if (Array.isArray(statuses)) {
 
@@ -527,7 +538,7 @@ const sendSchedule = async (chan: TextBasedChannel, name: string, activity: stri
  * @param {GuildMember} gMember
  * @returns {Promise<Object|null>}
  */
-const readHistory = async (gMember: GuildMember) => {
+const readHistory = async (gMember: GuildMember | User) => {
 
 	try {
 		let data = await bot.fetchUserData(gMember);
@@ -545,7 +556,7 @@ const readHistory = async (gMember: GuildMember) => {
  * @param {string} schedType - activity to read schedule for.
  * @returns {Promise}
  */
-const readSchedule = async (gMember: GuildMember, schedType: string) => {
+const readSchedule = async (gMember: GuildMember | User, schedType: string) => {
 
 	try {
 
@@ -567,7 +578,7 @@ const readSchedule = async (gMember: GuildMember, schedType: string) => {
  * @param {string} scheduleString - schedule description.
  * @returns {Promise}
  */
-const setSchedule = async (uObject: GuildMember | Discord.User, scheduleType: string, scheduleString: string) => {
+const setSchedule = async (uObject: GuildMember | User, scheduleType: string, scheduleString: string) => {
 	return mergeMember(uObject, { schedule: { [scheduleType]: scheduleString } });
 }
 
@@ -604,8 +615,8 @@ async function presenceUpdate(oldPres: Presence | null, newPres: Presence) {
 /**
  *
  * @param {GuildMember} guildMember
- * @param {Discord.Activity[]} oldActs
- * @param {Discord.Activity[]} newActs
+ * @param  oldActs
+ * @param  newActs
  */
 const logActivities = async (guildMember: GuildMember, oldActs?: Activity[], newActs?: Activity[]) => {
 
