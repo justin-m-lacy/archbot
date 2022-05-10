@@ -596,12 +596,12 @@ export default class Game {
 
 	}
 
-	steal(src: Char, dest: Char, wot?: ItemPicker) {
+	async steal(src: Char, dest: Char, wot?: ItemPicker) {
 
 		if (this.tick(src, 'steal') === false) return src.output();
 
 		let com = new Combat(src, dest, this.world);
-		com.steal(wot);
+		await com.steal(wot);
 
 		return src.output(com.getText());
 

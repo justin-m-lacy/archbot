@@ -9,6 +9,7 @@ import * as forms from '../formulas';
 import { ItemIndex } from '../items/container';
 import Grave from '../items/grave';
 import { Item } from '../items/item';
+import { ItemPicker } from '../inventory';
 
 const itemgen = require('./items/itemgen');
 const dice = require('./dice.js');
@@ -30,12 +31,12 @@ export default class Combat {
 
 	resp: string = '';
 	readonly attacker: Char | Party | Monster;
-	readonly defender: Char | Party | Monster;
+	readonly defender: Char | Monster | Party;
 	readonly world: World;
 
 	readonly attacks: any[] = [];
 
-	constructor(c1: Char, c2: Char, world: World) {
+	constructor(c1: Char | Monster, c2: Char | Monster, world: World) {
 
 		this.attacker = c1;
 		this.defender = c2;
@@ -46,27 +47,31 @@ export default class Combat {
 
 	async fightNpc() {
 
-		const defense = this.defender;
+		const defender = this.defender as Monster;
+		const attacker = this.attacker as Char;
 
-		if (defense.state !== 'alive') {
-			this.resp += `${this.defender.name} is already dead.`;
+		if (defender.state !== 'alive') {
+			this.resp += `${defender.name} is already dead.`;
 			return;
 		}
 
-		if (this.attacker instanceof Party) await this.partyAttack(this.attacker, defense);
-		else await this.tryHit(this.attacker, defense);
+		if (attacker instanceof Party) await this.partyAttack(attacker, defender);
+		else await this.tryHit(attacker, defender);
 
 		this.resp += '\n';
-		if (this.attacker instanceof Party) {
-			await this.tryHit(defense, await this.attacker.randTarget());
-		} else await this.tryHit(defense, this.attacker);
+		/*if (this.attacker instanceof Party) {
+			await this.tryHit(defense, await attacker.randTarget());
+		}
+		else*/
+		await this.tryHit(defender, attacker);
 
 		await this.resolve();
 
-		if (defense.state === 'dead') {
+		// @ts-ignore defender may have died.
+		if (defender.state === 'dead') {
 
-			this.world.removeNpc(this.attacker as Char, defense);
-			await this.doLoot(this.attacker, itemgen.genLoot(defense));
+			this.world.removeNpc(attacker as Char, defender);
+			await this.doLoot(attacker, itemgen.genLoot(defender));
 
 		}
 
@@ -80,8 +85,6 @@ export default class Combat {
 	 */
 	async partyAttack(p: Party, targ: Char | Party | Monster) {
 
-		let destParty = targ instanceof Party;
-
 		let names = p.roster;
 		let len = names.length;
 
@@ -94,12 +97,10 @@ export default class Combat {
 				continue;
 			}
 
-			console.log('ATTACK ATTEMPT: ' + names[i]);
-
 			this.resp += '\n';
-			if (destParty) {
+			if (targ instanceof Party) {
 
-				var destChar = targ.randTarget();
+				var destChar = await targ.randTarget();
 				if (!destChar) {
 					console.warn('All opponents have 0 hp.');
 					break;	// no opponents with hp left.
@@ -118,7 +119,8 @@ export default class Combat {
 	 */
 	async fight() {
 
-		if (!(this.attacker.loc.equals(this.defender.loc))) {
+		if ('loc' in this.attacker && 'loc' in this.defender
+			&& !(this.attacker.loc.equals(this.defender.loc))) {
 			this.resp += `${this.attacker.name} does not see ${this.defender.name} at their location.`;
 			return;
 		}
@@ -178,7 +180,7 @@ export default class Combat {
 
 	}
 
-	async tryHit(src: Char | Monster, dest: Actor | Party | Monster, srcParty?: Party) {
+	async tryHit(src: Actor | Monster, dest: Actor | Party | Monster, srcParty?: Party) {
 
 		if (!src) { console.warn('tryHit() src is null'); return; }
 
@@ -228,18 +230,27 @@ export default class Combat {
 	 *
 	 * @param {Item|number|string} wot - optional item to try to take.
 	 */
-	steal(wot = null) {
+	async steal(wot?: ItemPicker) {
 
 		const attacker = this.attacker as Actor | Monster;
 
+		let defender: Char | Monster | undefined;
+
+		if (this.defender instanceof Party) {
+			defender = await this.defender.randChar();
+			if (!defender) {
+				return;
+			}
+		} else { defender = this.defender }
+
 		/// Monsters always assumed to be at same location.
-		if ('loc' in attacker && 'loc' in this.defender && !(attacker.loc.equals(this.defender.loc))) {
-			this.resp += `${attacker.name} does not see ${this.defender.name} at their location.`;
+		if ('loc' in attacker && 'loc' in defender && !(attacker.loc.equals(defender.loc))) {
+			this.resp += `${attacker.name} does not see ${defender.name} at their location.`;
 			return;
 		}
 
 		let atk = attacker.skillRoll() + attacker.getModifier('dex') + attacker.getModifier('wis');
-		let def = this.defender.skillRoll() + this.defender.getModifier('dex') + this.defender.getModifier('wis');
+		let def = defender.skillRoll() + defender.getModifier('dex') + defender.getModifier('wis');
 
 		if (!attacker.hasTalent('steal')) atk -= 20;
 
@@ -248,14 +259,14 @@ export default class Combat {
 
 		if (del > 15) {
 
-			this.take(attacker, this.defender, wot, del);
+			this.take(attacker, defender, wot, del);
 
-		} else if (del < 5 && this.defender.state === 'alive') {
+		} else if (del < 5 && defender.state === 'alive') {
 
-			this.resp += `${this.defender.name} catches ${attacker.name} attempting to steal.\n`;
-			this.attack(this.defender, attacker);
+			this.resp += `${defender.name} catches ${attacker.name} attempting to steal.\n`;
+			this.attack(defender, attacker);
 
-		} else this.resp += `${attacker.name} failed to steal from ${this.defender.name}`;
+		} else this.resp += `${attacker.name} failed to steal from ${defender.name}`;
 
 	}
 
@@ -264,19 +275,19 @@ export default class Combat {
 	 * @param {Char} src
 	 * @param {Char} dest
 	 */
-	attack(src: Char, dest: Char) {
+	attack(src: Actor | Monster, dest: Actor | Monster) {
 
-		if (!(src.loc.equals(dest.loc))) {
+		if ('loc' in src && 'loc' in dest && !(src.loc.equals(dest.loc))) {
 			this.resp += `${src.name} does not see ${dest.name} at their location.`;
 			return;
 		}
 
-		let atk1 = this.tryHit(src, dest);
+		this.tryHit(src, dest);
 		this.resolve();
 
 	}
 
-	take(src: Actor, targ: Char | Monster, wot: ItemIndex, stealRoll: number = 0) {
+	take(src: Actor | Monster, targ: Char | Monster, wot?: ItemPicker, stealRoll: number = 0) {
 
 		let it;
 		if (wot) {
@@ -357,7 +368,7 @@ class AttackInfo {
 	// defender was killed.
 	get killed() { return this._killed; }
 
-	readonly attacker: Char | Monster;
+	readonly attacker: Actor | Monster;
 	readonly defender: Actor | Monster;
 	readonly party?: Party;
 	readonly weap?: Weapon;
@@ -367,7 +378,7 @@ class AttackInfo {
 	private _dmg: any;
 	private hitroll: number = 0;
 
-	constructor(attacker: Char | Monster, defender: Actor | Monster, party?: Party) {
+	constructor(attacker: Actor | Monster, defender: Actor | Monster, party?: Party) {
 
 		this.attacker = attacker;
 		this.defender = defender;
@@ -407,7 +418,7 @@ class AttackInfo {
 		if (hp <= 0) this._killed = true;
 	}
 
-	getWeapon(char: Char | Monster) {
+	getWeapon(char: Actor | Monster) {
 
 		let w = char.getWeapons();
 		if (!w) return fist;

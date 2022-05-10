@@ -673,7 +673,8 @@ export class Rpg {
 		let dest = await this.loadChar(who);
 		if (!dest) return m.reply(`'${who}' not found on server.`);
 
-		await display.sendBlock(m, this.game.steal(src, dest, wot));
+		const result = await this.game.steal(src, dest, wot);
+		await display.sendBlock(m, result);
 
 	}
 

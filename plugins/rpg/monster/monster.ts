@@ -2,6 +2,7 @@ import { Formula } from 'formulic';
 import { LifeState } from '../char/actor';
 import { Item } from '../items/item';
 import { Biome } from '../world/loc';
+import { roll } from '../dice';
 const form = require('../formulas');
 
 const dice = require('../dice.js');
@@ -260,6 +261,8 @@ export default class Monster {
 		this._toHit = 0;
 		this._state = 'alive';
 	}
+
+	skillRoll() { return roll(1, 5 * (this.level + 4)); }
 
 	hasTalent(s: string) {
 		return this._talents?.includes(s);
