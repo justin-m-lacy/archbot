@@ -93,15 +93,15 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
  */
 const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc) => {
 
-	console.log('loading plugin file: ' + fileName);
-	const ext = path.extname(fileName).toLowerCase();
-	if (ext != '' && ext !== '.js' && ext !== '.ts') return null;
-
-	fileName = path.resolve(plugPath, fileName);
-
 	try {
 
-		let plug = require(fileName);
+		console.log('loading plugin file: ' + fileName);
+
+
+		const ext = path.extname(fileName).toLowerCase();
+		if (ext != '' && ext !== '.js' && ext !== '.ts') return null;
+
+		let plug = require(path.resolve(plugPath, fileName));
 
 		if (plug && init_func) init_func(plug);
 

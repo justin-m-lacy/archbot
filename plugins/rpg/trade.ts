@@ -4,8 +4,8 @@ import { Item } from './items/item';
 import Wearable from './items/wearable';
 import * as ItemGen from './items/itemgen';
 import { toSlot } from './items/wearable';
+import * as jsutils from '../../src/jsutils';
 
-const util = require('../../jsutils');
 const Material = require('./items/material');
 
 /**
@@ -33,7 +33,7 @@ export const rollWeap = (char: Char) => {
 	let mod = 1 + char.getModifier('cha');
 	if (mod < 0) mod = 0;
 
-	level = Math.max(0, level + util.random(-1, mod));
+	level = Math.max(0, level + jsutils.random(-1, mod));
 	let it = gen.genWeapon(level);
 
 	if (!it) return 'Failed to roll a weapon.';
@@ -53,7 +53,7 @@ export const rollArmor = (char: Char, slot?: string) => {
 	let mod = 1 + char.getModifier('cha');
 	if (mod < 0) mod = 0;
 
-	level = Math.max(0, level + util.random(-1, mod));
+	level = Math.max(0, level + jsutils.random(-1, mod));
 	let it = ItemGen.genArmor(toSlot(slot), level);
 
 	if (!it) return 'Failed to roll armor.';
