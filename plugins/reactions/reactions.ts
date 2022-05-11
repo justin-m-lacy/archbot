@@ -1,10 +1,11 @@
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 import { ReactSet } from './reactset';
 import { Display } from '../../src/display';
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
 import { Reaction } from './reaction';
 import { DiscordBot } from '../../src/bot/discordbot';
-import { PermissionFlagsBits } from 'discord-api-types';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
@@ -178,6 +179,7 @@ class GuildReactions {
 	 */
 	async cmdAddReact(m: Message, trig: string, react: string) {
 
+		console.log(`attempting to add react command: ${trig}`);
 		let embedUrl = m.embeds.find(v => v.url != null)?.url;
 
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
@@ -623,7 +625,10 @@ class GuildReactions {
  * @param {Object} reactData - reaction data.
  * @returns {Object}
  */
-const parseReacts = (reactData: any) => {
+const parseReacts = (data: any) => {
+
+	//const json = JSON.parse(reactData.toString());
+
 	return {
 		toJSON() {
 
@@ -633,8 +638,8 @@ const parseReacts = (reactData: any) => {
 			}
 
 		},
-		strings: parseStrings(reactData.strings || reactData),
-		regex: parseRe(reactData.regex)
+		strings: parseStrings(data.strings || data),
+		regex: parseRe(data.regex)
 	};
 }
 
@@ -718,12 +723,12 @@ const toRegEx = (s: string) => {
  */
 export const init = (bot: DiscordBot) => {
 
-	console.log('loading reacts.');
+	const parsed = parseReacts(require('./reactions-data.json'));
+	globalReacts = parsed.strings;
+	globalRegEx = parsed.regex;
 
-	const reactData = parseReacts(require('./reactions.json'));
+	console.log(`reacts loaded.`);
 
-	globalReacts = reactData.strings;
-	globalRegEx = reactData.regex;
 
 	bot.addContextClass(GuildReactions);
 	bot.addContextCmd('react', 'react <trigger> <response string>',
@@ -748,6 +753,6 @@ export const init = (bot: DiscordBot) => {
 
 	bot.addContextCmd('rmreact', 'rmreact <trigger> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
-		{ minArgs: 1, maxArgs: 2, group: 'right', access: PermissionFlagsBits.Administrator });
+		{ minArgs: 1, maxArgs: 2, group: 'right', access: Permissions.FLAGS.ADMINISTRATOR });
 
 }

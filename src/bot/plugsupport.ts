@@ -66,11 +66,7 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 
 		try {
 
-			if (!file.isFile()) continue;
-
-			if (file.name !== 'plugin.json') continue;
-
-			//file = path.resolve( dir, file );
+			if (!file.isFile() || file.name !== 'plugin.json') continue;
 
 			let res = loadPlugDesc(dirPath, file.name, init_func);
 
@@ -97,13 +93,18 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
 
 		console.log('loading plugin file: ' + fileName);
 
-
 		const ext = path.extname(fileName).toLowerCase();
-		if (ext != '' && ext !== '.js' && ext !== '.ts') return null;
+		if (ext != '' && ext !== '.js' && ext !== '.ts') {
+			console.log(`unexpected plugin extension: ${ext}`);
+			return null;
+		}
 
 		let plug = require(path.resolve(plugPath, fileName));
 
-		if (plug && init_func) init_func(plug);
+		if (!plug) {
+			throw new Error(`plugin not found: ${path.resolve(plugPath, fileName)}`);
+		}
+		init_func?.(plug);
 
 		return plug;
 
