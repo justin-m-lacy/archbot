@@ -803,15 +803,18 @@ export class Rpg {
 
 		let charname = this.lastChars[user.id];
 		if (!charname) {
-			return await m.reply(`${user.username}: No active character`);
+			m.reply(`${user.username}: No active character`);
+			return null;
 		}
 
 		let char = await this.loadChar(charname);
 		if (!char) {
-			return await m.reply(`Error loading '${charname}'. Load new character.`);
+			m.reply(`Error loading '${charname}'. Load new character.`);
+			return null;
 		}
 		if (char.owner !== user.id) {
-			return await m.reply(`You are not the owner of '${charname}'`);
+			m.reply(`You are not the owner of '${charname}'`);
+			return null;
 		}
 		return char;
 
