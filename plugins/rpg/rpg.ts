@@ -36,8 +36,8 @@ const LAST_CHARS = '`lastchars`';
 function initData() {
 
 	Char = require('./char/char');
-	Race = require('./race');
-	CharClass = require('./charclass');
+	Race = require('./char/race');
+	CharClass = require('./char/charclass');
 	CharGen = require('./chargen');
 	Trade = require('./trade');
 	World = require('./world/world');
