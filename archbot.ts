@@ -1,9 +1,9 @@
 import { Activity, Client, GuildMember, Intents, Presence } from 'discord.js';
 
-import auth from './auth.json';
 import { UserHistory } from './src/history';
 import { InitBot } from './src/bot/discordbot';
 import { initBasicCommands, mergeMember } from './src/base-commands';
+import { Auth } from '@src/bot/auth';
 
 // init bot
 const client: Client = new Client({
@@ -24,14 +24,21 @@ const client: Client = new Client({
 		}
 	}
 });
+client.on('presenceUpdate', presenceUpdate);
+client.on('error', err => {
+	console.error('Connection error: ' + err.message);
+});
 
 console.log('client created.');
 
 const initBot = () => {
 
+	const auth = require('./auth.json') as Auth;
+
 	try {
 		const bot = InitBot(client, auth);
 		initBasicCommands(bot);
+		tryLogin(auth);
 
 		return bot;
 
@@ -44,18 +51,13 @@ const initBot = () => {
 
 initBot()!;
 
+function tryLogin(auth: Auth) {
 
-client.on('presenceUpdate', presenceUpdate);
-client.on('error', err => {
-	console.error('Connection error: ' + err.message);
-});
-
-console.log('logging in...');
-client.login(auth.token);
-
-/*client.login((process.env.NODE_ENV !== 'production' && auth.dev) ? auth.dev.token || auth.token : auth.token);*/
+	console.log(`logging in with mode: ${process.env.NODE_ENV ?? 'dev'}`);
+	client.login((process.env.NODE_ENV !== 'production' && auth.dev != null) ? auth.dev?.token ?? auth.token : auth.token);
 
 
+}
 
 /**
  *
