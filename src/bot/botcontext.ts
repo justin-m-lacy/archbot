@@ -234,7 +234,7 @@ export abstract class BotContext<T extends ContextSource> {
 	 */
 	onMsg(listener: (m: Message) => void) {
 
-		this.bot.client.on('message', (m: Message) => {
+		this.bot.client.on('messageCreate', (m: Message) => {
 
 			if (m.author.id === m.client.user?.id) return;
 
