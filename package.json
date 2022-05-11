@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lerpinglemur/archbot.git"
+    "url": "git+https://github.com/justin-m-lacy/archbot.git"
   },
   "author": "Lerping Lemur",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/lerpinglemur/archbot/issues"
+    "url": "https://github.com/justin-m-lacy/archbot/issues"
   },
-  "homepage": "https://github.com/lerpinglemur/archbot#readme",
+  "homepage": "https://github.com/justin-m-lacy/archbot#readme",
   "dependencies": {
     "archcache": "^1.1.0",
     "archdice": "^1.1.0",
