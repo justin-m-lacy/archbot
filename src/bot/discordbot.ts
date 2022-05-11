@@ -17,15 +17,6 @@ const path = require('path');
  */
 export const CONTENT_MAX = 1905;
 
-var Bot: DiscordBot;
-
-export const InitBot = (client: Client, auth: Auth) => {
-	Bot = new DiscordBot(client, auth);
-	return Bot;
-}
-
-export const GetBot = () => Bot;
-
 export class DiscordBot {
 
 	/**
@@ -96,7 +87,7 @@ export class DiscordBot {
 	 * @param {string} [mainDir=null] - the main directory of the archbot program. Defaults to the directory of the main script
 	 * being run.
 	 */
-	constructor(client: Client, auth: Auth, mainDir = null) {
+	constructor(client: Client, auth: Auth, mainDir?: string) {
 
 		this.directory = mainDir || process.cwd();
 

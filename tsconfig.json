@@ -36,12 +36,15 @@
   ],
   "include": [
     "archbot.ts",
+    "src/**/*.json",
+    "archconfig.json",
+    "auth.json",
     "plugins/**/*.ts",
     "plugins/**/*.js",
+    "plugins/**/*.json",
     "src/bot/**/*.ts",
     "src/bot/**/*.js",
     "src/bot/**/*.d.ts",
     "src/bot/**/*.tsx",
-    "plugins/checkers/checkers",
   ]
 }
