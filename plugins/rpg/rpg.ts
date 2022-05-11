@@ -7,46 +7,21 @@ import { DiscordBot } from '../../src/bot/discordbot';
 import { toDirection } from "./world/loc";
 import { HumanSlot } from './items/wearable';
 
-import type TChar from './char/char';
-import type TWorld from './world/world';
-import type * as TTrade from './trade';
-import type TRace from './char/race';
-import type TClass from './char/charclass';
-import type * as TCharGen from './chargen';
-import type * as TItemGen from './items/itemgen';
-import type * as TNameGen from './namegen';
+import Char from './char/char';
+import World from './world/world';
+import * as Trade from './trade';
+import Race from './char/race';
+import CharClass from './char/charclass';
+import * as CharGen from './chargen';
+import * as ItemGen from './items/itemgen';
+import * as TNameGen from './namegen';
 
 const gamejs = require('./game');
 const display = require('./display');
 
-/**
- * Whether global RPG data has been initialized.
- */
-let initialized = false;
-
-// includes after init.
-let Char: typeof TChar, Race: typeof TRace, CharClass: typeof TClass;
-let Trade: typeof TTrade, CharGen: typeof TCharGen, World: typeof TWorld;
-let ItemGen: typeof TItemGen;
-
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
 const LAST_CHARS = '`lastchars`';
-
-function initData() {
-
-	Char = require('./char/char');
-	Race = require('./char/race');
-	CharClass = require('./char/charclass');
-	CharGen = require('./chargen');
-	Trade = require('./trade');
-	World = require('./world/world');
-	ItemGen = require('./items/itemgen');
-
-	initialized = true;
-
-}
-
 // created for each bot context.
 export class Rpg {
 
@@ -54,7 +29,7 @@ export class Rpg {
 	readonly charCache: Cache;
 	readonly context: BotContext<any>;
 
-	world: TWorld;
+	world: World;
 	game: Game;
 
 	/**
@@ -67,9 +42,7 @@ export class Rpg {
 		this.context = context;
 		console.log("Creating RPG instance.");
 
-		if (!initialized) initData();
 		this.cache = this.context.subcache(RPG_DIR);
-
 		this.charCache = this.cache.subcache(CHAR_DIR, Char.FromJSON);
 
 		this.world = new World(this.context.cache);
@@ -855,7 +828,7 @@ export class Rpg {
 
 	clearUserChar(uid: string) { delete this.lastChars[uid]; }
 
-	async setUserChar(user: User, char: TChar) {
+	async setUserChar(user: User, char: Char) {
 
 		this.lastChars[user.id] = char.name;
 		this.cache.cache(LAST_CHARS, this.lastChars);
@@ -874,7 +847,7 @@ export class Rpg {
 
 	}
 
-	checkLevel(m: Message, char: TChar) {
+	checkLevel(m: Message, char: Char) {
 		if (char.levelFlag) {
 			m.reply(char.name + ' has leveled up.');
 			char.levelFlag = false;
@@ -883,16 +856,16 @@ export class Rpg {
 
 	getCharKey(charname: string) { return charname; }
 
-	cacheChar(char: TChar) { this.charCache.cache(this.getCharKey(char.name), char); }
+	cacheChar(char: Char) { this.charCache.cache(this.getCharKey(char.name), char); }
 
-	async saveChar(char: TChar, forceSave = false) {
+	async saveChar(char: Char, forceSave = false) {
 
 		if (forceSave) return this.charCache.store(this.getCharKey(char.name), char);
 		this.charCache.cache(this.getCharKey(char.name), char);
 
 	}
 
-	async uniqueName(race: TRace, sex?: string) {
+	async uniqueName(race: Race, sex?: string) {
 
 		let namegen: typeof TNameGen = require('./namegen');
 		do {
