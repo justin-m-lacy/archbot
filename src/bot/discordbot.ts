@@ -232,9 +232,13 @@ export class DiscordBot {
 
 		for (let i = plug_files.length - 1; i >= 0; i--) {
 
-			const plug = plug_files[i];
-			if (plug.init) {
-				plug.init(this);
+			try {
+				const plug = plug_files[i];
+				if (plug.init) {
+					plug.init(this);
+				}
+			} catch (err) {
+				console.warn(`error initializing plugin: ${err}`);
 			}
 
 		}
@@ -342,7 +346,6 @@ export class DiscordBot {
 		// check command access.
 		let context = await this.getMsgContext(m);
 		if (context) {
-			console.log(`using context: ${context.idObject.id}`);
 			if (this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
 		}
 
