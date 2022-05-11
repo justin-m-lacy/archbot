@@ -60,7 +60,7 @@ let genReg = /%sub|%ob|%adj|%pos|%ref|%is/g
  * @param {string} str - string to genderfy
  * @returns {string}
  */
-const genderfy = (gender: string, str: string) => {
+export const genderfy = (gender: string, str: string) => {
 
 	let pronouns = genders[gender.toLowerCase()];
 	if (!pronouns) return;

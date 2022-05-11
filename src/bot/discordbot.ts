@@ -17,8 +17,6 @@ const path = require('path');
  */
 export const CONTENT_MAX = 1905;
 
-const Contexts = exports.Context = require('./botcontext');
-
 var Bot: DiscordBot;
 
 export const InitBot = (client: Client, auth: Auth) => {
