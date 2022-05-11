@@ -1,7 +1,7 @@
 import { Activity, Client, GuildMember, Intents, Presence } from 'discord.js';
 
 import { UserHistory } from './src/history';
-import { InitBot } from './src/bot/discordbot';
+import { DiscordBot } from './src/bot/discordbot';
 import { initBasicCommands, mergeMember } from './src/base-commands';
 import { Auth } from '@src/bot/auth';
 
@@ -35,8 +35,9 @@ const initBot = () => {
 
 	const auth = require('./auth.json') as Auth;
 
+	console.log(`running in dir: ${__dirname}`);
 	try {
-		const bot = InitBot(client, auth);
+		const bot = new DiscordBot(client, auth, __dirname);
 		initBasicCommands(bot);
 		tryLogin(auth);
 
