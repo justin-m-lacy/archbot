@@ -8,11 +8,11 @@ import { parseRoll } from '../plugins/rpg/dice';
 let bot: DiscordBot;
 let client: Client;
 
-export function initBasicCommands(bot: DiscordBot) {
+export function initBasicCommands(b: DiscordBot) {
 
-    bot = bot;
-    client = bot.client;
-    let cmds = bot.dispatch;
+    bot = b;
+    client = b.client;
+    let cmds = b.dispatch;
 
     cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 1, module: 'default' });
 
