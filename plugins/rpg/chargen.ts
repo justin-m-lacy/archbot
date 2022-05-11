@@ -1,12 +1,9 @@
 import Char from './char/char';
 import Race from './char/race';
 import CharClass from './char/charclass';
-import { StatMod, StatName } from './char/stats';
+import StatBlock, { StatMod, StatName } from './char/stats';
 import * as ItemGen from './items/itemgen';
-
-const stats = require('./char/stats');
-
-const Dice = require('./dice');
+import *  as Dice from './dice';
 
 type ValueRoller = { rolls: number, die: number, mod: number, minVal?: number, maxVal?: number };
 type SetValues = { set: string[] }
@@ -42,7 +39,7 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 	modStats(charClass.infoMods, info);
 	char.info = info;
 
-	let base = rollStats(stat_rolls.base, new stats.StatBlock());
+	let base = rollStats(stat_rolls.base, new StatBlock());
 
 	console.log('hit: ' + race.HD + '  class: ' + charClass.HD);
 	base.curHp = base.maxHp = char.HD;
@@ -63,9 +60,9 @@ function modStats(statMods: StatMod, destObj: any) {
 	for (let stat in statMods) {
 
 		cur = destObj[stat];
-
-		if (typeof (statMods[stat as StatName]) === 'string') {
-			mod = Dice.parseRoll(statMods[stat as StatName]);
+		mod = statMods[stat as StatName];
+		if (typeof mod === 'string') {
+			mod = Dice.parseRoll(mod);
 
 		} else {
 			mod = statMods[stat as StatName];
@@ -123,7 +120,6 @@ const rollStat = (destObj: any, stat: string,
 	if ('set' in info) {
 		// choose from set.
 		if (destObj.hasOwnProperty(stat)) return;	// already set.
-		console.log('setting \'set\' property: ' + stat);
 		destObj[stat] = info.set[Math.floor(info.set.length * Math.random())];
 
 	} else {

@@ -15,9 +15,8 @@ import CharClass from './char/charclass';
 import * as CharGen from './chargen';
 import * as ItemGen from './items/itemgen';
 import * as TNameGen from './namegen';
-
-const gamejs = require('./game');
-const display = require('./display');
+import * as display from './display';
+import * as gamejs from './game';
 
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';

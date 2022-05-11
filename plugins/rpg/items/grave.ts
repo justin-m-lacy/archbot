@@ -1,7 +1,6 @@
 import Char from "../char/char";
 import { Item, ItemType } from "./item";
-
-const gender = require('../social/gender');
+import { genderfy } from '../social/gender';
 
 export default class Grave extends Item {
 
@@ -32,7 +31,7 @@ export default class Grave extends Item {
 		let eps = this._Epitaphs ?? (this._Epitaphs = require('../data/items/epitaphs.json'));
 		let ep = eps[Math.floor(Math.random() * eps.length)];
 
-		return gender.genderfy(char.sex, ep.replace(/%c/g, char.name).replace(/%k/g, killer.name));
+		return genderfy(char.sex, ep.replace(/%c/g, char.name).replace(/%k/g, killer.name));
 
 	}
 
@@ -56,13 +55,13 @@ export default class Grave extends Item {
 
 	private _epitaph: string;
 
-	constructor(char: Char | string, slayer: Char | string, epitaph: string) {
+	constructor(char: Char | string, slayer: Char | string, epitaph?: string) {
 
 		super(`${char}'s Gravestone`, `Here lies ${char}, slain by ${slayer}.`, ItemType.Grave);
 
 		this.char = typeof char === 'string' ? char : char.name;
 		this.slayer = typeof slayer === 'string' ? slayer : slayer.name;
-		this._epitaph = epitaph;
+		this._epitaph = epitaph ?? '';
 
 	}
 

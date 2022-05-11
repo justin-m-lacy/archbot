@@ -5,8 +5,7 @@ import Wearable from './items/wearable';
 import * as ItemGen from './items/itemgen';
 import { toSlot } from './items/wearable';
 import * as jsutils from '../../src/jsutils';
-
-const Material = require('./items/material');
+import Material from "./items/material";
 
 /**
  * @const {RegExp} isGold - Regexp testing for a gold amount.

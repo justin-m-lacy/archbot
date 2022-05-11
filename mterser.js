@@ -26,7 +26,7 @@
  globPattern,
  outDir = null,
  dryRun = false,
- terserCommand = 'npm run terser';
+ terserCommand = 'terser';
 
 
 const glob = require('glob'),
@@ -90,8 +90,8 @@ glob(globPattern, {}, (error, files) => {
      if (isFileMinified(file)) {
          return console.log(`skip: ${file}`);
      }
+ 
      options.unshift(input);
-     options.unshift('--');
      options.unshift(terserCommand);
      options.push('--output');
      options.push(output);

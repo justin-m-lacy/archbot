@@ -76,7 +76,7 @@ export class Coord {
 	x: number;
 	y: number;
 
-	constructor(x: number, y: number) {
+	constructor(x: number = 0, y: number = 0) {
 		this.x = x;
 		this.y = y;
 	}
@@ -199,7 +199,7 @@ export class Loc {
 			for (let k in exits) {
 				e = exits[k];
 				loc.addExit(
-					new Exit(e.dir, new Coord(e.coord.x, e.coord.y))
+					new Exit(e.dir, new Coord(e.to.x, e.to.y))
 				);
 
 			}

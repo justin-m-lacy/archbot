@@ -306,7 +306,7 @@ export default class Game {
 
 	}
 
-	compare(char: Char, wot: ItemIndex) {
+	compare(char: Char, wot: ItemIndex): string {
 
 		let it = char.getItem(wot) as Item | undefined;
 		if (!it) return 'Item not found.';
@@ -318,11 +318,10 @@ export default class Game {
 			if (!eq) res += 'Equip: nothing';
 			else if (Array.isArray(eq)) res += 'Equip: ' + Item.DetailsList(eq);
 			else res += 'Equip: ' + eq.getDetails();
-
-			return res;
 		} else {
 			res += `${it.name} cannot be equipped.\n`;
 		}
+		return res;
 
 	}
 
