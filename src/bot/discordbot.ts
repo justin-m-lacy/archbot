@@ -108,7 +108,6 @@ export class DiscordBot {
 		this.client = client;
 
 		this.loadConfig();
-		console.log(`using save dir: ${this._saveDir}`);
 		fsys.setBaseDir(this._saveDir);
 
 		this.cache = new Cache({
@@ -275,7 +274,7 @@ export class DiscordBot {
 
 		this.client.on('resume', onResume);
 
-		this.client.on('message', m => {
+		this.client.on('messageCreate', m => {
 
 			if (m.author.id === this.client.user!.id) return;
 			this.onMessage(m);
@@ -336,11 +335,14 @@ export class DiscordBot {
 
 		const command = this._dispatch.parseLine(m.content);
 
-		if (!command) return;
+		if (!command) {
+			return;
+		}
 
 		// check command access.
 		let context = await this.getMsgContext(m);
 		if (context) {
+			console.log(`using context: ${context.idObject.id}`);
 			if (this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
 		}
 
