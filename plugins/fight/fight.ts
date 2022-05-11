@@ -8,7 +8,7 @@ let bot: DiscordBot;
 
 async function cmdFight(m: Message, uname?: string) {
 
-	if (!results) results = await import('./results.json');
+	if (!results) results = require('./results.json');
 	if (!uname) return m.channel.send('You attack the darkness!');
 
 	const target = bot.findUser(m.channel, uname);
