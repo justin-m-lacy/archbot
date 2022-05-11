@@ -5,11 +5,12 @@
   "main": "dist/archbot.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node .",
-    "minify": "node mterser --glob dist/**/*.js --compress --mangle",
     "prepare": "npm run build",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
     "serve": "cross-env NODE_ENV=production ts-node archbot.ts",
-    "build": "rimraf dist && cross-env NODE_ENV=production tsc && npm run minify"
+    "build": "rimraf dist && cross-env NODE_ENV=production tsc && npm run minify && npm run copydata",
+    "minify": "node mterser --glob dist/**/*.js --compress --mangle",
+    "copydata": "copyfiles plugins/**/*.png dist"
   },
   "repository": {
     "type": "git",
