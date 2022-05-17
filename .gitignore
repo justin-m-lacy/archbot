@@ -23,3 +23,4 @@ plugins/chess/images/outfile.png
 *.code-workspace
 
 archconfig.json
+app.yaml
