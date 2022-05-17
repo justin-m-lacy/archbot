@@ -24,3 +24,4 @@ plugins/chess/images/outfile.png
 
 archconfig.json
 app.yaml
+.gcloudignore
