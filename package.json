@@ -4,7 +4,6 @@
   "description": "Bot for discord",
   "main": "dist/archbot.js",
   "scripts": {
-    "prestart": "npm i",
     "start": "cross-env NODE_ENV=production node .",
     "prepare": "npm run build",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
