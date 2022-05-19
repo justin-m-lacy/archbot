@@ -5,6 +5,8 @@ import { DiscordBot } from './src/bot/discordbot';
 import { initBasicCommands, mergeMember } from './src/base-commands';
 import { Auth } from '@src/bot/auth';
 
+process.chdir(__dirname);
+
 // init bot
 const client: Client = new Client({
 

@@ -1,0 +1,33 @@
+{
+    "name": "archbot",
+    "version": "2.0.1",
+    "description": "Bot for discord",
+    "main": "archbot.js",
+    "engines": {
+        "node": "16.x"
+    },
+    "scripts": {
+        "start": "node ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/justin-m-lacy/archbot.git"
+    },
+    "author": "Lerping Lemur",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/justin-m-lacy/archbot/issues"
+    },
+    "homepage": "https://github.com/justin-m-lacy/archbot#readme",
+    "dependencies": {
+        "archcache": "^1.1.0",
+        "archdice": "^1.1.0",
+        "bufferutil": "^4.0.3",
+        "chargrid": "0.0.3",
+        "chess-rules": "^1.1.0",
+        "discord.js": "^13.6.0",
+        "formulic": "^2.0.3",
+        "jimp": "^0.16.1",
+        "uws": "^9.148.0"
+    }
+}
