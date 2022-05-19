@@ -4,8 +4,6 @@ import { Display } from '../../src/display';
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
 import { Reaction } from './reaction';
 import { DiscordBot } from '../../src/bot/discordbot';
-import fs from 'fs';
-import path from 'path';
 
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
@@ -180,7 +178,7 @@ class GuildReactions {
 	async cmdAddReact(m: Message, trig: string, react: string) {
 
 		console.log(`attempting to add react command: ${trig}`);
-		let embedUrl = m.embeds.find(v => v.url != null)?.url;
+		let embedUrl = m.embeds.find(v => v.url != null)?.url ?? m.url;
 
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
 

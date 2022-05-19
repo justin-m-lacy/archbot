@@ -1,6 +1,7 @@
+# Private Configuration Files
 reactions.json
-
 auth.json
+archconfig.json
 
 .vscode
 
@@ -8,20 +9,23 @@ savedata
 devdata
 dist
 
+# Node Nonsense
 node_modules
 *.lnk
 package-lock.json
-package-lock.json
-package-lock.json
+
+#
 client_link.txt
 
 !node_modules/archdice
+
+#VSCode
 
 *.code-workspace
 plugins/chess/images/outfile.png
 
 *.code-workspace
 
-archconfig.json
+
 app.yaml
 .gcloudignore

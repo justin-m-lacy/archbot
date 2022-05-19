@@ -3,14 +3,16 @@
   "version": "2.0.1",
   "description": "Bot for discord",
   "main": "dist/archbot.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
-    "start": "cross-env NODE_ENV=production node .",
-    "prepare": "npm run build",
+    "start": "node .",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
-    "serve": "cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
-    "build": "rimraf dist && cross-env NODE_ENV=production tsc && npm run minify && npm run copydata",
+    "serve": "npx cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
+    "build": "npx rimraf dist && tsc && npm run minify && npm run copydata",
     "minify": "node mterser --glob dist/**/*.js --compress --mangle",
-    "copydata": "copyfiles plugins/**/*.png dist"
+    "copydata": "npx copyfiles plugins/**/*.png dist && npx copyfiles -f assets/* dist"
   },
   "repository": {
     "type": "git",

@@ -21,17 +21,18 @@
  * modify the minifiedFilename and isFileMinified functions below.
  *
  */
+/**import glob from 'glob';
+import {exec} from 'child_process';**/
 
+const glob = require('glob');
+const exec = require('child_process').exec;
  let terserOptions = [],
  globPattern,
  outDir = null,
  dryRun = false,
  terserCommand = 'terser';
 
-
-const glob = require('glob'),
- {exec} = require('child_process'),
- terserOptionShortCuts = {
+const terserOptionShortCuts = {
      "-V": "--version",
      "-p": "--parse",
      "-c": "--compress",
