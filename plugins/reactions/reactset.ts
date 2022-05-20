@@ -1,7 +1,4 @@
-import { Reaction } from './reaction';
-const ReactModule = require('./reaction');
-const parseReaction = ReactModule.parseReaction;
-const parseReactions = ReactModule.parseReactions;
+import { Reaction, parseReaction, parseReactions, ReactionData } from './reaction';
 
 /**
  * Collection of reactions tied to a single Trigger.
@@ -37,7 +34,7 @@ export class ReactSet {
 	get lastUsed() { return this._lastUsed; }
 	set lastUsed(v) { this._lastUsed = v; }
 
-	constructor(trig: string | RegExp, reacts = null) {
+	constructor(trig: string | RegExp, reacts?: (Reaction | ReactionData)[]) {
 
 		this._trigger = trig;
 
@@ -161,7 +158,10 @@ export class ReactSet {
 	 * @returns {Reaction|null}
 	 */
 	getRandom() {
-		return this._reacts[Math.floor(this._reacts.length * Math.random())];
+		if (this._reacts.length > 0) {
+			return this._reacts[Math.floor(this._reacts.length * Math.random())];
+		}
+		return null;
 	}
 
 	/**
@@ -178,7 +178,7 @@ export class ReactSet {
 	 * @param {string} [embedUrl=null] - url of attachment or embed to include in reaction.
 	 */
 	add(react: string, uid: string, embedUrl?: string | null) {
-		this._reacts.push(new ReactModule.Reaction(react, uid, Date.now(), embedUrl));
+		this._reacts.push(new Reaction(react, uid, Date.now(), embedUrl));
 	}
 
 }

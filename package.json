@@ -7,7 +7,7 @@
     "node": "16.x"
   },
   "scripts": {
-    "start": "node .",
+    "start": "npx cross-env NODE_ENV=production node .",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
     "serve": "npx cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
     "build": "npx rimraf dist && tsc && npm run minify && npm run copydata",

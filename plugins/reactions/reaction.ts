@@ -1,3 +1,6 @@
+export type ReactionData = { r: string, uid?: string, t?: number, embed?: string };
+
+
 /**
  * @const {RegEx} groupRegex - regex for substitution in a regex reaction. $1, $2, etc.
  */
@@ -11,7 +14,7 @@ export class Reaction {
 	r: string;
 	uid?: string;
 	t: number;
-	embed?: string;
+	embed?: string | null;
 
 	/**
 	 *
@@ -20,7 +23,7 @@ export class Reaction {
 	 * @param {number} t - creation timestamp.
 	 * @param {string} embed - embed url.
 	 */
-	constructor(response: string, uid?: string, t: number = 0, embed?: string) {
+	constructor(response: string, uid?: string, t: number = 0, embed?: string | null) {
 
 		/**
 		 * @property {string} response - reaction response.
@@ -133,21 +136,10 @@ export class Reaction {
 
 /**
  *
- * @param {string} resp
- * @param {string} uid - userid of creator
- * @param {?string} embed - url of embedded attachment
- */
-export const makeReaction = (resp: string, uid: string, embed?: string) => {
-	return new Reaction(resp, uid, Date.now(), embed);
-}
-
-
-/**
- *
  * @param {?object|string} r
  * @returns {Reaction|null}
  */
-export const parseReaction = (r: Reaction | { r: string, uid?: string, t?: number, embed?: string } | string) => {
+export const parseReaction = (r: Reaction | ReactionData | string) => {
 
 
 	if (typeof r === 'object') {
@@ -170,7 +162,7 @@ export const parseReaction = (r: Reaction | { r: string, uid?: string, t?: numbe
  * @param {Array} a
  * @returns {Reaction[]}
  */
-export const parseReactions = (a: Reaction[]) => {
+export const parseReactions = (a: (Reaction | ReactionData)[]) => {
 
 	let d = [];
 

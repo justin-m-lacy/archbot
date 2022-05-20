@@ -19,7 +19,7 @@ export const Display = {
 
 		return m.reply({
 			content: '```' + s + '```',
-			embeds: [{ image: { url: e } }]
+			embeds: [new Discord.MessageEmbed({ image: { url: e } })]
 		});
 
 	},

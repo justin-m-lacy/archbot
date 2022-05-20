@@ -1,6 +1,7 @@
 import Discord, { Message } from 'discord.js';
 import jimp from 'jimp';
 import { DiscordBot } from '../../src/bot/discordbot';
+import { replyEmbedUrl } from '../../src/embeds';
 
 const colorRE = /^(?:\#|0x)([a-f|\d]{1,6})\b/i;
 

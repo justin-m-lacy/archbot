@@ -17,6 +17,8 @@ import * as ItemGen from './items/itemgen';
 import * as TNameGen from './namegen';
 import * as display from './display';
 import * as gamejs from './game';
+import Discord from 'discord.js';
+import { replyEmbedUrl } from '../../src/embeds';
 
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
@@ -498,10 +500,10 @@ export class Rpg {
 		if (!item) return m.reply('Item not found.');
 
 		let view = item.getView();
-		if (view[1]) await m.reply({
-			content: view[0],
-			embeds: [{ image: { url: view[1] } }]
-		});
+		if (view[1]) {
+
+			return replyEmbedUrl(m, view[1], view[0]);
+		}
 		else await m.reply(view[0]);
 
 	}
