@@ -4,6 +4,8 @@ import { Display } from '../../src/display';
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
 import { Reaction } from './reaction';
 import { DiscordBot } from '../../src/bot/discordbot';
+import Discord from 'discord.js';
+import { replyEmbedUrl, getEmbedUrl } from '../../src/embeds';
 
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
@@ -46,7 +48,7 @@ class GuildReactions {
 	 * @property reMap - Reactions with Regular Expression triggers.
 	 * Map key is the string version of the RegEx object.
 	 */
-	private reMap = new Map<string, ReactSet>();
+	private reMap: ReactMap = new Map<string, ReactSet>();
 
 	private _procPct: number = PROC_RATE;
 
@@ -77,6 +79,7 @@ class GuildReactions {
 
 		this._context = context;
 
+		console.log(`reactions context created...`);
 		this.loadReactions();
 
 		// begin listening for messages to react to.
@@ -132,17 +135,7 @@ class GuildReactions {
 		let resp = react.getResponse(rset.trigger, m.content);
 		if (react.embed) {
 
-			return m.reply(
-
-				{
-					content: resp || '',
-					embeds: [
-						{ url: react.embed }
-					]
-
-
-				});
-
+			return replyEmbedUrl(m, react.embed, resp ?? '');
 		} else if (resp) return m.channel.send(resp);
 
 	}
@@ -158,12 +151,17 @@ class GuildReactions {
 		// get random reaction from set.
 		let react = rset.getRandom();
 
-		if (!react) return m.reply('No reactions found for "' + input + '"');
 
-		let resp = react.getResponse(input, input);
-		if (react.embed) {
-			return m.reply({ content: resp || ' ', embeds: [{ url: react.embed }] });
-		} else if (resp) return m.reply(resp);
+		if (react) {
+
+			let resp = react.getResponse(input, input);
+			if (react.embed) {
+				return replyEmbedUrl(m, react.embed, resp ?? ' ');
+			} else if (resp) return m.reply(resp);
+
+		}
+
+		return m.reply('No reactions found for "' + input + '"');
 
 	}
 
@@ -177,8 +175,7 @@ class GuildReactions {
 	 */
 	async cmdAddReact(m: Message, trig: string, react: string) {
 
-		console.log(`attempting to add react command: ${trig}`);
-		let embedUrl = m.embeds.find(v => v.url != null)?.url ?? m.url;
+		let embedUrl = getEmbedUrl(m);
 
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
 
@@ -195,8 +192,10 @@ class GuildReactions {
 
 	async cmdTestReact(m: Message, trig: string) {
 
+		console.log(`testing react: ${trig}`);
 		let rset = this.findSet(trig);
 		if (rset !== null) {
+			console.log(`react set found...`);
 			return this.respondTest(m, rset, trig);
 		} else return m.reply('No reaction found for "' + trig + '"');
 
@@ -265,12 +264,15 @@ class GuildReactions {
 	 */
 	async cmdReacts(m: Message, trig: string, page: number = 1) {
 
+		console.log(`cmdReacts() called`);
 		if (trig == '/') {
+			console.log(`returning regex reacts`);
 			return this.cmdRegexReacts(m, page);
 		}
 		let reacts = this.getReactions(trig);
 		if (!reacts) return m.channel.send('No reaction found.');
 
+		console.log(`some reacts found: ${reacts}`);
 		let resp = await this.infoString(reacts);
 
 		// must save before response is extended by total reaction count.
@@ -392,7 +394,7 @@ class GuildReactions {
 	 * @param {string} uid - discord id of creator.
 	 * @param {string} [embedUrl=null] - url of linked attachment/embed.
 	 */
-	addRegEx(trig: string, react: string, uid: string, embedUrl?: string | null) {
+	addRegEx(trig: string, react: string, uid: string, embedUrl?: string) {
 
 		let rset = this.reMap.get(trig);
 
@@ -459,7 +461,7 @@ class GuildReactions {
 	 * @param str - input string to test.
 	 * @returns {ReactSet|null} string reaction or null.
 	 */
-	tryReact(map: Map<string, ReactSet>, str: string) {
+	tryReact(map: ReactMap, str: string) {
 
 		for (let k of map.keys()) {
 
@@ -572,10 +574,14 @@ class GuildReactions {
 	 * if no reactStr is specified.
 	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */
-	getReactions(trig: string, reactStr?: string) {
+	getReactions(trig: string | null | undefined, reactStr?: string) {
 
-		if (!trig) return false;
+		if (!trig) {
+			console.log(`searching reacts: no trigger found.`);
+			return false;
+		}
 
+		console.log(`searching for trigger: ${trig}`);
 		let rset = this.reMap.get(trig);
 		if (rset === undefined) {
 			rset = this.reactions.get(trig.toLowerCase());
@@ -721,6 +727,7 @@ const toRegEx = (s: string) => {
  */
 export const init = (bot: DiscordBot) => {
 
+	console.log(`reacts init() called...`);
 	const parsed = parseReacts(require('./reactions-data.json'));
 	globalReacts = parsed.strings;
 	globalRegEx = parsed.regex;
