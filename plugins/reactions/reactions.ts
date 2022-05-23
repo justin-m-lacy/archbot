@@ -192,7 +192,6 @@ class GuildReactions {
 
 	async cmdTestReact(m: Message, trig: string) {
 
-		console.log(`testing react: ${trig}`);
 		let rset = this.findSet(trig);
 		if (rset !== null) {
 			console.log(`react set found...`);
