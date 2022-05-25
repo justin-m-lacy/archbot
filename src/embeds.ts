@@ -28,7 +28,7 @@ export const replyEmbedUrl = (m: Message, embedUrl: string, text?: string | null
     return m.reply(
         {
 
-            content: text ?? ' ', embeds: [
+            content: (text && text.length > 0) ? text : ' ', embeds: [
                 makeImageEmbed(embedUrl)
             ]
         }
@@ -38,7 +38,7 @@ export const replyEmbedUrl = (m: Message, embedUrl: string, text?: string | null
 export const sendEmbedUrl = (m: Message, embedUrl: string, text?: string | null,) => {
 
     return m.channel.send({
-        content: text ?? ' ', embeds: [
+        content: (text && text.length > 0) ? text : ' ', embeds: [
             makeImageEmbed(embedUrl)
         ]
     });
