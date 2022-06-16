@@ -14,7 +14,7 @@ export default class Command {
 
 
 	/**
-	 * @property {boolean} Whether the command is implemented as a direction function call.
+	 * @property {boolean} Whether the command is implemented as a direct function call.
 	 */
 	get isDirect() { return this.instClass == null; }
 
