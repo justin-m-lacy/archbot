@@ -10,6 +10,7 @@ process.chdir(__dirname);
 // init bot
 const client: Client = new Client({
 
+	closeTimeout: 4000,
 	intents: [Intents.FLAGS.GUILDS,
 	Intents.FLAGS.DIRECT_MESSAGES,
 	Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
@@ -29,6 +30,9 @@ const client: Client = new Client({
 client.on('presenceUpdate', presenceUpdate);
 client.on('error', err => {
 	console.error('Connection error: ' + err.message);
+});
+client.on('shardError', error => {
+	console.error('Websocket connection error:', error);
 });
 
 console.log('client created.');

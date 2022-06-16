@@ -340,12 +340,15 @@ export class DiscordBot {
 
 		if (command.isDirect === true) {
 
-			this._dispatch.dispatch(command, [m]);
+			const error = this._dispatch.dispatch(command, [m]);
+			if (error instanceof Promise) {
+				error.catch(e => console.error(e));
+			}
 
 		} else if (context) {
 
 			// context command.
-			let error = this._dispatch.routeCmd(context, command, [m]);
+			const error = this._dispatch.routeCmd(context, command, [m]);
 
 			if (!error) return;
 			else if (error instanceof Promise) {

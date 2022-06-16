@@ -60,8 +60,8 @@ export default class CmdDispatch {
 		let lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
 
-		if (cmd.args) cmd.func.apply(null, leadArgs.concat(cmd.args));
-		else cmd.func.apply(null, leadArgs);
+		if (cmd.args) return cmd.func.apply(null, leadArgs.concat(cmd.args));
+		else return cmd.func.apply(null, leadArgs);
 
 	}
 
