@@ -1,4 +1,4 @@
-module.exports = class Setting {
+export class Setting {
 
 	/**
 	 * {number} Permissions required for a user to use this setting.
