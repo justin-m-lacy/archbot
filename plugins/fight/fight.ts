@@ -1,5 +1,6 @@
 import { Message } from 'discord.js';
 import { DiscordBot } from '../../src/bot/discordbot';
+import { getSenderName } from '../../src/utils/users';
 
 let results: string[];
 let bot: DiscordBot;
@@ -16,8 +17,8 @@ async function cmdFight(m: Message, uname?: string) {
 	if (!results) results = require('./results.json');
 	if (!uname) return m.channel.send('You attack the darkness!');
 
-	let target = bot.findUser(m.channel, uname);
-	let attacker = m.member ? (m.member.nickname ?? m.member.displayName) : m.author.username;
+	const target = bot.findUser(m.channel, uname);
+	const attacker = getSenderName(m);
 
 	if (!target)
 		return m.channel.send('I don\'t see ' + uname + ' here. So you must be talking to me. Are you talking to me?');

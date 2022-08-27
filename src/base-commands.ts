@@ -1,9 +1,10 @@
 import { DiscordBot } from './bot/discordbot';
 import { Client, GuildMember, Message, TextBasedChannel, User } from 'discord.js';
 import { UserHistory } from './history';
-import * as jsutils from './jsutils';
+import * as jsutils from './utils/jsutils';
 import DateFormat from './datedisplay';
 import { parseRoll } from '../plugins/rpg/dice';
+import { getSenderName } from './utils/users';
 
 let bot: DiscordBot;
 let client: Client;
@@ -23,8 +24,10 @@ export function initBasicCommands(b: DiscordBot) {
     cmds.add('roll', '!roll [n]d[s]', cmdRoll, { maxArgs: 1, module: 'default' });
 
     cmds.add('uid', 'uid <username>', cmdUid, { maxArgs: 1, module: 'default' });
-    cmds.add('uname', 'uname <nickname>', cmdUName, { maxArgs: 1, module: 'default' });
-    cmds.add('nick', 'nick <displayName>', cmdNick, { maxArgs: 1, module: 'default' });
+    cmds.add('uname', "uname <nickname> - get user's username", cmdUName, { maxArgs: 1, module: 'default' });
+    cmds.add('nick', "nick <displayName> - get user's nickname", cmdNick, { maxArgs: 1, module: 'default' });
+    cmds.add('displayname', "displayname <user> - get user's display name.", cmdDisplayName, { maxArgs: 1, module: 'default' });
+
     cmds.add('uptime', 'uptime', cmdUptime);
 
     cmds.add('lastplay', '!lastplay <userName> <gameName>', cmdLastPlay, { maxArgs: 2, module: 'default' });
@@ -236,11 +239,20 @@ const cmdUName = async (msg: Message, name: string) => {
 const cmdNick = async (msg: Message, name: string) => {
 
     let gMember = bot.userOrSendErr(msg.channel, name);
-    if (!gMember || !(gMember instanceof GuildMember)) return;
-    return msg.channel.send(name + ' nickname: ' + gMember.nickname)
+    if (gMember && (gMember instanceof GuildMember)) {
+        return msg.channel.send(name + ' nickname: ' + gMember.nickname);
+    }
 
 }
 
+const cmdDisplayName = async (msg: Message, name: string) => {
+
+    let usr = bot.userOrSendErr(msg.channel);
+    if (usr && (usr instanceof GuildMember)) {
+        return msg.channel.send(name + ' display name: ' + usr.displayName);
+    }
+
+}
 /**
  *
  * @param {Message} msg
@@ -366,12 +378,12 @@ const cmdLastOff = (msg: Message, who: string) => {
  */
 const cmdTest = (msg: Message, reply: string) => {
     if (reply == null) return msg.channel.send('eh?');
-    else if (msg.member) return msg.channel.send(reply + ' yourself, ' + msg.member.displayName);
+    else if (msg.member) return msg.channel.send(reply + ' yourself, ' + getSenderName(msg));
 }
 
 const cmdFuck = (m: Message) => {
     if (m.member) {
-        m.channel.send(m.content.slice(1) + ' yourself, ' + m.member.displayName);
+        m.channel.send(m.content.slice(1) + ' yourself, ' + getSenderName(m));
     }
 }
 

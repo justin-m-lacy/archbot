@@ -5,6 +5,7 @@ import { DiscordBot } from './src/bot/discordbot';
 import { initBasicCommands, mergeMember } from './src/base-commands';
 import { Auth } from '@src/bot/auth';
 
+// Ensure current working directory is directory of the base script.
 process.chdir(__dirname);
 
 // init bot
