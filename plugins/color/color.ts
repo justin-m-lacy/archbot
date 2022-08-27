@@ -1,7 +1,6 @@
 import Discord, { Message } from 'discord.js';
 import jimp from 'jimp';
 import { DiscordBot } from '../../src/bot/discordbot';
-import { replyEmbedUrl } from '../../src/embeds';
 
 const colorRE = /^(?:\#|0x)([a-f|\d]{1,6})\b/i;
 
@@ -15,17 +14,17 @@ export const init = (bot: DiscordBot) => {
 
 const cmdColor = async (msg: Message, colorStr: string) => {
 
-	let result = colorRE.exec(colorStr);
-	let colorNum = result ? Number.parseInt(result[1], 16) : Number(colorStr);
+	const result = colorRE.exec(colorStr);
+	const colorNum = result ? Number.parseInt(result[1], 16) : Number(colorStr);
 
 	if (isNaN(colorNum)) return msg.reply('Invalid Color Format: ' + colorStr);
 
-	let embed = {
+	const embed = {
 		// clear high bits.
 		color: colorNum & 0x00FFFFFF,
 		description: colorStr,
 	};
-	let data = await imgData(colorNum);
+	const data = await imgData(colorNum);
 
 	if (!data) return msg.reply({ embeds: [embed] });
 	else {
@@ -43,7 +42,7 @@ const imgData = async (color: number) => {
 	try {
 
 		// set alpha to full.
-		let img = await makeImage(
+		const img = await makeImage(
 			jimp.rgbaToInt(
 				color >> 16,
 				0xff & (color >> 8),

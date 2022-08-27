@@ -14,7 +14,7 @@ function cmd8Ball(m: Message) {
 	if (!answers) answers = require('./answers.json');
 	if (answers.length === 0) return;
 
-	let ind = Math.floor(answers.length * Math.random());
+	const ind = Math.floor(answers.length * Math.random());
 	m.channel.send(answers[ind]);
 
 }

@@ -94,13 +94,9 @@ export default class Game {
 	private _gid: string;
 	private _saveID: string;
 
-	get player1Id() {
-		return this.p1;
-	}
+	get player1Id() { return this.p1; }
 
-	get player2Id() {
-		return this.p2;
-	}
+	get player2Id() { return this.p2; }
 
 	/**
 	 * player1 id.

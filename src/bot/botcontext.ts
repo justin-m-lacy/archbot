@@ -301,7 +301,10 @@ export abstract class BotContext<T extends ContextSource> {
 			(resp instanceof Message) ? resp.reply('User name expected.') : resp.send('User name expected.');
 			return null;
 		}
-		return this.findUser(name) || this.sendUserNotFound(resp, name);
+		const member = this.findUser(name);
+		if (!member) this.sendUserNotFound(resp, name);
+
+		return member;
 
 	}
 

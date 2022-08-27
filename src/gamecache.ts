@@ -1,4 +1,4 @@
-import { User, Message } from 'discord.js';
+import { User, Message, GuildMember } from 'discord.js';
 import Game from './game';
 
 /**
@@ -74,7 +74,7 @@ export default class GameCache {
 	 * @param {Discord.User} user
 	 * @returns {Promise<Array>}
 	 */
-	async activeGames(u1: User, u2?: User) {
+	async activeGames(u1: User | GuildMember, u2?: User | GuildMember | null) {
 
 		const list = await this.getUserLists(u1.id);
 
@@ -130,12 +130,12 @@ export default class GameCache {
 
 	/**
 	 * @async
-	 * @param {*} u1
-	 * @param {*} u2
-	 * @param {?number} num
-	 * @returns {Promise}
+	 * @param u1
+	 * @param u2
+	 * @param num
+	 * @returns 
 	 */
-	async getGame(u1: User, u2: User, num?: number) {
+	async getGame(u1: User, u2: User | GuildMember, num?: number) {
 
 		try {
 
@@ -172,7 +172,7 @@ export default class GameCache {
 	 * @param {*} gnum
 	 * @returns {Promise<Game|null>}
 	 */
-	async gameOrSendErr(m: Message, p1: string | User | null, p2: string | User | null, gnum?: number) {
+	async gameOrSendErr(m: Message, p1: string | User | null, p2?: string | User, gnum?: number) {
 
 		try {
 
@@ -255,7 +255,7 @@ export default class GameCache {
 	 * @param {*} u2
 	 * @returns {Promise}
 	 */
-	async printGames(m: Message, u1: User, u2?: User) {
+	async printGames(m: Message, u1: User | GuildMember, u2?: User | GuildMember | null) {
 
 		let list = await this.activeGames(u1, u2);
 		return m.reply(await this.listToString(list));
@@ -321,7 +321,7 @@ export default class GameCache {
 	 * @param {Discord.User} [user=null]
 	 * @param {?number} [gnum=null]
 	 */
-	filterList(list: GameInfo[], user: User | null = null, gnum?: number) {
+	filterList(list: GameInfo[], user: User | GuildMember | null = null, gnum?: number) {
 
 		let len = list.length;
 		var results;
