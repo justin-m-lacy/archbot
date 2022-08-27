@@ -519,7 +519,7 @@ class GuildReactions {
 
 		} else if (typeof react === 'object') {
 
-			return this.infoObject(react, details);
+			return await this.infoObject(react, details);
 
 		}
 
