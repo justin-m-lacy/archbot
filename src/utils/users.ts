@@ -1,4 +1,4 @@
-import { GuildMember, TextBasedChannel, User, Message } from 'discord.js';
+import { GuildMember, User, Message } from 'discord.js';
 
 export const getLocalName = (user: GuildMember | User) => {
 

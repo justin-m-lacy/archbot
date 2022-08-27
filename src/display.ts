@@ -110,8 +110,8 @@ export const Display = {
 	 */
 	paginate(items: string[], page: number = 0) {
 
-		let it, len = items.length;
-		let chars = 0;
+		let it, chars = 0;
+		const len = items.length;
 
 		// item indices for breaking the current page.
 		let totalPages = 0, pageStart = 0;

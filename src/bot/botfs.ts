@@ -50,7 +50,7 @@ async function writeData(relPath: string, data: any) {
 
 	try {
 
-		let absPath = path.join(BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath);
+		const absPath = path.join(BASE_DIR, relPath[0] === '/' ? relPath.slice(1) : relPath);
 
 		await afs.mkdir(path.dirname(absPath));
 		return afs.writeJSON(absPath + '.json', data);
@@ -167,11 +167,9 @@ export default {
 		let thepath = GUILDS_DIR + guild.id;
 		if (subs == null) return thepath;
 
-		let len = subs.length;
-		let subobj;
-
+		const len = subs.length;
 		for (let i = 0; i < len; i++) {
-			subobj = subs[i];
+			const subobj = subs[i];
 
 			if (typeof (subobj) == 'string') {
 				thepath += '/' + subobj.toLowerCase();
@@ -189,11 +187,10 @@ export default {
 
 		let thepath = CHANNELS_DIR + chan.id;
 		if (subs == null) return thepath;
-		let len = subs.length;
+		const len = subs.length;
 
-		let subobj;
 		for (let i = 0; i < len; i++) {
-			subobj = subs[i];
+			const subobj = subs[i];
 			if (typeof (subobj) == 'string') {
 				thepath += '/' + subobj.toLowerCase();
 			} else {

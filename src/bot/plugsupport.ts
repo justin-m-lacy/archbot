@@ -12,7 +12,7 @@ export type PluginFile = {
 
 export const loadPlugins = (plugins_dir: string, init_func?: InitFunc) => {
 
-	let plugins = [];
+	const plugins = [];
 
 	try {
 
@@ -47,7 +47,7 @@ export const loadPlugins = (plugins_dir: string, init_func?: InitFunc) => {
  */
 const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 
-	let files = fs.readdirSync(dirPath, { withFileTypes: true });
+	const files = fs.readdirSync(dirPath, { withFileTypes: true });
 
 	if (files.length === 1) {
 
@@ -62,13 +62,13 @@ const loadPlugs = (dirPath: string, init_func?: InitFunc) => {
 	}
 
 	// multiple files exist. search for json plugin description.
-	for (let file of files) {
+	for (const file of files) {
 
 		try {
 
 			if (!file.isFile() || file.name !== 'plugin.json') continue;
 
-			let res = loadPlugDesc(dirPath, file.name, init_func);
+			const res = loadPlugDesc(dirPath, file.name, init_func);
 
 			// might be multiple json files that are NOT plugins.
 			// these return null but loop should still continue.
@@ -99,7 +99,7 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
 			return null;
 		}
 
-		let plug = require(path.resolve(plugPath, fileName));
+		const plug = require(path.resolve(plugPath, fileName));
 
 		if (!plug) {
 			throw new Error(`plugin not found: ${path.resolve(plugPath, fileName)}`);
@@ -125,18 +125,18 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
  */
 const loadPlugDesc = (plugDir: string, descFile: string, init_func?: InitFunc) => {
 
-	let data = fs.readFileSync(path.resolve(plugDir, descFile));
+	const data = fs.readFileSync(path.resolve(plugDir, descFile));
 	let desc = JSON.parse(data.toString());
 
 	let plug;
 
 	if (Array.isArray(desc)) {
 
-		let a = desc;
-		let plugs = [];
-		for (let i = a.length - 1; i >= 0; i--) {
+		const arr = desc;
+		const plugs = [];
+		for (let i = arr.length - 1; i >= 0; i--) {
 
-			desc = a[i];
+			desc = arr[i];
 			if (desc.plugin) {
 
 				plug = requirePlugin(plugDir, desc.plugin, init_func);

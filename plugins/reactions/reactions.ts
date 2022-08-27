@@ -696,7 +696,7 @@ function parseRe(data: any) {
  */
 function mapToJSON(map: any) {
 
-	let o: any = {};
+	const o: any = {};
 	for (let [k, v] of map) {
 		o[k] = v;
 	}
@@ -712,7 +712,7 @@ function mapToJSON(map: any) {
  */
 const toRegEx = (s: string) => {
 
-	let res = regExTest.exec(s);
+	const res = regExTest.exec(s);
 	if (res === null) return false;
 
 	try {
@@ -728,7 +728,6 @@ const toRegEx = (s: string) => {
  */
 export const init = (bot: DiscordBot) => {
 
-	console.log(`reacts init() called...`);
 	const parsed = parseReacts(require('./reactions-data.json'));
 	globalReacts = parsed.strings;
 	globalRegEx = parsed.regex;

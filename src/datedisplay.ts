@@ -16,11 +16,11 @@ export default {
 
 	parse(str: string) {
 
-		let parts = str.split(' ');
+		const parts = str.split(' ');
 		let len = parts.length;
 		let part, value, num;
 
-		let date = new Date();
+		const date = new Date();
 
 		for (let i = 0; i < len; i++) {
 
@@ -39,7 +39,7 @@ export default {
 					date.setMonth(value);
 				} else {
 
-					let day = this.tryGetDay(part);
+					const day = this.tryGetDay(part);
 					if (value >= 0) {
 					}
 
@@ -65,7 +65,7 @@ export default {
 	setTime(date: Date, str: string) {
 
 		try {
-			let parts = str.split(':').map(v => parseInt(v));
+			const parts = str.split(':').map(v => parseInt(v));
 			// @ts-ignore
 			date.setHours.apply(date, parts);
 		} catch (err) {

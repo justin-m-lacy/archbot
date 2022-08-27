@@ -1,6 +1,5 @@
 import { User, Message } from 'discord.js';
 import Game from './game';
-import dates from './datedisplay';
 
 /**
  * full_game_id, player1_id, player2_id, start_timestamp
@@ -41,9 +40,9 @@ export default class GameCache {
 	 */
 	async getUserLists(uid: string) {
 
-		let info = await this.context.fetchData(this.dir + uid);
+		const info = await this.context.fetchData(this.dir + uid);
 		if (info) return info;
-		let o = { active: [], completed: [] };
+		const o = { active: [], completed: [] };
 
 		this.userLists[uid] = o;
 		this.context.storeData(this.dir + uid, o, true);
@@ -59,7 +58,7 @@ export default class GameCache {
 	 */
 	async allGames(u1: User, u2: User) {
 
-		let lists = await this.getUserLists(u1.id);
+		const lists = await this.getUserLists(u1.id);
 		let all = lists.active.concat(lists.completed);
 
 		all = this.filterList(all, u2);
@@ -77,7 +76,7 @@ export default class GameCache {
 	 */
 	async activeGames(u1: User, u2?: User) {
 
-		let list = await this.getUserLists(u1.id);
+		const list = await this.getUserLists(u1.id);
 
 		if (u2) return this.filterList(list.active, u2);
 
@@ -93,7 +92,7 @@ export default class GameCache {
 	 */
 	async completedGames(u1: User, u2?: User) {
 
-		let list = await this.getUserLists(u1.id);
+		const list = await this.getUserLists(u1.id);
 
 		if (u2) return this.filterList(list.completed, u2);
 
@@ -140,7 +139,7 @@ export default class GameCache {
 
 		try {
 
-			let gameList = await this.activeGames(u1, u2);
+			const gameList = await this.activeGames(u1, u2);
 			let gname;
 
 			if (num) {
@@ -177,7 +176,7 @@ export default class GameCache {
 
 		try {
 
-			let u1 = (typeof p1 !== 'string') ? p1 : this.context.userOrSendErr(m, p1);
+			const u1 = (typeof p1 !== 'string') ? p1 : this.context.userOrSendErr(m, p1);
 			if (!p1) {
 				m.reply('Player not found.');
 				return null;
@@ -195,7 +194,7 @@ export default class GameCache {
 					return null;
 				};
 
-				let game = await this.getGame(p1 as User, p2 as User, gnum);
+				const game = await this.getGame(p1 as User, p2 as User, gnum);
 
 				if (!game) {
 					m.reply('No game between ' + this.context.userString(p1) +

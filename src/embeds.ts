@@ -3,12 +3,12 @@ import { Message, MessageEmbed } from 'discord.js';
 
 export const getEmbedUrl = (m: Message) => {
 
-    let url = m.embeds.find(e => e.image?.url != null);
+    const url = m.embeds.find(e => e.image?.url != null);
     if (url != null) {
         return url.image?.url;
     } else {
 
-        let attach = m.attachments.find(
+        const attach = m.attachments.find(
 
             a => a.url != null || a.proxyURL != null
 

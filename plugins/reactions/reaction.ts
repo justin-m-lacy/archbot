@@ -164,12 +164,12 @@ export const parseReaction = (r: Reaction | ReactionData | string) => {
  */
 export const parseReactions = (a: (Reaction | ReactionData)[]) => {
 
-	let d = [];
+	const d = [];
 
-	let len = a.length;
+	const len = a.length;
 	for (let i = 0; i < len; i++) {
 
-		let r = parseReaction(a[i]);
+		const r = parseReaction(a[i]);
 		if (r !== null) d.push(r);
 	}
 

@@ -168,7 +168,7 @@ export class DiscordBot {
 
 		try {
 
-			let config = require('../../archconfig.json');
+			const config = require('../../archconfig.json');
 
 			if (process.env.NODE_ENV !== 'production' && config.dev) {
 				Object.assign(config, config.dev);
@@ -283,7 +283,7 @@ export class DiscordBot {
 			+ this.client.user?.id + ')');
 
 		try {
-			let classes = this._contextClasses;
+			const classes = this._contextClasses;
 			if (classes.length === 0) {
 				console.log('no classes to instantiate.');
 				return;
@@ -334,7 +334,7 @@ export class DiscordBot {
 		}
 
 		// check command access.
-		let context = await this.getMsgContext(m);
+		const context = await this.getMsgContext(m);
 		if (context) {
 			if (this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
 		}
@@ -376,7 +376,7 @@ export class DiscordBot {
 	testAccess(m: Message, cmd: Command, context: BotContext<ContextSource>) {
 
 		if (m.member) {
-			let allowed = context.canAccess(cmd.name, m.member);
+			const allowed = context.canAccess(cmd.name, m.member);
 			if (allowed === undefined) {
 
 				// check default access.
@@ -457,7 +457,7 @@ export class DiscordBot {
 	spamblock(m: Message) {
 
 		if (!m.guild) return false;
-		let allow = this._spamblock[m.guild.id];
+		const allow = this._spamblock[m.guild.id];
 
 		if (!allow) return false;
 		if (allow[m.channel.id]) return false;
@@ -475,7 +475,7 @@ export class DiscordBot {
 	async cmdProxy(m: Message) {
 
 		// get context of the guild/channel to be proxied to user.
-		let context = await this.getMsgContext(m);
+		const context = await this.getMsgContext(m);
 
 		if (context) {
 			this.setProxy(m.author, context as GuildContext | BotContext<Channel>);
@@ -516,12 +516,12 @@ export class DiscordBot {
 		if (!cmd) return m.reply(`Command '${cmdName}' not found.`);
 		else if (cmd.immutable) return m.reply(`The access level of '${this._dispatch.prefix}${cmdName}' cannot be changed.`);
 
-		let context = await this.getMsgContext(m);
+		const context = await this.getMsgContext(m);
 		if (context == null) {
 
 		} else if (perm === undefined || perm === null) {
 
-			let info = context.accessInfo(cmdName);
+			const info = context.accessInfo(cmdName);
 			if (!info && info !== 0 && info !== '0') {
 
 				// return default command access.
@@ -587,10 +587,10 @@ export class DiscordBot {
 	async restoreProxies() {
 
 		try {
-			let loaded = await this.fetchData('proxies');
+			const loaded = await this.fetchData('proxies');
 			if (loaded) {
 
-				for (let key in loaded) {
+				for (const key in loaded) {
 					this._proxies.set(key, loaded[key]);
 				}
 
@@ -610,7 +610,8 @@ export class DiscordBot {
 	 */
 	async getMsgContext(m: Message) {
 
-		let type = m.channel.type, idobj;
+		const type = m.channel.type;
+		let idobj;
 
 		if (type.includes('GUILD')) {
 			idobj = m.guild;
@@ -655,7 +656,7 @@ export class DiscordBot {
 	async getProxiedContext(proxy: ContextSource) {
 
 		/// id of Discord object being proxied.
-		let sourceId = this._proxies.get(proxy.id);
+		const sourceId = this._proxies.get(proxy.id);
 
 		if (sourceId) {
 			let con = this._contexts.get(sourceId);
@@ -725,10 +726,7 @@ export class DiscordBot {
 	 * @returns {GuildMember|User}
 	 */
 	getSender(msg: Message) {
-
-		if (msg.member) return msg.member;
-		return msg.author;
-
+		return msg.member || msg.author;
 	}
 
 	/**
@@ -784,7 +782,7 @@ export class DiscordBot {
 	 */
 	async fetchUserData(uObject: GuildMember | User) {
 
-		let objPath: string = (uObject instanceof GuildMember) ? fsys.memberPath(uObject)
+		const objPath: string = (uObject instanceof GuildMember) ? fsys.memberPath(uObject)
 			: fsys.getUserDir(uObject);
 
 		return this.cache.fetch(objPath);
@@ -798,7 +796,7 @@ export class DiscordBot {
 	 */
 	storeUserData(uObject: User | GuildMember, data: any) {
 
-		let objPath = (uObject instanceof GuildMember) ? fsys.memberPath(uObject) :
+		const objPath = (uObject instanceof GuildMember) ? fsys.memberPath(uObject) :
 			fsys.getUserDir(uObject);
 
 		return this.cache.cache(objPath, data);
@@ -818,11 +816,12 @@ export class DiscordBot {
 
 		if (!name) {
 			channel.send('User name expected.');
-			return null;
+
+		} else {
+			const member = this.findUser(channel, name);
+			if (!member) channel.send('User \'' + name + '\' not found.');
+			return member;
 		}
-		let member = this.findUser(channel, name);
-		if (!member) channel.send('User \'' + name + '\' not found.');
-		return member;
 
 	}
 
@@ -870,10 +869,10 @@ export class DiscordBot {
 	 */
 	async printCommand(chan: TextBasedChannel, cmdname: string) {
 
-		let cmdInfo = this._dispatch.commands[cmdname];
+		const cmdInfo = this._dispatch.commands[cmdname];
 		if (cmdInfo) {
 
-			let usage = cmdInfo.usage;
+			const usage = cmdInfo.usage;
 			if (!usage) return chan.send('No usage information found for command \'' + cmdname + '\'.');
 			else return chan.send(cmdname + ' usage: ' + cmdInfo.usage);
 
@@ -899,15 +898,15 @@ export class DiscordBot {
 	async printCommands(chan: TextBasedChannel) {
 
 		let str = `Use ${this.cmdPrefix}help [command] for more information.\nAvailable commands:\n`;
-		let cmds = this._dispatch.commands;
+		const cmds = this._dispatch.commands;
 
 		if (cmds) {
 
-			let a = [];
-			let sep = ': ' + this._dispatch.prefix;
+			const a = [];
+			const sep = ': ' + this._dispatch.prefix;
 
 			//let info;
-			for (let k in cmds) {
+			for (const k in cmds) {
 
 				if (!cmds[k].hidden) a.push(k + sep + cmds[k].desc);
 

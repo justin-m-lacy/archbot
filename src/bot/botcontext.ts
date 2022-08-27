@@ -99,7 +99,7 @@ export abstract class BotContext<T extends ContextSource> {
 			this.addClass(plugClasses[i]);
 		}
 
-		let roomPerms = await this.cache.fetch('access');
+		const roomPerms = await this.cache.fetch('access');
 		this.access = new Access(roomPerms);
 
 	}
@@ -199,7 +199,7 @@ export abstract class BotContext<T extends ContextSource> {
 	 */
 	async getSetting(key: string, defaultset?: string) {
 
-		let settings = await this.cache.fetch('settings');
+		const settings = await this.cache.fetch('settings');
 
 		if (!settings || !settings.hasOwnProperty(key)) return defaultset;
 		return settings[key];
@@ -213,7 +213,7 @@ export abstract class BotContext<T extends ContextSource> {
 	 */
 	isValidKey(s: string) {
 
-		let a = fsys.illegalChars;
+		const a = fsys.illegalChars;
 		for (let i = a.length - 1; i >= 0; i--) {
 			if (s.indexOf(a[i]) >= 0) return false;
 		}
@@ -243,7 +243,7 @@ export abstract class BotContext<T extends ContextSource> {
 			// ignore bot commands. (commands routed separately)
 			if (m.content.charAt(0) === this.bot.cmdPrefix) return;
 
-			let t = this.type;
+			const t = this.type;
 			if (t === 'guild') {
 				if (!m.guild || m.guild.id !== this._idobj.id) return;
 			} else if (t === 'channel') {
@@ -267,11 +267,10 @@ export abstract class BotContext<T extends ContextSource> {
 	 */
 	async getDataList(path: string) {
 
-		let files = await afs.readfiles(fsys.BASE_DIR + this.cache.cacheKey + path);
+		const files = await afs.readfiles(fsys.BASE_DIR + this.cache.cacheKey + path);
 		for (let i = files.length - 1; i >= 0; i--) {
 
-			var f = files[i].replace(/.[^/.]+$/, '');
-			files[i] = f;
+			files[i] = files[i].replace(/.[^/.]+$/, '');;
 
 		}
 
@@ -302,10 +301,7 @@ export abstract class BotContext<T extends ContextSource> {
 			(resp instanceof Message) ? resp.reply('User name expected.') : resp.send('User name expected.');
 			return null;
 		}
-		let member = this.findUser(name);
-		if (!member) this.sendUserNotFound(resp, name);
-
-		return member;
+		return this.findUser(name) || this.sendUserNotFound(resp, name);
 
 	}
 
