@@ -1,5 +1,5 @@
 import { DiscordBot } from './bot/discordbot';
-import { Client, GuildMember, Message, TextBasedChannel, User } from 'discord.js';
+import { Client, GuildMember, Message, TextBasedChannel, User, Permissions } from 'discord.js';
 import { UserHistory } from './history';
 import * as jsutils from './utils/jsutils';
 import DateFormat from './datedisplay';
@@ -9,45 +9,44 @@ import { getSenderName } from './utils/users';
 let bot: DiscordBot;
 let client: Client;
 
+const DefaultModule = 'default';
+
 export function initBasicCommands(b: DiscordBot) {
 
     bot = b;
     client = b.client;
     let cmds = b.dispatch;
 
-    cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 1, module: 'default' });
+    cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 1, module: DefaultModule });
+    cmds.add('roll', '!roll [n]d[s]', cmdRoll, { maxArgs: 1, module: DefaultModule });
 
-    cmds.add('schedule', 'schedule <activity> <times>', cmdSchedule, { maxArgs: 2, group: 'right', module: 'default' });
-
-    cmds.add('sleep', 'sleep <sleep schedule>', cmdSleep, { maxArgs: 1, module: 'default' });
-    cmds.add('when', 'when <userName> <activity>', cmdWhen, { maxArgs: 2, module: 'default' });
-    cmds.add('roll', '!roll [n]d[s]', cmdRoll, { maxArgs: 1, module: 'default' });
-
-    cmds.add('uid', 'uid <username>', cmdUid, { maxArgs: 1, module: 'default' });
-    cmds.add('uname', "uname <nickname> - get user's username", cmdUName, { maxArgs: 1, module: 'default' });
-    cmds.add('nick', "nick <displayName> - get user's nickname", cmdNick, { maxArgs: 1, module: 'default' });
-    cmds.add('displayname', "displayname <user> - get user's display name.", cmdDisplayName, { maxArgs: 1, module: 'default' });
+    cmds.add('uid', 'uid <username>', cmdUid, { maxArgs: 1, module: DefaultModule });
+    cmds.add('uname', "uname <nickname> - get user's username", cmdUName, { maxArgs: 1, module: DefaultModule });
+    cmds.add('nick', "nick <displayName> - get user's nickname", cmdNick, { maxArgs: 1, module: DefaultModule });
+    cmds.add('displayname', "displayname <user> - get user's display name.", cmdDisplayName, { maxArgs: 1, module: DefaultModule });
 
     cmds.add('uptime', 'uptime', cmdUptime);
 
-    cmds.add('lastplay', '!lastplay <userName> <gameName>', cmdLastPlay, { maxArgs: 2, module: 'default' });
-    cmds.add('laston', 'laston <userName>', cmdLastOn, { maxArgs: 1, module: 'default' });
-    cmds.add('lastidle', 'lastidle <userName>', cmdLastIdle, { maxArgs: 1, module: 'default' });
-    cmds.add('lastactive', 'lastactive <userName>', cmdLastActive, { maxArgs: 1, module: 'default' });
-    cmds.add('lastoff', 'lastoff <userName>', cmdLastOff, { maxArgs: 1, module: 'default' });
+    cmds.add('lastplay', '!lastplay <userName> <gameName>', cmdLastPlay, { maxArgs: 2, module: DefaultModule });
+    cmds.add('laston', 'laston <userName>', cmdLastOn, { maxArgs: 1, module: DefaultModule });
+    cmds.add('lastidle', 'lastidle <userName>', cmdLastIdle, { maxArgs: 1, module: DefaultModule });
+    cmds.add('lastactive', 'lastactive <userName>', cmdLastActive, { maxArgs: 1, module: DefaultModule });
+    cmds.add('lastoff', 'lastoff <userName>', cmdLastOff, { maxArgs: 1, module: DefaultModule });
 
-    cmds.add('offtime', 'offtime <userName>', cmdOffTime, { maxArgs: 1, module: 'default' });
-    cmds.add('ontime', 'ontime <username>', cmdOnTime, { maxArgs: 1, module: 'default' });
-    cmds.add('idletime', 'idletime <username>', cmdIdleTime, { maxArgs: 1, module: 'default' });
-    cmds.add('playtime', 'playtime <userName>', cmdPlayTime, { maxArgs: 1, module: 'default' });
+    cmds.add('offtime', 'offtime <userName>', cmdOffTime, { maxArgs: 1, module: DefaultModule });
+    cmds.add('ontime', 'ontime <username>', cmdOnTime, { maxArgs: 1, module: DefaultModule });
+    cmds.add('idletime', 'idletime <username>', cmdIdleTime, { maxArgs: 1, module: DefaultModule });
+    cmds.add('playtime', 'playtime <userName>', cmdPlayTime, { maxArgs: 1, module: DefaultModule });
 
     cmds.add('magicmissile', 'You need material components for all of your spells.',
         (m: Message) => m.channel.send('You attack the darkness.'), { hidden: true, module: 'magic' });
+    cmds.add('say', '', cmdSay, { maxArgs: 1, module: DefaultModule, hidden: true, access: Permissions.FLAGS.ADMINISTRATOR });
+
     cmds.add('palantir', 'What does the Great Eye command?', (m: Message) => m.channel.send('Build me an army worthy of Mordor.'), { hidden: true, module: 'orthanc' });
     cmds.add('ranking', 'ranking', cmdRanking, { hidden: true, maxArgs: 0 });
     cmds.add('fuck', null, cmdFuck, { hidden: true, module: 'explicit' });
 
-    cmds.add('test', 'test [ping message]', cmdTest, { maxArgs: 1, module: 'default' });
+    cmds.add('test', 'test [ping message]', cmdTest, { maxArgs: 1, module: DefaultModule });
 
 }
 
@@ -138,27 +137,6 @@ const latestStatus = (history: UserHistory | null | undefined, statuses: string 
 }
 
 /**
- * send schedule message to channel, for user with displayName
- * @async
- * @param {Channel} chan
- * @param {string} name
- * @param {string} activity
- * @returns {Promise}
- */
-const sendSchedule = async (chan: TextBasedChannel, name: string, activity: string) => {
-
-    let gMember = bot.userOrSendErr(chan, name);
-    if (!gMember) return;
-
-    let sched = await readSchedule(gMember, activity);
-    if (sched) return chan.send(name + ' ' + activity + ': ' + sched);
-
-    return chan.send('No ' + activity + ' schedule found for ' + name + '.');
-
-}
-
-
-/**
  * Get the history object of a guild member.
  * @async
  * @param {GuildMember} gMember
@@ -175,39 +153,6 @@ const readHistory = async (gMember: GuildMember | User) => {
     return null;
 
 }
-
-/**
- * @async
- * @param {GuildMember} gMember - guild member to get schedule for.
- * @param {string} schedType - activity to read schedule for.
- * @returns {Promise}
- */
-const readSchedule = async (gMember: GuildMember | User, schedType: string) => {
-
-    try {
-
-        let data = await bot.fetchUserData(gMember);
-        if (data && data.hasOwnProperty('schedule')) return data.schedule[schedType];
-
-    } catch (err) {
-        console.error(err);
-    }
-    return null;
-
-}
-
-/**
- * Sets the schedule of a guild member, for a given schedule type.
- * @async
- * @param {GuildMember|User} uObject - Discord user.
- * @param {string} scheduleType - type of activity to schedule.
- * @param {string} scheduleString - schedule description.
- * @returns {Promise}
- */
-const setSchedule = async (uObject: GuildMember | User, scheduleType: string, scheduleString: string) => {
-    return mergeMember(uObject, { schedule: { [scheduleType]: scheduleString } });
-}
-
 
 const cmdRanking = async (m: Message) => { return m.channel.send('Last place: garnish.'); }
 
@@ -308,10 +253,10 @@ const cmdRoll = async (msg: Message, dicestr: string) => {
  * @param {Message} msg
  * @param {string} when
  */
-const cmdSleep = (msg: Message, when: string) => {
+/*const cmdSleep = (msg: Message, when: string) => {
     let sender = bot.getSender(msg);
     setSchedule(sender, 'sleep', when);
-}
+}*/
 
 /**
  *
@@ -319,7 +264,7 @@ const cmdSleep = (msg: Message, when: string) => {
  * @param {string} activity
  * @param {string} when
  */
-const cmdSchedule = (msg: Message, activity: string, when: string) => {
+/*const cmdSchedule = (msg: Message, activity: string, when: string) => {
 
     let sender = bot.getSender(msg);
     setSchedule(sender, activity, when);
@@ -329,10 +274,15 @@ const cmdSchedule = (msg: Message, activity: string, when: string) => {
 
 const cmdWhen = (msg: Message, who: string, activity: string) => {
     return sendSchedule(msg.channel, who, activity);
-}
+}*/
 
 const cmdLastPlay = (msg: Message, who: string, game: string) => {
     return sendGameTime(msg.channel, who, game);
+}
+
+const cmdSay = (msg: Message, what: string) => {
+
+    return msg.channel.send(`[ ${what} ]`);
 }
 
 /**
@@ -564,7 +514,7 @@ const sendHistory = async (channel: TextBasedChannel, name: string, statuses: st
  * @param {Object} newData - data to merge into existing data.
  * @returns {Promise}
  */
-export async function mergeMember(uObject: GuildMember | User, newData: any) {
+export const mergeMember = async (uObject: GuildMember | User, newData: any) => {
 
     try {
 

@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, Util, PermissionResolvable, TextChannel } from 'discord.js';
+import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, Util, PermissionResolvable } from 'discord.js';
 import { Auth } from './auth';
 import Command from './command';
 import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
@@ -192,14 +192,15 @@ export class DiscordBot {
 	 */
 	loadPlugins() {
 
-		if (!this._plugsdir) return;
+		if (this._plugsdir) {
 
-		try {
+			try {
 
-			var plugins = require('./plugsupport').loadPlugins(this._plugsdir);
-			this.addPlugins(plugins);
+				var plugins = require('./plugsupport').loadPlugins(this._plugsdir);
+				this.addPlugins(plugins);
 
-		} catch (e) { console.error(e); }
+			} catch (e) { console.error(e); }
+		}
 	}
 
 	/**
