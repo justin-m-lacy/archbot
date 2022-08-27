@@ -4,7 +4,6 @@ import { Display } from '../../src/display';
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
 import { Reaction } from './reaction';
 import { DiscordBot } from '../../src/bot/discordbot';
-import Discord from 'discord.js';
 import { replyEmbedUrl, getEmbedUrl } from '../../src/embeds';
 
 /**
@@ -299,10 +298,10 @@ class GuildReactions {
 			return m.channel.send('No regex reactions found.');
 		}
 
-		const infos = await Promise.all(reacts.map(v => this.infoString(v.reacts)));
+		const infos = await Promise.all(reacts.map(v => this.infoString(v.reacts, false, false)));
 
 		const text = reacts.map(
-			(v, ind) => v.trigger.toString() + ': ' + infos[ind]
+			(v, ind) => `${ind + 1}) \`${v.trigger}\`:  ${infos[ind]}`
 		).join('\n\n');
 
 		// must save before response is extended by total reaction count.
@@ -504,19 +503,18 @@ class GuildReactions {
 	 * @param {boolean} [details=false] return extended reaction details.
 	 * @returns {Promise<string>}
 	 */
-	async infoString(react: string | Reaction | Array<string | Reaction> | null, details: boolean = false) {
+	async infoString(react: string | Reaction | Array<string | Reaction> | null, details: boolean = false, indexed: boolean = true): Promise<string> {
 
 		if (react === null || react === undefined) return '';
 		if (typeof react === 'string') return react + (details ? ' ( Creator unknown )' : '');
 
 		if (Array.isArray(react)) {
 
-			let resp = '';
-			let len = react.length;
-			for (let i = 0; i < len; i++) {
-				resp += '\n\n' + (i + 1) + ') ' + (await this.infoString(react[i], details));
+			let list = await Promise.all(react.map(v => this.infoString(v, details)));
+			if (indexed) {
+				list = list.map((v, i) => `${(i + 1)}) ${v}`);
 			}
-			return resp;
+			return list.join('\n\n');
 
 		} else if (typeof react === 'object') {
 
