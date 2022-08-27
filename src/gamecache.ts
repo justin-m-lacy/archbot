@@ -9,17 +9,17 @@ export type GameInfo = [string, string, string, string];
 /**
  * @classdesc Handles retrieval, storing, and listings of user games.
 */
-export default class GameCache {
+export class GameCache {
 
 	private context: any;
 	private dir: string;
 	private cache: any;
-	private reviver: any;
+	private reviver?: (data: any) => any;
 
 	private userLists: { [key: string]: any };
 
 
-	constructor(context: any, basedir: string, revive = null) {
+	constructor(context: any, basedir: string, revive?: (data: any) => any) {
 
 		this.context = context;
 

@@ -16,7 +16,7 @@ export enum ChessStatus {
 
 export type ChessTags = { [tag: string]: string };
 
-export default class ChessGame extends Game {
+export class ChessGame extends Game {
 
 	get history() { return this._history; }
 	set history(h: string[]) {
@@ -48,7 +48,7 @@ export default class ChessGame extends Game {
 	private readonly _history: string[];
 	private _status: ChessStatus;
 	private _lastMove?: string | null;
-	private _gameState: string;
+	private _gameState: any;
 
 	static FromJSON(data: any) {
 
@@ -87,7 +87,7 @@ export default class ChessGame extends Game {
 	 * @param {number} createTime Timestamp when game began.
 	 * @param {object} state Current chess-rules position of game.
 	 */
-	constructor(w: string, b: string, createTime: number, state?: object, status?: ChessStatus) {
+	constructor(w: string, b: string, createTime: number, state?: any, status?: ChessStatus) {
 
 		super(w, b, createTime);
 

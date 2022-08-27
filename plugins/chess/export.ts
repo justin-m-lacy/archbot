@@ -1,4 +1,4 @@
-import ChessGame, { ChessStatus } from './chessgame';
+import { ChessGame, ChessStatus } from './chessgame';
 import { ChessTags } from './chessgame';
 
 export const toPGN = (game: ChessGame) => {
