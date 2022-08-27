@@ -4,7 +4,7 @@ import { Item } from './items/item';
 import Wearable from './items/wearable';
 import * as ItemGen from './items/itemgen';
 import { toSlot } from './items/wearable';
-import * as jsutils from '../../src/jsutils';
+import * as jsutils from '../../src/utils/jsutils';
 import Material from "./items/material";
 
 /**

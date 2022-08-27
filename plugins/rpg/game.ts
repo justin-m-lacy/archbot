@@ -14,7 +14,7 @@ import { LifeState } from './char/actor';
 import Monster from './monster/monster';
 import Wearable from './items/wearable';
 import Potion from './items/potion';
-import * as jsutils from '../../src/jsutils';
+import * as jsutils from '../../src/utils/jsutils';
 import * as Trade from './trade';
 import * as dice from './dice';
 import Combat from "./combat/combat";

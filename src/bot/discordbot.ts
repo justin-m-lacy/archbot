@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, Util, PermissionResolvable } from 'discord.js';
+import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, Util, PermissionResolvable, TextChannel } from 'discord.js';
 import { Auth } from './auth';
 import Command from './command';
 import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
@@ -842,14 +842,20 @@ export class DiscordBot {
 				if (channel.recipient.username.toLowerCase() === name) return channel.recipient;
 				return null;
 			default:
-				return channel.guild.members.cache.find(
+				const search = channel.guild.members.cache.find(
 
-					(gm) => {
-						return gm.displayName.toLowerCase() === name || (
-							gm.nickname?.toLowerCase() === name
-						)
-					}
+					(gm) => gm.displayName.toLowerCase() === name ||
+						gm.nickname?.toLowerCase() === name
+
 				);
+				if (search) {
+
+					return search;
+				} else {
+					/// Check raw usernames.
+					return channel.guild.members.cache.find((gm) => gm.user.username.toLowerCase() === name);
+
+				}
 
 		}
 
