@@ -121,17 +121,17 @@ class GuildReactions {
 	 */
 	async respond(m: Message, rset: ReactSet) {
 
-		var last = rset.lastUsed;
+		const last = rset.lastUsed;
 		if (last && (this.msgTime - last) < this.minWait) return;
 		rset.lastUsed = this.msgTime;
 		this.gTime = this.msgTime;
 
 		// get random reaction from set.
-		let react = rset.getRandom();
+		const react = rset.getRandom();
 
 		if (!react) return null;
 
-		let resp = react.getResponse(rset.trigger, m.content);
+		const resp = react.getResponse(rset.trigger, m.content);
 		if (react.embed) {
 
 			return replyEmbedUrl(m, react.embed, resp ?? '');
@@ -148,12 +148,12 @@ class GuildReactions {
 	async respondTest(m: Message, rset: ReactSet, input: string) {
 
 		// get random reaction from set.
-		let react = rset.getRandom();
+		const react = rset.getRandom();
 
 
 		if (react) {
 
-			let resp = react.getResponse(input, input);
+			const resp = react.getResponse(input, input);
 			if (react.embed) {
 				return replyEmbedUrl(m, react.embed, resp ?? ' ');
 			} else if (resp) return m.reply(resp);
@@ -174,7 +174,7 @@ class GuildReactions {
 	 */
 	async cmdAddReact(m: Message, trig: string, react: string) {
 
-		let embedUrl = getEmbedUrl(m);
+		const embedUrl = getEmbedUrl(m);
 
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
 		else if (trig.length < 3) {
@@ -194,7 +194,7 @@ class GuildReactions {
 
 	async cmdTestReact(m: Message, trig: string) {
 
-		let rset = this.findSet(trig);
+		const rset = this.findSet(trig);
 		if (rset !== null) {
 			console.log(`react set found...`);
 			return this.respondTest(m, rset, trig);
@@ -214,7 +214,7 @@ class GuildReactions {
 
 		if (trig) {
 
-			var res;
+			let res;
 
 			if (this.reMap.has(trig)) res = this.removeReact(this.reMap, trig, which, true);
 			else res = this.removeReact(this.reactions, trig, which);
@@ -224,7 +224,7 @@ class GuildReactions {
 				await this.storeReacts();
 				return m.channel.send('Reaction removed.');
 
-			} else if (res === false) return m.channel.send('Reaction not found.');
+			} else if (res === false) return m.channel.send(`Reaction for \`${trig}\` not found.`);
 
 			// multiple reactions found.
 			return m.channel.send(`${res} reactions found for trigger: ${trig}`);
@@ -246,10 +246,10 @@ class GuildReactions {
 	 */
 	async cmdReactInfo(m: Message, trig: string, which?: string) {
 
-		let reacts = this.getReactions(trig, which);
+		const reacts = this.getReactions(trig, which);
 		if (!reacts) return m.channel.send('No reaction found.');
 
-		let resp = await this.infoString(reacts, true);
+		const resp = await this.infoString(reacts, true);
 
 		return Display.sendPage(m, resp, 0);
 
@@ -265,19 +265,17 @@ class GuildReactions {
 	 */
 	async cmdReacts(m: Message, trig: string, page: number = 1) {
 
-		console.log(`cmdReacts() called`);
 		if (trig == '/') {
 			console.log(`returning regex reacts`);
 			return this.cmdRegexReacts(m, page);
 		}
-		let reacts = this.getReactions(trig);
+		const reacts = this.getReactions(trig);
 		if (!reacts) return m.channel.send('No reaction found.');
 
-		console.log(`some reacts found: ${reacts}`);
 		let resp = await this.infoString(reacts);
 
 		// must save before response is extended by total reaction count.
-		let pagingFooter = Display.pageFooter(resp);
+		const pagingFooter = Display.pageFooter(resp);
 
 		// get a single page of the response.
 		resp = Display.getPageText(resp, page - 1);
@@ -292,7 +290,7 @@ class GuildReactions {
 
 	async cmdRegexReacts(m: Message, page: number = 1) {
 
-		let reacts = this.getAllRegEx();
+		const reacts = this.getAllRegEx();
 
 		if (reacts.length == 0) {
 			return m.channel.send('No regex reactions found.');
@@ -305,7 +303,7 @@ class GuildReactions {
 		).join('\n\n');
 
 		// must save before response is extended by total reaction count.
-		let pagingFooter = Display.pageFooter(text);
+		const pagingFooter = Display.pageFooter(text);
 
 		// get a single page of the response.
 		let resp = Display.getPageText(text, page - 1);
@@ -326,7 +324,7 @@ class GuildReactions {
 	async cmdTriggers(m: Message, page: number = 1) {
 
 		// list of all triggers defined for server.
-		let triggers = this.getTriggers();
+		const triggers = this.getTriggers();
 
 		if (triggers.length <= 0) {
 			return m.channel.send('No custom reactions found.');
@@ -359,14 +357,14 @@ class GuildReactions {
 		if (isRegex === false) trig = trig.toLowerCase();
 		//else console.log('REMOVING REGEX TRIGGER: ' + trig );
 
-		let rset = map.get(trig);
+		const rset = map.get(trig);
 		if (rset === undefined) {
 			return false;
 		}
 
-		//console.log('REGEX TRIGGER FOUND: ' +  rset.trigger );
+		console.log('REGEX TRIGGER FOUND: ' + rset.trigger);
 
-		let res = rset.tryRemove(reaction);
+		const res = rset.tryRemove(reaction);
 		if (res === true && rset.isEmpty()) map.delete(trig);
 
 		return res;
@@ -466,7 +464,7 @@ class GuildReactions {
 
 			if (str.indexOf(k) >= 0) {
 
-				var rset = map.get(k);
+				const rset = map.get(k);
 				if (rset !== undefined) return rset;
 
 			}
@@ -560,12 +558,7 @@ class GuildReactions {
 	 */
 	getTriggers(): string[] {
 
-		let a = [];
-
-		for (let p of this.reMap.keys()) {
-			a.push(p);
-		}
-
+		const a = Array.from(this.reMap.keys());
 		for (let p of this.reactions.keys()) {
 			a.push(p);
 		}
@@ -662,7 +655,7 @@ const parseReacts = (data: any) => {
  */
 function parseStrings(data: any) {
 
-	let map = new Map();
+	const map = new Map()
 
 	for (let p in data) {
 		map.set(p, new ReactSet(p, data[p]));
@@ -679,14 +672,14 @@ function parseStrings(data: any) {
  */
 function parseRe(data: any) {
 
-	let map = new Map();
+	const map = new Map<string, ReactSet>();
 
 	if (data) {
 
 		let r: RegExp | boolean;
-		for (let p in data) {
+		for (const p in data) {
 
-			if ((r = toRegEx(p)) !== false) map.set(r, new ReactSet(r, data[p]));
+			if ((r = toRegEx(p)) !== false) map.set(p, new ReactSet(r, data[p]));
 
 		}
 
