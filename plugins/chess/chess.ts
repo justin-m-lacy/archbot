@@ -1,8 +1,8 @@
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
-import { Message, TextChannel, GuildMember, User, TextBasedChannel } from 'discord.js';
-import GameCache from '@src/gamecache';
+import { Message, GuildMember, User, TextBasedChannel } from 'discord.js';
+import { GameCache } from '@src/gamecache';
 import { DiscordBot } from '@src/bot/discordbot';
-import ChessGame from './chessgame';
+import { ChessGame } from './chessgame';
 import * as Export from './export';
 
 const Display = require('./display');
@@ -99,7 +99,7 @@ class Room {
 		const opp = this._context.userOrSendErr(m, opponent)
 		if (!opp) return;
 
-		const game = await this.gcache.getGame(m.author.id, opp.id, gnum);
+		const game = await this.gcache.getGame(m.author, opp, gnum);
 		if (!game) return m.reply('Game not found.');
 		else return m.reply('Game loaded.');
 

@@ -1,5 +1,5 @@
-import { TextChannel } from 'discord.js';
-import ChessGame from './chessgame';
+import { MessageAttachment, TextBasedChannel, TextChannel } from 'discord.js';
+import { ChessGame } from './chessgame';
 import jimp from 'jimp';
 import Discord from 'discord.js';
 
@@ -16,13 +16,13 @@ var imagesLoaded: boolean = false;
 // tiled piece positions.
 //const teamRow = { 'W':1, 'B':0 };
 
-const pieceCol = { 'Q': 0, 'K': 1, 'R': 2, 'N': 3, 'B': 4, 'P': 5 };
+const pieceCol: { [k: string]: number } = { 'Q': 0, 'K': 1, 'R': 2, 'N': 3, 'B': 4, 'P': 5 };
 
 /**
  * Maps chess letters to unicode characters.
  * Black pieces are lowercase.
  */
-const to_unicode = {
+const to_unicode: { [key: string]: string } = {
 	'K': '\u2654', 'Q': '\u2655', 'R': '\u2656',
 	'B': '\u2657', 'N': '\u2658', 'P': '\u2659',
 	'k': '\u265A', 'q': '\u265B', 'r': '\u265C',
@@ -56,7 +56,7 @@ export const loadImages = async () => {
  * @param {ChessGame} game
  * @returns {Promise}
  */
-export const showBoard = async (chan: TextChannel, game: ChessGame) => {
+export const showBoard = async (chan: TextBasedChannel, game: ChessGame) => {
 
 	if (imagesLoaded) {
 
@@ -66,7 +66,13 @@ export const showBoard = async (chan: TextChannel, game: ChessGame) => {
 			if (buff) {
 
 				//let attach =
-				return chan.send(game.getStatusString(), new Discord.MessageAttachment(buff));
+				return chan.send(
+					{
+						content: game.getStatusString(),
+						attachments: [
+							new MessageAttachment(buff)
+						]
+					});
 
 			}
 
@@ -88,7 +94,7 @@ export const showBoard = async (chan: TextChannel, game: ChessGame) => {
 const getBoardImg = async (game: ChessGame) => {
 
 	let img = imgBoard!.clone();
-	let pieces = imgPieces;
+	const pieces = imgPieces!;
 
 	let b = game.getBoard();
 
@@ -123,12 +129,12 @@ const getBoardImg = async (game: ChessGame) => {
  * @param {Jimp} img
  * @returns {Promise<Buffer|null>}
  */
-async function imageBuffer(img: jimp) {
+const imageBuffer = async (img: jimp) => {
 
-	return new Promise((res) => {
+	return new Promise((res: (v: Buffer | null) => void) => {
 		img.getBuffer(jimp.MIME_PNG, (err?: any, buff?: Buffer) => {
 
-			res(err ? null : buff);
+			res(buff ?? null);
 		});
 	});
 
