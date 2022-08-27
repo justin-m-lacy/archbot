@@ -296,24 +296,19 @@ class GuildReactions {
 		let reacts = this.getAllRegEx();
 
 		if (reacts.length == 0) {
-			return m.channel.send('No regular expressions found.');
+			return m.channel.send('No regex reactions found.');
 		}
 
-		let resp = reacts.map(
+		const text = reacts.map(
 
-			(v) => {
-				v.trigger.toString() + ': ' + this.infoString(v.reacts);
-			}
-
-		).join(
-			'\n\n'
-		);
+			(v) => v.trigger.toString() + ': ' + this.infoString(v.reacts)
+		).join('\n\n');
 
 		// must save before response is extended by total reaction count.
-		let pagingFooter = Display.pageFooter(resp);
+		let pagingFooter = Display.pageFooter(text);
 
 		// get a single page of the response.
-		resp = Display.getPageText(resp, page - 1);
+		let resp = Display.getPageText(text, page - 1);
 
 		// append reaction count.
 		if (Array.isArray(reacts)) resp += `\n\n${reacts.length} total reactions`;
@@ -403,15 +398,17 @@ class GuildReactions {
 		if (rset === undefined) {
 
 			let regex = toRegEx(trig);	// takes flags into account.
+			if (!regex) {
+				return;
+			}
 
-			if (regex) {
-				rset = new ReactSet(regex);
-				// @note map key is string. ReactSet trigger is regex.
-				this.reMap.set(trig, rset);
-			} else return;
+			rset = new ReactSet(regex);
+			// @note map key is string. ReactSet trigger is regex.
+			this.reMap.set(trig, rset);
+
 
 		}
-		rset!.add(react, uid, embedUrl);
+		rset.add(react, uid, embedUrl);
 
 	}
 
@@ -506,15 +503,14 @@ class GuildReactions {
 	 * @param {boolean} [details=false] return extended reaction details.
 	 * @returns {Promise<string>}
 	 */
-	async infoString(react: string | Reaction | Array<any> | null, details: boolean = false) {
+	async infoString(react: string | Reaction | Array<string | Reaction> | null, details: boolean = false) {
 
 		if (react === null || react === undefined) return '';
 		if (typeof react === 'string') return react + (details ? ' ( Creator unknown )' : '');
 
-		var resp = '';
-
 		if (Array.isArray(react)) {
 
+			let resp = '';
 			let len = react.length;
 			for (let i = 0; i < len; i++) {
 				resp += '\n\n' + (i + 1) + ') ' + (await this.infoString(react[i], details));
@@ -523,29 +519,40 @@ class GuildReactions {
 
 		} else if (typeof react === 'object') {
 
-			if (react.r) resp = react.r;
-
-			if (react.embed) resp += '\nEmbedded URL: `' + react.embed + '`';
-
-
-			if (react.uid) {
-
-				let name = await this._context.displayName(react.uid);
-				if (name) {
-
-					resp += `\nCreated by ${name}`;
-					if (details) resp += ` (id:${react.uid})`;
-
-				} else resp += `\nCreated by user id: ${react.uid}`;
-
-				if (details && react.t) resp += ` @ ${new Date(react.t)}`;
-
-			}
-			return resp;
+			return this.infoObject(react, details);
 
 		}
 
 		return 'Unknown Reaction';
+
+	}
+
+	/**
+	 * Get information on a reaction object.
+	 * @param react 
+	 * @param details 
+	 * @returns 
+	 */
+	async infoObject(react: Reaction, details: boolean = false) {
+
+		let resp = react.r || '';
+		if (react.embed) resp += '\nEmbedded URL: `' + react.embed + '`';
+
+
+		if (react.uid) {
+
+			let name = await this._context.displayName(react.uid);
+			if (name) {
+
+				resp += `\nCreated by ${name}`;
+				if (details) resp += ` (id:${react.uid})`;
+
+			} else resp += `\nCreated by user id: ${react.uid}`;
+
+			if (details && react.t) resp += ` @ ${new Date(react.t)}`;
+
+		}
+		return resp;
 
 	}
 
