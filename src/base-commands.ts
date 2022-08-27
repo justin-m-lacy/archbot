@@ -247,7 +247,7 @@ const cmdNick = async (msg: Message, name: string) => {
 
 const cmdDisplayName = async (msg: Message, name: string) => {
 
-    let usr = bot.userOrSendErr(msg.channel);
+    let usr = bot.userOrSendErr(msg.channel, name);
     if (usr && (usr instanceof GuildMember)) {
         return msg.channel.send(name + ' display name: ' + usr.displayName);
     }
