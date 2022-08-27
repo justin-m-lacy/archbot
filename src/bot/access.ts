@@ -56,7 +56,7 @@ export default class Access {
 			} else {
 
 				// roles access.
-				let roles = perm.split(',');
+				const roles = perm.split(',');
 				if (roles.length === 0) return;
 				if (roles.length === 1) {
 
@@ -84,7 +84,7 @@ export default class Access {
 
 		if (!this.perms.hasOwnProperty(cmd)) return null;
 
-		let perm = this.perms[cmd];
+		const perm = this.perms[cmd];
 
 		if (!isNaN(perm)) return perm.toString();
 		else if (typeof (perm) === 'string') return perm;
@@ -138,7 +138,7 @@ export default class Access {
 
 		} else if (Array.isArray(perm)) {
 
-			let a = perm;
+			const a = perm;
 			for (let i = a.length - 1; i >= 0; i--) {
 
 				perm = a[i];

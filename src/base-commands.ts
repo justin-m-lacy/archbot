@@ -15,7 +15,7 @@ export function initBasicCommands(b: DiscordBot) {
 
     bot = b;
     client = b.client;
-    let cmds = b.dispatch;
+    const cmds = b.dispatch;
 
     cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 1, module: DefaultModule });
     cmds.add('roll', '!roll [n]d[s]', cmdRoll, { maxArgs: 1, module: DefaultModule });
@@ -56,7 +56,7 @@ export function initBasicCommands(b: DiscordBot) {
 
 const sendGameTime = async (channel: TextBasedChannel, displayName: string, gameName: string) => {
 
-    let uObject = bot.userOrSendErr(channel, displayName);
+    const uObject = bot.userOrSendErr(channel, displayName);
     if (!uObject || !(uObject instanceof GuildMember)) return;
 
     gameName = gameName.toLowerCase();
@@ -66,10 +66,10 @@ const sendGameTime = async (channel: TextBasedChannel, displayName: string, game
 
     try {
 
-        let data = await bot.fetchUserData(uObject);
-        let games = data.games;
+        const data = await bot.fetchUserData(uObject);
+        const games = data.games;
 
-        let dateStr = DateFormat.dateString(games[gameName]);
+        const dateStr = DateFormat.dateString(games[gameName]);
         return channel.send(displayName + ' last played ' + gameName + ' ' + dateStr);
 
     } catch (err) {
@@ -89,7 +89,7 @@ const sendGameTime = async (channel: TextBasedChannel, displayName: string, game
 const hasStatus = (gMember: GuildMember | User, statuses: string | string[]) => {
 
     if (gMember instanceof User) { return false; }
-    let status = gMember.presence?.status;
+    const status = gMember.presence?.status;
     if (Array.isArray(statuses)) {
 
         for (let i = statuses.length - 1; i >= 0; i--) {
@@ -145,7 +145,7 @@ const latestStatus = (history: UserHistory | null | undefined, statuses: string 
 const readHistory = async (gMember: GuildMember | User) => {
 
     try {
-        let data = await bot.fetchUserData(gMember);
+        const data = await bot.fetchUserData(gMember);
         if (data && data.hasOwnProperty('history')) return data.history;
     } catch (e) {
         console.log(e);
@@ -169,7 +169,7 @@ const cmdUptime = async (m: Message) => {
  */
 const cmdUName = async (msg: Message, name: string) => {
 
-    let gMember = bot.userOrSendErr(msg.channel, name);
+    const gMember = bot.userOrSendErr(msg.channel, name);
     if (!gMember || !(gMember instanceof GuildMember)) return;
     return msg.channel.send(name + ' user name: ' + gMember.user.username)
 
@@ -183,7 +183,7 @@ const cmdUName = async (msg: Message, name: string) => {
  */
 const cmdNick = async (msg: Message, name: string) => {
 
-    let gMember = bot.userOrSendErr(msg.channel, name);
+    const gMember = bot.userOrSendErr(msg.channel, name);
     if (gMember && (gMember instanceof GuildMember)) {
         return msg.channel.send(name + ' nickname: ' + gMember.nickname);
     }
@@ -192,7 +192,7 @@ const cmdNick = async (msg: Message, name: string) => {
 
 const cmdDisplayName = async (msg: Message, name: string) => {
 
-    let usr = bot.userOrSendErr(msg.channel, name);
+    const usr = bot.userOrSendErr(msg.channel, name);
     if (usr && (usr instanceof GuildMember)) {
         return msg.channel.send(name + ' display name: ' + usr.displayName);
     }
@@ -218,7 +218,7 @@ const cmdHelp = (msg: Message, cmd?: string) => {
  */
 const cmdUid = async (msg: Message, name: string) => {
 
-    let gMember = bot.userOrSendErr(msg.channel, name);
+    const gMember = bot.userOrSendErr(msg.channel, name);
     if (!gMember || !(gMember instanceof GuildMember)) return;
     return msg.channel.send(name + ' uid: ' + gMember.user.id)
 
@@ -233,8 +233,8 @@ const cmdUid = async (msg: Message, name: string) => {
 const cmdRoll = async (msg: Message, dicestr: string) => {
 
     try {
-        let sender = bot.getSender(msg);
-        let total = parseRoll(dicestr);
+        const sender = bot.getSender(msg);
+        const total = parseRoll(dicestr);
         return msg.channel.send(bot.displayName(sender) + ' rolled ' + total);
     } catch (err) {
 
@@ -345,19 +345,19 @@ const cmdFuck = (m: Message) => {
  */
 const cmdPlayTime = async (msg: Message, name: string) => {
 
-    let chan = msg.channel;
-    let gMember = bot.userOrSendErr(chan, name);
+    const chan = msg.channel;
+    const gMember = bot.userOrSendErr(chan, name);
     if (!gMember || !('presence' in gMember)) return;
 
     if (!gMember.presence?.activities || gMember.presence!.activities.length == 0) return chan.send(name + ' is not playing a game.');
 
-    let gameName = gMember.presence!.activities[0].name;
+    const gameName = gMember.presence!.activities[0].name;
 
     try {
 
-        let data = await bot.fetchUserData(gMember);
+        const data = await bot.fetchUserData(gMember);
         if (data.hasOwnProperty('games') && data.games.hasOwnProperty(gameName)) {
-            let lastTime = data.games[gameName];
+            const lastTime = data.games[gameName];
             return chan.send(name + ' has been playing ' + gameName + ' for ' + DateFormat.elapsed(lastTime));
         }
 
@@ -375,18 +375,18 @@ const cmdPlayTime = async (msg: Message, name: string) => {
  */
 const cmdIdleTime = async (msg: Message, name: string) => {
 
-    let chan = msg.channel;
-    let gMember = bot.userOrSendErr(chan, name);
+    const chan = msg.channel;
+    const gMember = bot.userOrSendErr(chan, name);
     if (!gMember) return;
 
     if (!hasStatus(gMember, 'idle')) return chan.send(name + ' is not idle.');
 
     try {
 
-        let history = await readHistory(gMember);
+        const history = await readHistory(gMember);
         if (history) {
 
-            let lastTime = latestStatus(history, ['offline', 'dnd', 'online']);
+            const lastTime = latestStatus(history, ['offline', 'dnd', 'online']);
 
             if (lastTime) return chan.send(name + ' has been idle for ' + DateFormat.elapsed(lastTime));
 
@@ -408,19 +408,19 @@ const cmdIdleTime = async (msg: Message, name: string) => {
  */
 const cmdOnTime = async (msg: Message, name: string) => {
 
-    let chan = msg.channel;
+    const chan = msg.channel;
 
-    let gMember = bot.userOrSendErr(chan, name);
+    const gMember = bot.userOrSendErr(chan, name);
     if (!gMember) return;
 
     if (hasStatus(gMember, 'offline')) return chan.send(name + ' is not online.');
 
     try {
 
-        let history = await readHistory(gMember);
+        const history = await readHistory(gMember);
         if (history) {
 
-            let lastTime = latestStatus(history, 'offline');
+            const lastTime = latestStatus(history, 'offline');
 
             if (lastTime) return chan.send(name + ' has been online for ' + DateFormat.elapsed(lastTime));
 
@@ -443,19 +443,19 @@ const cmdOnTime = async (msg: Message, name: string) => {
  */
 const cmdOffTime = async (msg: Message, name: string) => {
 
-    let chan = msg.channel;
+    const chan = msg.channel;
 
-    let gMember = bot.userOrSendErr(chan, name);
+    const gMember = bot.userOrSendErr(chan, name);
     if (!gMember) return;
 
     if (!hasStatus(gMember, 'offline')) return chan.send(name + ' is not offline.');
 
     try {
 
-        let history = await readHistory(gMember);
+        const history = await readHistory(gMember);
         if (history) {
 
-            let lastTime = latestStatus(history, 'offline');
+            const lastTime = latestStatus(history, 'offline');
 
             if (lastTime) return chan.send(name + ' has been offline for ' + DateFormat.elapsed(lastTime));
 
@@ -479,7 +479,7 @@ const cmdOffTime = async (msg: Message, name: string) => {
  */
 const sendHistory = async (channel: TextBasedChannel, name: string, statuses: string | string[], statusType?: string) => {
 
-    let gMember = bot.userOrSendErr(channel, name);
+    const gMember = bot.userOrSendErr(channel, name);
     if (!gMember) return;
 
     if (!statusType) {
@@ -494,10 +494,10 @@ const sendHistory = async (channel: TextBasedChannel, name: string, statuses: st
 
     try {
 
-        let memData = await bot.fetchUserData(gMember);
-        let lastTime = latestStatus(memData.history, statuses);
+        const memData = await bot.fetchUserData(gMember);
+        const lastTime = latestStatus(memData.history, statuses);
 
-        let dateStr = DateFormat.dateString(lastTime);
+        const dateStr = DateFormat.dateString(lastTime);
 
         return channel.send('Last saw ' + name + ' ' + statusType + ' ' + dateStr);
 
@@ -518,7 +518,7 @@ export const mergeMember = async (uObject: GuildMember | User, newData: any) => 
 
     try {
 
-        let data = await bot.fetchUserData(uObject);
+        const data = await bot.fetchUserData(uObject);
         if (data && typeof data === 'object') {
             jsutils.recurMerge(data, newData);
             newData = data;

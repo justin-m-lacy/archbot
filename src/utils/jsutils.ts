@@ -26,9 +26,9 @@ export const promisify = (f: Function, fthis?: any) => {
  */
 export const randWhere = <T>(arr: T[], pred: (elm: T) => boolean) => {
 
-	let len = arr.length;
+	const len = arr.length;
 	let i = Math.floor(Math.random() * len);
-	let start = i;
+	const start = i;
 
 	do {
 
@@ -71,15 +71,15 @@ export const recurMerge = (dest: any, src: any) => {
 	if (typeof src !== 'object') return dest;
 	if (typeof dest !== 'object') return Object.assign({}, src);
 
-	for (var key in src) {
+	for (const key in src) {
 
 		// src[key] might be falsey. skip inherited props.
 		if (!src.hasOwnProperty(key)) {
 			continue;
 		}
 
-		var newVal = src[key];
-		var oldVal = dest[key];
+		const newVal = src[key];
+		const oldVal = dest[key];
 		if (oldVal != null && (typeof oldVal === 'object' && typeof newVal === 'object')) {
 
 			recurMerge(oldVal, newVal);
@@ -96,7 +96,7 @@ export const recurMerge = (dest: any, src: any) => {
 // values from src overwrite dest.
 export const merge = (src: any, dest: any) => {
 
-	for (var key in src) {
+	for (const key in src) {
 
 		if (src.hasOwnProperty(key)) {
 			dest[key] = src[key];

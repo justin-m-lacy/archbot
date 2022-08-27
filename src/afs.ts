@@ -62,7 +62,7 @@ export const readfiles = (path: string) => new Promise((res, rej) => {
 
 		files => {
 
-			let found = [];
+			const found = [];
 
 			for (let i = files.length - 1; i >= 0; i--) {
 				if (files[i].isFile()) found.push(files[i].name);

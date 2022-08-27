@@ -57,7 +57,7 @@ export default class CmdDispatch {
 	 */
 	dispatch(cmd: Command, leadArgs: any[]) {
 
-		let lineArgs = this.cmdLine.args;
+		const lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
 
 		if (cmd.args) return cmd.func.apply(null, leadArgs.concat(cmd.args));
@@ -74,7 +74,7 @@ export default class CmdDispatch {
 	 */
 	routeCmd<T extends ContextSource>(context: BotContext<T>, cmd: Command, leadArgs: any[]) {
 
-		let lineArgs = this.cmdLine.args;
+		const lineArgs = this.cmdLine.args;
 		if (lineArgs) leadArgs = leadArgs.concat(lineArgs);
 
 		if (cmd.args) return context.routeCommand(cmd, leadArgs.concat(cmd.args));
@@ -94,7 +94,7 @@ export default class CmdDispatch {
 	addContextCmd(name: string, desc: string, func: Function, cmdClass: any, opts?: CommandOpts) {
 
 		try {
-			let cmd = new Command(name, func, {
+			const cmd = new Command(name, func, {
 				desc: desc,
 				instClass: cmdClass,
 				...opts
@@ -116,7 +116,7 @@ export default class CmdDispatch {
 		try {
 
 			//console.log( 'static command: ' + name );
-			let cmd = new Command(name, func, { desc: desc ?? '', ...opts });
+			const cmd = new Command(name, func, { desc: desc ?? '', ...opts });
 			this.regCmd(cmd);
 
 		} catch (e) { console.error(e); }
@@ -130,7 +130,7 @@ export default class CmdDispatch {
 	regCmd(cmd: Command) {
 
 		this.cmdLine.commands[cmd.name] = cmd;
-		let alias = cmd.alias;
+		const alias = cmd.alias;
 		if (alias) {
 
 			if (typeof (alias) === 'string') this.cmdLine.commands[alias] = cmd;
@@ -237,8 +237,8 @@ class CmdLine {
 
 	splitArgs(str: string) {
 
-		var args = [];
-		let len = str.length;
+		const args = [];
+		const len = str.length;
 		let start = 0;
 		let end;
 		let char;
@@ -276,8 +276,8 @@ class CmdLine {
 	// groups args on right to max count.
 	groupRight(str: string, argCount: number) {
 
-		var args = [];
-		let len = str.length;
+		const args = [];
+		const len = str.length;
 		let start = 0;
 		let end;
 		let char;
@@ -320,7 +320,7 @@ class CmdLine {
 	// groups args on left to max count.
 	groupLeft(str: string, argCount: number) {
 
-		var args = [];
+		const args = [];
 		let start = str.length - 1;
 		let end;
 		let char;
@@ -363,7 +363,7 @@ class CmdLine {
 	trimQuote(str: string) {
 
 		str = str.trim();
-		let len = str.length;
+		const len = str.length;
 		let start = 0;
 		if (len > 0 && str.charAt(0) === '"') start++;
 		let end = len - 1;
