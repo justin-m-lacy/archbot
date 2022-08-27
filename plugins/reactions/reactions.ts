@@ -299,9 +299,10 @@ class GuildReactions {
 			return m.channel.send('No regex reactions found.');
 		}
 
-		const text = reacts.map(
+		const infos = await Promise.all(reacts.map(v => this.infoString(v.reacts)));
 
-			(v) => v.trigger.toString() + ': ' + this.infoString(v.reacts)
+		const text = reacts.map(
+			(v, ind) => v.trigger.toString() + ': ' + infos[ind]
 		).join('\n\n');
 
 		// must save before response is extended by total reaction count.
