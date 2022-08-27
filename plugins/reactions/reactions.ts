@@ -299,7 +299,7 @@ class GuildReactions {
 			return m.channel.send('No regular expressions found.');
 		}
 
-		return reacts.map(
+		let resp = reacts.map(
 
 			(v) => {
 				v.trigger.toString() + ': ' + this.infoString(v.reacts);
@@ -310,16 +310,16 @@ class GuildReactions {
 		);
 
 		// must save before response is extended by total reaction count.
-		//let pagingFooter = Display.pageFooter(resp);
+		let pagingFooter = Display.pageFooter(resp);
 
 		// get a single page of the response.
-		//resp = Display.getPageText(resp, page - 1);
+		resp = Display.getPageText(resp, page - 1);
 
 		// append reaction count.
-		//if (Array.isArray(reacts)) resp += `\n\n${reacts.length} total reactions`;
-		//resp += '\n\n' + pagingFooter;
+		if (Array.isArray(reacts)) resp += `\n\n${reacts.length} total reactions`;
+		resp += '\n\n' + pagingFooter;
 
-		//return m.channel.send(resp);
+		return m.channel.send(resp);
 	}
 
 	/**
