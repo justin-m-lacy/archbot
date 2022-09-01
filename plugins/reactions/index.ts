@@ -177,9 +177,6 @@ class GuildReactions {
 		const embedUrl = getEmbedUrl(m);
 
 		if (!trig || (!react && !embedUrl)) return m.channel.send('Usage: !react "string" "response"');
-		else if (trig.length < 3) {
-			return m.reply('Trigger is too short.');
-		}
 
 		if (regExTest.test(trig)) {
 			this.addRegEx(trig, react, m.author.id, embedUrl);
