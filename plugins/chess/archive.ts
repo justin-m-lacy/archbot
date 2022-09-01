@@ -12,14 +12,16 @@ export default class Archive {
 	private _context: BotContext<ContextSource>;
 
 	private readonly archiveGames: object;
-	private readonly archiveList: object;
+	private readonly archiveList: { [key: string]: any };
+
+	_cache: any;
 
 	/**
 	 *
 	 * @param {Context} context
 	 * @param {Cache} fileCache
 	 */
-	constructor(context: BotContext<ContextSource>, fileCache) {
+	constructor(context: BotContext<ContextSource>, fileCache: any) {
 
 		this._context = context;
 		this._cache = fileCache;
@@ -37,7 +39,7 @@ export default class Archive {
 	*/
 	async loadList() {
 
-		let files = await this._context.getDataList(chessdir);
+		let files = await this._context.getDataList(chessdir) as string[];
 
 		const len = files.length;
 		for (let i = 0; i < len; i++) {
