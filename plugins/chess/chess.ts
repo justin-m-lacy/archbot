@@ -1,7 +1,7 @@
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
 import { Message, GuildMember, User, TextBasedChannel } from 'discord.js';
-import { GameCache } from '@src/gamecache';
-import { DiscordBot } from '@src/bot/discordbot';
+import { GameCache } from '../../src/gamecache';
+import { DiscordBot } from '../../src/bot/discordbot';
 import { ChessGame } from './chessgame';
 import * as Export from './export';
 
