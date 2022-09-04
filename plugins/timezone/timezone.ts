@@ -1,8 +1,6 @@
 import { Message } from "discord.js";
 import { DiscordBot } from '../../src/bot/discordbot';
-import { IncomingMessage } from 'http';
-const promisify = require('../../src/jsutils').promisify;
-const promiseGet = promisify(require('http').get);
+import { fetch } from '../../src/utils/fetch';
 
 /**
  * Allow display of other timezones using world time zone API.
@@ -25,26 +23,17 @@ async function cmdGetTime(m: Message, query?: string) {
 	}
 
 
-	var res: IncomingMessage = await promiseGet(TimeApiUrl + query);
+	try {
 
-	if (res.statusCode !== 200) {
-
-		res.resume();
-		return m.reply(`Unknown timezone format.`);
-
-	} else {
-
-		let data = '';
-		res.on('data', (chunk: any) => {
-			data += chunk;
-		});
-
-		await promisify(res.on, res)('end');
+		var data = await fetch(TimeApiUrl + query);
 
 		const json = JSON.parse(data);
 		const date = new Date(json.datetime);
 		return m.reply(`${date.toLocaleTimeString()}`);
 
+	} catch (err) {
+
+		return m.reply(`Failed to fetch timezone: ${err}`);
 	}
 
 }
