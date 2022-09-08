@@ -20,8 +20,6 @@ async function cmdGetQuote(m: Message, query?: string) {
 		const res = await fetch(ApiUrl);
 		const data = await JSON.parse(res);
 
-		console.dir(data);
-
 		const result = `"${data.quote}" - ${data.character} (${data.anime})`;
 		return m.channel.send(result);
 
