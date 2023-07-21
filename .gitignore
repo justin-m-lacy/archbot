@@ -29,3 +29,4 @@ plugins/chess/images/outfile.png
 
 app.yaml
 .gcloudignore
+.env

@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { DiscordBot } from '../../src/bot/discordbot';
-import { fetch } from '../../src/utils/fetch';
+import { archGet } from '../../src/utils/fetch';
 
 /**
  * Allow display of other timezones using world time zone API.
@@ -25,7 +25,7 @@ async function cmdGetTime(m: Message, query?: string) {
 
 	try {
 
-		var data = await fetch(TimeApiUrl + query);
+		var data = await archGet(TimeApiUrl + query);
 
 		const json = JSON.parse(data);
 		const date = new Date(json.datetime);

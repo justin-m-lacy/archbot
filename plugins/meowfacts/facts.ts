@@ -1,4 +1,4 @@
-import { fetch } from "../../src/utils/fetch";
+import { archGet } from "../../src/utils/fetch";
 import { Message } from "discord.js";
 import { DiscordBot } from '../../src/bot/discordbot';
 
@@ -17,7 +17,7 @@ async function cmdGetFact(m: Message, query?: string) {
 	}
 
 	try {
-		const res = await fetch(ApiUrl);
+		const res = await archGet(ApiUrl);
 		const data = await JSON.parse(res).data;
 
 		const result = `${data[0]}`;

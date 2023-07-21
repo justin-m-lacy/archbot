@@ -31,6 +31,7 @@
     "chargrid": "0.0.3",
     "chess-rules": "^1.1.0",
     "discord.js": "^13.8.0",
+    "dotenv": "^16.3.1",
     "formulic": "^2.0.3",
     "jimp": "^0.16.0"
   },
