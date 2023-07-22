@@ -4,11 +4,11 @@ import { get, RequestOptions, request} from "https";
  * Simplified implementation of fetch()
  * @param url 
  */
-export const archGet = (options: string | RequestOptions | URL): Promise<string> => {
+export const archGet = (url: string | URL, headers?:{[key:string]:any}): Promise<string> => {
 
     return new Promise((resolve, reject) => {
 
-        get(options, (res) => {
+        get(url, {headers:headers}, (res) => {
 
             if (res.statusCode === 200) {
 
@@ -49,14 +49,13 @@ export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{
             headers:headers
         }, (res)=>{
 
-            if (res.statusCode === 200) {
+            if (res.statusCode === 200||res.statusCode===201) {
 
                 let data = '';
                 res.on('data', (chunk: any) => {
                     if ( chunk ) {
                         data += chunk;
                     }
-                    if ( typeof data === 'string') console.log(`data: ${data}`);
                 });
                 res.on('end', () => {
 

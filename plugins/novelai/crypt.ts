@@ -21,14 +21,5 @@ export async function calcAccessKey(user: string, password: string, hash_length:
 
     });
 
-    console.log(`buf len: ${raw.length}`)
-
-    console.log(`RPESLICE: ${raw.toString('base64url')}`);
-
-    const slice = raw.toString('base64url').slice(0,hash_length);
-    console.log(`sliced: ${slice}`);
-
-    return  slice;
+    return  raw.toString('base64url').slice(0,hash_length);
 }
-///cU2ulguUZVkq9cu-zDSQqNVe17qaCa3hBxXxxWdzmd47-PvGJYOmXBMEnN4v-1ex
-///cU2ulguUZVkq9cu-zDSQqNVe17qaCa3hBxXxxWdzmd47-PvGJYOmXBMEnN4v-1ex

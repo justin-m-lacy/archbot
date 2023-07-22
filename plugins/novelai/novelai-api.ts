@@ -18,24 +18,34 @@ const API_URL = 'https://api.novelai.net';
 export const getNovelAiClient = (token:string)=>{
 
     const accessToken = token;
-    const authHeader = {Authorization:`Bearer ${accessToken}`};
+    const headers = {
+        Authorization:`Bearer ${accessToken}`,
+        "content-type": "application/json",
+        "accept":"application/json"
+    };
 
-    const models = [];
+    const models = ['euterpe-v2', 'clio'];
 
-    let activeModel:string = 'euterpe-v2';
+    let activeModel:string = 'clio';
     let userData:unknown;
     
+    const get = async <T>(path:string)=>{
+        return JSON.parse( await archGet(API_URL+path, headers) );
+    }
+
     const send = async <T>(path:string, data?:{[key:string]:unknown})=>{
         return await archPost<T>(
             API_URL + path,
             data,
-            authHeader
+            headers
         );
     }
     const getUserData = async ()=> {
+
         try {
-            const result = await send<any>(
+            const result = await get<any>(
                 '/user/data',
+
             );
             console.dir(result);
             userData = result;
@@ -53,16 +63,16 @@ export const getNovelAiClient = (token:string)=>{
         async generate( prompt:string ){
 
             try {
-            const result = await send<{output?:string, error?:string}>(
-                'ai/generate',
+                const result = await send<{output?:string, error?:string}>(
+                '/ai/generate',
                 {
                     input:prompt,
-                    model:activeModel,
                     parameters:{
                         use_string: true,
+                        generate_until_sentence:true,
                         temperature: 1,
                         min_length: 8,
-                        max_length: 45
+                        max_length: 20
                 }
             });
                 console.dir(result);
@@ -70,6 +80,7 @@ export const getNovelAiClient = (token:string)=>{
 
                 return result.output;
             } catch (e){
+                console.log(`gen failed: ${e}`);
                 return undefined;
             }
         },
@@ -91,12 +102,9 @@ export const loginNovelAi = async (username:string, password:string)=>{
         { key:await calcAccessKey(username, password) },
             {
                 "content-type": "application/json",
+                "accept":"application/json"
             }
         );
-
-        console.log(`result: ${json}`);
-
-        console.log(`json: ${json.accessToken}`);
 
         return getNovelAiClient( json.accessToken);
 
