@@ -1,4 +1,5 @@
 import { archGet, archPost } from '@src/utils/fetch';
+import { calcAccessKey } from './crypt';
 
 export type NovelAIConfig = {
     username:string,
@@ -11,7 +12,7 @@ export type AiModel = {
     steps:number,
 }
 
-const API_URL = 'https://api.novelai.net/';
+const API_URL = 'https://api.novelai.net';
 
 
 export const getNovelAiClient = (token:string)=>{
@@ -32,11 +33,15 @@ export const getNovelAiClient = (token:string)=>{
         );
     }
     const getUserData = async ()=> {
-        const result = await send<any>(
-            'user/data',
-        );
-        console.dir(result);
-        userData = result;
+        try {
+            const result = await send<any>(
+                '/user/data',
+            );
+            console.dir(result);
+            userData = result;
+            } catch(e){
+                console.log(`error: ${e}`);
+            }
     }
     getUserData();
 
@@ -47,6 +52,7 @@ export const getNovelAiClient = (token:string)=>{
 
         async generate( prompt:string ){
 
+            try {
             const result = await send<{output?:string, error?:string}>(
                 'ai/generate',
                 {
@@ -59,10 +65,13 @@ export const getNovelAiClient = (token:string)=>{
                         max_length: 45
                 }
             });
-            console.dir(result);
-            console.log(`${result.output}`);
+                console.dir(result);
+                console.log(`${result.output}`);
 
-            return result.output;
+                return result.output;
+            } catch (e){
+                return undefined;
+            }
         },
 
         async genImage() {
@@ -74,14 +83,16 @@ export const getNovelAiClient = (token:string)=>{
 }
 
 
-export const login = async (username:string, password:string)=>{
-
-    const key = `${username}:${password}`;
+export const loginNovelAi = async (username:string, password:string)=>{
 
     try {
 
-        const json = await archPost<{accessToken:string}>( API_URL + 'user/login', {
-        key:key });
+        const json = await archPost<{accessToken:string}>( API_URL + '/user/login',
+        { key:await calcAccessKey(username, password) },
+            {
+                "content-type": "application/json",
+            }
+        );
 
         console.log(`result: ${json}`);
 
@@ -89,9 +100,9 @@ export const login = async (username:string, password:string)=>{
 
         return getNovelAiClient( json.accessToken);
 
-
     } catch (err){
-
+        console.log(`err: ${err}`);
+        return undefined;
     }
 
 }

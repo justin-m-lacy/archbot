@@ -1,6 +1,6 @@
 import { DiscordBot } from '@src/bot/discordbot';
 import { Message } from 'discord.js';
-import { getNovelAiClient, NovelAIConfig } from './novelai-api';
+import { getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai-api';
 
 const configuration:NovelAIConfig = {
 
@@ -9,13 +9,14 @@ const configuration:NovelAIConfig = {
 
 };
 
+let client:ReturnType<typeof getNovelAiClient>|undefined = undefined;
+
+async function getOpenAi(){
+    return client ?? (client = await loginNovelAi(process.env.NOVEL_AI_USER ?? '',process.env.NOVEL_AI_PW ?? ''));
+}
+
 class NovelAiPlugin {
 
-    private client?:ReturnType<typeof getNovelAiClient>;
-
-    getOpenAi(){
-        return this.client ?? getNovelAiClient(process.env.NOVEL_AI_ACCESS_TOKEN ?? '');
-    }
 
     cmdGenImage(m: Message, query: string ){
 
@@ -23,7 +24,7 @@ class NovelAiPlugin {
 
     async cmdGenerate(m:Message, query:string){
 
-        const result = await this.getOpenAi().generate(query);
+        const result = await client?.generate(query);
 
         if ( result ) {
             return m.reply(result );
@@ -34,6 +35,8 @@ class NovelAiPlugin {
 }
 
 export const init = (bot: DiscordBot) => {
+
+    getOpenAi();
 
 	bot.addContextCmd('gen', 'gen [image description]',
         NovelAiPlugin.prototype.cmdGenImage, NovelAiPlugin,

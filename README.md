@@ -21,7 +21,7 @@ Create an 'auth.json' file with the contents: {
 		"token":"token for development version of bot"
 	}
 }
-token is private and should NOT BE SHARED..
+token is private and should NOT BE SHARED.
 
 "admins" is a list of ids of Discord users who can control or kill the bot.
 These is NOT the same as the Admins of Servers where your bot is active. They will have

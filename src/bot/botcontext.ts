@@ -363,7 +363,7 @@ export abstract class BotContext<T extends ContextSource> {
 	 */
 	async addClass(cls: ContextClass<ContextSource>): Promise<InstanceType<ContextClass<ContextSource>>> {
 
-		console.log('adding class: ' + cls.name);
+		console.log('adding: ' + cls.name);
 
 		if (this._instances.get(cls.name)) {
 			console.log('class ' + cls.name + ' already exists for ' + this.idObject.id);

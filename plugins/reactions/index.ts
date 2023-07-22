@@ -78,7 +78,6 @@ class GuildReactions {
 
 		this._context = context;
 
-		console.log(`reactions context created...`);
 		this.loadReactions();
 
 		// begin listening for messages to react to.

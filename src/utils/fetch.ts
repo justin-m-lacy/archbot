@@ -53,7 +53,10 @@ export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{
 
                 let data = '';
                 res.on('data', (chunk: any) => {
-                    data += chunk;
+                    if ( chunk ) {
+                        data += chunk;
+                    }
+                    if ( typeof data === 'string') console.log(`data: ${data}`);
                 });
                 res.on('end', () => {
 
@@ -75,7 +78,9 @@ export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{
             reject(e);
         });
     
-        req.write(JSON.stringify(data));
+        if ( data ) {
+            req.write(JSON.stringify(data));
+        }
         req.end();
 
 

@@ -1,4 +1,7 @@
 {
+  "ts-node":{
+    "require":["tsconfig-paths/register"]
+  },
   "compilerOptions": {
     "rootDir": "./",
     "baseUrl": "./",
@@ -17,6 +20,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+
     "types": [
       "node",
     ],
@@ -29,6 +33,9 @@
       "esnext",
       "DOM"
     ]
+  },
+  "typeAcquisition": {
+    "enable": true
   },
   "exclude": [
     "dist",
