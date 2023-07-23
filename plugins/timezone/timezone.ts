@@ -25,9 +25,8 @@ async function cmdGetTime(m: Message, query?: string) {
 
 	try {
 
-		var data = await archGet(TimeApiUrl + query);
+		var json = await archGet<{datetime:string|number}>(TimeApiUrl + query);
 
-		const json = JSON.parse(data);
 		const date = new Date(json.datetime);
 		return m.reply(`${date.toLocaleTimeString()}`);
 

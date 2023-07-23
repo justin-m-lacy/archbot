@@ -17,9 +17,7 @@ async function cmdGetFact(m: Message, query?: string) {
 	}
 
 	try {
-		const res = await archGet(ApiUrl);
-		const data = await JSON.parse(res).data;
-
+		const data = (await archGet<{data:any[]}>(ApiUrl)).data;
 		const result = `${data[0]}`;
 		return m.channel.send(result);
 

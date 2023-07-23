@@ -17,9 +17,7 @@ async function cmdGetQuote(m: Message, query?: string) {
 	}
 
 	try {
-		const res = await archGet(ApiUrl);
-		const data = await JSON.parse(res);
-
+		const data = await archGet<{quote:string, character:string, anime:string}>(ApiUrl);
 		const result = `"${data.quote}" - ${data.character} (${data.anime})`;
 		return m.channel.send(result);
 

@@ -1,51 +1,11 @@
-import { get, RequestOptions, request} from "https";
+import { request} from "https";
 
-/**
- * Simplified implementation of fetch()
- * @param url 
- */
-export const archGet = (url: string | URL, headers?:{[key:string]:any}): Promise<string> => {
-
-    return new Promise((resolve, reject) => {
-
-        get(url, {headers:headers}, (res) => {
-
-            if (res.statusCode === 200) {
-
-                let data = '';
-                res.on('data', (chunk: any) => {
-                    data += chunk;
-                });
-                res.on('error', (err) => {
-
-                    res.removeAllListeners();
-                    reject(err);
-                });
-                res.on('end', () => {
-
-                    res.removeAllListeners();
-                    resolve(data);
-                });
-
-            } else {
-
-                reject(res.statusMessage);
-
-            }
-
-        });
-
-    });
-
-}
-
-
-export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{[key:string]:string|number})=>{
+export const makeRequest = <T>(url:string|URL, method:string, data?:{[key:string]:unknown}, headers?:{[key:string]:string|number})=>{
 
     return new Promise<T>((resolve,reject)=>{
 
         const req = request( url, {
-            method:'POST',
+            method:method,
             headers:headers
         }, (res)=>{
 
@@ -53,9 +13,7 @@ export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{
 
                 let data = '';
                 res.on('data', (chunk: any) => {
-                    if ( chunk ) {
-                        data += chunk;
-                    }
+                    if ( chunk ) data += chunk;
                 });
                 res.on('end', () => {
 
@@ -84,5 +42,20 @@ export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{
 
 
     });
+}
 
+/**
+ * Simplified implementation of fetch()
+ * @param url 
+ */
+export const archGet = <T=unknown>(url: string | URL, headers?:{[key:string]:any}): Promise<T> => {
+    return makeRequest(url, 'GET', undefined, headers);
+}
+
+export const archPatch = <T=unknown>(url:string, data?:{[key:string]:unknown}, headers?:{[key:string]:string|number})=>{
+    return makeRequest<T>(url, 'PATCH', data, headers);
+}
+
+export const archPost = <T>(url:string, data?:{[key:string]:unknown}, headers?:{[key:string]:string|number})=>{
+    return makeRequest<T>(url, 'POST', data, headers);
 }
