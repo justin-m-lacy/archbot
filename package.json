@@ -4,12 +4,12 @@
   "description": "Bot for discord",
   "main": "dist/archbot.js",
   "scripts": {
-    "start": "npx cross-env NODE_ENV=production node .",
+    "start": "cross-env NODE_ENV=production node .",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
-    "serve": "npx cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
-    "build": "npx rimraf dist && tsc && tsc-alias && npm run minify && npm run copydata",
+    "serve": "cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
+    "build": "rimraf dist && tsc && tsc-alias && pnpm run minify && pnpm run copydata",
     "minify": "node mterser --glob dist/**/*.js --compress --mangle",
-    "copydata": "npx copyfiles plugins/**/*.png dist && npx copyfiles .env dist && npx copyfiles -f assets/* dist"
+    "copydata": "copyfiles plugins/**/*.png dist && copyfiles .env dist && copyfiles -f assets/* dist"
   },
   "repository": {
     "type": "git",
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/justin-m-lacy/archbot#readme",
   "dependencies": {
+    "@stablelib/nacl": "^1.0.4",
     "archcache": "^1.1.0",
     "archdice": "^1.1.0",
     "argon2": "^0.30.3",

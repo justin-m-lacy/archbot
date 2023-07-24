@@ -1,5 +1,4 @@
 import fs from 'fs';
-//const promisify = require( 'util').promisify;
 const fsPromises = fs.promises;
 
 /**

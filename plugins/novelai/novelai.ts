@@ -31,6 +31,10 @@ class NovelAiPlugin {
             const token = await accessTokenPromise;
             if ( token ) {
                 this.client = getNovelAiClient(token );
+
+                await this.client?.getStories();
+
+
             }
         } catch(e){
             console.log(`Failed to create NovelAi client.`);
@@ -53,7 +57,7 @@ class NovelAiPlugin {
 
     async cmdTalk(m:Message, query:string){
 
-        const result = await this.client?.generate(query, AiMode.Chat);
+        const result = await this.client?.generate( `[[${m.member?.nickname}]]: ${query}`, AiMode.Chat);
 
         if ( result ) {
             return m.channel.send(result );

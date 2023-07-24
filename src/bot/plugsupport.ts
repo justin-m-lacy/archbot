@@ -91,7 +91,7 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
 
 	try {
 
-		console.log('loading plugin file: ' + fileName);
+		console.log('load plugin: ' + fileName);
 
 		const ext = path.extname(fileName).toLowerCase();
 		if (ext != '' && ext !== '.js' && ext !== '.ts') {
@@ -158,20 +158,3 @@ const loadPlugDesc = (plugDir: string, descFile: string, init_func?: InitFunc) =
 
 
 }
-
-// load plugin described by json.
-/*function loadPlugin( plugDir, desc ){
-
-	try {
-
-		let plugFile = path.resolve( plugDir, desc.plugin );
-		console.log( 'loading plugin: ' + desc.plugin );
-		return require( plugFile );
-
-	} catch ( err ){
-		console.error( err );
-	}
-
-	return null;
-
-}*/
