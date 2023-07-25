@@ -51,7 +51,7 @@ class NovelAiPlugin {
 
         if ( result ) {
             return m.channel.send(result );
-        } else return m.channel.send("I don't feel like talking.");
+        } else return m.channel.send("I can't think of any story.");
 
     }
 

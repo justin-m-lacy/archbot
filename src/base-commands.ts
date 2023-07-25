@@ -1,5 +1,5 @@
 import { DiscordBot } from './bot/discordbot';
-import { Client, GuildMember, Message, TextBasedChannel, User, Permissions } from 'discord.js';
+import { Client, GuildMember, Message, TextBasedChannel, User, PermissionFlagsBits } from 'discord.js';
 import { UserHistory } from './history';
 import * as jsutils from './utils/jsutils';
 import DateFormat from './datedisplay';
@@ -40,7 +40,7 @@ export function initBasicCommands(b: DiscordBot) {
 
     cmds.add('magicmissile', 'You need material components for all of your spells.',
         (m: Message) => m.channel.send('You attack the darkness.'), { hidden: true, module: 'magic' });
-    cmds.add('say', '', cmdSay, { maxArgs: 1, module: DefaultModule, hidden: true, access: Permissions.FLAGS.ADMINISTRATOR });
+    cmds.add('say', '', cmdSay, { maxArgs: 1, module: DefaultModule, hidden: true, access: PermissionFlagsBits.Administrator });
 
     cmds.add('palantir', 'What does the Great Eye command?', (m: Message) => m.channel.send('Build me an army worthy of Mordor.'), { hidden: true, module: 'orthanc' });
     cmds.add('ranking', 'ranking', cmdRanking, { hidden: true, maxArgs: 0 });

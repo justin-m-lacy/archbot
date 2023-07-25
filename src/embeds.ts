@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { Message, EmbedBuilder } from 'discord.js';
 
 
 export const getEmbedUrl = (m: Message) => {
@@ -21,7 +21,7 @@ export const getEmbedUrl = (m: Message) => {
 }
 
 export const makeImageEmbed = (imageUrl: string) => {
-    return new MessageEmbed({ image: { url: imageUrl, proxy_url: imageUrl } });
+    return new EmbedBuilder({ image: { url: imageUrl, proxy_url: imageUrl } });
 }
 
 export const replyEmbedUrl = (m: Message, embedUrl: string, text?: string | null,) => {

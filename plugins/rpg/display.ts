@@ -1,12 +1,11 @@
-import { Message, TextBasedChannel } from "discord.js";
+import { Message, TextBasedChannel, EmbedBuilder } from "discord.js";
 import Char from './char/char';
-import Discord from 'discord.js';
 
 export const blockText = (s: string) => '```' + s + '```';
 
 export const sendEmbed = async (m: Message, s: string, e: string) => m.reply({
 	content: '```' + s + '```',
-	embeds: [new Discord.MessageEmbed({ image: { url: e } })]
+	embeds: [new EmbedBuilder({ image: { url: e } })]
 });
 
 export const sendBlock = async (m: Message, s: string) => m.reply('```' + s + '```');

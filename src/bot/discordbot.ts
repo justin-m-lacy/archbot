@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, Util, PermissionResolvable } from 'discord.js';
+import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, ChannelType, PermissionResolvable } from 'discord.js';
 import { Auth } from './auth';
 import Command from './command';
 import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
@@ -249,7 +249,7 @@ export class DiscordBot {
 
 			this.client.guilds.cache.forEach((g, id) => {
 
-				this.getContext(g, 'GUILD').then(c => {
+				this.getContext(g, ChannelType.GuildText).then(c => {
 					console.log('adding class: ' + cls.name)
 					c?.addClass(cls);
 				});
@@ -354,7 +354,7 @@ export class DiscordBot {
 			if (!error) return;
 			else if (error instanceof Promise) {
 
-				error.then(s => { if (s) return m.channel.send(s); }).catch(e => console.error(e));
+				error.then(s => { if (s&& typeof s ==='string') m.channel.send(s); }).catch(e => console.error(e));
 
 			} else if (typeof error === 'string') {
 
@@ -613,7 +613,7 @@ export class DiscordBot {
 		const type = m.channel.type;
 		let idobj;
 
-		if (type.includes('GUILD')) {
+		if (type & ChannelType.GuildCategory) {
 			idobj = m.guild;
 		}
 		else {
@@ -636,7 +636,7 @@ export class DiscordBot {
 	 * Get or create BotContext associated with a Discord object.
 	 * @returns {Promise<BotContext>}
 	 */
-	async getContext(idobj: ContextSource, type?: string) {
+	async getContext(idobj: ContextSource, type?: ChannelType) {
 
 		if (this._proxies.has(idobj.id)) {
 			return this.getProxiedContext(idobj);
@@ -687,7 +687,7 @@ export class DiscordBot {
 	 * @param {string} type
 	 * @returns {Promise<BotContext>}
 	 */
-	async makeContext(idobj: ContextSource, type?: string) {
+	async makeContext(idobj: ContextSource, type?: ChannelType) {
 
 		console.log('create context for: ' + idobj.id);
 		let context;
@@ -758,7 +758,7 @@ export class DiscordBot {
 	 */
 	getDataKey(baseObj: Channel | GuildMember | Guild, ...subs: any[]) {
 
-		if (baseObj instanceof Channel) return fsys.channelPath(baseObj, subs);
+		if ( 'type' in baseObj) return fsys.channelPath(baseObj, subs);
 		else if (baseObj instanceof GuildMember) return fsys.guildPath(baseObj.guild, subs);
 		else if (baseObj instanceof Guild) return fsys.guildPath(baseObj, subs);
 
@@ -838,8 +838,8 @@ export class DiscordBot {
 		name = name.toLowerCase();
 		switch (channel.type) {
 
-			case 'DM':
-				if (channel.recipient.username.toLowerCase() === name) return channel.recipient;
+			case ChannelType.DM:
+				if (channel.recipient?.username.toLowerCase() === name) return channel.recipient;
 				return null;
 			default:
 				const search = channel.guild.members.cache.find(
@@ -915,7 +915,9 @@ export class DiscordBot {
 			str += a.join('\n');
 
 		}
-		const parts = Util.splitMessage(str, { prepend: 'Help cont...\n' });
+
+		// TODO: rewrite splitmessage
+		const parts = str.split(/.{100,}\n/ig); //  Util.splitMessage(str, { prepend: 'Help cont...\n' });
 		return Display.sendAll(chan, parts);
 
 	}

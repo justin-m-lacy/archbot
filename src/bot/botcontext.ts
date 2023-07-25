@@ -408,7 +408,7 @@ export abstract class BotContext<T extends ContextSource> {
 			}
 		}
 
-		cmd.func.apply(target, args);
+		return cmd.func.apply(target, args);
 
 		//console.timeEnd( cmd.name );
 

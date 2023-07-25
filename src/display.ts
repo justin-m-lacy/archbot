@@ -1,4 +1,4 @@
-import Discord, { Message, TextBasedChannel } from 'discord.js';
+import  { Message, TextBasedChannel, EmbedBuilder } from 'discord.js';
 
 export const Display = {
 
@@ -19,7 +19,7 @@ export const Display = {
 
 		return m.reply({
 			content: '```' + s + '```',
-			embeds: [new Discord.MessageEmbed({ image: { url: e } })]
+			embeds: [new EmbedBuilder({ image: { url: e } })]
 		});
 
 	},

@@ -1,4 +1,4 @@
-import { Message, Permissions } from 'discord.js';
+import { Message, PermissionFlagsBits} from 'discord.js';
 import { ReactSet } from './reactset';
 import { Display } from '../../src/display';
 import { BotContext, ContextSource } from '../../src/bot/botcontext';
@@ -754,6 +754,6 @@ export const init = (bot: DiscordBot) => {
 
 	bot.addContextCmd('rmreact', 'rmreact <trigger> [response]',
 		GuildReactions.prototype.cmdRmReact, GuildReactions,
-		{ minArgs: 1, maxArgs: 2, group: 'right', access: Permissions.FLAGS.ADMINISTRATOR });
+		{ minArgs: 1, maxArgs: 2, group: 'right', access: PermissionFlagsBits.Administrator });
 
 }

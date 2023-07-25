@@ -20,10 +20,6 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-
-    "types": [
-      "node",
-    ],
     "paths": {
       "@src/*": [
         "./src/*"

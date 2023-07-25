@@ -1,4 +1,4 @@
-import { MessageAttachment, TextBasedChannel, TextChannel } from 'discord.js';
+import { AttachmentBuilder, TextBasedChannel } from 'discord.js';
 import { ChessGame } from './chessgame';
 import jimp from 'jimp';
 import Discord from 'discord.js';
@@ -69,8 +69,8 @@ export const showBoard = async (chan: TextBasedChannel, game: ChessGame) => {
 				return chan.send(
 					{
 						content: game.getStatusString(),
-						attachments: [
-							new MessageAttachment(buff)
+						files: [
+							new AttachmentBuilder(buff)
 						]
 					});
 

@@ -1,4 +1,4 @@
-import { Activity, Client, GuildMember, Intents, Presence } from 'discord.js';
+import { Activity, Client, GuildMember, GatewayIntentBits, Presence } from 'discord.js';
 
 import { UserHistory } from './src/history';
 import { DiscordBot } from './src/bot/discordbot';
@@ -13,13 +13,13 @@ process.chdir(__dirname);
 const client: Client = new Client({
 
 	closeTimeout: 4000,
-	intents: [Intents.FLAGS.GUILDS,
-	Intents.FLAGS.DIRECT_MESSAGES,
-	Intents.FLAGS.DIRECT_MESSAGE_REACTIONS,
-	Intents.FLAGS.GUILD_MEMBERS,
-	Intents.FLAGS.GUILD_MESSAGES,
-	Intents.FLAGS.GUILD_PRESENCES,
-	Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+	intents: [GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildPresences,
+		GatewayIntentBits.GuildMessageReactions
 
 	],
 	sweepers: {

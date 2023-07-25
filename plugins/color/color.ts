@@ -1,4 +1,4 @@
-import Discord, { Message } from 'discord.js';
+import  { Message, EmbedBuilder } from 'discord.js';
 import jimp from 'jimp';
 import { DiscordBot } from '../../src/bot/discordbot';
 
@@ -31,7 +31,7 @@ const cmdColor = async (msg: Message, colorStr: string) => {
 		return msg.reply({
 
 			files: [data],
-			embeds: [new Discord.MessageEmbed(embed)]
+			embeds: [new EmbedBuilder(embed)]
 		});
 	}
 
