@@ -143,7 +143,6 @@ export const readJSON = (path: string) => new Promise((res, rej) => {
  */
 export const writeJSON = (path: string, data: any) => new Promise<void>((res, rej) => {
 
-	//console.log( 'data: ' + JSON.stringify(data));
 	fs.writeFile(path, JSON.stringify(data), { flag: 'w+' }, err => {
 		err ? rej(err) : res();
 	});

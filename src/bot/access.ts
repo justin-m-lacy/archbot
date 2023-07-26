@@ -1,3 +1,4 @@
+import { PermissionsBitField } from 'discord.js';
 import { GuildMember, PermissionResolvable } from 'discord.js';
 const Discord = require('discord.js');
 
@@ -51,7 +52,7 @@ export default class Access {
 
 			if (perm === 'all' || perm === 'public' || perm === 'true') {
 
-				this.perms[cmd] = Discord.Permissions.ALL;
+				this.perms[cmd] = PermissionsBitField.All;
 
 			} else {
 

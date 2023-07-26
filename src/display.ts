@@ -4,7 +4,7 @@ export const Display = {
 
 	CONTENT_MAX: 1600,
 
-	capsRegEx: /(?:\b(\w*)\b)*/g,
+	capsRegEx: /(?:\b(\w+)\b)*/g,
 
 	sendAll: async (ch: TextBasedChannel, strings: string[]) => {
 

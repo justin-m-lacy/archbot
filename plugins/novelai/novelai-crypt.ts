@@ -48,8 +48,9 @@ export async function getEncryptionKey(user: string, password: string) {
 
 const compressionPrefix = Buffer.from( "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01" );
 
-const NONCE_SIZE = 24;
+const NONCE_SIZE = 16;
 
+/// If no nonce is supplied, it is expected that the first NONCE_SIZE of data is the nonce.
 export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8Array ) {
 
     const compressed = startsWith(data, compressionPrefix);

@@ -171,7 +171,7 @@ export default {
 		for (let i = 0; i < len; i++) {
 			const subobj = subs[i];
 
-			if (typeof (subobj) == 'string') {
+			if (typeof subobj === 'string') {
 				thepath += '/' + subobj.toLowerCase();
 			} else {
 				thepath += '/' + subobj.id;
@@ -191,7 +191,7 @@ export default {
 
 		for (let i = 0; i < len; i++) {
 			const subobj = subs[i];
-			if (typeof (subobj) == 'string') {
+			if (typeof subobj === 'string') {
 				thepath += '/' + subobj.toLowerCase();
 			} else {
 				thepath += '/' + subobj.id;

@@ -22,7 +22,7 @@ async function cmdGetFact(m: Message, query?: string) {
 		return m.channel.send(result);
 
 	} catch (err) {
-		return m.channel.send(`Somethings wrong meow. - ${err};`)
+		return m.channel.send(`Something's wrong meow. - ${err};`)
 	}
 
 }

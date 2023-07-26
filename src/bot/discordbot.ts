@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, ChannelType, PermissionResolvable } from 'discord.js';
+import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, ChannelType, PermissionResolvable, PermissionFlagsBits } from 'discord.js';
 import { Auth } from './auth';
 import Command from './command';
 import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
@@ -9,7 +9,6 @@ import Cache from 'archcache';
 import fsys from './botfs';
 import { Display } from '../display';
 
-const Discord = require('discord.js');
 const path = require('path');
 
 /**
@@ -19,14 +18,8 @@ export const CONTENT_MAX = 1905;
 
 export class DiscordBot {
 
-	/**
-	 * @property {DiscordClient}
-	 */
 	readonly client: Client;
 
-	/**
-	 * @property {Dispatch}
-	 */
 	get dispatch() { return this._dispatch; }
 
 	/**
@@ -46,7 +39,7 @@ export class DiscordBot {
 	readonly _contextClasses: ContextClass<ContextSource>[] = [];
 
 	/**
-	 * @property {object[]} plugin classes to instantiate for each context.
+	 * plugin classes to instantiate for each context.
 	 */
 	get contextClasses() { return this._contextClasses; }
 
@@ -145,19 +138,19 @@ export class DiscordBot {
 		this.initClient();
 
 		this.addCmd('backup', 'backup', (m: Message) => this.cmdBackup(m),
-			{ access: Discord.Permissions.FLAGS.ADMINISTRATOR, immutable: true, module: 'default' });
+			{ access: PermissionFlagsBits.Administrator, immutable: true, module: 'default' });
 		this.addCmd('archleave', 'archleave', (m: Message) => this.cmdLeaveGuild(m), {
-			access: Discord.Permissions.FLAGS.ADMINISTRATOR
+			access: PermissionFlagsBits.Administrator
 		});
 		this.addCmd('archkill', 'archkill', (m: Message) => this.cmdBotQuit(m), { immutable: true });
 		this.addCmd('proxyme', 'proxyme', (m: Message) => this.cmdProxy(m));
 		this.addCmd('access', 'access cmd [permissions|roles]',
 			(m: Message, cmd: string, perm: PermissionResolvable) => this.cmdAccess(m, cmd, perm),
-			{ minArgs: 1, access: Discord.Permissions.FLAGS.ADMINISTRATOR, immutable: true }
+			{ minArgs: 1, access: PermissionFlagsBits.Administrator, immutable: true }
 		);
 		this.addCmd('resetaccess', 'resetaccess cmd',
 			(m: Message, cmd: string) => this.cmdResetAccess(m, cmd),
-			{ minArgs: 1, maxArgs: 1, access: Discord.Permissions.FLAGS.ADMINISTRATOR }
+			{ minArgs: 1, maxArgs: 1, access: PermissionFlagsBits.Administrator }
 		);
 	}
 
@@ -269,7 +262,6 @@ export class DiscordBot {
 		this.client.on('resume', onResume);
 
 		this.client.on('messageCreate', m => {
-
 			if (m.author.id === this.client.user!.id) return;
 			this.onMessage(m);
 

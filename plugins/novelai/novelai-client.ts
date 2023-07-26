@@ -1,6 +1,7 @@
 import { archGet, archPost, archPatch, makeRequest } from '@src/utils/fetch';
-import { getAccessKey } from './crypt';
-import { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig, RepetitionPenalty } from './ai-types';
+import { getAccessKey, getEncryptionKey } from './novelai-crypt';
+import { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig, RepetitionPenalty } from './novelai-types';
+import { Keystore } from './keystore';
 export {AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig};
 
 const API_URL = 'https://api.novelai.net';
@@ -35,7 +36,7 @@ const GenParams = {
     }
 }
 
-export const getNovelAiClient = (token:string)=>{
+export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
     const accessToken = token;
     const headers = {
@@ -47,7 +48,13 @@ export const getNovelAiClient = (token:string)=>{
     const modelIndex = 0;
     const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
 
-    let activeModel:string = models[modelIndex];
+    const cryptKey = encryptionKey;
+
+    let keystore:Keystore = new Keystore();
+
+    let chatModel:string = models[modelIndex];
+    let storyModel = 'euterpe-v2';
+
     let userData:unknown;
     
     let histories:{[key:number]:string[]} = {
@@ -79,6 +86,23 @@ export const getNovelAiClient = (token:string)=>{
             console.log(`error: ${e}`);
         }
     }
+
+    const loadKeystore = async()=>{
+
+        try {
+
+            const result = await (await get<{keystore:string}>('/user/keystore'));
+
+            await keystore.descryptStore(result.keystore, encryptionKey)
+
+            console.log(`keystore loaded.`);
+
+        } catch (e){
+            console.log(`${e}`);
+        }
+    }
+
+    void loadKeystore();
 
     const getStories = async ()=>{
 
@@ -150,7 +174,7 @@ export const getNovelAiClient = (token:string)=>{
             const {output} = await send<{output?:string, error?:string}>(
             '/ai/generate',
             {
-                model: mode === AiMode.Story ? 'clio-v1' : activeModel,
+                model: mode === AiMode.Story ? storyModel : chatModel,
                 input:history.join('\n'),
                 parameters:GenParams[mode]
             });
@@ -177,6 +201,13 @@ export const getNovelAiClient = (token:string)=>{
 
     return {
 
+        clearStory(){
+            histories[AiMode.Story] = [];
+        },
+        clearChat(){
+            histories[AiMode.Chat] = [];
+        },
+
         getStories,
         createStory,
         getStoryContent,
@@ -199,7 +230,10 @@ export const loginNovelAi = async (username:string, password:string)=>{
             }
         );
 
-        return json.accessToken;
+        return {
+            accessToken:json.accessToken,
+            encryptionKey:await getEncryptionKey(username, password)
+        }
 
     } catch (err){
         console.log(`err: ${err}`);

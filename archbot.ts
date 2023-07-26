@@ -15,6 +15,7 @@ const client: Client = new Client({
 	closeTimeout: 4000,
 	intents: [GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
 		GatewayIntentBits.GuildMessageReactions,
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
@@ -43,7 +44,7 @@ const initBot = () => {
 
 	const auth = require('./auth.json') as Auth;
 
-	console.log(`running in dir: ${__dirname}`);
+	console.log(`running directory: ${__dirname}`);
 	try {
 		const bot = new DiscordBot(client, auth, __dirname);
 		initBasicCommands(bot);

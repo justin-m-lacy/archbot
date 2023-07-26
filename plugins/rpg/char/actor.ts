@@ -1,11 +1,10 @@
 import { Coord } from '../world/loc';
 import Race from './race';
 import StatBlock from './stats';
-import { StatMods, StatKey, IStatBlock, StatMod, StatName } from './stats';
+import { StatKey, IStatBlock, StatMod, StatName } from './stats';
 import { ProtoEffect, Effect } from '../magic/effects';
 import CharClass from './charclass';
 import { roll, parseRoll } from '../dice';
-import { ItemIndex } from '../items/container';
 import { Item } from '../items/item';
 import Weapon from '../items/weapon';
 
