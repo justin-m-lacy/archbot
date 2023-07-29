@@ -36,11 +36,9 @@ export default class Container<T extends SimpleItem = Item> {
      */
     randItem() {
 
-        let len = this._items.length;
+        const len = this._items.length;
         if (len === 0) return null;
-
-        let ind = Math.floor(len * Math.random());
-        return this._items.splice(ind, 1)[0];
+        return this._items.splice(Math.floor(len * Math.random()), 1)[0];
 
     }
 
@@ -49,7 +47,7 @@ export default class Container<T extends SimpleItem = Item> {
     */
     getMenu() {
 
-        let len = this._items.length;
+        const len = this._items.length;
         if (len === 0) return '';
 
         let it = this._items[0];
@@ -78,7 +76,7 @@ export default class Container<T extends SimpleItem = Item> {
         if (!start) return null;
 
         if (typeof start === 'string') {
-            let num = parseInt(start);
+            const num = parseInt(start);
             if (Number.isNaN(num)) {
                 return this.findItem(start);
             } else {
@@ -169,11 +167,11 @@ export default class Container<T extends SimpleItem = Item> {
      */
     findItem(name: string) {
 
-        name = name.toLowerCase();
+        const lower = name.toLowerCase();
         for (let i = this._items.length - 1; i >= 0; i--) {
 
-            var it = this._items[i];
-            if (it && it.name && it.name.toLowerCase() === name) return this._items[i];
+            const it = this._items[i];
+            if (it && it.name && it.name.toLowerCase() === lower) return this._items[i];
 
         }
         return null;
@@ -187,10 +185,12 @@ export default class Container<T extends SimpleItem = Item> {
     add(it?: T | T[] | (T | null | undefined)[] | null) {
 
         if (Array.isArray(it)) {
-            let ind = this._items.length + 1;
+            const ind = this._items.length + 1;
 
-            it = it.filter(v => v != null);
-            this._items = this._items.concat(it as T[]);
+            it = it.filter((v:T|null|undefined):v is T => v != null);
+            if ( it ) {
+                this._items = this._items.concat(it as T[]);
+            }
             return ind;
         }
 
@@ -208,7 +208,7 @@ export default class Container<T extends SimpleItem = Item> {
      */
     removeWhere(p: (it: T) => boolean) {
 
-        let r = [];
+        const r = [];
 
         for (let i = this._items.length - 1; i >= 0; i--) {
             if (p(this._items[i])) r.push(this._items.splice(i, 1)[0]);
@@ -223,11 +223,7 @@ export default class Container<T extends SimpleItem = Item> {
      * @param {function} f
      */
     forEach(f: (it: T) => void) {
-
-        for (let i = this._items.length - 1; i >= 0; i--) {
-            f(this._items[i]);
-        }
-
+        return this._items.forEach(f);
     }
 
 }

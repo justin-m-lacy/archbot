@@ -1,8 +1,8 @@
 import { archGet, archPost, archPatch, makeRequest } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig, RepetitionPenalty } from './novelai-types';
+import { AiMode, ObjectType, StoryContent, StoryData, AiModel, NovelAIConfig, RepetitionPenalty } from './novelai-types';
 import { Keystore } from './keystore';
-export {AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig};
+export {AiMode, ObjectType, StoryContent, StoryData as Story, AiModel, NovelAIConfig};
 
 const API_URL = 'https://api.novelai.net';
 const MAX_HISTORY = 50;
@@ -47,16 +47,17 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
     const modelIndex = 0;
     const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
-
     const cryptKey = encryptionKey;
 
-    let keystore:Keystore = new Keystore();
+    const keystore:Keystore = new Keystore();
 
     let chatModel:string = models[modelIndex];
     let storyModel = 'euterpe-v2';
 
     let userData:unknown;
     
+    const stories = new Map<string,string>();
+
     let histories:{[key:number]:string[]} = {
 
         [AiMode.Chat]:[],
@@ -91,11 +92,13 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
         try {
 
-            const result = await (await get<{keystore:string}>('/user/keystore'));
+            const result = await get<{keystore:string}>('/user/keystore');
 
             await keystore.descryptStore(result.keystore, encryptionKey)
 
             console.log(`keystore loaded.`);
+
+            void loadStories();
 
         } catch (e){
             console.log(`${e}`);
@@ -104,16 +107,25 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
     void loadKeystore();
 
-    const getStories = async ()=>{
+    const loadStories = async ()=>{
 
         try {
-            const stories = (await get<{objects:any[]}>(`/user/objects/${ObjectType.Stories}`)).objects;
-            //console.dir(stories);
+            console.log(`loading stories...`);
+            const rawStories = await get<{objects:StoryData[]}>(`/user/objects/${ObjectType.Stories}`);
 
-            return stories;
+            for( const s of rawStories.objects ){
+
+                const storyData = await keystore.decrypt(s);
+                if ( storyData){
+                    console.log(`story data: ${storyData}`);
+                }
+
+            }
+
+            return rawStories;
 
         } catch (e){
-            console.log(e);
+            console.log(`error loading stories: ${e}`);
         }
     };
 
@@ -208,7 +220,7 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
             histories[AiMode.Chat] = [];
         },
 
-        getStories,
+        loadStories,
         createStory,
         getStoryContent,
         addContent,

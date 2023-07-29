@@ -36,10 +36,6 @@ class NovelAiPlugin {
 
                 console.log(`crypt key: ${tokenAndCryptKey.encryptionKey.toString()}`)
                 this.client = getNovelAiClient( tokenAndCryptKey.accessToken, tokenAndCryptKey.encryptionKey );
-
-                await this.client?.getStories();
-
-
             }
         } catch(e){
             console.log(`Failed to create NovelAi client.`);

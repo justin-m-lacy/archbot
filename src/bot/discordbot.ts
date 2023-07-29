@@ -681,7 +681,7 @@ export class DiscordBot {
 	 */
 	async makeContext(idobj: ContextSource, type?: ChannelType) {
 
-		console.log('create context for: ' + idobj.id);
+		console.log('new context: ' + idobj.id);
 		let context;
 
 		if (idobj instanceof Guild) {

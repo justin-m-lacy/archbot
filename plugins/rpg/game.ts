@@ -176,7 +176,7 @@ export default class Game {
 
 	}
 
-	setLeader(char: Char, tar: Char) {
+	setLeader(char: Char, tar?: Char) {
 
 		let party = this.getParty(char);
 		if (!party) return 'You are not in a party.';

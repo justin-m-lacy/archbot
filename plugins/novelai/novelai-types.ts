@@ -1,3 +1,6 @@
+// Indicates data will be encrypted.
+export type EncryptedData = string;
+
 export type NovelAIConfig = {
     username:string,
     password:string
@@ -32,17 +35,24 @@ export enum RepetitionPenalty {
     VeryAggressive='very_aggressive'
 }
 
-export interface Story {
+export interface StoryData {
+    id: string,
+    /// object type.
+    type:string,
+    /// used to create encryption key?
+    meta: string,
+    data: EncryptedData,
+    lastUpdatedAt: 0,
+    changeIndex: 0
+}
+
+export interface StoryContent {
     id: string,
     /// used to create encryption key?
     meta: string,
-    data: string,
+    data: EncryptedData,
     lastUpdatedAt: 0,
     changeIndex: 0,
     /// object type.
     type:string
-}
-
-export interface StoryContent {
-
 }

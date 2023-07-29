@@ -5,7 +5,7 @@ export default class Chest extends Item {
 
 	static FromJSON(json: any) {
 
-		let p = new Chest(Inventory.FromJSON(json.inv));
+		const p = new Chest(Inventory.FromJSON(json.inv));
 		p.size = json.size;
 
 		return super.FromJSON(json, p);

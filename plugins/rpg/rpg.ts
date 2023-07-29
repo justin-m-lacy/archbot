@@ -17,7 +17,6 @@ import * as ItemGen from './items/itemgen';
 import * as TNameGen from './namegen';
 import * as display from './display';
 import * as gamejs from './game';
-import Discord from 'discord.js';
 import { replyEmbedUrl } from '../../src/embeds';
 
 const RPG_DIR = 'rpg/';
@@ -69,7 +68,7 @@ export class Rpg {
 
 	async cmdParty(m: Message, who?: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		let t;
@@ -84,7 +83,7 @@ export class Rpg {
 
 	async cmdLeader(m: Message, who?: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		let t;
@@ -99,7 +98,9 @@ export class Rpg {
 
 	async cmdRevive(m: Message, who?: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		if (!who) return;
+
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		let t;
@@ -491,12 +492,12 @@ export class Rpg {
 
 	async cmdViewItem(m: Message, which?: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!which) return m.reply('View which inventory item?');
 
-		let item = char.getItem(which);
+		const item = char.getItem(which);
 		if (!item) return m.reply('Item not found.');
 
 		let view = item.getView();
@@ -825,7 +826,7 @@ export class Rpg {
 
 		let key = this.getCharKey(charname);
 
-		let data = this.charCache.get(key);
+		let data = this.charCache.get(key) as Char|undefined;
 		if (!data) return this.charCache.fetch(key);
 		return data;
 	}

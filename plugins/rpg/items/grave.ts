@@ -17,8 +17,7 @@ export default class Grave extends Item {
 
 	static FromJSON(json: any) {
 
-		// @deprecated killer
-		let p = new Grave(json.char, json.slayer, json.epitaph);
+		const p = new Grave(json.char, json.slayer, json.epitaph);
 
 		Item.FromJSON(json, p);
 
@@ -28,8 +27,8 @@ export default class Grave extends Item {
 
 	static GetEpitaph(char: Char, killer: Char) {
 
-		let eps = this._Epitaphs ?? (this._Epitaphs = require('../data/items/epitaphs.json'));
-		let ep = eps[Math.floor(Math.random() * eps.length)];
+		const eps = this._Epitaphs ?? (this._Epitaphs = require('../data/items/epitaphs.json'));
+		const ep = eps[Math.floor(Math.random() * eps.length)];
 
 		return genderfy(char.sex, ep.replace(/%c/g, char.name).replace(/%k/g, killer.name));
 
@@ -37,7 +36,7 @@ export default class Grave extends Item {
 
 	toJSON() {
 
-		let s = super.toJSON();
+		const s = super.toJSON();
 
 		s.char = this.char;
 		s.epitaph = this.epitaph;

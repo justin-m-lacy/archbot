@@ -121,7 +121,7 @@
 	{
 		"name": "priest",
 		"hitdice": 6,
-		"desc": "Priests channel divine powers in order to heal the sick and destroy evil.",
+		"desc": "Priests channel divine powers to heal the sick and destroy evil.",
 		"talents": [
 			"revive"
 		],

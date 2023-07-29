@@ -2,8 +2,18 @@ import {decryptData} from "./novelai-crypt";
 
 type EncodedKeystore = {
     version:string;
-    nonce:string;
-    sdata:string;
+    nonce:number[];
+    sdata:number[];
+}
+
+type KeyStoreMap = {
+    [key:string]:Uint8Array;
+}
+
+type KeyStoreData = {
+    keys:{
+        [key:string]:number[]
+    }
 }
 
 export class Keystore {
@@ -11,11 +21,12 @@ export class Keystore {
     /**
      * Maps object meta fields to decryption key for object.
      */
-    private _keystore?:Map<string,Uint8Array>;
+    private _keystore?:KeyStoreMap;
 
     _decrypted:boolean = false;
-    _compressed:boolean = false;
 
+    /// Only relevant if keystore needs to be reencrypted.
+    _compressed:boolean = false;
 
     constructor(){
     }
@@ -24,16 +35,23 @@ export class Keystore {
 
         try {
 
-            const storeObject = JSON.parse( Buffer.from( keystoreBase64, 'base64' ).toString('ascii') ) as EncodedKeystore;
+            const storeObject = JSON.parse( Buffer.from(keystoreBase64, 'base64url').toString('utf8' )) as EncodedKeystore;
 
-            console.log(`decrypting store nonce: ${storeObject.nonce}  version: ${storeObject.version}`);
+            const decoded = await decryptData(
+                Uint8Array.from(storeObject.sdata),
+                encryptionKey,
+                Uint8Array.from( storeObject.nonce ) );
 
+            const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreData)?.keys : undefined;
             
-            const decoded = await decryptData( ( Buffer.from(storeObject.sdata )), encryptionKey, Buffer.from(storeObject.nonce) );
+            this._keystore = {};
+            if ( keystoreKeys ) {
 
-            this._keystore = decoded ? JSON.parse(decoded) : undefined;
+                for( const key in keystoreKeys) {
+                    this._keystore[key] = new Uint8Array( keystoreKeys[key] );
+                }
 
-            console.dir(this._keystore, 'KEYSTORE');
+            }
             this._decrypted=true;
 
         } catch (e){
@@ -46,15 +64,15 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt( item:{meta:string, data:Uint8Array}){
-
+    async decrypt( item:{meta:string, data:string}){
+    
         if ( !this._decrypted) return undefined;
 
-        const useKey = this._keystore?.get(item.meta);
+        const useKey = this._keystore?.[item.meta];
 
         if ( !useKey) return undefined;
 
-        const data = await decryptData(item.data, useKey );
+        const data = await decryptData( Buffer.from(item.data), useKey );
 
         return data;
 

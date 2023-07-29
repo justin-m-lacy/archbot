@@ -16,7 +16,7 @@ const stat_rolls = {
 
 	// base stat rolls
 	base: [
-		{ stat: ['str', 'dex', 'con', 'wis', 'int', 'cha'], rolls: 3, die: 6, mod: 0, minVal: 3 }
+		{ stat: ['str', 'dex', 'con', 'wis', 'int', 'cha'], rolls: 3, die: 6, mod: 0, minVal: 3, maxVal:undefined }
 	],
 
 	// info rolls
@@ -31,17 +31,16 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 
 	console.log('generating character...');
 
-	let char = new Char(race, charClass, owner);
+	const char = new Char(race, charClass, owner);
 	char.name = name;
 
-	let info = rollStats(stat_rolls.info, {});
+	const info = rollStats(stat_rolls.info, {});
 	if (race.infoMods) modStats(race.infoMods, info);
 	modStats(charClass.infoMods, info);
 	char.info = info;
 
-	let base = rollStats(stat_rolls.base, new StatBlock());
+	const base = rollStats(stat_rolls.base, new StatBlock());
 
-	console.log('hit: ' + race.HD + '  class: ' + charClass.HD);
 	base.curHp = base.maxHp = char.HD;
 
 	char.setBaseStats(base);
@@ -56,10 +55,10 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 
 function modStats(statMods: StatMod, destObj: any) {
 
-	let cur, mod;
+	let mod;
 	for (let stat in statMods) {
 
-		cur = destObj[stat];
+		const cur = destObj[stat];
 		mod = statMods[stat as StatName];
 		if (typeof mod === 'string') {
 			mod = Dice.parseRoll(mod);
@@ -77,12 +76,10 @@ function modStats(statMods: StatMod, destObj: any) {
 
 function rollStats(statRolls: StatGen[], destObj: any) {
 
-	let rollInfo;
-	let stat;
 	for (let i = statRolls.length - 1; i >= 0; i--) {
 
-		rollInfo = statRolls[i];
-		stat = rollInfo.stat;
+		const rollInfo = statRolls[i];
+		const stat = rollInfo.stat;
 		if (Array.isArray(stat)) {
 
 			for (let j = stat.length - 1; j >= 0; j--) {
@@ -103,7 +100,7 @@ function rollStats(statRolls: StatGen[], destObj: any) {
 
 function boundStat(dest: any, stat: string, info: { minVal?: number, maxVal?: number }) {
 
-	let cur = dest[stat];
+	const cur = dest[stat];
 	if (cur == null) return;
 
 	if (info.minVal != null && cur < info.minVal) {
@@ -133,17 +130,14 @@ const rollStat = (destObj: any, stat: string,
  * @param {Char} char
  */
 export const boundStats = (char: Char) => {
-
-	let info: any;
-	let stat;
-
+	
 	const stats = stat_rolls.base;
 	for (let i = stats.length - 1; i >= 0; i--) {
 
-		info = stats[i];
+		const info = stats[i];
 		if (info.minVal == null && info.maxVal == null) continue;
 
-		stat = info.stat;
+		const stat = info.stat;
 
 		if (Array.isArray(stat)) {
 

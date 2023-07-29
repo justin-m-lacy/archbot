@@ -24,11 +24,11 @@ const rollCost = (lvl: number) => {
 export const rollWeap = (char: Char) => {
 
 	let level = char.level;
-	let cost = rollCost(level);
+	const cost = rollCost(level);
 	if (!char.payOrFail(cost))
 		return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`;
 
-	let gen = require('./items/itemgen');
+	const gen = require('./items/itemgen');
 	let mod = 1 + char.getModifier('cha');
 	if (mod < 0) mod = 0;
 
@@ -45,7 +45,7 @@ export const rollWeap = (char: Char) => {
 export const rollArmor = (char: Char, slot?: string) => {
 
 	let level = char.level;
-	let cost = rollCost(level);
+	const cost = rollCost(level);
 	if (!char.payOrFail(cost))
 		return `${char.name} cannot afford to roll new armor. (${cost} gold)`;
 
@@ -53,7 +53,7 @@ export const rollArmor = (char: Char, slot?: string) => {
 	if (mod < 0) mod = 0;
 
 	level = Math.max(0, level + jsutils.random(-1, mod));
-	let it = ItemGen.genArmor(toSlot(slot), level);
+	const it = ItemGen.genArmor(toSlot(slot), level);
 
 	if (!it) return 'Failed to roll armor.';
 
@@ -65,7 +65,7 @@ export const rollArmor = (char: Char, slot?: string) => {
 
 export const sellRange = (src: Char, start: number, end: number) => {
 
-	let arr = src.takeRange(start, end);
+	const arr = src.takeRange(start, end);
 	if (arr === null) return 'Invalid item range.';
 	if (arr.length === 0) return 'No items in range.';
 
@@ -89,7 +89,7 @@ export const sell = (src: Char, wot: ItemPicker, end?: ItemIndex) => {
 	// @ts-ignore
 	if (end !== null) return sellRange(src, wot as ItemIndex, end);
 
-	let it = src.takeItem(wot) as Item | null;
+	const it = src.takeItem(wot) as Item | null;
 	if (!it) return 'Item not found.';
 
 	let mod = src.level + src.getModifier('cha');
@@ -103,7 +103,7 @@ export const sell = (src: Char, wot: ItemPicker, end?: ItemIndex) => {
 
 export const transfer = (src: Char, dest: Char, what: string) => {
 
-	let res = goldAmt.exec(what);
+	const res = goldAmt.exec(what);
 	if (res !== null) {
 
 		console.log('gold transfer: ' + res[1]);
@@ -112,7 +112,7 @@ export const transfer = (src: Char, dest: Char, what: string) => {
 	} else {
 
 		console.log('item transfer: ' + what);
-		let it = src.takeItem(what) as Item | null;
+		const it = src.takeItem(what) as Item | null;
 		if (it) {
 
 			let ind = dest.addItem(it);

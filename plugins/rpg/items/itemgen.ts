@@ -146,15 +146,14 @@ export const fromJSON = (json: any) => {
 
 export const genPot = (name: string) => {
 
-	let pot = allPots[name];
-	if (!pot) return null;
-	return Potion.FromJSON(pot);
+	const pot = allPots[name];
+	return pot ? Potion.FromJSON(pot) : null;
 
 }
 
 export const genWeapon = (lvl: number) => {
 
-	let mat = Material.Random(lvl);
+	const mat = Material.Random(lvl);
 	if (mat === null) { console.log('material is null'); return null; }
 
 	//console.log( 'weaps len: ' + baseWeapons.length );
