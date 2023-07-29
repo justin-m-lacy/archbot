@@ -1,9 +1,13 @@
 import blake2b from 'blake2b';
 import argon2 from 'argon2';
-import { openSecretBox, secretBox } from '@stablelib/nacl';
-import {inflate, deflate} from 'zlib';
+import { openSecretBox, secretBox, generateKey} from '@stablelib/nacl';
+import {inflate, deflate} from 'fflate';
 import { promisify } from 'util'
+export {generateKey};
+
+
 ///import { getCiphers, getHashes } from 'crypto';
+
 
 /// Base 2 logarithm
 const MAX_WBITS = 15;
@@ -48,7 +52,7 @@ export async function getEncryptionKey(user: string, password: string) {
 
 const compressionPrefix = Buffer.from( "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01" );
 
-const NONCE_SIZE = 24;
+export const NONCE_SIZE = 24;
 
 /// If no nonce is supplied, it is expected that the first NONCE_SIZE of data is the nonce.
 export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8Array ) {
@@ -62,8 +66,6 @@ export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8
     if ( nonce == null ) {
         nonce = data.slice(0,NONCE_SIZE);
         data = data.slice(NONCE_SIZE);
-        
-        console.log(`sliced nonce....`);
     }
 
     try {
@@ -72,8 +74,7 @@ export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8
 
         if ( result ){
             if ( compressed ){
-                console.log(`inflating data...`);
-                result = await promisify( inflate )(result);
+                result = await promisify( inflate )( result );
             }
             return Buffer.from(result).toString('utf8');
         }
@@ -97,11 +98,14 @@ export async function encryptData( data:Uint8Array, key:Uint8Array, nonce:Uint8A
 
         result = secretBox(key, nonce, result );
 
-        if ( compressed){
-            const out = Buffer.alloc( compressionPrefix.length + result.length, compressionPrefix );
-            out.fill(result, compressionPrefix.length);
+        if ( !startsWith(result, nonce)){
+            console.log(`Adding nonce.`);
+            result = addDataPrefix( result, nonce);
+        }
 
-            return Uint8Array.from(out);
+        if ( compressed){
+            console.log(`Adding compression prefix`);
+            return addDataPrefix( result, compressionPrefix);
         } else {
             return result;
         }
@@ -111,7 +115,36 @@ export async function encryptData( data:Uint8Array, key:Uint8Array, nonce:Uint8A
     }
 }
 
-function startsWith( data:Uint8Array, prefix:Uint8Array){
+/**
+ * Prefix data by the list of prefixes.
+ * prefixes[0] comes first in result array, data comes last.
+ * @param data 
+ * @param prefixes 
+ */
+const addPrefixes = (data:Uint8Array, prefixes:Uint8Array[])=>{
+
+    const count = prefixes.length;
+    let totLength = data.length;
+    for( let i = 0; i < count; i++) totLength += prefixes[i].length;
+
+    const out = Buffer.alloc( totLength );
+    let pos = 0;
+    for( let i = 0; i < count; i++ ) {
+        out.fill(prefixes[i], pos);
+        pos += prefixes[i].length;
+    }
+
+    return Uint8Array.from(out.fill(data, pos));
+
+}
+
+const addDataPrefix = ( data:Uint8Array, prefix:Uint8Array)=>{
+
+    const out = Buffer.alloc( prefix.length + data.length, prefix );
+    return Uint8Array.from( out.fill(data, prefix.length ));
+}
+
+const startsWith = ( data:Uint8Array, prefix:Uint8Array)=>{
 
     const len = prefix.length;
     if ( data.length < len ) return false;

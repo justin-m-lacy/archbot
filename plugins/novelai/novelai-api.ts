@@ -1,6 +1,6 @@
 import { archGet, archPost, archPatch, makeRequest } from '@src/utils/fetch';
-import { ObjectType, StoryData } from 'plugins/novelai/novelai-types';
-import { GenerateParams } from './novelai-types';
+import { ObjectType, Story } from 'plugins/novelai/novelai-types';
+import { GenerateParams, StoryContent } from './novelai-types';
 
 const API_URL = 'https://api.novelai.net';
 
@@ -46,7 +46,7 @@ return {
      *  sdata:number[]
      * }
      */
-    loadKeystore:async()=>{
+    getKeystore:async()=>{
     
         const result = await get<{keystore:string}>('/user/keystore');
         return result.keystore;
@@ -54,42 +54,54 @@ return {
     },
     
     
-      loadStories:async ()=>{
+    getStories:async ()=>{
     
-        try {
-    
-            const rawStories = await get<{objects:StoryData[]}>(`/user/objects/${ObjectType.Stories}`);
-            return rawStories.objects;
+        const rawStories = await get<{objects:Story[]}>(`/user/objects/${ObjectType.Stories}`);
+        return rawStories.objects;
         
-        } catch (e){
-            console.log(`error loading stories: ${e}`);
-        }
     },
-    
-      createStory:async ()=>{
+
+    getStory:async (id:string)=>{
+
+        const story = await get<Story>(`/user/objects/${ObjectType.Stories}/${id}`);
+        return story;
+    },
+
+
+    putStory:async (storyInfo:{
+        meta:string,
+        data:string,
+        changeIndex:0
+      })=>{
   
-        const storyContent =
-        await put<unknown>(`/user/objects/${ObjectType.Stories}`);
+        const story =
+        await put<unknown>(`/user/objects/${ObjectType.Stories}`, storyInfo);
 
-        return storyContent;
+        return story;
 
     },
     
+    putStoryContent:async (storyContent:{
+        meta:string,
+        data:string,
+        changeIndex:0
+    }) => {
+
+        const result =  await put<unknown>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
+
+        return result;
+    },
+
       getStoryContent:async (id:string)=>{
     
-        try {
             const storyContent =
-            await get<unknown>(`/user/objects/${ObjectType.StoryContent}/${id}`);
+            await get<StoryContent>(`/user/objects/${ObjectType.StoryContent}/${id}`);
     
-            console.dir(storyContent);
+            return storyContent;
     
-        } catch (e){
-            console.log(e);
-        }
     },
     
-    // Add content to story
-    addContent:async (storyId:string, content:string)=>{
+    patchStoryContent:async (storyId:string, content:string)=>{
     
         try {
             const result = await patch(`/user/objects/${ObjectType.StoryContent}/${storyId}`, {
@@ -106,7 +118,7 @@ return {
     
     },
     
-        generate:async (history:string, model?:string, params?:GenerateParams)=>{
+    generate:async (history:string, model?:string, params?:GenerateParams)=>{
 
             const {output} = await send<{output?:string, error?:string}>(
                 '/ai/generate',

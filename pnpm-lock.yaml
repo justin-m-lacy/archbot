@@ -31,6 +31,9 @@ dependencies:
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
+  fflate:
+    specifier: ^0.8.0
+    version: 0.8.0
   formulic:
     specifier: ^2.0.3
     version: 2.0.3
@@ -1099,6 +1102,10 @@ packages:
     dependencies:
       reusify: 1.0.4
     dev: true
+
+  /fflate@0.8.0:
+    resolution: {integrity: sha512-FAdS4qMuFjsJj6XHbBaZeXOgaypXp8iw/Tpyuq/w3XA41jjLHT8NPA+n7czH/DDhdncq0nAyDZmPeWXh2qmdIg==}
+    dev: false
 
   /file-type@16.5.4:
     resolution: {integrity: sha512-/yFHK0aGjFEgDJjEKP0pWCplsPFPhwyfwevf/pVxiN0tmE4L9LmwWxWukdJSHdoCli4VgQLehjJtwQBnqmsKcw==}

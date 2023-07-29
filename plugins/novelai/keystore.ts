@@ -1,4 +1,7 @@
-import {decryptData} from "./novelai-crypt";
+import {decryptData, encryptData, NONCE_SIZE, generateKey } from "./novelai-crypt";
+import { randomBytes} from 'crypto';
+
+const KEYSTORE_VERSION = 2;
 
 type EncodedKeystore = {
     version:string;
@@ -18,37 +21,38 @@ type KeyStoreData = {
 
 export class Keystore {
 
+    private _keystore?:EncodedKeystore;
+
     /**
      * Maps object meta fields to decryption key for object.
      */
-    private _keystore?:KeyStoreMap;
+    private _keyMap?:KeyStoreMap;
 
-    _decrypted:boolean = false;
+    private _decrypted:boolean = false;
 
     /// Only relevant if keystore needs to be reencrypted.
-    _compressed:boolean = false;
+    private _compressed:boolean = false;
 
-    constructor(){
-    }
+    constructor(){}
 
     async descryptStore( keystoreBase64:string, encryptionKey:Uint8Array ){
 
         try {
 
-            const storeObject = JSON.parse( Buffer.from(keystoreBase64, 'base64url').toString('utf8' )) as EncodedKeystore;
-
+            this._keystore = JSON.parse( Buffer.from(keystoreBase64, 'base64url').toString('utf8' )) as EncodedKeystore;
+    
             const decoded = await decryptData(
-                Uint8Array.from(storeObject.sdata),
+                Uint8Array.from(this._keystore.sdata),
                 encryptionKey,
-                Uint8Array.from( storeObject.nonce ) );
+                Uint8Array.from( this._keystore.nonce ) );
 
             const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreData)?.keys : undefined;
             
-            this._keystore = {};
+            this._keyMap = {};
             if ( keystoreKeys ) {
 
                 for( const key in keystoreKeys) {
-                    this._keystore[key] = new Uint8Array( keystoreKeys[key] );
+                    this._keyMap[key] = new Uint8Array( keystoreKeys[key] );
                 }
 
             }
@@ -57,6 +61,70 @@ export class Keystore {
         } catch (e){
             console.log(`error: ${e}`);
         }
+
+    }
+
+    /**
+     * Store must be reencrypted so created meta/key pairs can be pushed to server.
+     */
+    async encryptStore(){
+    
+        try {
+
+            // Existing keystore should be required for nonce?
+            if ( !this._keystore) return;
+
+            return this._keystore;
+
+
+        } catch(e){
+            console.log(`encryptStore error: ${e}`);
+        }
+    }
+
+    /**
+     * Initialize empty keystore.
+     */
+    initEmpty(){
+
+        this._keystore = {
+            nonce: Array.from( randomBytes( NONCE_SIZE) ),
+            version:`${KEYSTORE_VERSION}`,
+            sdata:[]
+        }
+        this._keyMap = {
+        };
+
+    }
+
+    /**
+     * Create a new key for a meta object.
+     * @param meta 
+     */
+    addKey(meta:string, key?:Uint8Array) {
+
+        const newKey = key ?? generateKey();
+        if ( this._keyMap){
+            this._keyMap[meta] = newKey;
+        }
+
+    }
+
+    async encrypt( meta:string, plaintext:string ) {
+
+        if ( !this._decrypted) throw new Error('Keystore not decrypted.');
+
+        const useKey = this._keyMap?.[meta];
+        if ( !useKey) throw new Error('Key not found.');
+
+        /// 16 byte nonce needs to be prepended to data?
+        /// automatic or not?
+
+        const nonce = randomBytes(NONCE_SIZE);
+        const data = await encryptData( new Uint8Array( Buffer.from(plaintext)), useKey, nonce);
+
+        return data ? Buffer.from(data).toString('base64') : '';
+
 
     }
 
@@ -71,17 +139,14 @@ export class Keystore {
             return;
         }
 
-        const useKey = this._keystore?.[meta];
+        const useKey = this._keyMap?.[meta];
 
         if ( !useKey) {
-            console.log(`missing key: meta: ${meta}`);
+            console.log(`key not found: meta: ${meta}`);
             return;
         }
 
-        console.log(`using key: ${useKey}`);
-        const plaintext = await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
-
-        return plaintext;
+        return await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
 
     }
 

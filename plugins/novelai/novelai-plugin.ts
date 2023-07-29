@@ -1,7 +1,7 @@
 import { DiscordBot } from '@src/bot/discordbot';
 import { Message } from 'discord.js';
 import { AiMode, getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai-client';
-import { BotContext } from '../../src/bot/botcontext';
+import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
 
 const configuration:NovelAIConfig = {
@@ -10,6 +10,11 @@ const configuration:NovelAIConfig = {
     password:process.env.NOVEL_AI_PW ?? '',
 
 };
+
+type StoryEntry = {
+    id:string,
+    meta:string
+}
 
 /**
  * Resolves after successful login with API accessToken.
@@ -27,12 +32,12 @@ class NovelAiPlugin {
 
     private cache:Cache
 
-    constructor( context:BotContext<any>){
+    constructor( context:BotContext){
 
         /// stories associated with this room.
         this.cache = context.subcache('novelai');
 
-        this.createClient().then( ()=>this.loadOrCreateStory() );
+        this.createClient().then( ()=>this.loadOrCreateStory( context.idObject.id ) );
     }
 
     async createClient(){
@@ -56,7 +61,7 @@ class NovelAiPlugin {
     /**
      * Create story for this room.
      */
-    async loadOrCreateStory(){
+    async loadOrCreateStory( channelId:string ){
 
         if (!this.client) return;
 
@@ -66,7 +71,7 @@ class NovelAiPlugin {
             await this.client.loadStoryContent(storyid);
         } else {
 
-            const result = await this.client.createStory();
+            const result = await this.client.createStory( channelId );
             if ( result ) {
                 console.log(`story created: ${result}`);
             }

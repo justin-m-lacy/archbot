@@ -35,15 +35,36 @@ export enum RepetitionPenalty {
     VeryAggressive='very_aggressive'
 }
 
-export interface StoryData {
+export interface Story {
     id: string,
     /// object type.
-    type:string,
+    type:ObjectType.Stories,
     /// used to create encryption key?
     meta: string,
     data: EncryptedData,
     lastUpdatedAt: 0,
     changeIndex: 0
+}
+
+export interface StoryData {
+    storyMetadataVersion:1,
+
+    /**
+     * Equal to remote id. Length 36?
+     * Remote id is used to fetch from server.
+     */
+    id:string,
+    remoteId:string,
+    remoteStoryId:string,
+    title:string,
+    description:string,
+    textPreview:string,
+    isTA?:boolean,
+    favorite?:boolean,
+    tags:string[],
+    createdAt:number,
+    lastUpdatedAt:number,
+    isModified:boolean
 }
 
 export interface StoryContent {
@@ -54,9 +75,69 @@ export interface StoryContent {
     lastUpdatedAt: 0,
     changeIndex: 0,
     /// object type.
-    type:string
+    type:ObjectType.StoryContent
 }
 
+interface StoryContextConfig {
+    prefix:string,
+    suffix:string,
+    tokenBudget:number,
+    reservedTokens:number,
+    trimDirection:string,
+    insertionType:string,
+    maximumTrimType:string,
+    insertionPosition:number,
+    allowInsertionInside:number
+}
+
+export interface LoreBook {
+    lorebookVersion:number,
+    entries:object[],
+    settings:object,
+    categories:[]
+}
+
+type ContentOrigin = 'user'|'root'|'prompt'|'ai'|'edit';
+export interface StoryFragment {
+    data:string,
+    origin:ContentOrigin
+}
+
+export interface StoryBlock {
+
+    nextBlock:number[],
+    prevBlock:number,
+    origin:ContentOrigin,
+    startIndex:number,
+    endIndex:number,
+    dataFragment:StoryFragment,
+    fragmentIndex:number,
+    removedFragments:object[],
+    chain:boolean
+}
+export interface StoryContentData {
+
+    id:string,
+    title:string,
+    storyContentVersion:number,
+    settings:object,
+    story:{
+        version:number,
+        step:number,
+        datablocks:object[],
+        currentBlock:number,
+        fragments:object[]
+    },
+    context:{
+        text:string, contextConfig:object
+    }[],
+    lorebook:LoreBook,
+    storyContextConfig:StoryContextConfig,
+    ephemeralContext:unknown,
+    didGenerate:boolean,
+    settingsDirty:boolean,
+
+}
 
 export type GenerateParams = Partial<{
     prefix:string,

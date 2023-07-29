@@ -28,7 +28,7 @@ export type ContextClass<T extends ContextSource> = {
 /**
  * Base class for a BotContext.
  */
-export abstract class BotContext<T extends ContextSource> {
+export abstract class BotContext<T extends ContextSource=ContextSource> {
 
 	/**
 	 * @property {string} type - 'guild', 'user', 'dm', 'channel'

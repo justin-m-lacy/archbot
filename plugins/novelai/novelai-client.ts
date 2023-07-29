@@ -1,9 +1,9 @@
 import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, StoryContent, StoryData, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams } from './novelai-types';
+import { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, StoryData, StoryContentData } from './novelai-types';
 import { Keystore } from './keystore';
 import { getNovelApi } from 'plugins/novelai/novelai-api';
-export {AiMode, ObjectType, StoryContent, StoryData as Story, AiModel, NovelAIConfig};
+export {AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig};
 
 const API_URL = 'https://api.novelai.net';
 const MAX_HISTORY = 50;
@@ -46,16 +46,15 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
 
     const modelIndex = 0;
     const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
-    const cryptKey = encryptionKey;
 
     const keystore:Keystore = new Keystore();
 
     let chatModel:string = models[modelIndex];
     let storyModel = 'euterpe-v2';
 
-    let userData:unknown;
-    
-    const stories = new Map<string,string>();
+
+    const _stories = new Map<string,StoryData>();
+    const _content = new Map<string,StoryContentData>();
 
     let histories:{[key:number]:string[]} = {
 
@@ -73,7 +72,7 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
 
         try {
 
-            const result = await novelApi.loadKeystore();
+            const result = await novelApi.getKeystore();
 
             await keystore.descryptStore(result!, encryptionKey)
 
@@ -88,16 +87,14 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
 
         try {
  
-            const storyObjects = await novelApi.loadStories();
+            const storyObjects = await novelApi.getStories();
 
-            for( const storyData of storyObjects! ){
+            for( const story of storyObjects! ){
 
-                console.dir(storyData);
-                const story = await keystore.decrypt(storyData);
-                if ( story){
-                    console.log(`story data: ${story}`);
-                } else {
-                    console.log(`story empty: ${story}`);
+                const plaintext = await keystore.decrypt(story);
+                if ( plaintext){
+                    const storyData = JSON.parse(plaintext) as StoryData;
+                    void loadStoryContent(storyData.remoteStoryId);
                 }
 
             }
@@ -107,29 +104,78 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
         }
     };
 
-    const createStory = async ()=>{
+    const loadStory = async (id:string)=>{
+
+        const story = await novelApi.getStory(id);
+
+        const plaintext = await keystore.decrypt( story );
+        if ( plaintext) {
+
+            const storyData = JSON.parse(plaintext) as StoryData;
+            console.log(`story data: ${storyData.id}`);
+
+        } else {
+            return undefined;
+        }
+
+    };
+
+    const createStory = async ( meta:string )=>{
         try {
+
+            return;
+            const storyContentData = {
+                title:"New Title"
+            }
+
+            console.log(`creating story content.`);
+            keystore.addKey(meta);
+            const encryptedContent = await keystore.encrypt(meta, JSON.stringify(storyContentData));
+
+            const result = await novelApi.putStoryContent({
+
+                meta:meta,
+                data:encryptedContent,
+                changeIndex:0
+            });
+
             console.log(`creating new story....`);
-            const storyContent = await novelApi.createStory();
+            const story = await novelApi.putStory({
 
-            console.log(`story created: ${storyContent}`);
+                meta:meta,
+                data: JSON.stringify({
+                    
+                }),
+                changeIndex:0
+            });
 
-            return storyContent;
+            console.log(`story created: ${story}`);
+
+            return story;
 
         } catch (e){
-            console.log(e);
+            console.log(`Create story error: ${e}`);
         }
     };
 
     const loadStoryContent = async (id:string)=>{
 
         try {
-            const storyContent = await novelApi.getStoryContent(id);
 
-            console.dir(storyContent);
+            const storyContent = await novelApi.getStoryContent(id);
+            const storyContentData = await keystore.decrypt(storyContent);
+
+            if ( storyContentData ){
+                const data = JSON.parse(storyContentData) as StoryContentData;
+                console.dir(data.story.datablocks);
+                console.log(`--------`);
+                console.dir(data.story.fragments);
+
+                _content.set(id, data);
+            }
 
         } catch (e){
-            console.log(e);
+            console.log(`Load Content Error: ${e}`);
         }
     };
 
@@ -137,12 +183,18 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
     const addContent = async (id:string, content:string)=>{
 
         try {
-            const result = await novelApi.addContent( id, content);
-        
+
+            const curContent = _content.get(id);
+
+            const result = await novelApi.patchStoryContent( id, content);
+
+            if ( curContent ) {
+            }
+
           console.dir(result);
 
         } catch (e){
-            console.log(`Error: ${e}`);
+            console.log(`Add Content Error: ${e}`);
         }
 
     };
@@ -185,6 +237,7 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
 
         loadKeystore,
         loadStories,
+        loadStory,
         createStory,
         loadStoryContent,
         addContent,
