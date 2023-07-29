@@ -40,7 +40,6 @@ export async function getEncryptionKey(user: string, password: string) {
 
     const prekey = (await argonHash(user, password, 'novelai_data_encryption_key', 128)).replace('=', '');
 
-    console.log(`prek key len: ${prekey.length}`);
     const blake = blake2b(32).update( Buffer.from(prekey) ).digest();
 
     return blake;
@@ -56,8 +55,6 @@ export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8
 
     const compressed = startsWith(data, compressionPrefix);
 
-    console.log(`Is Compressed?: ${compressed}`);
-
     if ( compressed) {
         data = data.slice(compressionPrefix.length);
     }
@@ -65,20 +62,19 @@ export async function decryptData( data:Uint8Array, key:Uint8Array, nonce?:Uint8
     if ( nonce == null ) {
         nonce = data.slice(0,NONCE_SIZE);
         data = data.slice(NONCE_SIZE);
+        
+        console.log(`sliced nonce....`);
     }
 
     try {
 
         let result = openSecretBox( key, nonce, data );
 
-        console.log(`after secretbox: ${result}`);
-
         if ( result ){
-            console.log(`inflating data...`);
             if ( compressed ){
+                console.log(`inflating data...`);
                 result = await promisify( inflate )(result);
             }
-            console.log(`inflated result: ${result.length}`);
             return Buffer.from(result).toString('utf8');
         }
 

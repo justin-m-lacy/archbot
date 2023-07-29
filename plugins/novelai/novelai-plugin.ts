@@ -1,6 +1,8 @@
 import { DiscordBot } from '@src/bot/discordbot';
 import { Message } from 'discord.js';
 import { AiMode, getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai-client';
+import { BotContext } from '../../src/bot/botcontext';
+import Cache from 'archcache';
 
 const configuration:NovelAIConfig = {
 
@@ -23,9 +25,14 @@ class NovelAiPlugin {
 
     private client:ReturnType<typeof getNovelAiClient>|undefined = undefined;
 
-    constructor(){
+    private cache:Cache
 
-        this.createClient();
+    constructor( context:BotContext<any>){
+
+        /// stories associated with this room.
+        this.cache = context.subcache('novelai');
+
+        this.createClient().then( ()=>this.loadOrCreateStory() );
     }
 
     async createClient(){
@@ -34,12 +41,39 @@ class NovelAiPlugin {
             const tokenAndCryptKey = await accessPromise;
             if ( tokenAndCryptKey ) {
 
-                console.log(`crypt key: ${tokenAndCryptKey.encryptionKey.toString()}`)
-                this.client = getNovelAiClient( tokenAndCryptKey.accessToken, tokenAndCryptKey.encryptionKey );
+                this.client = getNovelAiClient(
+                    tokenAndCryptKey.accessToken,
+                    tokenAndCryptKey.encryptionKey );
+
+                
+                    await this.client.loadKeystore();
             }
         } catch(e){
             console.log(`Failed to create NovelAi client.`);
         }
+    }
+
+    /**
+     * Create story for this room.
+     */
+    async loadOrCreateStory(){
+
+        if (!this.client) return;
+
+        const storyid = this.cache.get('storyid');
+        if ( storyid != null ) {
+
+            await this.client.loadStoryContent(storyid);
+        } else {
+
+            const result = await this.client.createStory();
+            if ( result ) {
+                console.log(`story created: ${result}`);
+            }
+
+        }
+
+
     }
 
     cmdGenImage(m: Message, query: string ){

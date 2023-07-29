@@ -1,7 +1,8 @@
-import { archGet, archPost, archPatch, makeRequest } from '@src/utils/fetch';
+import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, StoryContent, StoryData, AiModel, NovelAIConfig, RepetitionPenalty } from './novelai-types';
+import { AiMode, ObjectType, StoryContent, StoryData, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams } from './novelai-types';
 import { Keystore } from './keystore';
+import { getNovelApi } from 'plugins/novelai/novelai-api';
 export {AiMode, ObjectType, StoryContent, StoryData as Story, AiModel, NovelAIConfig};
 
 const API_URL = 'https://api.novelai.net';
@@ -12,8 +13,11 @@ const cleanOutput = (s:string)=>{
     return s.replace(leadingPeriod, '').trim();
 }
 
+
 /// Generate parameters to send for each AI type.
-const GenParams = {
+const GenParams:{
+    [Property in AiMode]:GenerateParams
+} = {
     [AiMode.Chat]:{
         prefix:"euterpe-v2:74123c83e0c4cee8a655206014dd7bcc5adf2aee040efa66db4dbdc1e54833d0:e91fa243411b234a66bfe352d654819cd6e799887e481921107a75514b89c1e0",
         use_string: true,
@@ -36,14 +40,9 @@ const GenParams = {
     }
 }
 
-export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
+export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=>{
 
-    const accessToken = token;
-    const headers = {
-        Authorization:`Bearer ${accessToken}`,
-        "content-type": "application/json",
-        "accept":"application/json"
-    };
+    const novelApi = getNovelApi( accessToken );
 
     const modelIndex = 0;
     const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
@@ -64,39 +63,19 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
         [AiMode.Story]:[]
     };
 
-    const get = async <T>(path:string)=>{return archGet<T>(API_URL+path, headers);}
-
-    const send = async <T>(path:string, data?:{[key:string]:unknown})=>{
-        return archPost<T>(API_URL + path, data, headers);
-    }
-
-    const patch = async <T>(path:string, data?:{[key:string]:unknown})=>{
-        return archPatch<T>(API_URL+path, data, headers);
-    }
-    const put = async <T>(path:String, data?:{[key:string]:unknown})=>{
-        return makeRequest( API_URL+path, 'PUT', data, headers);
-    }
-
     const chatRegex = /(\[\[\w+\]\]\:?)\s?/ig;
 
     const getUserData = async ()=> {
-
-        try {
-            userData = await get<any>('/user/data');
-        } catch(e){
-            console.log(`error: ${e}`);
-        }
+        return novelApi.getUserData();
     }
 
     const loadKeystore = async()=>{
 
         try {
 
-            const result = await get<{keystore:string}>('/user/keystore');
+            const result = await novelApi.loadKeystore();
 
-            await keystore.descryptStore(result.keystore, encryptionKey)
-
-            console.log(`keystore loaded.`);
+            await keystore.descryptStore(result!, encryptionKey)
 
             void loadStories();
 
@@ -105,24 +84,23 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
         }
     }
 
-    void loadKeystore();
-
     const loadStories = async ()=>{
 
         try {
-            console.log(`loading stories...`);
-            const rawStories = await get<{objects:StoryData[]}>(`/user/objects/${ObjectType.Stories}`);
+ 
+            const storyObjects = await novelApi.loadStories();
 
-            for( const s of rawStories.objects ){
+            for( const storyData of storyObjects! ){
 
-                const storyData = await keystore.decrypt(s);
-                if ( storyData){
-                    console.log(`story data: ${storyData}`);
+                console.dir(storyData);
+                const story = await keystore.decrypt(storyData);
+                if ( story){
+                    console.log(`story data: ${story}`);
+                } else {
+                    console.log(`story empty: ${story}`);
                 }
 
             }
-
-            return rawStories;
 
         } catch (e){
             console.log(`error loading stories: ${e}`);
@@ -131,21 +109,22 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
     const createStory = async ()=>{
         try {
-            const storyContent =
-            await put<unknown>(`/user/objects/${ObjectType.Stories}`);
+            console.log(`creating new story....`);
+            const storyContent = await novelApi.createStory();
 
-            console.dir(storyContent);
+            console.log(`story created: ${storyContent}`);
+
+            return storyContent;
 
         } catch (e){
             console.log(e);
         }
     };
 
-    const getStoryContent = async (id:string)=>{
+    const loadStoryContent = async (id:string)=>{
 
         try {
-            const storyContent =
-            await get<unknown>(`/user/objects/${ObjectType.StoryContent}/${id}`);
+            const storyContent = await novelApi.getStoryContent(id);
 
             console.dir(storyContent);
 
@@ -158,11 +137,7 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
     const addContent = async (id:string, content:string)=>{
 
         try {
-            const result = await patch(`/user/objects/${ObjectType.StoryContent}/${id}`, {
-            meta: 'unknown',
-            data: content,
-            changeIndex: 0
-          });
+            const result = await novelApi.addContent( id, content);
         
           console.dir(result);
 
@@ -183,14 +158,9 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
         history.push(prompt);
 
         try {
-            const {output} = await send<{output?:string, error?:string}>(
-            '/ai/generate',
-            {
-                model: mode === AiMode.Story ? storyModel : chatModel,
-                input:history.join('\n'),
-                parameters:GenParams[mode]
-            });
-
+            const output = await novelApi.generate( history.join('\n'),
+                mode === AiMode.Story ? storyModel : chatModel, GenParams[mode]);
+    
             if ( output){
 
                 if ( mode === AiMode.Chat ){
@@ -213,18 +183,19 @@ export const getNovelAiClient = (token:string, encryptionKey:Uint8Array )=>{
 
     return {
 
+        loadKeystore,
+        loadStories,
+        createStory,
+        loadStoryContent,
+        addContent,
+        generate,
+
         clearStory(){
             histories[AiMode.Story] = [];
         },
         clearChat(){
             histories[AiMode.Chat] = [];
         },
-
-        loadStories,
-        createStory,
-        getStoryContent,
-        addContent,
-        generate
 
     }
 

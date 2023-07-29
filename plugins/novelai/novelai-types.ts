@@ -56,3 +56,15 @@ export interface StoryContent {
     /// object type.
     type:string
 }
+
+
+export type GenerateParams = Partial<{
+    prefix:string,
+    use_string: boolean,
+    generate_until_sentence:boolean,
+    temperature: number,
+    min_length: number,
+    max_length: number,
+    repetition_penalty: number,
+    phrase_rep_pen: RepetitionPenalty
+}>

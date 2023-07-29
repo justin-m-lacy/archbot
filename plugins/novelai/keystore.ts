@@ -64,17 +64,24 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt( item:{meta:string, data:string}){
+    async decrypt( {meta,data}:{meta:string, data:string}){
     
-        if ( !this._decrypted) return undefined;
+        if ( !this._decrypted) {
+            console.log(`keystore not decrypted.`);
+            return;
+        }
 
-        const useKey = this._keystore?.[item.meta];
+        const useKey = this._keystore?.[meta];
 
-        if ( !useKey) return undefined;
+        if ( !useKey) {
+            console.log(`missing key: meta: ${meta}`);
+            return;
+        }
 
-        const data = await decryptData( Buffer.from(item.data), useKey );
+        console.log(`using key: ${useKey}`);
+        const plaintext = await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
 
-        return data;
+        return plaintext;
 
     }
 
