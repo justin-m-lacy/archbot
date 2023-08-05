@@ -1,4 +1,4 @@
-import Game from '../../src/game';
+import Game from '@src/game';
 import * as Export from './export';
 
 const Chess = require('chess-rules');

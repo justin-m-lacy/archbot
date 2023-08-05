@@ -1,0 +1,90 @@
+{
+    "synonyms": [
+        [
+            "go to",
+            "visit",
+            "see"
+        ]
+    ],
+    "groups": [
+        [
+            "child",
+            "hamster",
+            "cat",
+            "maid",
+            "penguin",
+            "dolphin"
+        ],
+        [
+            "driving",
+            "piggy back ride",
+            "roller coaster",
+            "water slider",
+            "wheel barrow ride"
+        ],
+        [
+            "abs",
+            "chest",
+            "back",
+            "shoulders"
+        ],
+        [
+            "kiss",
+            "cpr",
+            "hug",
+            "wrestle",
+            "massage"
+        ],
+        [
+            "kick",
+            "slap",
+            "play footsie",
+            "pull hair"
+        ],
+        [
+            "murder",
+            "speeding",
+            "shoplift",
+            "spying",
+            "lie"
+        ],
+        [
+            "underwear",
+            "swimsuit",
+            "lingerie",
+            "collar",
+            "socks",
+            "earrings"
+        ],
+        [
+            "Christmas",
+            "Halloween",
+            "Wedding Day",
+            "Birthday"
+        ],
+        [
+            "Visit Dentist",
+            "Go on a Date",
+            "Go Fishing",
+            "Go to Church",
+            "Go to a Stripclub",
+            "Visit Reltives",
+            "Do Volunteer Work",
+            "Visit Petstore",
+            "Visit Zoo",
+            "Go to a Funeral"
+        ],
+        [
+            "Visit an art museum",
+            "Go to a strip club",
+            "Visit a cemetary",
+            "Go to a themepark",
+            "Go to the beach",
+            ""
+        ],
+        [],
+        [],
+        [],
+        []
+    ]
+}

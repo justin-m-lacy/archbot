@@ -30,6 +30,9 @@ export class Keystore {
 
     private _decrypted:boolean = false;
 
+    private _nonce:number[]|null = null;
+    private _version:string|null = null;
+
     /// Only relevant if keystore needs to be reencrypted.
     private _compressed:boolean = false;
 
@@ -41,13 +44,22 @@ export class Keystore {
 
             this._keystore = JSON.parse( Buffer.from(keystoreBase64, 'base64url').toString('utf8' )) as EncodedKeystore;
     
+            this._nonce = this._keystore.nonce;
+            this._version = this._keystore.version;
+
             const decoded = await decryptData(
                 Uint8Array.from(this._keystore.sdata),
                 encryptionKey,
                 Uint8Array.from( this._keystore.nonce ) );
 
+                if ( decoded ){
+                console.dir(JSON.parse(decoded));
+                }
+
             const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreData)?.keys : undefined;
             
+
+    
             this._keyMap = {};
             if ( keystoreKeys ) {
 
@@ -74,7 +86,14 @@ export class Keystore {
             // Existing keystore should be required for nonce?
             if ( !this._keystore) return;
 
-            return this._keystore;
+            const keystoreData = JSON.stringify( {keys:this._keyMap});
+    
+            this._keystore = {
+                nonce:this._nonce!,
+                version:this._version!,
+                sdata:Array.from( Buffer.from(keystoreData).values() )
+            }
+            return Buffer.from( JSON.stringify(this._keystore), 'utf8' ).toString('base64url');
 
 
         } catch(e){
@@ -110,21 +129,25 @@ export class Keystore {
 
     }
 
-    async encrypt( meta:string, plaintext:string ) {
+    /**
+     * @param meta 
+     * @param dataObject 
+     * @returns encrypted plaintext as base64 encoded string.
+     */
+    async encrypt( meta:string, dataObject:any, compressed?:boolean ) {
 
         if ( !this._decrypted) throw new Error('Keystore not decrypted.');
 
         const useKey = this._keyMap?.[meta];
         if ( !useKey) throw new Error('Key not found.');
 
-        /// 16 byte nonce needs to be prepended to data?
-        /// automatic or not?
+        /// 16 byte nonce needs to be prepended to data.
 
+        const plaintext = JSON.stringify(dataObject);
         const nonce = randomBytes(NONCE_SIZE);
-        const data = await encryptData( new Uint8Array( Buffer.from(plaintext)), useKey, nonce);
+        const data = await encryptData( new Uint8Array( Buffer.from( plaintext)), useKey, nonce, compressed );
 
         return data ? Buffer.from(data).toString('base64') : '';
-
 
     }
 
@@ -132,7 +155,7 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt( {meta,data}:{meta:string, data:string}){
+    async decrypt<T=any>( {meta,data}:{meta:string, data:string}){
     
         if ( !this._decrypted) {
             console.log(`keystore not decrypted.`);
@@ -146,7 +169,8 @@ export class Keystore {
             return;
         }
 
-        return await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
+        const plaintext = await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
+        return plaintext ? JSON.parse(plaintext) as T : undefined;
 
     }
 

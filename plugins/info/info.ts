@@ -1,6 +1,6 @@
 import { BotContext, ContextSource } from '@src/bot/botcontext';
 import { Message } from 'discord.js';
-import { DiscordBot } from '../../src/bot/discordbot';
+import { DiscordBot } from '@src/bot/discordbot';
 
 type Info = { i: string, uid: string, t: number };
 

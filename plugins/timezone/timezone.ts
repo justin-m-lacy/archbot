@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { DiscordBot } from '../../src/bot/discordbot';
-import { archGet } from '../../src/utils/fetch';
+import { DiscordBot } from '@src/bot/discordbot';
+import { archGet } from '@src/utils/fetch';
 
 /**
  * Allow display of other timezones using world time zone API.

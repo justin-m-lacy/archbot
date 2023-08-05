@@ -1,5 +1,5 @@
 import { Message } from 'discord.js';
-import { DiscordBot } from '../../src/bot/discordbot';
+import { DiscordBot } from '@src/bot/discordbot';
 
 let responses: string[];
 

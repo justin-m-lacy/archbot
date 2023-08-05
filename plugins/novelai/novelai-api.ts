@@ -25,7 +25,7 @@ export const getNovelApi = ( accessToken:string )=>{
         return archPatch<T>(API_URL+path, data, headers);
     }
     const put = async <T>(path:String, data?:{[key:string]:unknown})=>{
-        return makeRequest( API_URL+path, 'PUT', data, headers);
+        return makeRequest<T>( API_URL+path, 'PUT', data, headers);
     }
 
 return {
@@ -52,7 +52,15 @@ return {
         return result.keystore;
 
     },
+
+    putKeystore:async(encodedKeystore:{[key:string]:unknown})=>{
+
+        const result = await put<any>('/user/keystore', encodedKeystore);
+        console.dir(result);
     
+        return result;
+
+    },
     
     getStories:async ()=>{
     
@@ -87,7 +95,7 @@ return {
         changeIndex:0
     }) => {
 
-        const result =  await put<unknown>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
+        const result =  await put<StoryContent>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
 
         return result;
     },

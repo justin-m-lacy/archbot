@@ -1,6 +1,6 @@
-import { archGet } from "../../src/utils/fetch";
+import { archGet } from "@src/utils/fetch";
 import { Message } from "discord.js";
-import { DiscordBot } from '../../src/bot/discordbot';
+import { DiscordBot } from '@src/bot/discordbot';
 
 const ApiUrl = "https://animechan.vercel.app/api/random";
 

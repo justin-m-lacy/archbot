@@ -1,3 +1,13 @@
+
+/**
+ * Versions used for local content creation.
+ */
+export const STORY_METADATA_VERSION = 1;
+// unknown
+export const STORY_CONTENT_VERSION = 1;
+
+export const LOREBOOK_VERSION = 5;
+
 // Indicates data will be encrypted.
 export type EncryptedData = string;
 
@@ -47,14 +57,16 @@ export interface Story {
 }
 
 export interface StoryData {
-    storyMetadataVersion:1,
+    storyMetadataVersion:number,
 
     /**
-     * Equal to remote id. Length 36?
+     * Length 36?
      * Remote id is used to fetch from server.
      */
     id:string,
     remoteId:string,
+
+    // Equal to StoryContent id.
     remoteStoryId:string,
     title:string,
     description:string,
@@ -78,6 +90,29 @@ export interface StoryContent {
     type:ObjectType.StoryContent
 }
 
+export interface StoryContentData {
+
+    title:string,
+    storyContentVersion:number,
+    settings:object,
+    story:{
+        version:number,
+        step:number,
+        datablocks:StoryBlock[],
+        currentBlock:number,
+        fragments:StoryFragment[]
+    },
+    context:{
+        text:string, contextConfig:object
+    }[],
+    lorebook:Lorebook,
+    storyContextConfig:StoryContextConfig,
+    ephemeralContext:unknown,
+    didGenerate:boolean,
+    settingsDirty:boolean,
+
+}
+
 interface StoryContextConfig {
     prefix:string,
     suffix:string,
@@ -90,11 +125,27 @@ interface StoryContextConfig {
     allowInsertionInside:number
 }
 
-export interface LoreBook {
-    lorebookVersion:number,
-    entries:object[],
-    settings:object,
-    categories:[]
+export interface LorebookEntry {
+    id:string;
+    text:string;
+    contextConfig:object;
+    lastUpdatedAt:number;
+    displayName:string;
+    keys:string[];
+    searchRange:number;
+    enabled:boolean;
+    forceActivation:boolean;
+    keyRelative:boolean;
+    nonStoryActivatable:boolean;
+    category:string;
+    loreBiasGroups:Array<any>;
+}
+
+export interface Lorebook {
+    lorebookVersion:number;
+    entries:LorebookEntry[];
+    settings:object;
+    categories:[];
 }
 
 type ContentOrigin = 'user'|'root'|'prompt'|'ai'|'edit';
@@ -114,29 +165,6 @@ export interface StoryBlock {
     fragmentIndex:number,
     removedFragments:object[],
     chain:boolean
-}
-export interface StoryContentData {
-
-    id:string,
-    title:string,
-    storyContentVersion:number,
-    settings:object,
-    story:{
-        version:number,
-        step:number,
-        datablocks:object[],
-        currentBlock:number,
-        fragments:object[]
-    },
-    context:{
-        text:string, contextConfig:object
-    }[],
-    lorebook:LoreBook,
-    storyContextConfig:StoryContextConfig,
-    ephemeralContext:unknown,
-    didGenerate:boolean,
-    settingsDirty:boolean,
-
 }
 
 export type GenerateParams = Partial<{

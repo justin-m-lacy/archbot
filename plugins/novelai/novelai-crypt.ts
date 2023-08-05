@@ -99,7 +99,6 @@ export async function encryptData( data:Uint8Array, key:Uint8Array, nonce:Uint8A
         result = secretBox(key, nonce, result );
 
         if ( !startsWith(result, nonce)){
-            console.log(`Adding nonce.`);
             result = addDataPrefix( result, nonce);
         }
 

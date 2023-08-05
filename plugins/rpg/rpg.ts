@@ -1,9 +1,9 @@
 import { Formula } from 'formulic';
 import { Message, User } from "discord.js";
-import { BotContext } from '../../src/bot/botcontext';
+import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
 import Game from './game';
-import { DiscordBot } from '../../src/bot/discordbot';
+import { DiscordBot } from '@src/bot/discordbot';
 import { toDirection } from "./world/loc";
 import { HumanSlot } from './items/wearable';
 
@@ -17,7 +17,7 @@ import * as ItemGen from './items/itemgen';
 import * as TNameGen from './namegen';
 import * as display from './display';
 import * as gamejs from './game';
-import { replyEmbedUrl } from '../../src/embeds';
+import { replyEmbedUrl } from '@src/embeds';
 
 const RPG_DIR = 'rpg/';
 const CHAR_DIR = 'chars/';
@@ -40,7 +40,6 @@ export class Rpg {
 	constructor(context: BotContext<any>) {
 
 		this.context = context;
-		console.log("Creating RPG instance.");
 
 		this.cache = this.context.subcache(RPG_DIR);
 		this.charCache = this.cache.subcache(CHAR_DIR, Char.FromJSON);

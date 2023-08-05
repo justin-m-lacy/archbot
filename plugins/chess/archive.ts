@@ -1,4 +1,4 @@
-import { BotContext, ContextSource } from '../../src/bot/botcontext';
+import { BotContext, ContextSource } from '@src/bot/botcontext';
 const Export = require('./export');
 const Game = require('./game');
 

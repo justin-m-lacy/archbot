@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import { DiscordBot } from '../../src/bot/discordbot';
-import { getSenderName } from '../../src/utils/users';
+import { DiscordBot } from '@src/bot/discordbot';
+import { getSenderName } from '@src/utils/users';
 
 let results: string[];
 let bot: DiscordBot;

@@ -1,5 +1,5 @@
-import { DiscordBot } from '../../src/bot/discordbot';
-import { BotContext, ContextSource } from '../../src/bot/botcontext';
+import { DiscordBot } from '@src/bot/discordbot';
+import { BotContext, ContextSource } from '@src/bot/botcontext';
 import { Message } from 'discord.js';
 
 class Quoter {

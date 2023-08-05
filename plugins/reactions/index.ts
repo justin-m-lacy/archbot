@@ -1,10 +1,10 @@
 import { Message, PermissionFlagsBits} from 'discord.js';
 import { ReactSet } from './reactset';
-import { Display } from '../../src/display';
-import { BotContext, ContextSource } from '../../src/bot/botcontext';
+import { Display } from '@src/display';
+import { BotContext, ContextSource } from '@src/bot/botcontext';
 import { Reaction } from './reaction';
-import { DiscordBot } from '../../src/bot/discordbot';
-import { replyEmbedUrl, getEmbedUrl } from '../../src/embeds';
+import { DiscordBot } from '@src/bot/discordbot';
+import { replyEmbedUrl, getEmbedUrl } from '@src/embeds';
 
 /**
  * @const {number} PROC_RATE - Base Proc chance to try any reaction.
@@ -604,7 +604,6 @@ class GuildReactions {
 
 		try {
 
-			console.log('loading guild reactions.');
 			let reactData = await this._context.fetchData(this._context.getDataKey('reactions', 'reactions'));
 			if (!reactData) return null;
 
