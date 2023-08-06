@@ -134,7 +134,7 @@ class NovelAiPlugin {
 
 }
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
     bot.addContextCmd('story', 'story [prompt]', NovelAiPlugin.prototype.cmdStory, NovelAiPlugin,
     { minArgs: 1, maxArgs: 1, group: 'right', alias:'s' });

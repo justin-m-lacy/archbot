@@ -721,7 +721,7 @@ const toRegEx = (s: string) => {
  * Initialize plugin.
  * @param {DiscordBot} bot
  */
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	const parsed = parseReacts(require('./reactions-data.json'));
 	globalReacts = parsed.strings;

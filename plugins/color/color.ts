@@ -7,7 +7,7 @@ const colorRE = /^(?:\#|0x)([a-f|\d]{1,6})\b/i;
 
 const IMG_SIZE = 16;
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.dispatch.add('color', 'color color', cmdColor, { minArgs: 1, maxArgs: 1 });
 }

@@ -167,7 +167,7 @@ class WordWolfPlugin implements IWolfPlugin{
 
 }
 
-export const init = (bot:DiscordBot)=>{
+export const initPlugin = (bot:DiscordBot)=>{
 
     bot.addContextCmd('wolf', 'Join wolf game.', WordWolfPlugin.prototype.cmdJoin, WordWolfPlugin,
     { maxArgs:0, });

@@ -3,7 +3,7 @@ import { DiscordBot } from '@src/bot/discordbot';
 
 let responses: string[];
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.addCmd('who', 'who <condition>', cmdWho, { maxArgs: 1 });
 

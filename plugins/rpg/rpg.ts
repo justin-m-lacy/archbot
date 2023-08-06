@@ -882,7 +882,7 @@ export class Rpg {
 
 } // class
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	var proto = Rpg.prototype;
 

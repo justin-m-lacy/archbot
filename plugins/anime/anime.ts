@@ -4,7 +4,7 @@ import { DiscordBot } from '@src/bot/discordbot';
 
 const ApiUrl = "https://animechan.vercel.app/api/random";
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.dispatch.add('aquote', 'aquote - get inspirational anime quote.', cmdGetQuote, { maxArgs: 0 });
 

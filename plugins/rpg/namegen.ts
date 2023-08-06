@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
 import { DiscordBot } from '@src/bot/discordbot';
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.addCmd('rollname', 'rollname [<race>] [m|f]', cmdRollName, { minArgs: 0, maxArgs: 2 });
 

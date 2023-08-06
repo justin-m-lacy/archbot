@@ -79,7 +79,7 @@ class Quoter {
 
 }
 
-export function init(bot: DiscordBot) {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.addContextCmd('quote', 'quote', Quoter.prototype.cmdQuote, Quoter);
 	bot.addContextCmd('mkquote', 'mkquote ["stupid quote"]', Quoter.prototype.cmdNewQuote, Quoter);

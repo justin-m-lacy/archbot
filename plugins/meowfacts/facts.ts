@@ -4,7 +4,7 @@ import { DiscordBot } from '@src/bot/discordbot';
 
 const ApiUrl = "https://meowfacts.herokuapp.com/";
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.dispatch.add('meow', 'meow', cmdGetFact, { maxArgs: 0, hidden: true });
 

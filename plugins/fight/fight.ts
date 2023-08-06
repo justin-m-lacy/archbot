@@ -5,7 +5,7 @@ import { getSenderName } from '@src/utils/users';
 let results: string[];
 let bot: DiscordBot;
 
-export const init = (b: DiscordBot) => {
+export const initPlugin = (b: DiscordBot) => {
 
 	bot = b;
 	b.dispatch.add('fight', 'fight [user]', cmdFight, { maxArgs: 1 });

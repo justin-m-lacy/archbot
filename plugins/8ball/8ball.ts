@@ -3,7 +3,7 @@ import { Message } from "discord.js";
 
 var answers: string[];
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.dispatch.add('8ball', '8ball [question]', cmd8Ball, { maxArgs: 1 });
 

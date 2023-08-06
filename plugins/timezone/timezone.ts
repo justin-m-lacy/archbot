@@ -9,7 +9,7 @@ import { archGet } from '@src/utils/fetch';
 
 const TimeApiUrl = "http://worldtimeapi.org/api/timezone/";
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.dispatch.add('timezone', 'timezone [place]', cmdGetTime, { maxArgs: 1 });
 

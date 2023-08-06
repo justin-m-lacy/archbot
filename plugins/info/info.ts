@@ -107,7 +107,7 @@ class InfoPlugin {
 }
 
 
-export const init = (bot: DiscordBot) => {
+export const initPlugin = (bot: DiscordBot) => {
 
 	bot.addContextCmd('info', 'info <subject> [definition]',
 		InfoPlugin.prototype.cmdInfo, InfoPlugin, { minArgs: 1, maxArgs: 2, group: 'right' });

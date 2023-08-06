@@ -21,7 +21,7 @@ class ChatGtpPlugin {
     }
 }
 
-/*export const init = (bot: DiscordBot) => {
+/*export const initPlugin = (bot: DiscordBot) => {
 
 	bot.addContextCmd('ask', 'ask [anything]',
     ChatGtpPlugin.prototype.cmdAsk, ChatGtpPlugin, { minArgs: 1, maxArgs: 1, group: 'right' });

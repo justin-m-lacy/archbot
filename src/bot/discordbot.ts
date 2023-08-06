@@ -8,6 +8,7 @@ import { PluginFile } from "./plugsupport";
 import Cache from 'archcache';
 import fsys from './botfs';
 import { Display } from '../display';
+import { loadPlugins } from './plugsupport';
 
 const path = require('path');
 
@@ -106,10 +107,10 @@ export class DiscordBot {
 		// maps id->context id.
 		this.restoreProxies();
 
-		this.loadPlugins();
-
 		this._admins = auth.admins;
 		this._owner = auth.owner;
+
+		this.loadPlugins();
 
 		this.initBotEvents();
 
@@ -183,13 +184,13 @@ export class DiscordBot {
 	/**
 	 * Attempt to load plugins.
 	 */
-	loadPlugins() {
+	private async loadPlugins() {
 
 		if (this._plugsdir) {
 
 			try {
 
-				var plugins = require('./plugsupport').loadPlugins(this._plugsdir);
+				var plugins = await loadPlugins(this._plugsdir);
 				this.addPlugins(plugins);
 
 			} catch (e) { console.error(e); }
@@ -217,9 +218,7 @@ export class DiscordBot {
 
 			try {
 				const plug = plug_files[i];
-				if (plug.init) {
-					plug.init(this);
-				}
+				plug.initPlugin(this);
 			} catch (err) {
 				console.warn(`error initializing plugin: ${err}`);
 			}
@@ -681,13 +680,14 @@ export class DiscordBot {
 	 */
 	async makeContext(idobj: ContextSource, type?: ChannelType) {
 
-		console.log('new context: ' + idobj.id);
 		let context;
 
 		if (idobj instanceof Guild) {
 			context = new GuildContext(this, idobj as Guild, this.cache.subcache(fsys.getGuildDir(idobj)));
 		} else if (idobj instanceof User) {
 			context = new UserContext(this, idobj as User, this.cache.subcache(fsys.getUserDir(idobj)));
+		} else {
+			console.log(`skip context for type: ${idobj.type}`)
 		}
 
 		if (context) {
