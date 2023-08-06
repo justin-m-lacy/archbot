@@ -6,14 +6,13 @@ import { StatMod, StatName, StatKey } from '../char/stats';
 // effect types. loading at bottom.
 const effects: { [name: string]: ProtoEffect } = {};
 
-const loadEffects = () => {
+const loadEffects = async () => {
 
-	let efx = require('../data/magic/effects.json');
+	const efx = (await import('../data/magic/effects.json')).default;
 	for (let i = efx.length - 1; i >= 0; i--) {
 
-		var e = efx[i];
 		//console.log('parsing effect: ' + e.name );
-		effects[e.name] = new ProtoEffect(e);
+		effects[efx[i].name] = new ProtoEffect(efx[i]);
 
 	} //for
 
@@ -59,7 +58,7 @@ export class ProtoEffect {
 
 	toJSON() {
 
-		let o = {
+		const o = {
 			mods: this._mods,
 			dot: this._dot,			// formulas have toJSON()?
 			time: this._time
@@ -115,7 +114,6 @@ export class Effect {
 
 	start(char: Actor) {
 
-
 		if (char instanceof Char) {
 			char.log(`${char.name} is affected by ${this.name}.`);
 		}
@@ -146,7 +144,7 @@ export class Effect {
 		if (this._time) {
 			this._time--;
 
-			let v = this.dot;
+			const v = this.dot;
 			if (v) {
 
 				let s = `${char.name} affected by ${this.name}.`;
@@ -156,7 +154,7 @@ export class Effect {
 				if (len > 0) {
 
 					s += ' ( ';
-					for (let k of v.setProps.keys()) {
+					for (const k of v.setProps.keys()) {
 						if (--len > 0) s += `${k}: ${char[k as keyof Char]}, `;
 						else s += `${k}: ${char[k as keyof Char]}`;
 					}
@@ -177,11 +175,9 @@ export class Effect {
 
 	applyMod(m: StatMod, char: Actor) {
 
-		console.log('name: ' + char.name);
+		for (const k in m) {
 
-		for (let k in m) {
-
-			let cur = char[k as keyof (typeof char)];
+			const cur = char[k as keyof (typeof char)];
 			if (cur) {
 				char[k as StatName] = cur + m[k as StatName];
 				if (char instanceof Char) {
@@ -195,7 +191,7 @@ export class Effect {
 
 	removeMod(m: StatMod, char: Actor) {
 
-		for (let k in m) {
+		for (const k in m) {
 
 			if (char[k as keyof Actor]) {
 				char[k as StatName] -= m[k as StatName] ?? 0;

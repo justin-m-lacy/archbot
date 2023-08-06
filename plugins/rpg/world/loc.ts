@@ -381,7 +381,7 @@ export class Loc {
 	 *
 	 * @param {Feature} f
 	 */
-	addFeature(f: Feature) { this._features.add(f); }
+	addFeature(f: Feature|null) { if ( f) this._features.add(f); }
 
 	/**
 	 *

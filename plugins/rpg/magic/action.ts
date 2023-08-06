@@ -1,11 +1,11 @@
 import Char from '../char/char';
-const dice = require('../dice');
+import * as dice from '../dice';
 
 class Action {
 
 	static FromJSON(json: any) {
 
-		let a = new Action(json.name);
+		const a = new Action(json.name);
 
 		Object.assign(a, json);
 
@@ -33,11 +33,10 @@ class Action {
 		// effects with different conditions for each one.
 		if (this.effects) {
 
-			let len = this.effects.length;
-			let e;
+			const len = this.effects.length;
 			for (let i = 0; i < len; i++) {
 
-				e = this.effects[i];
+				const e = this.effects[i];
 				if (this.checkRequire(char, e.require)) {
 					return this.applyEffect(char, e);
 				}
@@ -64,10 +63,10 @@ class Action {
 
 	applyEffect(char: Char, eff: any) {
 
-		let apply = eff.apply;
-		for (let k in apply) {
+		const apply = eff.apply;
+		for (const k in apply) {
 
-			var val = apply[k];
+			const val = apply[k];
 			if (typeof (val) === 'object') {
 
 				// @ts-ignore
@@ -89,11 +88,12 @@ class Action {
 }
 
 const actions: { [name: string]: Action } = {};
-const loadActions = () => {
+const loadActions = async () => {
 
-	let data = require('../data/magic/actions.json');
+	const data = (await import('../data/magic/actions.json')).default;
 
-	for (let k in data) {
+	let k:keyof typeof data;
+	for (k in data) {
 		actions[k] = Action.FromJSON(data[k]);
 	}
 }

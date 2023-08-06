@@ -1,9 +1,8 @@
-import { Coord, Loc, Exit, DirVal, Biome } from './loc';
-const itemgen = require('../items/itemgen');
-const biomes = require('../data/world/biomes.json');
+import { Coord, Loc, Exit, Biome } from './loc';
+import * as ItemGen from '../items/itemgen';
+import  Biomes from '../data/world/biomes.json';
 
-
-
+type BiomeName = keyof typeof Biomes;
 
 /**
  * Generate a new location without any starting information.
@@ -11,7 +10,7 @@ const biomes = require('../data/world/biomes.json');
 export const genNew = (coord: Coord) => {
 
 	// note that a new coord must be used to avoid references.
-	let loc = makeBiomeLoc(new Coord(coord.x, coord.y), Biome.TOWN);
+	const loc = makeBiomeLoc(new Coord(coord.x, coord.y), Biome.TOWN);
 	loc.exits = genExits(coord.x, coord.y);
 
 	return loc;
@@ -26,15 +25,15 @@ export const genNew = (coord: Coord) => {
  */
 export const genLoc = (coord: Coord, from: Loc, exits: Exit[]) => {
 
-	let biomeName = from ? randBiome(from.biome) : Biome.TOWN;
-	let loc = makeBiomeLoc(coord, biomeName);
+	const biomeName = from ? randBiome(from.biome as BiomeName) : Biome.TOWN;
+	const loc = makeBiomeLoc(coord, biomeName as BiomeName);
 
 	for (let i = exits.length - 1; i >= 0; i--) {
 		loc.addExit(exits[i]);
 	}
 
 	while (Math.random() < 0.1) {
-		loc.addFeature(itemgen.genFeature());
+		loc.addFeature(ItemGen.randFeature());
 	}
 
 	return loc;
@@ -56,19 +55,15 @@ export const genExits = (x: number, y: number) => {
 
 }
 
-export const makeBiomeLoc = (coord: Coord, biomeName?: string) => {
+export const makeBiomeLoc = (coord: Coord, biomeName: keyof typeof Biomes=Biome.PLAINS) => {
 
-	if (biomeName == null) {
-		biomeName = Biome.PLAINS;
-		console.warn(biomeName + ' is not a valid biome.');
-	}
-	let tmpl = biomes[biomeName];
+	const tmpl = Biomes[biomeName];
 	if (tmpl == null) {
-		console.warn('NO BIOME: ' + biomeName);
+		console.warn('MISSING BIOME: ' + biomeName);
 	}
-	let loc = new Loc(coord, biomeName);
+	const loc = new Loc(coord, biomeName);
 
-	let descs = tmpl.descs;
+	const descs = tmpl.descs;
 	loc.desc = descs[Math.floor(Math.random() * descs.length)];
 
 	return loc;
@@ -80,19 +75,21 @@ export const makeBiomeLoc = (coord: Coord, biomeName?: string) => {
  * 
  * @param {string} prevBiome - name of previous biome.
  */
-function randBiome(prevBiome: string) {
+function randBiome(prevBiome: keyof typeof Biomes) {
 
-	let biome = biomes[prevBiome];
+	const biome = Biomes[prevBiome];
 	if (biome == null) {
 		console.warn('unknown biome: ' + prevBiome);
 		return Biome.TOWN;
 	}
 
-	let trans = biome.trans;
-	let w = Math.random() * getTransMax(trans);
+	const trans = biome.trans;
+	const w = Math.random() * getTransMax(trans);
 
 	let tot = 0;
-	for (let k in trans) {
+
+	let k:keyof typeof trans;
+	for (k in trans) {
 
 		tot += trans[k];
 		if (w <= tot) {

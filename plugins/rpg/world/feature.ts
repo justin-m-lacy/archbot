@@ -1,6 +1,6 @@
 import Char from '../char/char';
 import { Item, ItemType } from '../items/item';
-const acts = require('../magic/action');
+import * as acts from'../magic/action';
 
 export default class Feature extends Item {
 
@@ -17,6 +17,7 @@ export default class Feature extends Item {
 
 	static FromJSON(json: any) {
 
+		/// todo: terrible
 		let f = new Feature(json.name, json.desc);
 
 		if (json.action) {
@@ -24,7 +25,7 @@ export default class Feature extends Item {
 		}
 		if (json.fb) f.fb = json.fb;
 
-		return Item.FromJSON(json, f);
+		return Item.FromJSON(json, f) as Feature;
 
 	}
 

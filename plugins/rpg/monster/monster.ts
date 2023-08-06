@@ -4,10 +4,9 @@ import { Item } from '../items/item';
 import { Biome } from '../world/loc';
 import { roll } from '../dice';
 import Weapon from '../items/weapon';
-const form = require('../formulas');
-
-const dice = require('../dice');
-const stats = require('../char/stats');
+import {DamageSrc} from '../formulas';
+import {Roller} from '../dice';
+import * as stats from '../char/stats';
 
 // var formulas to parse.
 const parseVars = ['hp', 'armor', 'toHit', 'mp'];
@@ -16,45 +15,37 @@ const parseVars = ['hp', 'armor', 'toHit', 'mp'];
 const templates: { [name: string]: MonsterTemplate } = {};
 const byLevel: (MonsterTemplate[])[] = [];
 
-const initTemplates = () => {
+const initTemplates = async () => {
 
-	let raw = require('../data/npc/monster.json') as MonsterTemplate[];
+	const raw = (await import('../data/npc/monster.json')).default;
 
-	let a: MonsterTemplate[];
-	let tot = 0;
 	for (let k = raw.length - 1; k >= 0; k--) {
 
-		var t = parseTemplate(raw[k]);
+		const t = parseTemplate(raw[k]);
 
-		tot++;
 		templates[t.name] = t;
 
-		a = byLevel[Math.floor(t.level)];
-		if (!a) byLevel[Math.floor(t.level)] = a = [];
+		const a = byLevel[Math.floor(t.level)] ?? (byLevel[Math.floor(t.level)] = []);
 		a.push(t);
 
 	}
-	for (let k = byLevel.length - 1; k >= 0; k--) {
-		a = byLevel[k];
-	}
-
 }
 initTemplates();
 
 function parseTemplate(json: any) {
 
-	let t = Object.assign({}, json);
+	const t = Object.assign({}, json);
 
 	for (let i = parseVars.length - 1; i >= 0; i--) {
 
-		var v = parseVars[i];
-		var s = t[v];
+		const v = parseVars[i];
+		const s = t[v];
 		if (typeof (s) !== 'string' || !Number.isNaN(s)) continue;
 
-		t[v] = dice.Roller.FromString(s);
+		t[v] = Roller.FromString(s);
 
 	}
-	if (t.dmg) { t.dmg = new form.DamageSrc.FromJSON(t.dmg); }
+	if (t.dmg) { t.dmg = DamageSrc.FromJSON(t.dmg); }
 	if (t.weap) {
 		t.weap = Weapon.FromData(t.weap);
 	}
@@ -65,16 +56,16 @@ function parseTemplate(json: any) {
 
 const create = (template: any) => {
 
-	let m = new Monster();
+	const m = new Monster();
 
-	for (let k in template) {
+	for (const k in template) {
 
 		// roll data formulas into concrete numbers.
 		var v = template[k];
 		if (v instanceof Formula) {
 			// @ts-ignore
 			m[k] = v.eval(m);
-		} else if (v instanceof dice.Roller) {
+		} else if (v instanceof Roller) {
 			// @ts-ignore
 			m[k] = v.roll();
 		} else {
@@ -116,24 +107,22 @@ export default class Monster {
 	static RandMonster(lvl: number, biome?: string) {
 
 		lvl = Math.floor(lvl);
-		var a;
 
 		if (biome) {
 
-			let ind, mons, start;
+			let ind, start;
 			do {
 
-				a = byLevel[lvl];
+				const a = byLevel[lvl];
 				if (!a || a.length === 0) continue;
 
 				ind = start = Math.floor(a.length * Math.random());
 				do {
 
-					mons = a[ind];
+					const mons = a[ind];
 					if (!mons.biome || mons.biome === biome ||
 						(Array.isArray(mons.biome) && !mons.biome.includes(biome)))
 						return create(mons);
-					console.log('WRONG BIOME: ' + mons.name);
 					ind = (ind + 1) % a.length;
 
 				} while (ind !== start);
@@ -143,7 +132,7 @@ export default class Monster {
 		}
 
 		do {
-			a = byLevel[lvl];
+			const a = byLevel[lvl];
 			if (a && a.length > 0) return create(a[Math.floor(a.length * Math.random())]);
 
 		} while (--lvl >= 0);
@@ -310,7 +299,7 @@ export default class Monster {
 
 	getDetails() {
 
-		let kind = this._kind ? ` ${this._kind}` : '';
+		const kind = this._kind ? ` ${this._kind}` : '';
 		return `level ${this._level} ${this._name} [${stats.getEvil(this._evil)}${kind}]\nhp:${this._curHp}/${this._maxHp} armor:${this._armor}\n${this._desc}`;
 
 	}

@@ -11,18 +11,20 @@ import Grave from './grave';
 import Chest from './chest';
 import baseWeapons from '../data/items/weapons.json';
 import baseArmors from '../data/items/armors.json';
+import featureList from '../data/world/features.json';
 
 type RawArmorData = (typeof baseArmors)[number];
 type RawWeaponData = (typeof baseWeapons)[number];
+type RawPotionData = (typeof import('../data/items/potions.json'))[number]&{type?:string};
+
 type RawItemData = (typeof import('../data/items/items.json')['misc'|'special'][number])
 
-const allItems: { [str: string]: RawItemData } = {};
-let allPots: { [name: string]: Potion };
-let potsByLevel: { [key: number]: Potion[] };
+const allItems: { [str: string]: RawItemData|RawPotionData } = {};
+const allPots: { [name: string]: RawPotionData } = {};
+const potsByLevel: { [key: number]: RawPotionData[] } = [];
 
 let miscItems: RawItemData[];
-let featureByName: { [key: string]: Feature };
-let featureList: Feature[];
+const featureByName: { [key: string]: typeof featureList[number] } = {};
 
 
 const armorBySlot: Partial<{ [Property in HumanSlot]: RawArmorData[] }> = {};
@@ -39,8 +41,8 @@ Material.LoadMaterials();
 
 async function initItems() {
 
-	var items = (await import('../data/items/items.json')).default;
-	var spec = items.special;
+	const items = (await import('../data/items/items.json')).default;
+	const spec = items.special;
 
 	miscItems = items.misc;
 
@@ -54,42 +56,37 @@ async function initItems() {
 
 }
 
-function initPots() {
+async function initPots() {
 
-	allPots = {};
-	potsByLevel = [];
+	const pots = (await import('../data/items/potions.json')).default;
 
-	let pots = require('../data/items/potions.json');
-
-	let p, name, a;
 	for (let i = pots.length - 1; i >= 0; i--) {
 
-		p = pots[i];
+		const p:RawPotionData = pots[i];
 		p.type = ItemType.Potion;	// assign type.
 
-		name = p.name.toLowerCase();
+		const name = p.name.toLowerCase();
 		allItems[name] = allPots[name] = p;
 
-		a = potsByLevel[p.level];
-		if (!a) potsByLevel[p.level] = a = [];
+		const a = potsByLevel[p.level] ?? (potsByLevel[p.level] = []);
 		a.push(p);
 
 	}
 
+	return allPots;
+
 }
 
-function initChests() {
+async function initChests() {
 
-	let packs = require('../data/items/chests.json');
+	const packs = require('../data/items/chests.json');
 
-	let p, name, a;
 	for (let i = packs.length - 1; i >= 0; i--) {
 
-		p = packs[i];
+		const p = packs[i];
 		p.type = 'chest';	// assign type.
 
-		name = p.name.toLowerCase();
-		allItems[name] = p;
+		allItems[p.name.toLowerCase()] = p;
 
 	}
 
@@ -157,10 +154,10 @@ export const genWeapon = (lvl: number) => {
 	if (mat === null) { console.log('material is null'); return null; }
 
 	//console.log( 'weaps len: ' + baseWeapons.length );
-	let tmp = baseWeapons[Math.floor(baseWeapons.length * Math.random())];
+	const tmp = baseWeapons[Math.floor(baseWeapons.length * Math.random())];
 
 	if (!tmp) {
-		console.log('weapon template is null.');
+		console.log('weapon template null.');
 		return null;
 	}
 
@@ -170,14 +167,14 @@ export const genWeapon = (lvl: number) => {
 
 export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 
-	let mat = Material.Random(lvl);
+	const mat = Material.Random(lvl);
 	if (mat === null) { console.log('material is null'); return null; }
 
 	let tmp;
 	if (slot) {
 		tmp = getSlotRand(slot, lvl);
 	} else {
-		let list = baseArmors.filter((t: RawArmorData) => !t.level || t.level <= lvl);
+		const list = baseArmors.filter((t: RawArmorData) => !t.level || t.level <= lvl);
 		tmp = list[Math.floor(list.length * Math.random())];
 	}
 
@@ -205,9 +202,9 @@ export const randFeature = () => {
 
 export const genLoot = (mons: Monster) => {
 
-	let lvl = Math.floor(mons.level);
+	const lvl = Math.floor(mons.level);
 
-	let loot: Loot = {
+	const loot: Loot = {
 		items: [
 
 		],
@@ -228,7 +225,7 @@ export const genLoot = (mons: Monster) => {
 
 	if (mons.drops) {
 		console.log('GETTING MONS DROPS.');
-		let itms = getDrops(mons);
+		const itms = getDrops(mons);
 		if (itms) loot.items = loot.items!.concat(itms);
 	}
 
@@ -239,12 +236,12 @@ export const genLoot = (mons: Monster) => {
 
 const getDrops = (mons: Monster) => {
 
-	let drops = mons.drops;
+	const drops = mons.drops;
 	if (!drops) return;
 
 	if (Array.isArray(drops)) {
 
-		let it = drops[Math.floor(Math.random() * drops.length)];
+		const it = drops[Math.floor(Math.random() * drops.length)];
 		return procItem(it);
 
 	} else if (typeof (drops) === 'string') {
@@ -253,17 +250,17 @@ const getDrops = (mons: Monster) => {
 
 	} else {
 
-		let it, itms = [];
-		for (let k in drops) {
+		const items = [];
+		for (const k in drops) {
 
 			if (100 * Math.random() < drops[k]) {
-				it = procItem(k);
-				if (it) itms.push(it);
+				const it = procItem(k);
+				if (it) items.push(it);
 				else console.log('item not found: ' + k);
 			}
 
 		}
-		return itms;
+		return items;
 
 	}
 
@@ -271,10 +268,8 @@ const getDrops = (mons: Monster) => {
 
 const procItem = (name: string) => {
 
-	let data = allItems[name];
-	if (!data) return null;
-
-	return fromJSON(data);
+	const data = allItems[name];
+	return data ? fromJSON(data) :null;
 
 }
 
@@ -283,7 +278,7 @@ const procItem = (name: string) => {
  */
 export const getMiscItem = () => {
 
-	let it = miscItems[Math.floor(miscItems.length * Math.random())];
+	const it = miscItems[Math.floor(miscItems.length * Math.random())];
 	return fromJSON(it);
 
 }
@@ -292,31 +287,26 @@ export const getMiscItem = () => {
  * Create named feature from data.
  * @param {string} s
  */
-const getFeature = (s: string) => {
-	let d = featureByName[s];
-	if (d) return Feature.FromJSON(d);
-	return null;
+export const genFeature = (s: string) => {
+	const d = featureByName[s];
+	return d ? Feature.FromJSON(d) : null;
 }
 
-function initFeatures() {
 
-	//console.log('INIT FEATURES');
-	featureList = require('../data/world/features.json');
-	featureByName = {};
+function initFeatures() {
 
 	for (let i = featureList.length - 1; i >= 0; i--) {
 		featureByName[featureList[i].name] = featureList[i];
 	}
-	//console.log('INIT FEATURES DONE');
 
 }
 
 export const potsList = (level: number) => {
 
-	let a = potsByLevel[level];
+	const a = potsByLevel[level];
 	if (!a) return 'No potions of level ' + level + '.';
 
-	let len = a.length;
+	const len = a.length;
 	//let p = a[0];
 	let s = `${a[0].name}`;
 	for (let i = 1; i < len; i++) s += `, ${a[i].name}`;
