@@ -13,7 +13,9 @@
             "cat",
             "maid",
             "penguin",
-            "dolphin"
+            "dolphin",
+            "babysitter",
+            "boy"
         ],
         [
             "driving",
@@ -24,29 +26,37 @@
         ],
         [
             "abs",
-            "chest",
             "back",
-            "shoulders"
+            "breasts",
+            "ass",
+            "shoulders",
+            "steak",
+            "waist",
+            "tummy"
         ],
         [
-            "kiss",
+            "kissing",
             "cpr",
-            "hug",
-            "wrestle",
-            "massage"
+            "hugging",
+            "wrestling",
+            "massage",
+            "licking"
         ],
         [
             "kick",
             "slap",
             "play footsie",
-            "pull hair"
+            "pull hair",
+            "lick",
+            "spit on"
         ],
         [
             "murder",
             "speeding",
             "shoplift",
             "spying",
-            "lie"
+            "lie",
+            "stripping"
         ],
         [
             "underwear",
@@ -54,37 +64,123 @@
             "lingerie",
             "collar",
             "socks",
-            "earrings"
+            "earrings",
+            "armor"
         ],
         [
             "Christmas",
             "Halloween",
             "Wedding Day",
-            "Birthday"
+            "Birthday",
+            "Valentine's Day",
+            "Hanukkah"
         ],
         [
             "Visit Dentist",
             "Go on a Date",
             "Go Fishing",
             "Go to Church",
-            "Go to a Stripclub",
+            "Go to a strip club",
             "Visit Reltives",
             "Do Volunteer Work",
             "Visit Petstore",
             "Visit Zoo",
-            "Go to a Funeral"
+            "Go to a Funeral",
+            "Go to a theme park",
+            "Go to the beach",
+            "Visit an art museum"
         ],
         [
-            "Visit an art museum",
-            "Go to a strip club",
-            "Visit a cemetary",
-            "Go to a themepark",
-            "Go to the beach",
-            ""
+            "barbeque",
+            "tanning booth",
+            "oven",
+            "lava",
+            "electric blanket",
+            "sauna",
+            "hot tub"
         ],
-        [],
-        [],
-        [],
-        []
+        [
+            "the birds and the bees",
+            "flora and fauna",
+            "war",
+            "evolution",
+            "puberty",
+            "wrestling",
+            "eating"
+        ],
+        [
+            "intelligent",
+            "evil",
+            "lazy",
+            "lucky",
+            "pretty",
+            "arrogant",
+            "ugly",
+            "greedy",
+            "pervy",
+            "polite"
+        ],
+        [
+            "math",
+            "headache",
+            "groping",
+            "public speaking",
+            "stripping",
+            "reading"
+        ],
+        [
+            "eyes",
+            "nipples",
+            "arms",
+            "nostrils",
+            "testicles",
+            "breasts",
+            "lungs",
+            "feet"
+        ],
+        [
+            "heart",
+            "brain",
+            "stomach",
+            "computer",
+            "appendix"
+        ],
+        [
+            "computer",
+            "phone",
+            "car",
+            "gun",
+            "knife"
+        ],
+        [
+            "brother",
+            "sister",
+            "son",
+            "daughter",
+            "doctor",
+            "dog",
+            "therapist",
+            "priest",
+            "best friend"
+        ],
+        [
+            "soldier",
+            "cheerleader",
+            "doctor",
+            "dentist",
+            "lawyer",
+            "priest",
+            "stripper",
+            "garbage man",
+            "politician",
+            "gymnast",
+            "magician"
+        ],
+        [
+            "appendix",
+            "tonsils",
+            "wisdom teeth",
+            "chat filter"
+        ]
     ]
 }

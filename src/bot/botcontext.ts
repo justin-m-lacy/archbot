@@ -317,10 +317,11 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 
 		if (!id) return 'Invalid ID';
 
-		let u = await this.bot.client.users.fetch(id);
-
-		// todo: return null instead.
-		return u ? u.username : 'Unknown User';
+		try {
+			return (await this.bot.client.users.fetch(id)).username;
+		} catch {
+		}
+		return "Unknown User";
 
 	}
 
@@ -337,21 +338,41 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 
 	}
 
+	async getUser( id:string){
+		try {
+			/// fetch checks cache first.
+			return await this.bot.client.users.fetch(id);
+		} catch {
+			return null;
+		}
+	}
+
+	async getChannel(id:string) {
+		try {
+			/// fetch checks cache first.
+			return await this.bot.client.channels.fetch(id);
+		} catch {
+			return null;
+		}
+	}
+
 	/**
 	 * Override in botcontext subclasses to find named user within context.
 	 * @param {string} name
 	 * @returns {null} overridden in subclasses.
 	 */
-	findUser(name: string): User | GuildMember | undefined {
-		return undefined;
+	findUser(name: string): User | GuildMember | null {
+		return null;
 	}
 
+
+
 	/**
-	 * Override in subclass.
+	 * Find channel by name. (Not channel Id.)
 	 * @param {string} name
 	 */
-	findChannel(name: string): Channel | undefined {
-		return undefined;
+	findChannel(name: string): Channel | null {
+		return null;
 	}
 
 	/**
@@ -515,7 +536,7 @@ export class UserContext extends BotContext<User> {
 		if (this.idObject.username.toLowerCase() === name.toLowerCase()) {
 			return this.idObject;
 		}
-		return undefined;
+		return null;
 
 	}
 
@@ -540,20 +561,36 @@ export class GuildContext extends BotContext<Guild> {
 		if (!id) return 'Invalid ID';
 
 		try {
-
-			let g = await this.idObject.members.fetch(id);
-			if (g) return g.displayName;
-
+			/// Note: fetch() takes caching into account.
+			return (await this.idObject.members.fetch(id)).displayName;
 		} catch (e) { }
 
 		return 'Unknown User';
 
 	}
 
+	/**
+	 * Send message to a text channel.
+	 * @param channelId 
+	 * @param message 
+	 * @returns 
+	 */
+	async send( channelId:string, message:string){
+		const channel = await this.getChannel(channelId);
+		if ( channel && channel.isTextBased()){
+			return channel.send(message);
+		}
+	}
+
+	/**
+	 * Find channel by name.
+	 * @param name 
+	 * @returns 
+	 */
 	findChannel(name: string) {
 
 		name = name.toLowerCase();
-		return this.idObject.channels.cache.find(c => c.name.toLowerCase() === name);
+		return this.idObject.channels.cache.find(c => c.name.toLowerCase() === name) ?? null;
 	}
 
 	/**
@@ -563,7 +600,9 @@ export class GuildContext extends BotContext<Guild> {
 	findUser(name: string) {
 
 		name = name.toLowerCase();
-		return this.idObject.members.cache.find(gm => gm.displayName.toLowerCase() === name);
+		return this.idObject.members.cache.find(gm =>
+			gm.displayName.toLowerCase() === name || gm.nickname?.toLowerCase() === name ||  gm.user.username === name || gm.id === name
+		) ?? null;
 
 	}
 

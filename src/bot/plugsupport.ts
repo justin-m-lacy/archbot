@@ -91,7 +91,7 @@ const requirePlugin = (plugPath: string, fileName: string, init_func?: InitFunc)
 
 	try {
 
-		console.log('load plugin: ' + fileName);
+		console.log('load: ' + fileName);
 
 		const ext = path.extname(fileName).toLowerCase();
 		if (ext != '' && ext !== '.js' && ext !== '.ts') {

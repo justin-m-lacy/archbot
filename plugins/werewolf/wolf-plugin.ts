@@ -105,13 +105,13 @@ class WordWolfPlugin {
 
 export const init = (bot:DiscordBot)=>{
 
-    bot.addContextCmd('wolf', 'Start wolf game.', WordWolfPlugin.prototype.cmdWolf, WordWolfPlugin,
+    /*bot.addContextCmd('wolf', 'Start wolf game.', WordWolfPlugin.prototype.cmdWolf, WordWolfPlugin,
     { maxArgs:0, });
 
     bot.addContextCmd('wolfvote', 'Start wolf game.',
         WordWolfPlugin.prototype.cmdWolf,
         WordWolfPlugin,
-        { minArgs: 1, maxArgs: 1, group: 'right' });
+        { minArgs: 1, maxArgs: 1, group: 'right' });*/
 
 
 }
