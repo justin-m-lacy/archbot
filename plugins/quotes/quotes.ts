@@ -28,10 +28,10 @@ class Quoter {
 
 		if (!this.quotes) await this.loadQuotes();
 
-		let len = this.quotes!.length;
+		const len = this.quotes?.length ?? 0;
 		if (len > 0) {
 
-			let str = this.quotes![Math.floor(Math.random() * len)];
+			const str = this.quotes![Math.floor(Math.random() * len)];
 			return m.channel.send(str);
 
 		}
@@ -45,11 +45,11 @@ class Quoter {
 	 * @param  {...any} args
 	 * @returns {Promise}
 	 */
-	async cmdNewQuote(m: Message, ...args: any[]) {
+	async cmdNewQuote(m: Message, ...args: string[]) {
 
 		if (!this.quotes) await this.loadQuotes();
 
-		let q = args.join(' ');
+		const q = args.join(' ').trim();
 		// todo: allow attachments.
 		if (q === null || q === '') {
 			return m.reply("Your silence is not memorable.");
@@ -64,7 +64,7 @@ class Quoter {
 	async loadQuotes() {
 
 		try {
-			let q = await this.context.fetchData('quoter/quotes');
+			const q = await this.context.fetchData('quoter/quotes');
 
 			if (q) {
 

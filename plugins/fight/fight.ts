@@ -5,16 +5,10 @@ import { getSenderName } from '@src/utils/users';
 let results: string[];
 let bot: DiscordBot;
 
-export const initPlugin = (b: DiscordBot) => {
-
-	bot = b;
-	b.dispatch.add('fight', 'fight [user]', cmdFight, { maxArgs: 1 });
-
-}
 
 async function cmdFight(m: Message, uname?: string) {
 
-	if (!results) results = require('./results.json');
+	if (!results) results = await import('./results.json');
 	if (!uname) return m.channel.send('You attack the darkness!');
 
 	const target = bot.findUser(m.channel, uname);
@@ -34,14 +28,18 @@ async function cmdFight(m: Message, uname?: string) {
 
 	else {
 
-		let ind = Math.floor(results.length * Math.random());
-		let result = results[ind];
-
-		result = result.replace(/%t/g, uname);
-		result = result.replace(/%a/g, attacker);
+		const ind = Math.floor(results.length * Math.random());
+		const result = results[ind].replace(/%t/g, uname).replace(/%a/g, attacker);
 
 		return m.channel.send(result);
 
 	}
+
+}
+
+export const initPlugin = (b: DiscordBot) => {
+
+	bot = b;
+	b.dispatch.add('fight', 'fight [user]', cmdFight, { maxArgs: 1 });
 
 }

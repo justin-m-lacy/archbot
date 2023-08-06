@@ -22,8 +22,8 @@ export const isVowel = (c: string) => {
 
 export const echoChar = async function (chan: TextBasedChannel, char: Char, prefix: string = '') {
 
-	let namestr = char.name + ' is a';
-	let desc = char.getLongDesc();
+	const namestr = char.name + ' is a';
+	const desc = char.getLongDesc();
 	return chan.send(prefix + '```' + namestr + (isVowel(desc.charAt(0)) ? 'n ' : ' ') + desc + '```');
 
 }
@@ -42,7 +42,7 @@ export class Log {
 	 * @returns {string} The current log text.
 	 */
 	getAndClear() {
-		let t = this._text;
+		const t = this._text;
 		this._text = '';
 		return t;
 	}

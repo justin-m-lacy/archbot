@@ -14,7 +14,6 @@ import Race from './char/race';
 import CharClass from './char/charclass';
 import * as CharGen from './chargen';
 import * as ItemGen from './items/itemgen';
-import * as TNameGen from './namegen';
 import * as display from './display';
 import * as gamejs from './game';
 import { replyEmbedUrl } from '@src/embeds';
@@ -56,7 +55,7 @@ export class Rpg {
 	async cmdAllChars(m: Message, uname?: string) {
 
 		try {
-			let list = await this.context.getDataList(RPG_DIR + CHAR_DIR);
+			const list = await this.context.getDataList(RPG_DIR + CHAR_DIR);
 			if (!list) return m.reply('An unknown error has occurred. Oopsie.');
 
 			return m.reply(list.join(', '));
@@ -102,11 +101,8 @@ export class Rpg {
 		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let t;
-		if (who) {
-			t = await this.loadChar(who);
-			if (!t) return;
-		}
+		const t = who ? await this.loadChar(who) : char;
+		if ( !t ) return;
 
 		await display.sendBlock(m, this.game.revive(char, t));
 
@@ -154,12 +150,9 @@ export class Rpg {
 		let char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let t;
-		if (who) {
-			t = await this.loadChar(who);
-			if (!t) return;
-		}
-
+		const t = who ? await this.loadChar(who) : char;
+		if (!t) return;
+	
 		return display.sendBlock(m, await this.game.guildInv(char, t));
 
 	}
@@ -243,7 +236,7 @@ export class Rpg {
 
 		try {
 
-			let char = await this.userCharOrErr(m, m.author)
+			const char = await this.userCharOrErr(m, m.author)
 			if (!char) return;
 
 			await m.channel.send(await this.game.take(char, first, end));
@@ -253,7 +246,7 @@ export class Rpg {
 
 	async cmdDrop(m: Message, what: string, end?: string) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		return m.channel.send(await this.game.drop(char, what, end));
@@ -262,7 +255,7 @@ export class Rpg {
 
 	async cmdExplored(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return display.sendBlock(m, await this.world.explored(char));
@@ -271,10 +264,10 @@ export class Rpg {
 
 	async cmdViewLoc(m: Message, what: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let info = await this.world.view(char, what);
+		const info = await this.world.view(char, what);
 
 		if (typeof (info) === 'string') await display.sendBlock(m, info);
 		else display.sendEmbed(m, info[0], info[1]);
@@ -283,7 +276,7 @@ export class Rpg {
 
 	async cmdExamine(m: Message, what: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, await this.world.examine(char, what));
@@ -292,7 +285,7 @@ export class Rpg {
 
 	async cmdLook(m: Message, what: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return display.sendBlock(m, await this.world.look(char, what));
@@ -301,7 +294,7 @@ export class Rpg {
 
 	async cmdUseLoc(m: Message, wot: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return display.sendBlock(m, await this.world.useLoc(char, wot));
@@ -311,7 +304,7 @@ export class Rpg {
 
 		try {
 
-			let char = await this.userCharOrErr(m, m.author);
+			const char = await this.userCharOrErr(m, m.author);
 			if (!char) return;
 
 			await display.sendBlock(m, await this.game.hike(char, toDirection(dir)));
@@ -323,7 +316,7 @@ export class Rpg {
 
 	async cmdMove(m: Message, dir: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, await this.game.move(char, dir));
@@ -337,7 +330,7 @@ export class Rpg {
 	 */
 	async cmdRollDmg(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		return m.reply('Weapon roll for ' + char.name + ': ' + char.testDmg());
@@ -350,7 +343,7 @@ export class Rpg {
 	 */
 	async cmdRollWeap(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		await display.sendBlock(m, Trade.rollWeap(char));
@@ -363,7 +356,7 @@ export class Rpg {
 	 */
 	async cmdRollArmor(m: Message, slot?: string) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		await display.sendBlock(m, Trade.rollArmor(char, slot));
@@ -372,7 +365,7 @@ export class Rpg {
 
 	async cmdUnequip(m: Message, slot: HumanSlot) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		return m.reply(this.game.unequip(char, slot));
@@ -381,7 +374,7 @@ export class Rpg {
 
 	async cmdEquip(m: Message, wot: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!wot) return display.sendBlock(m, `${char.name} equip:\n${char.listEquip()}`);
@@ -392,23 +385,23 @@ export class Rpg {
 
 	async cmdCompare(m: Message, wot: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
-		if (!char) return;
-
-		if (!wot) return m.reply('Compare what item?');
-
-		return display.sendBlock(m, this.game.compare(char, wot));
+		const char = await this.userCharOrErr(m, m.author)
+	
+		if ( char ){
+			if (!wot) return m.reply('Compare what item?');
+			return display.sendBlock(m, this.game.compare(char, wot));
+		}
 
 	}
 
 	async cmdWorn(m: Message, slot: HumanSlot) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 		if (!slot) await display.sendBlock(m, `${char.name} equip:\n${char.listEquip()}`);
 		else {
 
-			let item = char.getEquip(slot);
+			const item = char.getEquip(slot);
 			if (!item) return m.reply('Nothing equipped in ' + slot + ' slot.');
 			if (typeof (item) === 'string') return m.reply(item);
 			else if (Array.isArray(item)) {
@@ -427,7 +420,7 @@ export class Rpg {
 
 	async cmdEat(m: Message, wot: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		return m.reply(this.game.eat(char, wot));
@@ -436,7 +429,7 @@ export class Rpg {
 
 	async cmdQuaff(m: Message, wot: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		return m.reply(this.game.quaff(char, wot));
@@ -444,13 +437,13 @@ export class Rpg {
 	}
 
 	async cmdRest(m: Message) {
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (char) return m.reply(await this.game.rest(char));
 	}
 
 	async cmdCook(m: Message, what: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return m.reply(this.game.cook(char, what));
@@ -467,7 +460,7 @@ export class Rpg {
 
 	async cmdInscribe(m: Message, wot?: string | number, inscrip?: string) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!wot) return m.reply('Inscribe which inventory item?');
@@ -480,7 +473,7 @@ export class Rpg {
 
 	async cmdDestroy(m: Message, first?: string, end?: string) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!first) return m.reply('Destroy which inventory item?');
@@ -499,7 +492,7 @@ export class Rpg {
 		const item = char.getItem(which);
 		if (!item) return m.reply('Item not found.');
 
-		let view = item.getView();
+		const view = Array.isArray(item) ? item[0].getView() : item.getView();
 		if (view[1]) {
 
 			return replyEmbedUrl(m, view[1], view[0]);
@@ -510,12 +503,13 @@ export class Rpg {
 
 	async cmdInspect(m: Message, wot?: string | number) {
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
 		if (!wot) return m.reply('Inspect which inventory item?');
 
 		let item = char.getItem(wot);
+		if ( Array.isArray(item)) item = item[0];
 		if (!item) return m.reply('Item not found.');
 		return m.reply(item.getDetails());
 
@@ -526,11 +520,11 @@ export class Rpg {
 		if (!itemName) return m.reply('Crafted item must have name.');
 		if (!desc) return m.reply('Crafted items require a description.');
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
-		let a = m.attachments.first();
-		let res = a ? this.game.craft(char, itemName, desc, a.proxyURL) : this.game.craft(char, itemName, desc);
+		const a = m.attachments.first();
+		const res = a ? this.game.craft(char, itemName, desc, a.proxyURL) : this.game.craft(char, itemName, desc);
 
 		return display.sendBlock(m, res);
 
@@ -540,11 +534,11 @@ export class Rpg {
 
 		if (!potName) return m.reply('Brew what potion?');
 
-		let char = await this.userCharOrErr(m, m.author)
+		const char = await this.userCharOrErr(m, m.author)
 		if (!char) return;
 
-		let a = m.attachments.first();
-		let res = a ? this.game.brew(char, potName, a.proxyURL) : this.game.brew(char, potName);
+		const a = m.attachments.first();
+		const res = a ? this.game.brew(char, potName, a.proxyURL) : this.game.brew(char, potName);
 
 		return display.sendBlock(m, res);
 
@@ -552,27 +546,28 @@ export class Rpg {
 
 	async cmdInv(m: Message, who?: string) {
 
-		var char;
+		let char;
 
 		if (who) {
 
 			char = await this.loadChar(who);
-			if (!char) return;
+			if (!char) return m.reply(`'${who}' not found.`);
+
 
 		} else {
 
 			char = await this.userCharOrErr(m, m.author);
-			if (!char) return m.reply(`'${who}' not found.`);
+			if (!char) return;
 
 		}
 
-		await display.sendBlock(m, `${char.name} Inventory:\n${char.inv.getMenu()}`);
+		return display.sendBlock(m, `${char.name} Inventory:\n${char.inv.getMenu()}`);
 
 	}
 
 	async cmdSell(m: Message, first: string | number, end?: string | number) {
 
-		let src = await this.userCharOrErr(m, m.author);
+		const src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
 
 		return display.sendBlock(m, this.game.sell(src, first, end));
@@ -580,10 +575,10 @@ export class Rpg {
 
 	async cmdGive(m: Message, who: string, expr: string) {
 
-		let src = await this.userCharOrErr(m, m.author);
+		const src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
 
-		let dest = await this.loadChar(who);
+		const dest = await this.loadChar(who);
 		if (!dest) return m.reply(`'${who}' does not exist.`);
 
 		return m.reply(this.game.give(src, dest, expr));
@@ -592,7 +587,7 @@ export class Rpg {
 
 	async cmdScout(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, this.game.scout(char));
@@ -601,10 +596,10 @@ export class Rpg {
 
 	async cmdTrack(m: Message, who: string) {
 
-		let src = await this.userCharOrErr(m, m.author);
+		const src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
 
-		let dest = await this.loadChar(who);
+		const dest = await this.loadChar(who);
 		if (!dest) return m.reply(`'${who}' does not exist.`);
 
 		await display.sendBlock(m, this.game.track(src, dest));
@@ -614,7 +609,7 @@ export class Rpg {
 	async cmdAttack(m: Message, who?: string | number) {
 
 		try {
-			let src = await this.userCharOrErr(m, m.author);
+			const src = await this.userCharOrErr(m, m.author);
 			if (!src) return;
 
 			let targ = await this.world.getNpc(src, who ?? 1);
@@ -641,10 +636,10 @@ export class Rpg {
 
 	async cmdSteal(m: Message, who: string, wot?: string) {
 
-		let src = await this.userCharOrErr(m, m.author);
+		const src = await this.userCharOrErr(m, m.author);
 		if (!src) return;
 
-		let dest = await this.loadChar(who);
+		const dest = await this.loadChar(who);
 		if (!dest) return m.reply(`'${who}' not found on server.`);
 
 		const result = await this.game.steal(src, dest, wot);
@@ -658,7 +653,7 @@ export class Rpg {
 
 		try {
 
-			let char = await this.loadChar(charname);
+			const char = await this.loadChar(charname);
 			if (!char) return m.reply(`'${charname}' not found on server.`);
 
 			if (!char.owner || char.owner === m.author.id) {
@@ -693,10 +688,10 @@ export class Rpg {
 
 	async cmdAddStat(m: Message, stat: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let res = char.addStat(stat);
+		const res = char.addStat(stat);
 		if (typeof (res) === 'string') return m.reply(res);
 
 	}
@@ -735,7 +730,7 @@ export class Rpg {
 
 	async cmdSaveChar(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await this.saveChar(char, true);
@@ -749,7 +744,7 @@ export class Rpg {
 
 		try {
 
-			let char = await this.loadChar(charname);
+			const char = await this.loadChar(charname);
 			if (!char) return m.reply(charname + ' not found on server. D:');
 
 			let prefix;
@@ -772,10 +767,10 @@ export class Rpg {
 
 		try {
 
-			let race = Race.RandRace(racename);
+			const race = Race.RandRace(racename);
 			if (!race) return await m.reply('Race ' + racename + ' not found.');
 
-			let charclass = CharClass.RandClass(classname);
+			const charclass = CharClass.RandClass(classname);
 			if (!charclass) return await m.reply('Class ' + classname + ' not found.');
 
 			if (!sex) sex = Math.random() < 0.5 ? 'm' : 'f';
@@ -787,8 +782,8 @@ export class Rpg {
 
 			} else charname = await this.uniqueName(race, sex);
 
-			let char = CharGen.genChar(m.author.id, race, charclass, charname);
-			console.log('char rolled: ' + char.name);
+			const char = CharGen.genChar(m.author.id, race, charclass, charname);
+			console.log('new char: ' + char.name);
 
 			await this.setUserChar(m.author, char);
 			display.echoChar(m.channel, char);
@@ -802,18 +797,18 @@ export class Rpg {
 
 	async userCharOrErr(m: Message, user: User) {
 
-		let charname = this.lastChars[user.id];
+		const charname = this.lastChars[user.id];
 		if (!charname) {
 			m.reply(`${user.username}: No active character`);
 			return null;
 		}
 
-		let char = await this.loadChar(charname);
+		const char = await this.loadChar(charname);
 		if (!char) {
 			m.reply(`Error loading '${charname}'. Load new character.`);
 			return null;
-		}
-		if (char.owner !== user.id) {
+
+		} else if (char.owner !== user.id) {
 			m.reply(`You are not the owner of '${charname}'`);
 			return null;
 		}
@@ -823,11 +818,11 @@ export class Rpg {
 
 	async loadChar(charname: string) {
 
-		let key = this.getCharKey(charname);
+		const key = this.getCharKey(charname);
 
-		let data = this.charCache.get(key) as Char|undefined;
-		if (!data) return this.charCache.fetch(key);
-		return data;
+		const data = this.charCache.get(key) as Char|undefined;
+		return data ?? await this.charCache.fetch(key) as Char|undefined;
+
 	}
 
 	clearUserChar(uid: string) { delete this.lastChars[uid]; }
@@ -841,7 +836,7 @@ export class Rpg {
 
 	async loadLastChars() {
 
-		let lastjson = await this.cache.fetch(LAST_CHARS);
+		const lastjson = await this.cache.fetch(LAST_CHARS);
 		if (lastjson) {
 			this.lastChars = lastjson;
 			return lastjson;
@@ -871,12 +866,13 @@ export class Rpg {
 
 	async uniqueName(race: Race, sex?: string) {
 
-		let namegen: typeof TNameGen = require('./namegen');
-		do {
-			var name = namegen.genName(race.name, sex);
-		} while (name == null || await this.charExists(name))
+		const namegen = await import('./namegen');
 
-		return name;
+		do {
+			const name = namegen.genName(race.name, sex);
+			if ( name && !(await this.charExists(name)) ) return name;
+
+		} while (true);
 
 	}
 
@@ -884,7 +880,7 @@ export class Rpg {
 
 export const initPlugin = (bot: DiscordBot) => {
 
-	var proto = Rpg.prototype;
+	const proto = Rpg.prototype;
 
 	// CHAR MANAGEMENT
 	bot.addContextCmd('rollchar', 'rollchar [charname] [racename] [classname]', proto.cmdRollChar, Rpg, { maxArgs: 4 });
@@ -996,12 +992,12 @@ export const initPlugin = (bot: DiscordBot) => {
 
 /*
 	async cmdChanges(m) {
-		let changes = require('./data/changelog.json');
-		let list = '';
+	let changes = require('./data/changelog.json');
+	let list = '';
 
-		for( let k in changes ) {
-			list += k + '\n' + changes[k].join('\n') + '\n\n';
-		}
+	for( let k in changes ) {
+		list += k + '\n' + changes[k].join('\n') + '\n\n';
+	}
 
-		await display.sendBlock( m, list )
-	}*/
+	await display.sendBlock( m, list )
+}*/

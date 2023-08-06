@@ -1,8 +1,8 @@
 import { StatMod } from "./stats";
 
-let races: Race[];
+const races: Race[] = [];
 
-let raceByName: { [race: string]: Race };
+const raceByName: { [race: string]: Race } = {};
 
 export default class Race {
 
@@ -32,7 +32,7 @@ export default class Race {
 
 	static FromJSON(json: any) {
 
-		let o = new Race();
+		const o = new Race();
 
 		if (json.hasOwnProperty('name')) {
 			o._name = json.name;
@@ -86,20 +86,15 @@ export default class Race {
 
 
 
-const initRaces = () => {
-
-	raceByName = {};
-	races = [];
+const initRaces = async () => {
 
 	try {
 
-		let a = require('../data/races.json');
+		const raw = (await import('../data/races.json')).default;
 
-		let raceObj, race;
-		for (let i = a.length - 1; i >= 0; i--) {
+		for (let i = raw.length - 1; i >= 0; i--) {
 
-			raceObj = a[i];
-			race = Race.FromJSON(raceObj);
+			const race = Race.FromJSON( raw[i] );
 			raceByName[race.name] = race;
 			races.push(race);
 

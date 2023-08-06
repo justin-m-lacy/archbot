@@ -142,7 +142,7 @@ export class Item {
 
 	}
 
-	getView() {
+	getView():[string,string|undefined] {
 		return [this.getDetails(false), this._attach];
 	}
 

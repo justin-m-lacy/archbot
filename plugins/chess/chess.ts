@@ -260,7 +260,7 @@ class Room {
  * @async
  * @param {BotContext} bot
  */
-export async function init(bot: DiscordBot) {
+export async function initPlugin(bot: DiscordBot) {
 
 	console.log('Chess INIT');
 

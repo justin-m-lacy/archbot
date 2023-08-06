@@ -181,7 +181,7 @@ export const genName = (race: string = "human", sex?: string) => {
 	if (!nameParts.hasOwnProperty(race)) {
 		race = 'human';
 	}
-	let lists = nameParts[race][sex];
+	const lists = nameParts[race][sex];
 
 
 	return buildName(lists.parts, lists.roots, lists.ends);
@@ -204,14 +204,14 @@ const cmdRollName = (m: Message, race?: string, sex?: string) => {
 const getMixRace = (race?: string, sex?: string) => {
 
 	sex = toSex(sex);
-	let hLists = nameParts['human'][sex];
+	const hLists = nameParts['human'][sex];
 
 	if (race == null) return buildName(hLists.parts, hLists.roots, hLists.ends);
 
-	let nameObj = nameParts[race];
+	const nameObj = nameParts[race];
 
 	if (nameObj != null) {
-		let lists = nameObj[sex];
+		const lists = nameObj[sex];
 		return buildName(hLists.parts.concat(lists.parts),
 			hLists.roots?.concat(lists.roots ?? []),
 			hLists.ends?.concat(lists.ends ?? []));
@@ -228,13 +228,13 @@ const buildName = (parts: string[], roots?: string[], ends?: string[]) => {
 
 	let name = roots[Math.floor(roots.length * Math.random())];
 
-	let len = parts.length;
-	let count = Math.floor(2 * Math.random());
+	const len = parts.length;
+	const count = Math.floor(2 * Math.random());
 	for (let i = count; i > 0; i--) {
 		name += parts[Math.floor(len * Math.random())];
 	}
 
-	if (count == 0 || Math.random() < 0.4) name += ends[Math.floor(ends.length * Math.random())];
+	if (count === 0 || Math.random() < 0.4) name += ends[Math.floor(ends.length * Math.random())];
 	return name;
 
 }

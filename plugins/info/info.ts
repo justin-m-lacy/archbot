@@ -13,7 +13,6 @@ class InfoPlugin {
 
 	constructor(context: BotContext<ContextSource>) {
 
-		// TODO: Use Map or Object.create to prevent base object overwrites.
 		this.infos = {};
 
 		this.context = context;
@@ -34,7 +33,7 @@ class InfoPlugin {
 
 		} else {
 
-			let info = this.getInfo(subj);
+			const info = this.getInfo(subj);
 			if (info) return m.reply(info);
 			return m.reply('Information not found.');
 
@@ -46,10 +45,10 @@ class InfoPlugin {
 
 		if (!subj) return m.reply('Usage: !rminfo "subject"');
 
-		let res = await this.rmInfo(subj);
-		if (res) return m.channel.send('info removed.');
+		const res = await this.rmInfo(subj);
+		if (res) return m.channel.send('Information removed.');
 
-		return m.channel.send('Info not found.');
+		return m.channel.send('Information not found.');
 
 	}
 
@@ -61,7 +60,7 @@ class InfoPlugin {
 	async rmInfo(subj: string, which?: string) {
 
 		subj = subj.toLowerCase();
-		let cur = this.infos[subj];
+		const cur = this.infos[subj];
 		if (cur) {
 
 			delete this.infos[subj];
@@ -73,8 +72,7 @@ class InfoPlugin {
 	}
 
 	getInfo(subj: string) {
-		let cur = this.infos[subj];
-		return cur ? cur.i : null;
+		return this.infos[subj]?.i ?? null;
 	}
 
 	async addInfo(subj: string, content: string, uid: string) {
@@ -82,7 +80,7 @@ class InfoPlugin {
 		try {
 
 			subj = subj.toLowerCase();
-			let cur = this.infos[subj];	//TODO: implement info lists?
+			//const cur = this.infos[subj];	//TODO: implement info lists?
 
 			this.infos[subj] = { i: content, uid: uid, t: Date.now() };
 
@@ -96,7 +94,7 @@ class InfoPlugin {
 
 		try {
 
-			let infoData = await this.context.fetchData(this.getKey());
+			const infoData = await this.context.fetchData(this.getKey());
 			if (infoData) this.infos = infoData;
 			else console.warn('Info data not found.');
 

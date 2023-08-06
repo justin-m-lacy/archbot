@@ -202,19 +202,22 @@ class CmdLine {
 		str = str.trim();
 
 		// cmd prefix.
-		if (str.slice(0, this._prefixLen) !== this.prefix) return null;
-		let cmd, ind = str.indexOf(' ', this._prefixLen);
-		if (ind < 0) {
+		if ( !str.startsWith(this.prefix)) return null;
+
+		const argIndex = str.indexOf( ' ', this._prefixLen);
+		let cmd:Command;
+
+		if (argIndex < 0) {
 
 			cmd = this._cmds[str.slice(this._prefixLen).toLowerCase()];
 			this._args = null;
 
 		} else {
 
-			cmd = this._cmds[str.slice(this._prefixLen, ind).toLowerCase()];
+			cmd = this._cmds[str.slice(this._prefixLen, argIndex).toLowerCase()];
 			if (!cmd) return null;
 
-			this.readArgs(str.slice(ind), cmd);
+			this.readArgs(str.slice(argIndex), cmd);
 
 		}
 
@@ -224,6 +227,7 @@ class CmdLine {
 
 	readArgs(argstr: string, cmd: Command) {
 
+		// replace fancy quotes.
 		argstr = argstr.replace(QuoteRE, '"');
 
 		if (!cmd.maxArgs) this._args = this.splitArgs(argstr);

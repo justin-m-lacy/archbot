@@ -92,15 +92,15 @@ class GuildReactions {
 			if (Math.random() > this._procPct) return;
 
 			// global timeout wait.
-			let now = Date.now();
+			const now = Date.now();
 			if (now - this.gTime < this.gWait) return;
 
 			try {
 
 				this.msgTime = now;
 
-				let rset = this.findSet(m.content);
-				if (rset != null) {
+				const rset = this.findSet(m.content);
+				if (rset !== null) {
 
 					return this.respond(m, rset);
 
@@ -327,7 +327,7 @@ class GuildReactions {
 		} else {
 
 			let pageText = '`' + Display.getPageText(triggers.join('  •  '), page - 1) + '`';
-			let footer = Display.pageFooter(pageText);
+			const footer = Display.pageFooter(pageText);
 
 			pageText += '\n\n' + triggers.length + ' triggers defined.' + '\n' + footer;
 
@@ -340,11 +340,11 @@ class GuildReactions {
 	/**
 	 * Removes a reaction for the given trigger. If no reaction is specified, the reaction trigger will be removed if the given trigger
 	 * has only a single reaction entry.
-	 * @param {Map<string,ReactSet>} map
-	 * @param {string} trig - The reaction trigger to remove a reaction from.
-	 * @param {string|null} [reaction=null] - The reaction string to remove.
-	 * @param {boolean} [isRegex=false] - If the trigger is a regular expression.
-	 * @returns {bool|number} true if a reaction is removed.
+	 * @param map
+	 * @param trig - The reaction trigger to remove a reaction from.
+	 * @param [reaction=null] - The reaction string to remove.
+	 * @param [isRegex=false] - If the trigger is a regular expression.
+	 * @returns true if a reaction is removed.
 	 * If multiple reactions match, none are removed, and the number found is returned.
 	 * If no matching trigger/reaction pair is found, false is returned.
 	 */
@@ -428,8 +428,8 @@ class GuildReactions {
 
 	/**
 	 * Find a reaction set for the given input text.
-	 * @param {string} str - Message to react to.
-	 * @returns {ReactSet|null} Reaction string for the message, or null
+	 * @param str - Message to react to.
+	 * @returns Reaction string for the message, or null
 	 * if no match found.
 	 */
 	findSet(str: string): ReactSet | null {
@@ -456,7 +456,7 @@ class GuildReactions {
 	 */
 	tryReact(map: ReactMap, str: string) {
 
-		for (let k of map.keys()) {
+		for (const k of map.keys()) {
 
 			if (str.indexOf(k) >= 0) {
 
@@ -477,7 +477,7 @@ class GuildReactions {
 	 */
 	tryRegEx(map: Map<string, ReactSet>, str: string) {
 
-		for (let rset of map.values()) {
+		for (const rset of map.values()) {
 
 			if ((rset.trigger as RegExp).test(str) === true) {
 
@@ -534,7 +534,7 @@ class GuildReactions {
 
 		if (react.uid) {
 
-			let name = await this._context.displayName(react.uid);
+			const name = await this._context.displayName(react.uid);
 			if (name) {
 
 				resp += `\nCreated by ${name}`;
@@ -555,7 +555,7 @@ class GuildReactions {
 	getTriggers(): string[] {
 
 		const a = Array.from(this.reMap.keys());
-		for (let p of this.reactions.keys()) {
+		for (const p of this.reactions.keys()) {
 			a.push(p);
 		}
 
@@ -564,28 +564,23 @@ class GuildReactions {
 
 	/**
 	 *
-	 * @param {string} trig - trigger for the reaction.
-	 * @param {string|null} [reactStr=null] - the reaction string to return, or null to return all reactions for
+	 * @param trig - trigger for the reaction.
+	 * @param reactStr - the reaction string to return, or null to return all reactions for
 	 * the given trigger.
-	 * @returns {Reaction|Reaction[]|null} Returns the single reaction found, or an array of reactions
+	 * @returns Returns the single reaction found, or an array of reactions
 	 * if no reactStr is specified.
 	 * Returns false if no reactions match the trigger or trigger/reactStr combination.
 	 */
 	getReactions(trig: string | null | undefined, reactStr?: string) {
 
 		if (!trig) {
-			console.log(`searching reacts: no trigger found.`);
+			console.log(`search reacts: no trigger found.`);
 			return false;
 		}
 
-		console.log(`searching for trigger: ${trig}`);
-		let rset = this.reMap.get(trig);
-		if (rset === undefined) {
-			rset = this.reactions.get(trig.toLowerCase());
-			if (rset === undefined) return null;
-		}
+		const rset = this.reMap.get(trig) ?? this.reactions.get(trig.toLowerCase());
 
-		return rset.findReactions(reactStr);
+		return rset?.findReactions(reactStr) ?? null;
 
 	}
 
@@ -604,7 +599,7 @@ class GuildReactions {
 
 		try {
 
-			let reactData = await this._context.fetchData(this._context.getDataKey('reactions', 'reactions'));
+			const reactData = await this._context.fetchData(this._context.getDataKey('reactions', 'reactions'));
 			if (!reactData) return null;
 
 			this.allReacts = parseReacts(reactData);
@@ -652,7 +647,7 @@ function parseStrings(data: any) {
 
 	const map = new Map()
 
-	for (let p in data) {
+	for (const p in data) {
 		map.set(p, new ReactSet(p, data[p]));
 	}
 
@@ -692,7 +687,7 @@ function parseRe(data: any) {
 function mapToJSON(map: any) {
 
 	const o: any = {};
-	for (let [k, v] of map) {
+	for (const [k, v] of map) {
 		o[k] = v;
 	}
 	return o;

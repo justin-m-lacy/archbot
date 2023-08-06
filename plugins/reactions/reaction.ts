@@ -103,7 +103,7 @@ export class Reaction {
 			// replace $ groups.
 			resp = resp.replace(groupRegex, (match, p1,) => {
 
-				let n = Number(p1);
+				const n = Number(p1);
 				if (Number.isNaN(n) === true) {
 
 					if (p1 === '`') return text.slice(0, res!.index);

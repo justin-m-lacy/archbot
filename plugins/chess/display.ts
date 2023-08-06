@@ -1,7 +1,6 @@
 import { AttachmentBuilder, TextBasedChannel } from 'discord.js';
 import { ChessGame } from './chessgame';
 import jimp from 'jimp';
-import Discord from 'discord.js';
 
 //const Discord = require('discord.js');
 
@@ -93,10 +92,10 @@ export const showBoard = async (chan: TextBasedChannel, game: ChessGame) => {
  */
 const getBoardImg = async (game: ChessGame) => {
 
-	let img = imgBoard!.clone();
+	const img = imgBoard!.clone();
 	const pieces = imgPieces!;
 
-	let b = game.getBoard();
+	const b = game.getBoard();
 
 	let srcR, srcC;
 	let i = 0, destRow = 7, destCol = 0;

@@ -1,6 +1,6 @@
 import { BotContext, ContextSource } from '@src/bot/botcontext';
-const Export = require('./export');
-const Game = require('./game');
+//const Export = require('./export');
+//const Game = require('./game');
 
 const chessdir = 'chess';
 
@@ -39,7 +39,7 @@ export default class Archive {
 	*/
 	async loadList() {
 
-		let files = await this._context.getDataList(chessdir) as string[];
+		const files = await this._context.getDataList(chessdir) as string[];
 
 		const len = files.length;
 		for (let i = 0; i < len; i++) {

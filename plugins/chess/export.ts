@@ -25,15 +25,13 @@ export const toPGN = (game: ChessGame) => {
 	// remainder ply.
 	if (len % 2 != 0) fullMoves.push(turnStr);
 
-	let status = game.status;
+	const status = game.status;
 	if (status === ChessStatus.Open) fullMoves.push('*');
 	else if (status === ChessStatus.WhiteWon) fullMoves.push('1-0');
 	else if (status === ChessStatus.BlackWon) fullMoves.push('0-1');
 	else if (status === ChessStatus.Draw) fullMoves.push('1/2-1/2');
 
-	let pgnStr = fullMoves.join(' ');
-
-	return pgnStr;
+	return fullMoves.join(' ');
 
 }
 

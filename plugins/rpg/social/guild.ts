@@ -23,13 +23,11 @@ export class GuildManager {
 	 */
 	async GetGuild(name: string) {
 
-		let data = this.cache.get(name);
+		let data = this.cache.get(name) as Guild|undefined;
 		if (data) return data;
 
 		data = await this.cache.fetch(name);
-		if (!data) return;
-
-		if (data instanceof Guild) return data;
+		if (!data || data instanceof Guild) return data;
 
 		data = Guild.FromJSON(data, this.cache);
 		this.cache.cache(name, data);
@@ -44,7 +42,7 @@ export class GuildManager {
 	 */
 	async MakeGuild(name: string, leader: Char) {
 
-		let g = new Guild(name, this.cache);
+		const g = new Guild(name, this.cache);
 		g.leader = leader.name;
 		g.roster.push(leader.name);
 		g.createdAt = Date.now();
@@ -60,7 +58,7 @@ export class Guild extends SocialGroup {
 
 	static FromJSON(json: any, cache: Cache) {
 
-		let g = new Guild(json.name, cache);
+		const g = new Guild(json.name, cache);
 
 		Object.assign(g, json);
 

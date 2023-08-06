@@ -119,9 +119,9 @@ export default class Game {
 
 		if (this.tick(char, 'move') === false) return char.getLog();
 
-		let res = await this.world.move(char, toDirection(dir));
+		const res = await this.world.move(char, toDirection(dir));
 
-		let p = this.getParty(char);
+		const p = this.getParty(char);
 		if (p && p.leader === char.name) {
 
 			//console.log('Moving party to: ' + char.loc.toString() );
@@ -178,7 +178,7 @@ export default class Game {
 
 	setLeader(char: Char, tar?: Char) {
 
-		let party = this.getParty(char);
+		const party = this.getParty(char);
 		if (!party) return 'You are not in a party.';
 
 		if (!tar) { return `current leader: ${party.leader}.` }
@@ -191,10 +191,10 @@ export default class Game {
 
 	async party(char: Char, t?: Char) {
 
-		let party = this.getParty(char);
+		const party = this.getParty(char);
 		if (!t) return party ? await party.getStatus() : "You are not in a party.";
 
-		let other = this.getParty(t);
+		const other = this.getParty(t);
 
 		if (party) {
 
@@ -225,9 +225,9 @@ export default class Game {
 
 	leaveParty(char: Char) {
 
-		let name = char.name;
+		const name = char.name;
 
-		let p = this.getParty(char);
+		const p = this.getParty(char);
 		if (!p) return `${name} is not in a party.`;
 		delete this._charParties[name];
 
@@ -245,10 +245,11 @@ export default class Game {
 
 		if (char.guild) return `${char.name} is already in a guild.`;
 
-		let g = await this.guilds.GetGuild(gname);
-		if (g) return `${gname} already exists.`;
+		if ( await this.guilds.GetGuild(gname) ) {
+			return `${gname} already exists.`;
+		}
 
-		g = await this.guilds.MakeGuild(gname, char);
+		await this.guilds.MakeGuild(gname, char);
 		char.guild = gname;
 
 		return `${char.name} created guild '${gname}'.`;
@@ -259,7 +260,7 @@ export default class Game {
 
 		if (char.guild) return `${char.name} is already in a guild.`;
 
-		let g = await this.guilds.GetGuild(gname);
+		const g = await this.guilds.GetGuild(gname);
 		if (!g) return `${gname} does not exist.`;
 
 		if (g.acceptInvite(char)) {
@@ -272,7 +273,7 @@ export default class Game {
 
 	async leaveGuild(char: Char) {
 
-		let g = char.guild ? await this.guilds.GetGuild(char.guild) : null;
+		const g = char.guild ? await this.guilds.GetGuild(char.guild) : null;
 		if (!g) {
 			return `${char.name} is not in a guild.`;
 		}
@@ -286,7 +287,7 @@ export default class Game {
 
 	async guildInv(char: Char, who: Char) {
 
-		let g = char.guild ? await this.guilds.GetGuild(char.guild) : null;
+		const g = char.guild ? await this.guilds.GetGuild(char.guild) : null;
 		if (!g) {
 			return `${char.name} is not in a guild.`;
 		}
@@ -308,12 +309,12 @@ export default class Game {
 
 	compare(char: Char, wot: ItemIndex): string {
 
-		let it = char.getItem(wot) as Item | undefined;
+		const it = char.getItem(wot) as Item | undefined;
 		if (!it) return 'Item not found.';
 
 		let res = 'In Pack: ' + it.getDetails() + '\n';
 		if (it instanceof Wearable) {
-			let eq = char.getEquip(it.slot);
+			const eq = char.getEquip(it.slot);
 
 			if (!eq) res += 'Equip: nothing';
 			else if (Array.isArray(eq)) res += 'Equip: ' + Item.DetailsList(eq);
@@ -346,7 +347,7 @@ export default class Game {
 
 		if (this.tick(char, 'inscribe') === false) return char.output();
 
-		let item = char.getItem(wot) as Item | undefined;
+		const item = char.getItem(wot) as Item | undefined;
 		if (!item) return char.output('Item not found.');
 
 		item.inscription = inscrip;
@@ -362,13 +363,13 @@ export default class Game {
 
 		if (end) {
 
-			let itms = char.takeRange(first, end);
-			if (!itms) return char.output('Invalid item range.');
-			return char.output(itms.length + ' items destroyed.');
+			const items = char.takeRange(first, end);
+			if (!items) return char.output('Invalid item range.');
+			return char.output(items.length + ' items destroyed.');
 
 		} else {
 
-			let item = char.takeItem(first);
+			const item = char.takeItem(first);
 			if (!item) return char.output(`'${first}' not in inventory.`);
 			if (Array.isArray(item)) {
 				return char.output(`${item.length} items are gone forever.`);
@@ -408,21 +409,21 @@ export default class Game {
 
 		if (!char.hasTalent('brew')) return `${char.name} does not know how to brew potions.`;
 
-		let pot = itgen.genPot(itemName);
+		const pot = itgen.genPot(itemName);
 		if (!pot) return `${char.name} does not know how to brew ${itemName}.`;
 
 		if (this.tick(char, 'brew') === false) return char.output();
 
 
 
-		let s = this.skillRoll(char) + char.getModifier('wis');
+		const s = this.skillRoll(char) + char.getModifier('wis');
 		if (s < 10 * pot.level) {
 			return char.output(`${char.name} failed to brew ${itemName}.`);
 		}
 
 		if (pot.level) char.addExp(2 * pot.level);
 		char.addHistory('brew');
-		let ind = char.addItem(pot);
+		const ind = char.addItem(pot);
 
 		return char.output(`${char.name} brewed ${itemName}. (${ind})`);
 
@@ -432,7 +433,7 @@ export default class Game {
 
 		if (this.tick(char, 'craft') === false) return char.output();
 
-		let ind = Craft(char, itemName, desc, imgURL);
+		const ind = Craft(char, itemName, desc, imgURL);
 
 		return char.output(`${char.name} crafted ${itemName}. (${ind})`);
 
@@ -468,7 +469,7 @@ export default class Game {
 	revive(char: Char, targ: Char) {
 
 		if (targ.state !== 'dead') return `${targ.name} is not dead.`;
-		let p = this.getParty(char);
+		const p = this.getParty(char);
 		if (!p || !p.includes(targ)) return `${targ.name} is not in your party.`;
 
 		if (this.tick(char, 'revive') === false) return char.output();
@@ -488,10 +489,10 @@ export default class Game {
 
 		if (this.tick(char, 'rest') === false) return char.output();
 
-		let p = this.getParty(char);
+		const p = this.getParty(char);
 		if (p && p.isLeader(char)) {
 
-			let pct = Math.round(100 * await p.rest());
+			const pct = Math.round(100 * await p.rest());
 			if (pct === 100) return char.output(`${p.name} fully rested.`);
 			else return char.output(`${p.name} ${pct}% rested.`);
 
@@ -505,15 +506,13 @@ export default class Game {
 
 		if (this.tick(char, 'scout') === false) return char.output();
 
-		let r = (char.skillRoll() + char.getModifier('int'));
+		const r = (char.skillRoll() + char.getModifier('int'));
 
 		if (r < 5) return char.output('You are lost.');
 
-		let coord = char.loc;
-
-		let err = Math.floor(400 / r);
-		let x = Math.round(coord.x + err * (Math.random() - 0.5));
-		let y = Math.round(coord.y + err * (Math.random() - 0.5));
+		const err = Math.floor(400 / r);
+		const x = Math.round(char.loc.x + err * (Math.random() - 0.5));
+		const y = Math.round(char.loc.y + err * (Math.random() - 0.5));
 
 		return char.output(`You believe you are near (${x},${y}).`);
 
@@ -521,17 +520,14 @@ export default class Game {
 
 	tickEffects(char: Char, action?: string) {
 
-		let efx = char.effects;
+		const efx = char.effects;
 		if (!efx) return;
-
-		console.log('effects count: ' + efx.length);
 
 		for (let i = efx.length - 1; i >= 0; i--) {
 
-			let e = efx[i];
+			const e = efx[i];
 			if (e.tick(char)) {
 				// efx end.
-				console.log('EFFECT END: ' + e.name);
 				jsutils.fastCut(efx, i);
 				e.end(char);
 
@@ -549,16 +545,16 @@ export default class Game {
 		if (char.hasTalent('track')) r *= 2;
 		else r -= 10;
 
-		let src = char.loc;
-		let dest = targ.loc;
-		let d = src.dist(dest);
+		const src = char.loc;
+		const dest = targ.loc;
+		const d = src.dist(dest);
 
 		if (d === 0) return char.output(`${targ.name} is here.`);
 		else if (d <= 2) return char.output(`You believe ${targ.name} is nearby.`);
 		else if (d > r) return char.output(`You find no sign of ${targ.name}`);
 
-		let a = Math.atan2(dest.y - src.y, dest.x - src.x) * 180 / Math.PI;
-		let abs = Math.abs(a);
+		const a = Math.atan2(dest.y - src.y, dest.x - src.x) * 180 / Math.PI;
+		const abs = Math.abs(a);
 
 		let dir;
 		if (abs < (90 - 45 / 2)) dir = 'east';
@@ -586,7 +582,7 @@ export default class Game {
 		let p1: Char | Party = this.getParty(src);
 		if (!p1 || !p1.isLeader(src)) p1 = src;
 
-		let com = new Combat(p1, npc, this.world);
+		const com = new Combat(p1, npc, this.world);
 		await com.fightNpc();
 
 		return src.output(com.getText());
@@ -597,7 +593,7 @@ export default class Game {
 
 		if (this.tick(src, 'steal') === false) return src.output();
 
-		let com = new Combat(src, dest, this.world);
+		const com = new Combat(src, dest, this.world);
 		await com.steal(wot);
 
 		return src.output(com.getText());
@@ -608,14 +604,14 @@ export default class Game {
 
 		if (this.tick(src, 'attack') === false) return src.output();
 
-		let p1 = this.getParty(src) || src;
+		const p1 = this.getParty(src) || src;
 		let p2: Char | Party = this.getParty(dest);
 
 		if (!p2 || (!p2.isLeader(dest) && !p2.loc.equals(dest.loc))) {
 			p2 = dest;
 		}
 
-		let com = new Combat(p1, p2, this.world);
+		const com = new Combat(p1, p2, this.world);
 		await com.fight();
 
 		return src.output(com.getText());
@@ -626,7 +622,7 @@ export default class Game {
 
 		if (this.tick(char, 'quaff') === false) return char.output();
 
-		let p = char.getItem(wot) as Item | undefined;
+		const p = char.getItem(wot) as Item | undefined;
 		if (!p) return char.output('Item not found.');
 		if (p.type !== 'potion') return char.output(`${p.name} cannot be quaffed.`);
 

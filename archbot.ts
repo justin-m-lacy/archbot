@@ -44,7 +44,7 @@ const initBot = () => {
 
 	const auth = require('./auth.json') as Auth;
 
-	console.log(`running directory: ${__dirname}`);
+	console.log(`base directory: ${__dirname}`);
 	try {
 		const bot = new DiscordBot(client, auth, __dirname);
 		initBasicCommands(bot);
@@ -63,7 +63,7 @@ initBot()!;
 
 function tryLogin(auth: Auth) {
 
-	console.log(`logging in with mode: ${process.env.NODE_ENV ?? 'dev'}`);
+	console.log(`login with mode: ${process.env.NODE_ENV ?? 'dev'}`);
 	client.login((process.env.NODE_ENV !== 'production' && auth.dev != null) ? auth.dev?.token ?? auth.token : auth.token);
 
 
@@ -88,8 +88,8 @@ async function presenceUpdate(oldPres: Presence | null, newPres: Presence) {
 
 	} else if (oldPres.member) {
 
-		let oldStatus = oldPres.status;
-		let newStatus = newPres.status;
+		const oldStatus = oldPres.status;
+		const newStatus = newPres.status;
 
 		/// statuses: 'offline', 'online', 'idle', 'dnd'
 		if (newStatus !== oldStatus) await logHistory(oldPres.member, [oldStatus, newStatus]);
@@ -107,8 +107,8 @@ async function presenceUpdate(oldPres: Presence | null, newPres: Presence) {
  */
 const logActivities = async (guildMember: GuildMember, oldActs?: Activity[], newActs?: Activity[]) => {
 
-	let now = Date.now();
-	var gameData: UserHistory = {};
+	const now = Date.now();
+	const gameData: UserHistory = {};
 
 	if (oldActs) {
 
@@ -142,8 +142,8 @@ const logActivities = async (guildMember: GuildMember, oldActs?: Activity[], new
  */
 const logHistory = async (guildMember: GuildMember, statuses: string[]) => {
 
-	let now = Date.now();
-	let history: UserHistory = {};
+	const now = Date.now();
+	const history: UserHistory = {};
 	for (var i = statuses.length - 1; i >= 0; i--) {
 		//console.log( 'logging status: ' + statuses[i]);
 		history[statuses[i]] = now;

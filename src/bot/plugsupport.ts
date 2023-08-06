@@ -2,13 +2,11 @@ import { DiscordBot } from "./discordbot";
 import path from 'path';
 import fs from 'fs';
 
-type InitFunc = (bot: DiscordBot) => void;
-
 const ParseExtensions = ['', '.js', '.ts'];
 
 export interface PluginFile {
 
-	initPlugin: InitFunc;
+	initPlugin: (bot: DiscordBot) => void;
 
 }
 
@@ -20,6 +18,7 @@ export const loadPlugins = async (plugins_dir: string ) => {
 
 		// Result is fs.Direct[]
 		const dirs = fs.readdirSync(plugins_dir, { withFileTypes: true });
+
 		for (let dir of dirs) {
 
 			if (!dir.isDirectory()) continue;
@@ -52,7 +51,7 @@ const loadPlugs = async (dirPath: string, results:PluginFile[] ) => {
 			const ext = path.extname(file.name).toLowerCase();
 			if (!file.isFile() || !ParseExtensions.includes(ext)) continue;
 	
-			const plug = await import( path.resolve(dirPath, file.name)) as object;
+			const plug = await import( path.resolve(dirPath, file.name));
 			if ( isPlugin(plug)){
 				results.push(plug);
 			}

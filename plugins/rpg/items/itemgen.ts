@@ -9,18 +9,23 @@ import Material from './material';
 import Weapon from './weapon';
 import Grave from './grave';
 import Chest from './chest';
+import baseWeapons from '../data/items/weapons.json';
+import baseArmors from '../data/items/armors.json';
 
-const allItems: { [str: string]: Item } = {};
+type RawArmorData = (typeof baseArmors)[number];
+type RawWeaponData = (typeof baseWeapons)[number];
+type RawItemData = (typeof import('../data/items/items.json')['misc'|'special'][number])
+
+const allItems: { [str: string]: RawItemData } = {};
 let allPots: { [name: string]: Potion };
 let potsByLevel: { [key: number]: Potion[] };
 
-let miscItems: Item[];
+let miscItems: RawItemData[];
 let featureByName: { [key: string]: Feature };
 let featureList: Feature[];
 
-let baseWeapons = require('../data/items/weapons.json');
-let baseArmors = require('../data/items/armors.json');
-let armorBySlot: Partial<{ [Property in HumanSlot]: Wearable[] }>;
+
+const armorBySlot: Partial<{ [Property in HumanSlot]: RawArmorData[] }> = {};
 
 initItems();
 initArmors();
@@ -32,9 +37,9 @@ initFeatures();
 
 Material.LoadMaterials();
 
-function initItems() {
+async function initItems() {
 
-	var items = require('../data/items/items.json');
+	var items = (await import('../data/items/items.json')).default;
 	var spec = items.special;
 
 	miscItems = items.misc;
@@ -95,17 +100,12 @@ function initScrolls() {
 
 function initArmors() {
 
-	armorBySlot = {};
-
-	let armor, slot, list;
 	for (let k = baseArmors.length - 1; k >= 0; k--) {
 
-		armor = baseArmors[k];
-		slot = armor.slot as HumanSlot;
+		const armor = baseArmors[k];
+		const slot = armor.slot as HumanSlot;
 
-		list = armorBySlot[slot];
-		if (!list) list = armorBySlot[slot] = [];
-
+		const list = armorBySlot[slot] ?? ( armorBySlot[slot] = [] );
 		list.push(armor);
 
 	}
@@ -177,7 +177,7 @@ export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 	if (slot) {
 		tmp = getSlotRand(slot, lvl);
 	} else {
-		let list = baseArmors.filter((t: Wearable) => !t.level || t.level <= lvl);
+		let list = baseArmors.filter((t: RawArmorData) => !t.level || t.level <= lvl);
 		tmp = list[Math.floor(list.length * Math.random())];
 	}
 
