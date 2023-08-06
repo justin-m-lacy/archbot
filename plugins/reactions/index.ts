@@ -75,7 +75,7 @@ class GuildReactions {
 	 * @param {BotContext} context
 	 */
 	constructor(context: BotContext<ContextSource>) {
-
+	
 		this._context = context;
 
 		this.loadReactions();
@@ -265,6 +265,7 @@ class GuildReactions {
 			console.log(`returning regex reacts`);
 			return this.cmdRegexReacts(m, page);
 		}
+
 		const reacts = this.getReactions(trig);
 		if (!reacts) return m.channel.send('No reaction found.');
 
@@ -351,14 +352,11 @@ class GuildReactions {
 	removeReact(map: Map<string, ReactSet>, trig: string, reaction?: string, isRegex: boolean = false) {
 
 		if (isRegex === false) trig = trig.toLowerCase();
-		//else console.log('REMOVING REGEX TRIGGER: ' + trig );
 
 		const rset = map.get(trig);
 		if (rset === undefined) {
 			return false;
 		}
-
-		console.log('REGEX TRIGGER FOUND: ' + rset.trigger);
 
 		const res = rset.tryRemove(reaction);
 		if (res === true && rset.isEmpty()) map.delete(trig);
@@ -573,13 +571,9 @@ class GuildReactions {
 	 */
 	getReactions(trig: string | null | undefined, reactStr?: string) {
 
-		if (!trig) {
-			console.log(`search reacts: no trigger found.`);
-			return false;
-		}
+		if (!trig) return;
 
 		const rset = this.reMap.get(trig) ?? this.reactions.get(trig.toLowerCase());
-
 		return rset?.findReactions(reactStr) ?? null;
 
 	}
@@ -605,9 +599,10 @@ class GuildReactions {
 			this.allReacts = parseReacts(reactData);
 
 			this.reactions = this.allReacts.strings;
+
 			this.allReacts.regex.forEach((v, k) => this.reMap.set(k, v));
 
-			this._procPct = await this._context.getSetting('reactPct') || this._procPct;
+			this._procPct = (await this._context.getSetting('reactPct')) || this._procPct;
 
 		} catch (e) { console.error(e); }
 
@@ -620,9 +615,7 @@ class GuildReactions {
  * @param {Object} reactData - reaction data.
  * @returns {Object}
  */
-const parseReacts = (data: any) => {
-
-	//const json = JSON.parse(reactData.toString());
+function parseReacts(data: any) {
 
 	return {
 		toJSON() {
@@ -645,7 +638,7 @@ const parseReacts = (data: any) => {
  */
 function parseStrings(data: any) {
 
-	const map = new Map()
+	const map = new Map<string,ReactSet>()
 
 	for (const p in data) {
 		map.set(p, new ReactSet(p, data[p]));
@@ -721,9 +714,6 @@ export const initPlugin = (bot: DiscordBot) => {
 	const parsed = parseReacts(require('./reactions-data.json'));
 	globalReacts = parsed.strings;
 	globalRegEx = parsed.regex;
-
-	console.log(`reacts loaded.`);
-
 
 	bot.addContextClass(GuildReactions);
 	bot.addContextCmd('react', 'react <trigger> <response string>',

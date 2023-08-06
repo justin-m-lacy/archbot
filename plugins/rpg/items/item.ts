@@ -102,7 +102,7 @@ export class Item {
 
 	toJSON() {
 
-		let json: any = {
+		const json: any = {
 			name: this._name,
 			desc: this._desc,
 			type: this._type,
@@ -164,7 +164,7 @@ export class Item {
 
 	static ItemMenu(a: Item[], start = 1) {
 
-		let len = a.length;
+		const len = a.length;
 		if (len === 0) return 'nothing';
 		else if (len === 1) return (start) + ') ' + a[0]._name + (a[0].attach ? '\t[img]' : '');
 
@@ -189,22 +189,9 @@ export class Item {
 	 */
 	static DetailsList(a: Item[]) {
 
-		console.log('DETAILS LIST');
-
-		let len = a.length;
-		if (len === 0) return 'nothing';
-		else if (len === 1) return a[0].getDetails();
-
-		let it = a[0];
-		let res = it.getDetails();
-
-		for (let i = 1; i < len; i++) {
-			it = a[i];
-			res += ', ' + it.getDetails();
-		}
-
-		return res;
-
+		if (a.length === 0) return 'nothing';
+		return a.map(it=>it.getDetails()).join(",");
+	
 	}
 
 	/**
@@ -213,31 +200,17 @@ export class Item {
 	 */
 	static ItemList(a: Item[]) {
 
-		let len = a.length;
-		if (len === 0) return 'nothing';
-		else if (len === 1) return a[0]._name + (a[0].attach ? '\t[img]' : '');
-
-		let it = a[0];
-		let res = it._name;
-		if (it.attach) res += ' [img]';
-
-		for (let i = 1; i < len; i++) {
-			it = a[i];
-			res += ', ' + it._name;
-			if (it.attach) res += ' [img]';
-
-		}
-
-		return res;
-
+		if (a.length === 0) return 'nothing';
+		return a.map(it=>it._name + (it.attach?'\t[img]' : '')).join(',');
+	
 	}
 
 	static Cook(it: Item) {
 
-		let cooking = require('../data/cooking.json');
-		let adjs = cooking.adjectives;
+		const cooking = require('../data/cooking.json');
+		const adjs = cooking.adjectives;
 
-		let adj = adjs[Math.floor(adjs.length * Math.random())];
+		const adj = adjs[Math.floor(adjs.length * Math.random())];
 
 		if ('armor' in it) {
 			// @ts-ignore
@@ -250,7 +223,7 @@ export class Item {
 
 		it.name = adj + ' ' + it.name;
 
-		let desc = cooking.descs[Math.floor(cooking.descs.length * Math.random())];
+		const desc = cooking.descs[Math.floor(cooking.descs.length * Math.random())];
 		it.desc += ' ' + desc;
 
 	}
@@ -259,15 +232,14 @@ export class Item {
 
 export const Craft = (char: Char, name: string, desc?: string, attach?: string) => {
 
-	let item = new Item(name, desc);
+	const item = new Item(name, desc);
 
 	if (attach) item.attach = attach;
 
 	item.crafter = char.name;
 	item.created = Date.now();
 
-	let maxBonus = char.level + char.getModifier('int') + 1;
-	if (maxBonus < 2) maxBonus = 2;
+	const maxBonus = Math.max(char.level + char.getModifier('int') + 1, 2);
 	item.cost = Math.floor(maxBonus * Math.random());
 
 	char.addHistory('crafted');

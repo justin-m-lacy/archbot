@@ -262,8 +262,6 @@ class Room {
  */
 export async function initPlugin(bot: DiscordBot) {
 
-	console.log('Chess INIT');
-
 	await Display.loadImages();
 
 	bot.addContextCmd('chessgames', 'chessgames [player1] [player2]', Room.prototype.cmdShowGames, Room, { maxArgs: 2 });

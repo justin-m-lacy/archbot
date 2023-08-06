@@ -131,9 +131,9 @@ export default {
 
 	/**
 	 *
-	 * @param {string} plugin
+	 * @param plugin
 	 */
-	getPluginDir(plugin: string) {
+	getPluginDir(plugin?: string) {
 
 		if (!plugin) return BASE_DIR + PLUGINS_DIR;
 		return BASE_DIR + PLUGINS_DIR + plugin + '/';

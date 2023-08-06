@@ -47,7 +47,7 @@ export class ReactSet {
 			this._reacts = [];
 
 			if (reacts) {
-				let r = parseReaction(reacts);
+				const r = parseReaction(reacts);
 				if (r) this._reacts.push(r);
 			}
 		}

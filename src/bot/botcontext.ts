@@ -391,8 +391,8 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 
 		let inst = new cls(this);
 
-		if ('load' in inst) {
-			await inst.load!();
+		if ('load' in inst && typeof inst.load === 'function') {
+			await inst.load();
 		}
 
 		this._instances.set(cls.name, inst);

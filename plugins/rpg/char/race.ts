@@ -21,7 +21,7 @@ export default class Race {
 
 	static Create(name: string, hitdice: any, statMods = {}) {
 
-		let r = new Race();
+		const r = new Race();
 		r._name = name;
 		r._hitdice = hitdice;
 		r._baseMods = statMods;

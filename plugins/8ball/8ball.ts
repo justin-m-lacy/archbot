@@ -1,7 +1,7 @@
 import { DiscordBot } from "@src/bot/discordbot";
 import { Message } from "discord.js";
 
-var answers: string[];
+let answers: string[];
 
 export const initPlugin = (bot: DiscordBot) => {
 
@@ -9,9 +9,9 @@ export const initPlugin = (bot: DiscordBot) => {
 
 }
 
-function cmd8Ball(m: Message) {
+const cmd8Ball = async (m: Message) => {
 
-	if (!answers) answers = require('./answers.json');
+	if (!answers) answers = await import('./answers.json');
 	if (answers.length === 0) return;
 
 	const ind = Math.floor(answers.length * Math.random());

@@ -96,7 +96,7 @@ export default class Game {
 	 * @param {string} act - action to attempt to perform.
 	 */
 	canAct(char: Char, act: string) {
-		let illegal = illegal_acts[char.state];
+		const illegal = illegal_acts[char.state];
 		if (illegal && illegal.hasOwnProperty(act)) {
 			char.log(`Cannot ${act} while ${char.state}.`);
 			return false;
@@ -136,10 +136,10 @@ export default class Game {
 
 		if (this.tick(char, 'hike') === false) return char.getLog();
 
-		let d = char.loc.abs();
+		const d = char.loc.abs();
 
 		let r = this.skillRoll(char) + char.getModifier('dex') + char.getModifier('wis');
-		let p = this.getParty(char);
+		const p = this.getParty(char);
 
 		r -= d / 10;
 		if (p && p.isLeader(char)) r -= 5;
@@ -151,7 +151,7 @@ export default class Game {
 		}
 		else if (r < 10) return char.output('You failed to find your way.');
 
-		let loc = await this.world.hike(char, toDirection(dir));
+		const loc = await this.world.hike(char, toDirection(dir));
 		if (!loc) return char.output('You failed to find your way.');
 
 		if (p && p.leader === char.name) {
@@ -169,7 +169,7 @@ export default class Game {
 
 	makeParty(char: Char, ...invites: string[]) {
 
-		let p = new Party(char, this.charCache);
+		const p = new Party(char, this.charCache);
 		this._charParties[char.name] = p;
 
 		for (let i = invites.length - 1; i >= 0; i--) p.invite(invites[i]);
@@ -192,7 +192,7 @@ export default class Game {
 	async party(char: Char, t?: Char) {
 
 		const party = this.getParty(char);
-		if (!t) return party ? await party.getStatus() : "You are not in a party.";
+		if (!t) return await party?.getStatus() ?? "You are not in a party.";
 
 		const other = this.getParty(t);
 

@@ -15,11 +15,11 @@ import featureList from '../data/world/features.json';
 
 type RawArmorData = (typeof baseArmors)[number];
 type RawWeaponData = (typeof baseWeapons)[number];
-type RawPotionData = (typeof import('../data/items/potions.json'))[number]&{type?:string};
-
+type RawPotionData = (typeof import('../data/items/potions.json'))[number]&{type?:"potion"};
+type RawChestsData = (typeof import('../data/items/chests.json'))[number]&{type?:"chest"};
 type RawItemData = (typeof import('../data/items/items.json')['misc'|'special'][number])
 
-const allItems: { [str: string]: RawItemData|RawPotionData } = {};
+const allItems: { [str: string]: RawItemData|RawPotionData|RawChestsData } = {};
 const allPots: { [name: string]: RawPotionData } = {};
 const potsByLevel: { [key: number]: RawPotionData[] } = [];
 
@@ -79,11 +79,11 @@ async function initPots() {
 
 async function initChests() {
 
-	const packs = require('../data/items/chests.json');
+	const packs = (await import('../data/items/chests.json')).default;
 
 	for (let i = packs.length - 1; i >= 0; i--) {
 
-		const p = packs[i];
+		const p:RawChestsData = packs[i];
 		p.type = 'chest';	// assign type.
 
 		allItems[p.name.toLowerCase()] = p;
@@ -110,7 +110,7 @@ function initArmors() {
 }
 
 /**
- * revive an item from JSON
+ * revive item from JSON
 */
 export const fromJSON = (json: any) => {
 
@@ -151,7 +151,7 @@ export const genPot = (name: string) => {
 export const genWeapon = (lvl: number) => {
 
 	const mat = Material.Random(lvl);
-	if (mat === null) { console.log('material is null'); return null; }
+	if (mat === null) return null;
 
 	//console.log( 'weaps len: ' + baseWeapons.length );
 	const tmp = baseWeapons[Math.floor(baseWeapons.length * Math.random())];
@@ -168,7 +168,7 @@ export const genWeapon = (lvl: number) => {
 export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 
 	const mat = Material.Random(lvl);
-	if (mat === null) { console.log('material is null'); return null; }
+	if (mat === null) return null;
 
 	let tmp;
 	if (slot) {
@@ -186,16 +186,16 @@ export const genArmor = (slot: HumanSlot | null = null, lvl: number = 0) => {
 
 const getSlotRand = (slot: HumanSlot, lvl: number = 0) => {
 
-	let list = armorBySlot[slot];
-	if (!list) return;
-	list = list.filter(t => !t.level || t.level <= lvl);
+	const list = armorBySlot[slot]?.filter(t => !t.level || t.level <= lvl);
+	if ( !list || list.length === 0) return null;
+
 	return list[Math.floor(list.length * Math.random())];
 
 }
 
 export const randFeature = () => {
 
-	let data = featureList[Math.floor(featureList.length * Math.random())];
+	const data = featureList[Math.floor(featureList.length * Math.random())];
 	return Feature.FromJSON(data);
 
 }

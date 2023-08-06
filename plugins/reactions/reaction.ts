@@ -8,9 +8,6 @@ const groupRegex = /\$(\d+|[&'`])/g;
 
 export class Reaction {
 
-	/*toJSON(){
-	}*/
-
 	r: string;
 	uid?: string;
 	t: number;
@@ -141,7 +138,6 @@ export class Reaction {
  */
 export const parseReaction = (r: Reaction | ReactionData | string) => {
 
-
 	if (typeof r === 'object') {
 
 		if (r instanceof Reaction) {
@@ -164,13 +160,13 @@ export const parseReaction = (r: Reaction | ReactionData | string) => {
  */
 export const parseReactions = (a: (Reaction | ReactionData)[]) => {
 
-	const d = [];
+	const d:Reaction[] = [];
 
 	const len = a.length;
 	for (let i = 0; i < len; i++) {
 
 		const r = parseReaction(a[i]);
-		if (r !== null) d.push(r);
+		if (r != null) d.push(r);
 	}
 
 	return d;

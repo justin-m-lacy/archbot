@@ -1,8 +1,7 @@
-const Discord = require( 'discord.js' );
-const AudioSource = require( './audioSource' );
-
+import { VoiceChannel } from 'discord.js';
+import * as  AudioSource from './audioSource';
+import path from 'path';
 //const ytdl = require( 'ytdl-core');
-const path = require( 'path' );
 
 /**
  * @constant {number} MAX_STREAMS - Maximum number of simultaneous audio streams.
@@ -146,7 +145,7 @@ class Juke {
 			return false;
 		}
 
-		if ( !(channel instanceof Discord.VoiceChannel )) return false;
+		if ( !(channel instanceof VoiceChannel )) return false;
 
 		channel.join().then( vc=>{
 

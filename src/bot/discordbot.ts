@@ -110,13 +110,12 @@ export class DiscordBot {
 		this._admins = auth.admins;
 		this._owner = auth.owner;
 
-		this.loadPlugins();
-
-		this.initBotEvents();
+		this.loadPlugins().then(()=>this.initBotEvents());
 
 	}
 
 	initBotEvents() {
+
 		process.on('exit', () => this.onShutdown());
 		process.on('SIGINT', () => this.onShutdown());
 
@@ -182,7 +181,7 @@ export class DiscordBot {
 	}
 
 	/**
-	 * Attempt to load plugins.
+	 * Load Plugins.
 	 */
 	private async loadPlugins() {
 
@@ -190,7 +189,7 @@ export class DiscordBot {
 
 			try {
 
-				var plugins = await loadPlugins(this._plugsdir);
+				const plugins = await loadPlugins(this._plugsdir);
 				this.addPlugins(plugins);
 
 			} catch (e) { console.error(e); }
@@ -242,7 +241,6 @@ export class DiscordBot {
 			this.client.guilds.cache.forEach((g, id) => {
 
 				this.getContext(g, ChannelType.GuildText).then(c => {
-					console.log('adding class: ' + cls.name)
 					c?.addClass(cls);
 				});
 
@@ -276,7 +274,6 @@ export class DiscordBot {
 		try {
 			const classes = this._contextClasses;
 			if (classes.length === 0) {
-				console.log('no classes to instantiate.');
 				return;
 			}
 
@@ -319,10 +316,7 @@ export class DiscordBot {
 		if (this.spamblock(m)) return;
 
 		const command = this._dispatch.parseLine(m.content);
-
-		if (!command) {
-			return;
-		}
+		if (!command) return;
 
 		// check command access.
 		const context = await this.getMsgContext(m);
@@ -604,10 +598,9 @@ export class DiscordBot {
 		const type = m.channel.type;
 		let idobj;
 
-		if (type & ChannelType.GuildCategory) {
+		if (type === ChannelType.GuildText) {
 			idobj = m.guild;
-		}
-		else {
+		} else {
 
 			idobj = m.author;
 			//check proxy
@@ -650,10 +643,10 @@ export class DiscordBot {
 		const sourceId = this._proxies.get(proxy.id);
 
 		if (sourceId) {
-			let con = this._contexts.get(sourceId);
+			const con = this._contexts.get(sourceId);
 			if (con) return con;
 
-			let proxob = await this.findDiscordObject(sourceId);
+			const proxob = await this.findDiscordObject(sourceId);
 			if (proxob) return this.makeContext(proxob);
 
 			// proxy not found.
@@ -683,6 +676,7 @@ export class DiscordBot {
 		let context;
 
 		if (idobj instanceof Guild) {
+			//console.log(`new context: ${idobj.name}: ${idobj.id}`);
 			context = new GuildContext(this, idobj as Guild, this.cache.subcache(fsys.getGuildDir(idobj)));
 		} else if (idobj instanceof User) {
 			context = new UserContext(this, idobj as User, this.cache.subcache(fsys.getUserDir(idobj)));

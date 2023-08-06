@@ -1,7 +1,7 @@
 import { Item, ItemType } from './items/item';
 import Chest from './items/chest';
 import Container from './items/container';
-const ItemGen = require('./items/itemgen');
+import * as  ItemGen from './items/itemgen';
 
 export type ItemPicker = string | number | Item;
 export type ItemIndex = string | number;

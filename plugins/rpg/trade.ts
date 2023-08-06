@@ -29,15 +29,14 @@ export const rollWeap = (char: Char) => {
 		return `${char.name} cannot afford to roll a new weapon. (${cost} gold)`;
 
 	const gen = require('./items/itemgen');
-	let mod = 1 + char.getModifier('cha');
-	if (mod < 0) mod = 0;
+	const mod = Math.max( 1 + char.getModifier('cha'), 0 );
 
 	level = Math.max(0, level + jsutils.random(-1, mod));
-	let it = gen.genWeapon(level);
+	const it = gen.genWeapon(level);
 
 	if (!it) return 'Failed to roll a weapon.';
 
-	let ind = char.addItem(it);
+	const ind = char.addItem(it);
 	return `${char.name} rolled a shiny new ${it.name}. (${ind})`;
 
 }
@@ -49,28 +48,26 @@ export const rollArmor = (char: Char, slot?: string) => {
 	if (!char.payOrFail(cost))
 		return `${char.name} cannot afford to roll new armor. (${cost} gold)`;
 
-	let mod = 1 + char.getModifier('cha');
-	if (mod < 0) mod = 0;
+	const mod = Math.max( 1 + char.getModifier('cha'), 0 );
 
 	level = Math.max(0, level + jsutils.random(-1, mod));
 	const it = ItemGen.genArmor(toSlot(slot), level);
 
 	if (!it) return 'Failed to roll armor.';
 
-	let ind = char.addItem(it);
+	const ind = char.addItem(it);
 
 	return `${char.name} rolled a spiffy new ${it.name}. (${ind})`;
 
 }
 
-export const sellRange = (src: Char, start: number, end: number) => {
+export const sellRange = (src: Char, start: ItemIndex, end: ItemIndex) => {
 
 	const arr = src.takeRange(start, end);
 	if (arr === null) return 'Invalid item range.';
 	if (arr.length === 0) return 'No items in range.';
 
-	let mod = src.level + src.getModifier('cha');
-	if (mod < 0) mod = 0;
+	const mod = Math.max( src.level + src.getModifier('cha'), 0 );
 
 	let gold = 0;
 
@@ -86,16 +83,17 @@ export const sellRange = (src: Char, start: number, end: number) => {
 
 export const sell = (src: Char, wot: ItemPicker, end?: ItemIndex) => {
 
-	// @ts-ignore
-	if (end !== null) return sellRange(src, wot as ItemIndex, end);
+	if (end != null) {
+		if ( typeof wot === 'object') return 'Invalid item range.';
+		return sellRange(src, wot as ItemIndex, end );
+	}
 
 	const it = src.takeItem(wot) as Item | null;
 	if (!it) return 'Item not found.';
 
-	let mod = src.level + src.getModifier('cha');
-	if (mod < 0) mod = 0;
+	const mod = Math.max( src.level + src.getModifier('cha'), 0 );
 
-	let gold = isNaN(it.cost) ? (Math.random() < 0.5 ? mod : 0) : it.cost + mod;
+	const gold = isNaN(it.cost) ? (Math.random() < 0.5 ? mod : 0) : it.cost + mod;
 	src.addGold(gold);
 	return it.name + ' sold for ' + gold + ' gold.';
 
@@ -106,16 +104,14 @@ export const transfer = (src: Char, dest: Char, what: string) => {
 	const res = goldAmt.exec(what);
 	if (res !== null) {
 
-		console.log('gold transfer: ' + res[1]);
 		return xferGold(src, dest, res[1]);
 
 	} else {
 
-		console.log('item transfer: ' + what);
 		const it = src.takeItem(what) as Item | null;
 		if (it) {
 
-			let ind = dest.addItem(it);
+			const ind = dest.addItem(it);
 			src.addHistory('gave');
 			dest.addHistory('recieved');
 
@@ -133,11 +129,9 @@ const xferGold = (src: Char, dest: Char, count: number | string) => {
 	if (typeof (count) === 'string') count = parseInt(count);
 	if (isNaN(count)) return 'Amount is not a number.';
 
-	let gold = src.gold;
+	const gold = src.gold - count;
+	if (gold < 0) return "Not enough gold.";
 
-	if (gold < count) return "Not enough gold.";
-
-	gold -= count;
 	src.gold = gold;
 	dest.addGold(count);
 
@@ -156,7 +150,7 @@ export const nerfItems = (char: Char) => {
 		if (it.level && it.level > maxLevel) return true;
 		if (it.material) {
 
-			let m = Material.GetMaterial(it.material);
+			const m = Material.GetMaterial(it.material);
 			if (m && m.level > maxLevel) return true;
 
 		}

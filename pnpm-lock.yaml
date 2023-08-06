@@ -5,8 +5,8 @@ dependencies:
     specifier: ^1.0.4
     version: 1.0.4
   archcache:
-    specifier: ^1.1.0
-    version: 1.1.0
+    specifier: ^1.2.1
+    version: 1.2.1
   archdice:
     specifier: ^1.1.0
     version: 1.1.0
@@ -40,6 +40,9 @@ dependencies:
   jimp:
     specifier: ^0.16.0
     version: 0.16.0
+  typescript:
+    specifier: ^5.1.6
+    version: 5.1.6
 
 devDependencies:
   '@types/blake2b':
@@ -61,8 +64,8 @@ devDependencies:
     specifier: ^5.13.1
     version: 5.13.1
   ts-node:
-    specifier: ^10.7.0
-    version: 10.7.0(@types/node@20.4.3)(typescript@5.1.6)
+    specifier: ^10.9.1
+    version: 10.9.1(@types/node@20.4.8)(typescript@5.1.6)
   tsc-alias:
     specifier: ^1.8.7
     version: 1.8.7
@@ -79,16 +82,11 @@ packages:
       regenerator-runtime: 0.13.11
     dev: false
 
-  /@cspotcode/source-map-consumer@0.8.0:
-    resolution: {integrity: sha512-41qniHzTU8yAGbCp04ohlmSrZf8bkf/iJsl3V0dRGsQN/5GFfx+LbCSsCpp2gqrqjTVg/K6O8ycoV35JIwAzAg==}
-    engines: {node: '>= 12'}
-    dev: true
-
-  /@cspotcode/source-map-support@0.7.0:
-    resolution: {integrity: sha512-X4xqRHqN8ACt2aHVe51OxeA2HjbcL4MqFqXkrmQszJ1NOUuUu5u6Vqx/0lZSVNku7velL5FC/s5uEAj1lsBMhA==}
+  /@cspotcode/source-map-support@0.8.1:
+    resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
     dependencies:
-      '@cspotcode/source-map-consumer': 0.8.0
+      '@jridgewell/trace-mapping': 0.3.9
     dev: true
 
   /@discordjs/builders@1.6.3:
@@ -528,6 +526,22 @@ packages:
       regenerator-runtime: 0.13.11
     dev: false
 
+  /@jridgewell/resolve-uri@3.1.1:
+    resolution: {integrity: sha512-dSYZh7HhCDtCKm4QakX0xFpsRDqjjtZf/kjI/v3T3Nwt5r8/qz/M19F9ySyOqU94SXBmeG9ttTul+YnR4LOxFA==}
+    engines: {node: '>=6.0.0'}
+    dev: true
+
+  /@jridgewell/sourcemap-codec@1.4.15:
+    resolution: {integrity: sha512-eF2rxCRulEKXHTRiDrDy6erMYWqNw4LPdQ8UQA4huuxaQsVeRPFl2oM8oDGxMFhJUWZf9McpLtJasDDZb/Bpeg==}
+    dev: true
+
+  /@jridgewell/trace-mapping@0.3.9:
+    resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+    dependencies:
+      '@jridgewell/resolve-uri': 3.1.1
+      '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
+
   /@mapbox/node-pre-gyp@1.0.11:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
@@ -696,6 +710,11 @@ packages:
 
   /@types/node@20.4.3:
     resolution: {integrity: sha512-Yu3+r4Mn/iY6Mf0aihncZQ1qOjOUrCiodbHHY1hds5O+7BbKp9t+Li7zLO13zO8j9L2C6euz8xsYQP0rjGvVXw==}
+    dev: false
+
+  /@types/node@20.4.8:
+    resolution: {integrity: sha512-0mHckf6D2DiIAzh8fM8f3HQCvMKDpK94YQ0DSVkfWTG9BZleYIWudw9cJxX8oCk9bM+vAkDyujDV6dmKHbvQpg==}
+    dev: true
 
   /@types/ws@8.5.5:
     resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
@@ -759,8 +778,8 @@ packages:
     resolution: {integrity: sha512-lYe4Gx7QT+MKGbDsA+Z+he/Wtef0BiwDOlK/XkBrdfsh9J/jPPXbX0tE9x9cl27Tmu5gg3QUbUrQYa/y+KOHPQ==}
     dev: false
 
-  /archcache@1.1.0:
-    resolution: {integrity: sha512-UuYWDOFcu2xoFeafR7uu9VgZuGYH51vV04khDvwBOAzQ9XBg4mi93+eCUBAafcuqr4SQmHSomAtugM1HEv8L6w==}
+  /archcache@1.2.1:
+    resolution: {integrity: sha512-dRHbNltedn0s/cmYFGnRcgArJT22NXnXrQKjnUNpu+MCc458fgYQaITiH3YIjlyCWTb9AowlkH6IQpzaVbMpdQ==}
     dependencies:
       eventemitter3: 3.1.2
     dev: false
@@ -1889,8 +1908,8 @@ packages:
     resolution: {integrity: sha512-k43M7uCG1AkTyxgnmI5MPwKoUvS/bRvLvUb7+Pgpdlmok8AoqmUaZxUUw8zKM5B1lqZrt41GjYgnvAi0fppqgQ==}
     dev: false
 
-  /ts-node@10.7.0(@types/node@20.4.3)(typescript@5.1.6):
-    resolution: {integrity: sha512-TbIGS4xgJoX2i3do417KSaep1uRAW/Lu+WAL2doDHC0D6ummjirVOXU5/7aiZotbQ5p1Zp9tP7U6cYhA0O7M8A==}
+  /ts-node@10.9.1(@types/node@20.4.8)(typescript@5.1.6):
+    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
       '@swc/core': '>=1.2.50'
@@ -1903,12 +1922,12 @@ packages:
       '@swc/wasm':
         optional: true
     dependencies:
-      '@cspotcode/source-map-support': 0.7.0
+      '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.9
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.4.3
+      '@types/node': 20.4.8
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
@@ -1949,7 +1968,6 @@ packages:
     resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /underscore-plus@1.7.0:
     resolution: {integrity: sha512-A3BEzkeicFLnr+U/Q3EyWwJAQPbA19mtZZ4h+lLq3ttm9kn8WC4R3YpuJZEXmWdLjYP47Zc8aLZm9kwdv+zzvA==}

@@ -23,7 +23,7 @@
   "homepage": "https://github.com/justin-m-lacy/archbot#readme",
   "dependencies": {
     "@stablelib/nacl": "^1.0.4",
-    "archcache": "^1.1.0",
+    "archcache": "^1.2.1",
     "archdice": "^1.1.0",
     "argon2": "^0.30.3",
     "blake2b": "^2.1.4",
@@ -34,7 +34,8 @@
     "dotenv": "^16.3.1",
     "fflate": "^0.8.0",
     "formulic": "^2.0.3",
-    "jimp": "^0.16.0"
+    "jimp": "^0.16.0",
+    "typescript": "^5.1.6"
   },
   "keywords": [
     "discord",
@@ -54,7 +55,7 @@
     "glob": "^8.0.1",
     "rimraf": "^3.0.2",
     "terser": "^5.13.1",
-    "ts-node": "^10.7.0",
+    "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.7",
     "tsconfig-paths": "^4.2.0"
   }
