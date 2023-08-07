@@ -34,8 +34,7 @@
     "dotenv": "^16.3.1",
     "fflate": "^0.8.0",
     "formulic": "^2.0.3",
-    "jimp": "^0.16.0",
-    "typescript": "^5.1.6"
+    "jimp": "^0.16.0"
   },
   "keywords": [
     "discord",
@@ -57,6 +56,7 @@
     "terser": "^5.13.1",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.7",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.1.6"
   }
 }

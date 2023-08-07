@@ -68,13 +68,13 @@ class NovelAiPlugin {
         const storyid = this.cache.get('storyid');
         if ( storyid != null ) {
 
-            await this.client.loadStoryContent(storyid);
+           // await this.client.loadStoryContent(storyid);
         } else {
 
-            const result = await this.client.createStory( channelId );
+            /*const result = await this.client.createStory( channelId );
             if ( result ) {
                 console.log(`story created: ${result}`);
-            }
+            }*/
 
         }
 
@@ -137,7 +137,7 @@ class NovelAiPlugin {
 export const initPlugin = (bot: DiscordBot) => {
 
     bot.addContextCmd('story', 'story [prompt]', NovelAiPlugin.prototype.cmdStory, NovelAiPlugin,
-    { minArgs: 1, maxArgs: 1, group: 'right', alias:'s' });
+    { minArgs: 1, maxArgs: 1, group: 'right', "alias":"st"});
 
     bot.addContextCmd('clearstory', 'clearstory', NovelAiPlugin.prototype.cmdClearStory, NovelAiPlugin,
     { minArgs: 1, maxArgs: 1, group: 'right' });
