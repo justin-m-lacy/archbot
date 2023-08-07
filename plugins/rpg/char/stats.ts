@@ -138,9 +138,9 @@ export default class StatBlock implements IStatBlock {
 
 	static FromJSON(json: any) {
 
-		let stats = new StatBlock();
+		const stats = new StatBlock();
 
-		for (let k in json) {
+		for (const k in json) {
 			if (stats.hasOwnProperty(k)) stats[k as StatKey] = json[k];
 		}
 
@@ -163,7 +163,7 @@ export default class StatBlock implements IStatBlock {
 
 	toJSON() {
 
-		let o: any = {
+		const o: any = {
 
 			maxHp: this._maxHp,
 			curHp: this._curHp,
@@ -196,7 +196,7 @@ export default class StatBlock implements IStatBlock {
 	 * @param {*} stat 
 	 */
 	getModifier(stat: string) {
-		let val = stat in this ? this[stat as StatKey] : 0;
+		const val = stat in this ? this[stat as StatKey] : 0;
 		if (!val) return 0;
 		return Math.floor((val - 10) / 2);
 	}
@@ -238,7 +238,7 @@ export class StatMods {
 
 	static FromJSON(json: any) {
 
-		let mod = new StatMods(json.mods);
+		const mod = new StatMods(json.mods);
 		mod._start = json.start;
 		mod._duration = json._duration;
 

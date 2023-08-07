@@ -84,7 +84,7 @@ class Juke {
 
 			files=>{
 
-				for( let name of files ) {
+				for( const name of files ) {
 					this._allSongs.push( new AudioSource( name ) );
 				}
 
@@ -105,14 +105,14 @@ class Juke {
 		if ( !this.channel || !this._connection || this.channel.members.size <= 1
 			|| this._queue.length <= 0 ) return;
 
-		let next = this._queue.shift();
+		const next = this._queue.shift();
 
 		var dispatcher;
 		if ( next.type === 'web') {
 
 			if ( next.path.indexOf('youtube.com') >= 0 ) {
 
-				let stream = ytdl( next.path, {filter:'audioonly'});
+				const stream = ytdl( next.path, {filter:'audioonly'});
 				dispatcher = this._connection.playStream( stream, {seek:0, volume:1} );
 
 			} else dispatcher = this._connection.playArbitraryInput( next.path );
@@ -232,7 +232,7 @@ class Juke {
 
 		} else {
 
-			let num = Number( which ) - 1;	// 1->0 index.
+			const num = Number( which ) - 1;	// 1->0 index.
 			if ( num < 0 || num >= this._allSongs.length ) {
 				return null;
 			}
@@ -259,7 +259,7 @@ class Juke {
 
 		if ( this.songExists(uri) ) return m.reply( 'Song already listed in database.' );
 
-		let src = new AudioSource( uri, title );
+		const src = new AudioSource( uri, title );
 		this._allSongs.push( src );
 
 		return m.reply( 'Song added: ' + (title || uri), {code:true} );
@@ -268,7 +268,7 @@ class Juke {
 
 	async cmdQueue( m, which, title=null ) {
 
-		let src = this.resolveSong( which );
+		const src = this.resolveSong( which );
 		if ( !src ) src = new AudioSource( which, title );
 
 		this._queue.push( src );

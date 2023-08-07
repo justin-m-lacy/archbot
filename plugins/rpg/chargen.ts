@@ -56,7 +56,7 @@ export const genChar = (owner: string, race: Race, charClass: CharClass, name: s
 function modStats(statMods: StatMod, destObj: any) {
 
 	let mod;
-	for (let stat in statMods) {
+	for (const stat in statMods) {
 
 		const cur = destObj[stat];
 		mod = statMods[stat as StatName];

@@ -283,7 +283,6 @@ class CmdLine {
 		const len = str.length;
 		let start = 0;
 		let end;
-		let char;
 
 		while (true) {
 
@@ -297,7 +296,7 @@ class CmdLine {
 				break;
 			}
 
-			char = str.charAt(start);
+			const char = str.charAt(start);
 			end = start + 1;
 
 			if (char === '"') {
@@ -326,7 +325,6 @@ class CmdLine {
 		const args = [];
 		let start = str.length - 1;
 		let end;
-		let char;
 
 		while (true) {
 
@@ -340,7 +338,7 @@ class CmdLine {
 				break;
 			}
 
-			char = str.charAt(start);
+			const char = str.charAt(start);
 			end = start - 1;
 
 			if (char === '"') {
@@ -376,41 +374,5 @@ class CmdLine {
 		return str.slice(start, end + 1);
 
 	}
-
-	/// splits arguments, allowing quote marks.
-	/*getArgs() {
-
-		let str = this._argStr;
-		var args = [];
-		var len = str.length;
-		let start = 0;
-		let end;
-		let char;
-
-		while (true) {
-
-			// skip spaces.
-			while (start < len && str.charAt(start) === ' ') start++;
-			if (start >= len) return args;
-
-			char = str.charAt(start);
-			end = start + 1;
-			if (char === '"') {
-
-				// quoted arg.
-				while (end < len && str.charAt(end) !== '"') end++;
-				args.push(str.slice(start + 1, end));
-
-			} else {
-
-				while (end < len && str.charAt(end) !== ' ') end++;
-				args.push(str.slice(start, end));
-			}
-
-			start = end + 1;
-
-		}
-
-	}*/
 
 }

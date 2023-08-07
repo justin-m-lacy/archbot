@@ -59,9 +59,9 @@ export class ChessGame extends Game {
 
 		//console.log( 'fen: ' + data.fen );
 
-		let state = Chess.fenToPosition(data.fen);
+		const state = Chess.fenToPosition(data.fen);
 
-		let game = new ChessGame(data.p1, data.p2, data.time, state, data.status);
+		const game = new ChessGame(data.p1, data.p2, data.time, state, data.status);
 
 		Export.readPGN(data.pgn, game);
 
@@ -143,11 +143,11 @@ export class ChessGame extends Game {
 
 	tryMove(moveStr: string) {
 
-		let oldState = this._gameState;
-		let move = Chess.pgnToMove(oldState, moveStr);
+		const oldState = this._gameState;
+		const move = Chess.pgnToMove(oldState, moveStr);
 		if (move == null) return false;
 
-		let newState = Chess.applyMove(oldState, move);
+		const newState = Chess.applyMove(oldState, move);
 		this._status = Chess.getGameStatus(newState);
 
 		if (newState.check) {

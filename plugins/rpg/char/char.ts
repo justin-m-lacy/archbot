@@ -457,7 +457,7 @@ export default class Char extends Actor {
 
 	testDmg() {
 
-		let weaps = this._equip.getWeapons();
+		const weaps = this._equip.getWeapons();
 		if (weaps === null) return 'No weapons equipped.';
 		else if (Array.isArray(weaps)) {
 
@@ -487,7 +487,7 @@ export default class Char extends Actor {
 	getStatString() {
 
 		let str = '';
-		let len = statTypes.length;
+		const len = statTypes.length;
 
 		let stat = statTypes[0];
 		str += stat + ': ' + (this.curStats[stat as StatKey] ?? 0);

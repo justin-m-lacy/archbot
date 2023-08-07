@@ -248,34 +248,6 @@ const cmdRoll = async (msg: Message, dicestr: string) => {
 
 }
 
-/**
- *
- * @param {Message} msg
- * @param {string} when
- */
-/*const cmdSleep = (msg: Message, when: string) => {
-    let sender = bot.getSender(msg);
-    setSchedule(sender, 'sleep', when);
-}*/
-
-/**
- *
- * @param {Message} msg
- * @param {string} activity
- * @param {string} when
- */
-/*const cmdSchedule = (msg: Message, activity: string, when: string) => {
-
-    let sender = bot.getSender(msg);
-    setSchedule(sender, activity, when);
-    return msg.channel.send('Scheduled ' + activity + ' for ' + bot.displayName(sender));
-
-}
-
-const cmdWhen = (msg: Message, who: string, activity: string) => {
-    return sendSchedule(msg.channel, who, activity);
-}*/
-
 const cmdLastPlay = (msg: Message, who: string, game: string) => {
     return sendGameTime(msg.channel, who, game);
 }

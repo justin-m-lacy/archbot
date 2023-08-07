@@ -389,7 +389,7 @@ class GuildReactions {
 
 		if (rset === undefined) {
 
-			let regex = toRegEx(trig);	// takes flags into account.
+			const regex = toRegEx(trig);	// takes flags into account.
 			if (!regex) {
 				return;
 			}

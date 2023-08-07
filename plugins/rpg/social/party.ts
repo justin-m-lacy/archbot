@@ -156,7 +156,7 @@ export default class Party extends SocialGroup {
 	 */
 	async randAlive() {
 
-		let len = this.roster.length;
+		const len = this.roster.length;
 		let ind = Math.floor(Math.random() * len);
 		let start = ind;
 

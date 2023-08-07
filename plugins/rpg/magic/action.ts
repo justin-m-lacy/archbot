@@ -55,7 +55,7 @@ class Action {
 	}
 
 	checkRequire(char: Char, req: any) {
-		for (let k in req) {
+		for (const k in req) {
 			if (char[k as keyof Char] !== req[k]) return false;
 		}
 		return true;

@@ -95,8 +95,8 @@ export default class SocialGroup {
 	 */
 	leave(char: Char) {
 
-		let name = char.name;
-		let ind = this._roster.indexOf(name);
+		const name = char.name;
+		const ind = this._roster.indexOf(name);
 		if (ind >= 0) {
 
 			this._roster.splice(ind, 1);
@@ -121,7 +121,7 @@ export default class SocialGroup {
 
 	setLeader(char: Char | string) {
 
-		let name = (typeof (char) === 'string') ? char : char.name;
+		const name = (typeof (char) === 'string') ? char : char.name;
 		if (!this.roster.includes(name)) return false
 
 		this.leader = name;

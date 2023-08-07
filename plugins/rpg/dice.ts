@@ -6,7 +6,7 @@ export class Roller {
 
 		//console.log('roller from: ' + str );
 
-		let res = rollex.exec(str);
+		const res = rollex.exec(str);
 		if (res === null) return new Roller();
 
 		let num = parseInt(res[1]);
@@ -65,7 +65,7 @@ export class Roller {
 
 export const parseRoll = (str: string) => {
 
-	let res = rollex.exec(str);
+	const res = rollex.exec(str);
 	if (res === null) return roll(1, 6);
 
 	let num = parseInt(res[1]);

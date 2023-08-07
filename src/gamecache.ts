@@ -382,13 +382,12 @@ export class GameCache {
 		let min = 0, max = list.length;
 		let mid = Math.floor((min + max) / 2);
 
-		let gtime = ginfo[3];
-		let id = ginfo[0];
+		const gtime = ginfo[3];
+		const  id = ginfo[0];
 
-		let cur;
 		while (min < max) {
 
-			cur = list[mid];
+			const cur = list[mid];
 
 			if (id === cur[0]) {
 				console.log('ITEM: ' + id + ' ALREADY IN LIST.');
@@ -419,13 +418,12 @@ export class GameCache {
 		let min = 0, max = list.length;
 		let mid = Math.floor((min + max) / 2);
 
-		let gtime = ginfo[3];
-		let id = ginfo[0];
+		const gtime = ginfo[3];
+		const  id = ginfo[0];
 
-		let cur;
 		while (min < max) {
 
-			cur = list[mid];
+			const cur = list[mid];
 
 			if (id === cur[0]) {
 

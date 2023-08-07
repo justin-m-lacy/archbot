@@ -61,8 +61,8 @@ export default class Wearable extends Item {
 	 */
 	static FromData(base: any, material: Material) {
 
-		let name = material.name + ' ' + base.name;
-		let it = new Wearable(name);
+		const name = material.name + ' ' + base.name;
+		const it = new Wearable(name);
 
 		it.material = material.name;
 		it.cost = material.priceMod ? base.cost * material.priceMod : base.cost;
@@ -77,7 +77,7 @@ export default class Wearable extends Item {
 
 	static FromJSON(json: any) {
 
-		let a = new Wearable(json.name, json.desc);
+		const a = new Wearable(json.name, json.desc);
 		a.material = json.material;
 		a.slot = json.slot;
 		a.armor = json.armor;
@@ -89,7 +89,7 @@ export default class Wearable extends Item {
 
 	toJSON() {
 
-		let json = super.toJSON();
+		const json = super.toJSON();
 
 		json.armor = this._armor;
 		json.slot = this._slot;

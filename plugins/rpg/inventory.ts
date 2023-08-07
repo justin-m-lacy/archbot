@@ -10,15 +10,15 @@ export default class Inventory extends Container<Item> {
 
 	static FromJSON(json: any, inv?: Inventory) {
 
-		let arr = json.items;
-		let len = arr.length;
+		const arr = json.items;
+		const len = arr.length;
 
 		if (!inv) inv = new Inventory();
-		let items = inv.items;
+		const items = inv.items;
 
 		for (let i = 0; i < len; i++) {
 
-			var it = ItemGen.fromJSON(arr[i]);
+			const it = ItemGen.fromJSON(arr[i]);
 			if (it) items.push(it);
 			else console.log('Inventory.js: ERR PARSING: ' + arr[i]);
 
@@ -79,7 +79,7 @@ export default class Inventory extends Container<Item> {
 	 */
 	getSub(base: string | number, sub?: string | number) {
 
-		let it = this.get(base) as Item;
+		const it = this.get(base) as Item;
 		if (!it) return null;
 
 		if (!sub) return it;
@@ -99,7 +99,7 @@ export default class Inventory extends Container<Item> {
 	 */
 	takeSub(base: ItemPicker, sub: ItemPicker | ItemIndex) {
 
-		let it = this.take(base) as Inventory | null;
+		const it = this.take(base) as Inventory | null;
 		if (!it) return null;
 
 		/// TODO: this is clearly wrong.
@@ -120,7 +120,7 @@ export default class Inventory extends Container<Item> {
 
 		if (which instanceof Item) {
 
-			let ind = this._items.indexOf(which);
+			const ind = this._items.indexOf(which);
 			if (ind >= 0) return this._items.splice(ind, 1)[0];
 			return null;
 

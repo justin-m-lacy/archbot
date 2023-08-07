@@ -110,7 +110,7 @@ export class Rpg {
 
 	async cmdLeaveParty(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, this.game.leaveParty(char));
@@ -119,7 +119,7 @@ export class Rpg {
 	async cmdMkGuild(m: Message, gname: string) {
 
 		try {
-			let char = await this.userCharOrErr(m, m.author);
+			const char = await this.userCharOrErr(m, m.author);
 			if (!char) return;
 
 			await display.sendBlock(m, await this.game.mkGuild(char, gname));
@@ -129,7 +129,7 @@ export class Rpg {
 
 	async cmdJoinGuild(m: Message, gname: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, await this.game.joinGuild(char, gname));
@@ -138,7 +138,7 @@ export class Rpg {
 
 	async cmdLeaveGuild(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		await display.sendBlock(m, await this.game.leaveGuild(char));
@@ -147,7 +147,7 @@ export class Rpg {
 
 	async cmdGuildInv(m: Message, who?: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		const t = who ? await this.loadChar(who) : char;
@@ -159,7 +159,7 @@ export class Rpg {
 
 	async cmdWhere(m: Message, who: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		let t = await this.loadChar(who);
@@ -170,7 +170,7 @@ export class Rpg {
 
 	async cmdNerf(m: Message, who: string) {
 
-		let char = await this.loadChar(who);
+		const char = await this.loadChar(who);
 		if (!char) return;
 
 		if (!this.context.isOwner(m.author)) return m.reply('You do not have permission to do that.');
@@ -182,14 +182,14 @@ export class Rpg {
 	async cmdFormula(m: Message, str: string) {
 
 		if (!this.context.isOwner(m.author)) return m.reply('You do not have permission to do that.');
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		try {
-			let f = Formula.TryParse(str);
+			const f = Formula.TryParse(str);
 			if (!f) return m.reply('Incantation malformed.');
 
-			let res = f.eval(char);
+			const res = f.eval(char);
 			return m.reply('result: ' + res);
 
 		} catch (e) { console.log(e); }
@@ -198,7 +198,7 @@ export class Rpg {
 
 	async cmdSetHome(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return m.reply(this.world.setHome(char));
@@ -207,7 +207,7 @@ export class Rpg {
 
 	async cmdGoHome(m: Message) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
 		return m.reply(this.game.goHome(char));
@@ -216,10 +216,10 @@ export class Rpg {
 
 	async cmdLocDesc(m: Message, desc: string) {
 
-		let char = await this.userCharOrErr(m, m.author);
+		const char = await this.userCharOrErr(m, m.author);
 		if (!char) return;
 
-		let resp = await this.world.setDesc(char, desc, m.attachments?.first()?.proxyURL);
+		const resp = await this.world.setDesc(char, desc, m.attachments?.first()?.proxyURL);
 		if (resp) return m.reply(resp);
 
 	}
@@ -995,7 +995,7 @@ export const initPlugin = (bot: DiscordBot) => {
 	let changes = require('./data/changelog.json');
 	let list = '';
 
-	for( let k in changes ) {
+	for( const k in changes ) {
 		list += k + '\n' + changes[k].join('\n') + '\n\n';
 	}
 

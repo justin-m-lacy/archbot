@@ -56,7 +56,7 @@ export const getNovelAiClient = (accessToken:string, encryptionKey:Uint8Array )=
     const _stories = new Map<string,StoryData>();
     const _content = new Map<string,StoryContentData>();
 
-    let histories:{[key:number]:string[]} = {
+    const histories:{[key:number]:string[]} = {
 
         [AiMode.Chat]:[],
         [AiMode.Story]:[]

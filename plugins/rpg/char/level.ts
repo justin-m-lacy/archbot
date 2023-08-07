@@ -8,10 +8,10 @@ export const getNextExp = (char: Char) => {
 
 	let req = requiredExp(char.level + 1);
 
-	let cls = char.charClass;
+	const cls = char.charClass;
 	if (cls) req *= cls.expMod;
 
-	let race = char.race;
+	const race = char.race;
 	if (race) req *= race.expMod;
 
 	return Math.floor(req);

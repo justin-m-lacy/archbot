@@ -11,8 +11,8 @@ export const sendEmbed = async (m: Message, s: string, e: string) => m.reply({
 export const sendBlock = async (m: Message, s: string) => m.reply('```' + s + '```');
 
 /**
- * Checks if the character is a vowel.
- * @param {string} c - character to test. 
+ * Checks if character is a vowel.
+ * @param c character to test. 
  */
 export const isVowel = (c: string) => {
 

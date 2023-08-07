@@ -17,7 +17,7 @@ export default class Game {
 	 * the two player ids, followed by a timestamp.
 	 */
 	static IdParts(gid: string) {
-		let a = gid.split(ID_SEPARATOR);
+		const a = gid.split(ID_SEPARATOR);
 		a.unshift(gid);
 		return a as GameInfo;
 	}

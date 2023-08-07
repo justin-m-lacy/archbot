@@ -7,7 +7,7 @@ export default class Weapon extends Wearable {
 
 	toJSON() {
 
-		let json = super.toJSON();
+		const json = super.toJSON();
 		json.dmg = this.damage;
 		json.hit = this.toHit;
 

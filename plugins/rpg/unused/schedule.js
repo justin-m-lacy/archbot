@@ -13,8 +13,8 @@ class Scheduler {
 	 */
 	schedIn( time, cb ) {
 
-		let sched = new SchedTime( Date.now() + time, cb );
-		let ind = this._queue.findIndex( it=> it.time >= time );
+		const sched = new SchedTime( Date.now() + time, cb );
+		const ind = this._queue.findIndex( it=> it.time >= time );
 		if ( ind < 0) {
 			this._queue.push( sched );
 		} else {
@@ -25,8 +25,8 @@ class Scheduler {
 
 	schedule( time, cb ){
 
-		let sched = new SchedTime( time, cb );
-		let ind = this._queue.findIndex( it=> it.time >= time );
+		const sched = new SchedTime( time, cb );
+		const ind = this._queue.findIndex( it=> it.time >= time );
 		if ( ind < 0) {
 			this._queue.push( sched );
 		} else {

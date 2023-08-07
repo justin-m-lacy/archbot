@@ -15,7 +15,7 @@ export default {
 	 */
 	getTurns(str: string) {
 
-		let res = regex.exec(str);
+		const res = regex.exec(str);
 		if (res === null) return 0;
 
 		let turns = 0, count;

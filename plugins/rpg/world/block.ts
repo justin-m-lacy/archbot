@@ -15,7 +15,7 @@ export default class Block {
 	}
 
 	readonly key: string;
-	readonly locs: { [key: string]: Loc } = {};
+	readonly locs: { [key: string]: Loc|undefined } = {};
 
 	constructor(json?: any) {
 
@@ -23,10 +23,10 @@ export default class Block {
 
 			this.key = json.key ?? 'unknown';
 
-			let locs = json.locs;
+			const locs = json.locs;
 			if (locs) {
 
-				for (let p in locs) {
+				for (const p in locs) {
 					this.locs[p] = Loc.FromJSON(locs[p]);
 				} //for
 

@@ -325,11 +325,11 @@ export default class Actor implements IStatBlock {
 	applyBaseMods(mods?: StatMod) {
 
 		if (!mods) return;
-		let stats = this._curStats;
+		const stats = this._curStats;
 		let mod;
 		let val;
 
-		for (let k in mods) {
+		for (const k in mods) {
 
 			mod = mods[k as StatName];
 			if (typeof (mod) === 'string') {

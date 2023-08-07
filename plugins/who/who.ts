@@ -24,16 +24,15 @@ const cmdWho = async (m: Message, query?: string) => {
 	if (!responses) responses = require('./responses.json');
 	if (responses.length === 0) return;
 
-	let resp = getResponse();
-	let u, name;
+	const resp = getResponse();
 
 	if (m.guild) {
 
-		u = m.guild.members.cache.random();
+		const u = m.guild.members.cache.random();
 		if (!u) {
 			return m.channel.send(`It's too hard to pick.`);
 		}
-		name = u.nickname ?? u.displayName;
+		const name = u.nickname ?? u.displayName;
 		return m.channel.send(resp.replace(/%t/g, name));
 
 	} else return m.channel.send('It\'s you, I guess.');

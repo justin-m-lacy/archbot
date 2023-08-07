@@ -39,10 +39,10 @@ export default class World {
 	 */
 	async setDesc(char: Char, desc?: string, attach?: string) {
 
-		let loc = await this.getOrGen(char.loc, char);
+		const loc = await this.getOrGen(char.loc, char);
 		if (attach) loc.attach = attach;
 
-		let owner = loc.owner;
+		const owner = loc.owner;
 		if (owner && owner !== char.name) return 'You do not control this location.';
 
 		if (desc) loc.desc = desc;
@@ -57,7 +57,7 @@ export default class World {
 	 * @param {*} who
 	 */
 	async getNpc(char: Char, who: ItemIndex) {
-		let loc = await this.getOrGen(char.loc, char);
+		const loc = await this.getOrGen(char.loc, char);
 		return loc.getNpc(who);
 	}
 
@@ -67,7 +67,7 @@ export default class World {
 	 * @param {*} who
 	 */
 	async removeNpc(char: Char, who: Monster) {
-		let loc = await this.getOrGen(char.loc, char);
+		const loc = await this.getOrGen(char.loc, char);
 		return loc.removeNpc(who);
 
 	}
@@ -79,12 +79,12 @@ export default class World {
 	 */
 	async useLoc(char: Char, wot: string | number | Feature) {
 
-		let loc = await this.getOrGen(char.loc, char);
+		const loc = await this.getOrGen(char.loc, char);
 
-		let f = typeof wot !== 'object' ? loc.getFeature(wot) : wot;
+		const f = typeof wot !== 'object' ? loc.getFeature(wot) : wot;
 		if (!f) return 'You do not see any such thing here.';
 
-		let res = f.use(char);
+		const res = f.use(char);
 
 		if (!res) return 'Nothing seems to happen.';
 		return res;
@@ -98,12 +98,12 @@ export default class World {
 	 */
 	async take(char: Char, first: string | number, end?: string | number) {
 
-		let loc = await this.getOrGen(char.loc, char);
+		const loc = await this.getOrGen(char.loc, char);
 
-		let it = (end != null) ? loc.takeRange(first as number, end as number) : loc.take(first);
+		const it = (end != null) ? loc.takeRange(first as number, end as number) : loc.take(first);
 		if (!it) return 'Item not found.';
 
-		let ind = char.addItem(it);
+		const ind = char.addItem(it);
 		await this.quickSave(loc);
 
 		return Array.isArray(it) ? `${char.name} took ${it.length} items.` :
@@ -112,7 +112,7 @@ export default class World {
 
 	async hike(char: Char, dir: DirString) {
 
-		let coord = char.loc || new Coord(0, 0);
+		const coord = char.loc || new Coord(0, 0);
 		let loc;
 
 		switch (dir) {
@@ -145,7 +145,7 @@ export default class World {
 
 		if (!dir) return 'Must specify movement direction.';
 
-		let loc = await this.tryMove(char.loc ?? new Coord(0, 0), dir, char);
+		const loc = await this.tryMove(char.loc ?? new Coord(0, 0), dir, char);
 		if (typeof loc === 'string') {
 			return loc;
 		} else {
@@ -163,7 +163,7 @@ export default class World {
 	 */
 	async explored(char: Char) {
 
-		let loc = await this.getOrGen(char.loc);
+		const loc = await this.getOrGen(char.loc);
 		if (loc.maker) return loc.explored();
 
 		loc.setMaker(char.name);
@@ -173,10 +173,10 @@ export default class World {
 
 	async view(char: Char, what?: string | number) {
 
-		let loc = await this.getOrGen(char.loc);
+		const loc = await this.getOrGen(char.loc);
 		if (what) {
 
-			let it = loc.get(what);
+			const it = loc.get(what);
 			if (!it) return 'Item not found.';
 			return it.getView();
 
@@ -193,11 +193,11 @@ export default class World {
 	 */
 	async examine(char: Char, what: string | number) {
 
-		let loc = await this.getOrGen(char.loc);
+		const loc = await this.getOrGen(char.loc);
 
 		if (!what) return 'Examine what?';
 
-		let it = loc.getNpc(what);
+		const it = loc.getNpc(what);
 		if (!it) return 'Creature not found.';
 		return it.getDetails();
 
@@ -205,11 +205,11 @@ export default class World {
 
 	async look(char: Char, what: string | number) {
 
-		let loc = await this.getOrGen(char.loc);
+		const loc = await this.getOrGen(char.loc);
 
 		if (what) {
 
-			let it = loc.get(what);
+			const it = loc.get(what);
 			if (!it) return 'Item not found.';
 			return it.getDetails();
 
@@ -224,8 +224,8 @@ export default class World {
 	 */
 	async put(char: Char, what: Item) {
 
-		let loc = await this.getOrGen(char.loc, char);
-		let ind = loc.drop(what);
+		const loc = await this.getOrGen(char.loc, char);
+		const ind = loc.drop(what);
 		await this.quickSave(loc);
 
 		return `${char.name} dropped ${what.name}. (${ind})`;
@@ -239,11 +239,11 @@ export default class World {
 	 */
 	async drop(char: Char, what: ItemPicker, end?: string | number) {
 
-		let it = end ? char.takeRange(what as ItemIndex, end) : char.takeItem(what);
+		const it = end ? char.takeRange(what as ItemIndex, end) : char.takeItem(what);
 		if (!it) return 'Invalid item.';
 
-		let loc = await this.getOrGen(char.loc, char);
-		let ind = loc.drop(it);
+		const loc = await this.getOrGen(char.loc, char);
+		const ind = loc.drop(it);
 		await this.quickSave(loc);
 
 		if (Array.isArray(it)) return it.length + ' items dropped.';
@@ -271,8 +271,7 @@ export default class World {
 	 */
 	goHome(char: Char) {
 
-		let coord = char.home;
-		if (!coord) coord = new Coord(0, 0);
+		const coord = char.home ?? new Coord(0, 0);
 
 		Object.assign(char.loc, coord);
 		return char.name + ' has travelled home.';
@@ -287,27 +286,26 @@ export default class World {
 	 */
 	async tryMove(coord: Coord, dir: DirVal, char: Char): Promise<Loc | string> {
 
-		let from = await this.getLoc(coord.x, coord.y);
+		const from = await this.getLoc(coord.x, coord.y);
 		if (!from) {
 			console.warn('error: starting loc null.');
 			return 'Error: Not in a starting location.'
 		}
 
-		let exit = from.getExit(dir);
+		const exit = from.getExit(dir);
 
 		if (!exit) return 'You cannot move in that direction.';
 
-		let destCoord = exit.to;
-		let x = destCoord.x;
-		let y = destCoord.y;
+		const destX = exit.to.x;
+		const destY = exit.to.y;
 
-		let dest = await this.getLoc(x, y);
+		let dest = await this.getLoc(destX, destY);
 
 		if (dest == null) {
 
-			let exits = await this.getRandExits(x, y);
+			const exits = await this.getRandExits(destX, destY);
 			// must use NEW coord so avoid references.
-			dest = Gen.genLoc(new Coord(x, y), from, exits);
+			dest = Gen.genLoc(new Coord(destX, destY), from, exits);
 			dest.setMaker(char.name);
 
 			char.addHistory('explored');
@@ -331,18 +329,12 @@ export default class World {
 
 		if (Math.random() > 0.5 || loc.npcs.length > 4) return;
 
-		console.log('attempting spawn.');
+		const dev = Math.random() - 0.5;
+		const lvl = Math.max( Math.floor(loc.norm / 20 + 10*dev), 0 );
 
-		let lvl = Math.floor(loc.norm / 20);
-		let dev = Math.random() - 0.5;
-
-		if (Math.abs(dev) >= 0.2) lvl += Math.floor(10 * dev)
-		if (lvl < 0) lvl = 0;
-
-		let m = Monster.RandMonster(lvl, loc.biome);
+		const m = Monster.RandMonster(lvl, loc.biome);
 		if (!m) return;
 
-		console.log('adding monster: ' + m.name);
 		loc.addNpc(m);
 
 		return m;
@@ -370,7 +362,7 @@ export default class World {
 
 	async getLoc(x: number, y: number) {
 
-		let bkey = this.getBKey(x, y);
+		const bkey = this.getBKey(x, y);
 		let block = await this.cache.fetch(bkey) as Block;
 
 		if (block) {
@@ -380,15 +372,14 @@ export default class World {
 				this.cache.cache(bkey, block);
 			}
 
-			let loc = block.getLoc(this.locKey(x, y));
-			if (loc) return loc;
+			return block.getLoc(this.locKey(x, y));
 		}
 
 	}
 
 	async getBlock(x: number, y: number, create: boolean = false) {
 
-		let bkey = this.getBKey(x, y);
+		const bkey = this.getBKey(x, y);
 		let block = await this.cache.fetch(bkey);
 
 		if (!block) return (create === true) ? new Block({ key: bkey }) : null;
@@ -404,7 +395,7 @@ export default class World {
 
 	async quickSave(loc: Loc) {
 
-		let block = await this.getBlock(loc.x, loc.y, true);
+		const block = await this.getBlock(loc.x, loc.y, true);
 		block.setLoc(this.coordKey(loc.coord), loc);
 
 		this.cache.cache(block.key, block);
@@ -412,7 +403,7 @@ export default class World {
 
 	async forceSave(loc: Loc) {
 
-		let block = await this.getBlock(loc.x, loc.y, true);
+		const block = await this.getBlock(loc.x, loc.y, true);
 
 		block.setLoc(this.coordKey(loc.coord), loc);
 		return this.cache.store(block.key, block)
@@ -464,9 +455,9 @@ export default class World {
 	 * @returns {Loc.Exit|null}
 	 */
 	async getExitTo(dest: Coord, fromDir: DirVal) {
-		let loc = await this.getLoc(dest.x, dest.y);
+		const loc = await this.getLoc(dest.x, dest.y);
 		if (loc) {
-			let e = loc.reverseExit(fromDir);
+			const e = loc.reverseExit(fromDir);
 			if (e) return new Exit(fromDir, dest);
 			// no exits lead from existing location in this direction.
 			return null;

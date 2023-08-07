@@ -107,7 +107,7 @@ function getTransMax(trans: any) {
 
 	if (trans.max) return trans.max;
 	let max = 0;
-	for (let k in trans) {
+	for (const k in trans) {
 		max += trans[k];
 	}
 	trans.max = max;

@@ -48,7 +48,7 @@ export const readPGN = (pgn: string | null, game: ChessGame) => {
 	const tagRegEx = /\[(\w+)\s\"([\w\d\s\\\/,\.\-]+)\"\]/g;
 	let results;
 
-	let tags: ChessTags = {};
+	const tags: ChessTags = {};
 
 	while ((results = tagRegEx.exec(pgn)) !== null) {
 

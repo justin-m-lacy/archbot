@@ -17,9 +17,9 @@ export default class Equip {
 
 	static FromJSON(json: { slots?: Partial<HumanSlots> }) {
 
-		let e = new Equip();
-		let src = json.slots;
-		let dest = e.slots;
+		const e = new Equip();
+		const src = json.slots;
+		const dest = e.slots;
 		if (src == null) return e;
 
 		let k: HumanSlot;
@@ -95,8 +95,8 @@ export default class Equip {
 
 	getWeapons(): Weapon | Weapon[] | null {
 
-		let right = this.slots.right as Weapon | null;
-		let left = this.slots.left as Weapon | null;
+		const right = this.slots.right as Weapon | null;
+		const left = this.slots.left as Weapon | null;
 
 		if (right === null) return left ? (left.type === ItemType.Weapon ? left as Weapon : null) : null;
 		else if (left === null) return right.type === ItemType.Weapon ? right : null;
@@ -116,7 +116,7 @@ export default class Equip {
 
 		if (it.type === ItemType.Weapon) return this.removeWeap(it);
 
-		let cur = this.slots[it.slot];
+		const cur = this.slots[it.slot];
 
 		if (Array.isArray(cur)) {
 
@@ -283,13 +283,12 @@ export default class Equip {
 	 */
 	removeWhere(p: (v: Item) => boolean) {
 
-		let v;
-		let removed = [];
+		const removed = [];
 
 		let k: HumanSlot;
 		for (k in this.slots) {
 
-			v = this.slots[k];
+			const v = this.slots[k];
 			if (v === null || v === undefined) continue;
 
 			if (Array.isArray(v)) {
@@ -317,12 +316,11 @@ export default class Equip {
 
 	forEach(f: (v: Wearable | null) => any) {
 
-		let v;
 
 		let k: HumanSlot
 		for (k in this.slots) {
 
-			v = this.slots[k];
+			const v = this.slots[k];
 			if (Array.isArray(v)) {
 
 				for (let i = v.length - 1; i >= 0; i--) f(v[i]);

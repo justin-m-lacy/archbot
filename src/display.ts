@@ -110,7 +110,7 @@ export const Display = {
 	 */
 	paginate(items: string[], page: number = 0) {
 
-		let it, chars = 0;
+		let charCount = 0;
 		const len = items.length;
 
 		// item indices for breaking the current page.
@@ -119,17 +119,17 @@ export const Display = {
 
 		for (let i = 0; i < len; i++) {
 
-			it = items[i];
-			chars += it.length;
+			const it = items[i];
+			charCount += it.length;
 
 			// adding this item's text crossed a page boundary.
-			if (chars >= this.CONTENT_MAX) {
+			if (charCount >= this.CONTENT_MAX) {
 
 				if (totalPages === page) pageStr = items.slice(pageStart, i).join('\n');
 
 				totalPages++;
 				pageStart = i;
-				chars = it.length;
+				charCount = it.length;
 
 			}
 

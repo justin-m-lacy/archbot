@@ -6,7 +6,7 @@ export class Attack {
 
 	static FromJSON(json: any) {
 
-		let a = new Attack();
+		const a = new Attack();
 
 		Object.assign(a, json);
 
@@ -16,7 +16,7 @@ export class Attack {
 
 	toJSON() {
 
-		let o = {
+		const o = {
 		};
 
 		return o;

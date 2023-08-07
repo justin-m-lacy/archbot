@@ -183,9 +183,8 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 	 */
 	async setSetting(key: string, value?: any) {
 
-		let settings = await this.cache.fetch('settings');
-		if (!settings) settings = {};
-
+		const settings = await this.cache.fetch('settings') ?? {};
+		
 		settings[key] = value;
 		this.cache.cache('settings', value);
 
@@ -392,7 +391,7 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 			return this._instances.get(cls.name)!;
 		}
 
-		let inst = new cls(this);
+		const inst = new cls(this);
 
 		if ('load' in inst && typeof inst.load === 'function') {
 			await inst.load();
@@ -452,12 +451,11 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 	 */
 	getDataKey(...objs: any[]) {
 
-		let len = objs.length;
-		let keys = [];
-		let pt;
+		const len = objs.length;
+		const keys = [];
 		for (let i = 0; i < len; i++) {
 
-			pt = objs[i];
+			const pt = objs[i];
 			if (typeof pt === 'string') keys.push(pt);
 			else keys.push(pt.id);
 
