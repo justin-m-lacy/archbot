@@ -362,7 +362,10 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 	 * @returns {null} overridden in subclasses.
 	 */
 	findUser(name: string): User | GuildMember | null {
-		return null;
+
+		name = name.toLowerCase();
+		return this.bot.client.users.cache.find(v=>v.username===name) ?? null;
+
 	}
 
 

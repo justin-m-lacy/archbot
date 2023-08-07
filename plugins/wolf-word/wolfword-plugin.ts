@@ -1,5 +1,5 @@
 import { DiscordBot } from "@src/bot/discordbot";
-import { Message } from 'discord.js';
+import { Message, ChannelType } from 'discord.js';
 import { PickWordsError, IWolfPlugin, NotEnoughPlayersError, GamePhaseError, UserNotInGameError } from './types';
 import { BotContext } from '@src/bot/botcontext';
 import { WolfWordGame } from "./word-wolf-game";
@@ -26,6 +26,7 @@ class WordWolfPlugin implements IWolfPlugin{
 
     async cmdJoin( m :Message ){
 
+        this.context.findUser("ruin");
         try {
 
             const game = this.getOrCreateGame(m)!;
@@ -156,8 +157,8 @@ class WordWolfPlugin implements IWolfPlugin{
 
             const id = m.channel.id;
             let curGame = this.gamesByChannel.get(id);
-            if ( !curGame){
-                curGame = new WolfWordGame( this, id );
+            if ( !curGame && m.channel.type === ChannelType.GuildText){
+                curGame = new WolfWordGame( this, id, m.channel.name );
                 this.gamesByChannel.set(id, curGame);
             }
 

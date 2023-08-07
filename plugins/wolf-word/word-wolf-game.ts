@@ -6,7 +6,6 @@ import { GamePhaseError, IWolfPlugin, NotEnoughPlayersError, PickWordsError, Use
 export enum GamePhase {
 
     Joining,
-    Active,
     Voting,
     MinorityVote,
     Ended
@@ -55,8 +54,11 @@ export class WolfWordGame {
      */
     private wolfVotes:Player[]|null = null;
 
-    constructor( plugin:IWolfPlugin, channelId:string){
+    private readonly channelName:string;
 
+    constructor( plugin:IWolfPlugin, channelId:string, channelName:string ){
+
+        this.channelName = channelName;
         this.plugin = plugin;
         this.channelId = channelId;
     
@@ -70,7 +72,7 @@ export class WolfWordGame {
     
     tryStart(){
 
-        if ( this._gamePhase === GamePhase.Active||this._gamePhase === GamePhase.Voting||this._gamePhase===GamePhase.MinorityVote) {
+        if ( this._gamePhase === GamePhase.Voting||this._gamePhase===GamePhase.MinorityVote) {
 
             throw new GamePhaseError();
         } else if ( this.players.size < MIN_PLAYERS){
@@ -82,7 +84,7 @@ export class WolfWordGame {
 
         this.reportWords();
 
-        this._gamePhase=GamePhase.Active;
+        this._gamePhase=GamePhase.Voting;
 
 
     }
@@ -160,7 +162,7 @@ export class WolfWordGame {
     private async reportWords(){
 
         return Array.from(this.players.entries()).map(kvp=>{
-            this.plugin.getUser(kvp[0]).then(v=>v?.send(`Your word is: ${kvp[1]}`))
+            this.plugin.getUser(kvp[0]).then(v=>v?.send(`${this.channelName} Your secret word is: ${kvp[1]}`))
         });
 
     }
