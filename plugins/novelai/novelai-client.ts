@@ -1,10 +1,11 @@
+import { StoryBuilder } from './builders/story-builder';
 import { IdStore } from './id-store';
 import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, StoryData, StoryContentData, STORY_METADATA_VERSION } from './novelai-types';
+import { AiMode, ObjectType, IStoryContent, IStory, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryData, IStoryContentData, STORY_METADATA_VERSION } from './novelai-types';
 import { Keystore } from './keystore';
 import { getNovelApi } from 'plugins/novelai/novelai-api';
-export { AiMode, ObjectType, StoryContent, Story, AiModel, NovelAIConfig };
+export { AiMode, ObjectType, IStoryContent, IStory as IStory, AiModel, NovelAIConfig };
 
 const API_URL = 'https://api.novelai.net';
 const MAX_HISTORY = 50;
@@ -45,19 +46,22 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
     const novelApi = getNovelApi(accessToken);
 
-    const idStore = new IdStore();
-
     const modelIndex = 0;
     const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
 
+    const idStore = new IdStore();
     const keystore: Keystore = new Keystore();
+    let storyBuilder: StoryBuilder | null = null;
+
+    const getStoryBuilder = () => {
+        return storyBuilder ?? (storyBuilder = new StoryBuilder(idStore, keystore));
+    }
 
     let chatModel: string = models[modelIndex];
     let storyModel = 'euterpe-v2';
 
-
-    const _stories = new Map<string, StoryData>();
-    const _content = new Map<string, StoryContentData>();
+    const _stories = new Map<string, IStoryData>();
+    const _content = new Map<string, IStoryContentData>();
 
     const histories: { [key: number]: string[] } = {
 
@@ -94,7 +98,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             for (const story of storyObjects!) {
 
-                const storyData = await keystore.decrypt<StoryData>(story);
+                const storyData = await keystore.decrypt<IStoryData>(story);
                 if (storyData) {
                     console.log(`story id: ${storyData.id}\n remoteId: ${storyData.remoteId}\n remoteStoryId: ${storyData.remoteStoryId}`);
 
@@ -112,7 +116,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
         const story = await novelApi.getStory(id);
 
-        const storyData = await keystore.decrypt<StoryData>(story);
+        const storyData = await keystore.decrypt<IStoryData>(story);
         if (storyData) {
             console.log(`storyData id: ${storyData.id}`);
 
@@ -122,8 +126,13 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
     };
 
-    const createStory = async (meta: string) => {
+    const createStory = async (meta: string, props?: Partial<IStoryContentData>) => {
         try {
+
+            const builder = getStoryBuilder();
+            await builder.createStory(props ?? {
+                title: "New Title"
+            }, meta);
 
             const storyTitle = "New Title";
 
@@ -131,7 +140,6 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
                 title: storyTitle
             }
 
-            console.log(`creating story content.`);
             keystore.addKey(meta);
             const encryptedContent = await keystore.encrypt(meta, storyContentData);
 
@@ -143,7 +151,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             });
 
             console.dir(result);
-            const decryptContent = await keystore.decrypt<StoryContentData>(result);
+            const decryptContent = await keystore.decrypt<IStoryContentData>(result);
             if (decryptContent) {
                 console.log(`decrypted story:`);
                 console.dir(decryptContent);
@@ -194,7 +202,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             const storyContent = await novelApi.getStoryContent(id);
 
-            const storyContentData = await keystore.decrypt<StoryContentData>(storyContent);
+            const storyContentData = await keystore.decrypt<IStoryContentData>(storyContent);
 
             if (storyContentData) {
                 _content.set(id, storyContentData);

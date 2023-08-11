@@ -1,6 +1,10 @@
+import { ObjectType, STORY_METADATA_VERSION } from 'plugins/novelai/novelai-types';
+import { StoryContent } from './../objects/story-content';
 import { IdStore } from '../id-store';
 import { Keystore } from '../keystore';
 import { v4 } from 'uuid';
+import { IStoryContentData } from '../novelai-types';
+import { Story } from '../objects/story';
 
 const getTimestamp = () => {
     return Date.now();
@@ -17,7 +21,7 @@ const toShortTime = (time: number) => {
     return Math.round(time / 1000);
 }
 
-class StoryBuilder {
+export class StoryBuilder {
 
     private keystore: Keystore;
     private ids: IdStore;
@@ -29,15 +33,56 @@ class StoryBuilder {
 
     }
 
-    createStory(storyProps: { title?: string, }, meta?: string) {
+    async createStory(storyProps: Partial<IStoryContentData>, meta?: string) {
 
         meta = meta ?? v4();
         this.keystore.addKey(meta);
 
+        const storyId = this.ids.newId();
+
         const createTime = Date.now();
         const shortTime = toShortTime(createTime);
 
-        const storyId = this.ids.newId();
+        const storyContentId = this.ids.newId();
+
+        const storyData = {
+
+            storyMetadataVersion: STORY_METADATA_VERSION,
+
+            title: storyProps.title ?? "",
+            id: meta,
+            remoteId: storyId,
+            remoteStoryId: storyContentId,
+            createdAt: createTime,
+            lastUpdatedAt: createTime,
+
+        }
+
+        return [
+            new Story({
+
+                id: storyId,
+                meta: meta,
+                type: ObjectType.Stories,
+                data: storyData,
+                lastUpdatedAt: shortTime,
+                changeIndex: 0
+
+            }),
+            new StoryContent(
+                {
+                    id: storyContentId,
+                    type: ObjectType.StoryContent,
+                    meta: meta,
+                    data: {
+                        title: storyProps.title ?? "",
+                    },
+                    changeIndex: 0,
+                    lastUpdatedAt: shortTime
+                }
+            )
+        ];
+
 
     }
 
@@ -48,11 +93,11 @@ class StoryBuilder {
 
         const data = await this.keystore.encrypt(meta, storyData);
 
-        return await this.keystore.encrypt(meta, {
+        return {
             meta: meta,
             data: data,
             changeIndex: 0
-        });
+        };
 
     }
 

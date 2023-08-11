@@ -1,4 +1,4 @@
-import { Message, PermissionFlagsBits} from 'discord.js';
+import { Message, PermissionFlagsBits } from 'discord.js';
 import { ReactSet } from './reactset';
 import { Display } from '@src/display';
 import { BotContext, ContextSource } from '@src/bot/botcontext';
@@ -75,7 +75,7 @@ class GuildReactions {
 	 * @param {BotContext} context
 	 */
 	constructor(context: BotContext<ContextSource>) {
-	
+
 		this._context = context;
 
 		this.loadReactions();
@@ -247,7 +247,7 @@ class GuildReactions {
 
 		const resp = await this.infoString(reacts, true);
 
-		return Display.sendPage(m, resp, 0);
+		return Display.sendPage(m.channel, resp, 0);
 
 	}
 
@@ -638,7 +638,7 @@ function parseReacts(data: any) {
  */
 function parseStrings(data: any) {
 
-	const map = new Map<string,ReactSet>()
+	const map = new Map<string, ReactSet>()
 
 	for (const p in data) {
 		map.set(p, new ReactSet(p, data[p]));

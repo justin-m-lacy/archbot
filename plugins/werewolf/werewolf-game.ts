@@ -97,7 +97,11 @@ export class WerewolfGame {
 
     get playerCount() { return this.playersById.size }
 
-    constructor(channelId: string, channelName: string) {
+    private plugin: object;
+
+    constructor(plugin: object, channelId: string, channelName: string) {
+
+        this.plugin = plugin;
 
         this.channelId = channelId;
         this.channelName = channelName;

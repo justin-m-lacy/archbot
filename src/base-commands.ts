@@ -17,7 +17,7 @@ export function initBasicCommands(b: DiscordBot) {
     client = b.client;
     const cmds = b.dispatch;
 
-    cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 1, module: DefaultModule });
+    cmds.add('help', 'help <cmd>', cmdHelp, { maxArgs: 2, module: DefaultModule });
     cmds.add('roll', '!roll [n]d[s]', cmdRoll, { maxArgs: 1, module: DefaultModule });
 
     cmds.add('uid', 'uid <username>', cmdUid, { maxArgs: 1, module: DefaultModule });
@@ -202,10 +202,18 @@ const cmdDisplayName = async (msg: Message, name: string) => {
  * @param {Message} msg
  * @param {string} [cmd] command to get help for.
  */
-const cmdHelp = (msg: Message, cmd?: string) => {
+const cmdHelp = (msg: Message, cmd?: string, page?: string) => {
 
-    if (!cmd) return bot.printCommands(msg.channel);
-    else return bot.printCommand(msg.channel, cmd);
+    const cmdPage = cmd ? Number.parseInt(cmd) : undefined;
+
+    if (cmd && Number.isNaN(cmdPage)) {
+
+        const usePage = page ? Number.parseInt(page) : 0;
+        return bot.printCommand(msg.channel, cmd, usePage);
+
+    } else {
+        bot.printCommands(msg.channel, cmdPage);
+    }
 
 }
 

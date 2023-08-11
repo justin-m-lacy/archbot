@@ -110,7 +110,7 @@ export class DiscordBot {
 		this._admins = auth.admins;
 		this._owner = auth.owner;
 
-		this.loadPlugins().then(()=>this.initBotEvents());
+		this.loadPlugins().then(() => this.initBotEvents());
 
 	}
 
@@ -339,7 +339,7 @@ export class DiscordBot {
 			if (!error) return;
 			else if (error instanceof Promise) {
 
-				error.then(s => { if (s&& typeof s ==='string') m.channel.send(s); }).catch(e => console.error(e));
+				error.then(s => { if (s && typeof s === 'string') m.channel.send(s); }).catch(e => console.error(e));
 
 			} else if (typeof error === 'string') {
 
@@ -744,7 +744,7 @@ export class DiscordBot {
 	 */
 	getDataKey(baseObj: Channel | GuildMember | Guild, ...subs: any[]) {
 
-		if ( 'type' in baseObj) return fsys.channelPath(baseObj, subs);
+		if ('type' in baseObj) return fsys.channelPath(baseObj, subs);
 		else if (baseObj instanceof GuildMember) return fsys.guildPath(baseObj.guild, subs);
 		else if (baseObj instanceof Guild) return fsys.guildPath(baseObj, subs);
 
@@ -853,7 +853,7 @@ export class DiscordBot {
 	 * @param {string} cmdname
 	 * @returns {Promise}
 	 */
-	async printCommand(chan: TextBasedChannel, cmdname: string) {
+	async printCommand(chan: TextBasedChannel, cmdname: string, page: number = 0) {
 
 		const cmdInfo = this._dispatch.commands[cmdname];
 		if (cmdInfo) {
@@ -867,6 +867,37 @@ export class DiscordBot {
 
 	}
 
+
+	/**
+	 * @async
+	 * @param {Channel} chan
+	 * @returns {Promise}
+	 */
+	async printCommands(chan: TextBasedChannel, page: number = 0) {
+
+		const parts: string[] = [
+			`Use ${this.cmdPrefix}help [command] for more information.\nAvailable commands:\n`
+		];
+
+		const cmds = this._dispatch.commands;
+
+		if (cmds) {
+
+			const sep = ': ' + this._dispatch.prefix;
+
+			for (const k in cmds) {
+
+				if (!cmds[k].hidden) parts.push(k + sep + cmds[k].desc);
+
+			} //
+
+			return Display.sendPage(chan, parts.join('\n'), page);
+
+		}
+
+
+	}
+
 	/**
 	 * Lists the commands associated with a given plugin or module.
 	 * @async
@@ -874,38 +905,6 @@ export class DiscordBot {
 	 * @returns {Promise}
 	 */
 	async moduleCommands(module: string) {
-	}
-
-	/**
-	 * @async
-	 * @param {Channel} chan
-	 * @returns {Promise}
-	 */
-	async printCommands(chan: TextBasedChannel) {
-
-		let str = `Use ${this.cmdPrefix}help [command] for more information.\nAvailable commands:\n`;
-		const cmds = this._dispatch.commands;
-
-		if (cmds) {
-
-			const a = [];
-			const sep = ': ' + this._dispatch.prefix;
-
-			//let info;
-			for (const k in cmds) {
-
-				if (!cmds[k].hidden) a.push(k + sep + cmds[k].desc);
-
-			} //
-
-			str += a.join('\n');
-
-		}
-
-		// TODO: rewrite splitmessage
-		const parts = str.split(/.{100,}\n/ig); //  Util.splitMessage(str, { prepend: 'Help cont...\n' });
-		return Display.sendAll(chan, parts);
-
 	}
 
 } // class

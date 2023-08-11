@@ -123,12 +123,12 @@ class WerewolfPlugin {
 
     getOrCreateGame(m: Message,) {
 
-        const id = m.channel.id;
-        let curGame = this.gamesByChannel.get(id);
-        /*if (!curGame && m.channel.type === ChannelType.GuildText) {
-            curGame = new WerewolfGame(this, id, m.channel.name);
-            this.gamesByChannel.set(id, curGame);
-        }*/
+        const chanId = m.channel.id;
+        let curGame = this.gamesByChannel.get(chanId);
+        if (!curGame && m.channel.type === ChannelType.GuildText) {
+            curGame = new WerewolfGame(this, chanId, m.channel.name);
+            this.gamesByChannel.set(chanId, curGame);
+        }
 
         return curGame;
 
@@ -144,17 +144,17 @@ class WerewolfPlugin {
 
 export const initPlugin = (bot: DiscordBot) => {
 
-    /* bot.addContextCmd('werewolf', 'Start wolf game.', WerewolfPlugin.prototype.cmdJoinGame, WerewolfPlugin, { maxArgs: 0, });
- 
-     bot.addContextCmd('weresteal', 'Steal role from player.', WerewolfPlugin.prototype.cmdStealRole, WerewolfPlugin, { minArgs: 1, maxArgs: 1 });
- 
-     bot.addContextCmd('wereswap', 'swap the roles of two other players.', WerewolfPlugin.prototype.cmdSwapRoles, WerewolfPlugin, { minArgs: 2, maxArgs: 2 });
- 
- 
-     bot.addContextCmd('werevote', 'Start wolf game.',
-         WerewolfPlugin.prototype.cmdJoinGame,
-         WerewolfPlugin,
-         { minArgs: 1, maxArgs: 1, group: 'right' });*/
+    /*bot.addContextCmd('werewolf', 'Start wolf game.', WerewolfPlugin.prototype.cmdJoinGame, WerewolfPlugin, { maxArgs: 0, });
 
+    bot.addContextCmd('weresteal', 'Steal role from player.', WerewolfPlugin.prototype.cmdStealRole, WerewolfPlugin, { minArgs: 1, maxArgs: 1 });
+
+    bot.addContextCmd('wereswap', 'swap the roles of two other players.', WerewolfPlugin.prototype.cmdSwapRoles, WerewolfPlugin, { minArgs: 2, maxArgs: 2 });
+
+
+    bot.addContextCmd('werevote', 'Start wolf game.',
+        WerewolfPlugin.prototype.cmdJoinGame,
+        WerewolfPlugin,
+        { minArgs: 1, maxArgs: 1, group: 'right' });
+*/
 
 }

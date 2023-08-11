@@ -88,8 +88,8 @@ export const Display = {
 	 * @param {string} text - text to paginate and send.
 	 * @param {number} page - zero-based page of text to be sent.
 	 */
-	async sendPage(m: Message, text: string, page: number = 0) {
-		return m.channel.send(this.getPageText(text, page) + '\n\n' + this.pageFooter(text));
+	async sendPage(chan: TextBasedChannel, text: string, page: number = 0) {
+		return chan.send(this.getPageText(text, page) + '\n\n' + this.pageFooter(text));
 	},
 
 	/**
@@ -109,6 +109,8 @@ export const Display = {
 	 * @returns { {page:string, pages:number} } text of page and total page count.
 	 */
 	paginate(items: string[], page: number = 0) {
+
+		if (Number.isNaN(page)) page = 0;
 
 		let charCount = 0;
 		const len = items.length;
