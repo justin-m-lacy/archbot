@@ -1,10 +1,10 @@
 import { ObjectType, STORY_METADATA_VERSION } from 'plugins/novelai/novelai-types';
-import { StoryContent } from './../objects/story-content';
 import { IdStore } from '../id-store';
 import { Keystore } from '../keystore';
 import { v4 } from 'uuid';
 import { IStoryContentData } from '../novelai-types';
 import { Story } from '../objects/story';
+import { StoryContent } from '../objects/story-content';
 
 const getTimestamp = () => {
     return Date.now();
@@ -33,7 +33,7 @@ export class StoryBuilder {
 
     }
 
-    async createStory(storyProps: Partial<IStoryContentData>, meta?: string) {
+    createStory(storyProps: Partial<IStoryContentData>, meta?: string): [Story, StoryContent] {
 
         meta = meta ?? v4();
         this.keystore.addKey(meta);

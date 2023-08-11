@@ -1,3 +1,5 @@
+import { StoryContent } from './objects/story-content';
+import { Story } from './objects/story';
 import { StoryBuilder } from './builders/story-builder';
 import { IdStore } from './id-store';
 import { archPost } from '@src/utils/fetch';
@@ -60,8 +62,8 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
     let chatModel: string = models[modelIndex];
     let storyModel = 'euterpe-v2';
 
-    const _stories = new Map<string, IStoryData>();
-    const _content = new Map<string, IStoryContentData>();
+    const _stories = new Map<string, Story>();
+    const _content = new Map<string, StoryContent>();
 
     const histories: { [key: number]: string[] } = {
 
@@ -130,60 +132,15 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
         try {
 
             const builder = getStoryBuilder();
-            await builder.createStory(props ?? {
+            const [story, content] = builder.createStory(props ?? {
                 title: "New Title"
             }, meta);
 
-            const storyTitle = "New Title";
-
-            const storyContentData = {
-                title: storyTitle
-            }
-
-            keystore.addKey(meta);
-            const encryptedContent = await keystore.encrypt(meta, storyContentData);
-
-            const result = await novelApi.putStoryContent({
-
-                meta: meta,
-                data: encryptedContent,
-                changeIndex: 0
-            });
-
+            const result = await novelApi.putStoryContent(await content.encrypt(keystore));
             console.dir(result);
-            const decryptContent = await keystore.decrypt<IStoryContentData>(result);
-            if (decryptContent) {
-                console.log(`decrypted story:`);
-                console.dir(decryptContent);
-                _content.set(result.id, decryptContent);
-            }
 
-            const storyData = {
-                title: storyTitle,
-                //storyMetadataVersion:STORY_METADATA_VERSION,
-                description: "test Story",
-                textPreview: '',
-                remoteStoryId: result.id
-            };
-
-            const storyObj = {
-                meta: meta,
-                data: await keystore.encrypt(meta, storyData),
-                changeIndex: 0
-            };
-
-            const storyResult = await novelApi.putStory({
-
-                meta: meta,
-                data: JSON.stringify(storyObj),
-                changeIndex: 0
-            });
-
-            console.log(`story created: ${storyResult}`);
-
-            /// Save updated keystore?
-
-            return storyResult;
+            const storyResult = await novelApi.putStory(await story.encrypt(keystore));
+            console.dir(storyResult);
 
         } catch (e) {
             console.log(`Create story error: ${e}`);
@@ -202,11 +159,12 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             const storyContent = await novelApi.getStoryContent(id);
 
-            const storyContentData = await keystore.decrypt<IStoryContentData>(storyContent);
+            //const storyContentData = await keystore.decrypt<IStoryContentData>(storyContent);
 
-            if (storyContentData) {
-                _content.set(id, storyContentData);
-            }
+            console.log(`content id: ${storyContent.id}`);
+            console.dir(storyContent);
+
+            _content.set(id, new StoryContent(storyContent));
 
         } catch (e) {
             console.log(`Load Content Error: ${e}`);

@@ -75,11 +75,7 @@ export const getNovelApi = (accessToken: string) => {
         },
 
 
-        putStory: async (storyInfo: {
-            meta: string,
-            data: string,
-            changeIndex: 0
-        }) => {
+        putStory: async (storyInfo: EncryptedStory) => {
 
             const story =
                 await put<EncryptedStory>(`/user/objects/${ObjectType.Stories}`, storyInfo);
@@ -88,11 +84,7 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
-        putStoryContent: async (storyContent: {
-            meta: string,
-            data: string,
-            changeIndex: 0
-        }) => {
+        putStoryContent: async (storyContent: EncryptedStoryContent) => {
 
             const result = await put<EncryptedStoryContent>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
 
