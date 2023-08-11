@@ -94,6 +94,9 @@ export default class CmdDispatch {
 	addContextCmd(name: string, desc: string, func: Function, cmdClass: any, opts?: CommandOpts) {
 
 		try {
+			if (this.getCommand(name)) {
+				return false;
+			}
 			const cmd = new Command(name, func, {
 				desc: desc,
 				instClass: cmdClass,
@@ -202,10 +205,10 @@ class CmdLine {
 		str = str.trim();
 
 		// cmd prefix.
-		if ( !str.startsWith(this.prefix)) return null;
+		if (!str.startsWith(this.prefix)) return null;
 
-		const argIndex = str.indexOf( ' ', this._prefixLen);
-		let cmd:Command;
+		const argIndex = str.indexOf(' ', this._prefixLen);
+		let cmd: Command;
 
 		if (argIndex < 0) {
 

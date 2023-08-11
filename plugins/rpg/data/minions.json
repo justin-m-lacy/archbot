@@ -1,10 +1,40 @@
 {
-
-    "kobold":{ "hp":3, "atk":2, "def":3, "cost":2 },
-    "orc":{ "hp":6, "atk":5, "def":4, "cost":3 },
-    "elf":{ "hp":5, "atk":4, "def":3, "mag":3, "cost":4 },
-    "human":{ "hp":5, "atk":3, "def":4, "cost":3 },
-    "gnome":{ "hp":3, "atk":1, "def":2, "mag":5, "cost":4},
-    "goblin":{ "hp":3, "atk":3, "def":2, "cost":2 }
-
+    "kobold": {
+        "hp": 3,
+        "atk": 2,
+        "def": 3,
+        "cost": 2
+    },
+    "orc": {
+        "hp": 6,
+        "atk": 5,
+        "def": 4,
+        "cost": 3
+    },
+    "elf": {
+        "hp": 5,
+        "atk": 4,
+        "def": 3,
+        "mag": 3,
+        "cost": 4
+    },
+    "human": {
+        "hp": 5,
+        "atk": 3,
+        "def": 4,
+        "cost": 3
+    },
+    "gnome": {
+        "hp": 3,
+        "atk": 1,
+        "def": 2,
+        "mag": 5,
+        "cost": 4
+    },
+    "goblin": {
+        "hp": 3,
+        "atk": 3,
+        "def": 2,
+        "cost": 2
+    }
 }

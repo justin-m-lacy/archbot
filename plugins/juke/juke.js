@@ -139,7 +139,7 @@ class Juke {
 	 */
 	tryJoinChannel() {
 
-		let channel = this._context.findChannel( this._channelName );
+		const channel = this._context.findChannel( this._channelName );
 		if ( !channel ) {
 			console.error('Channel not found: ' + channel );
 			return false;

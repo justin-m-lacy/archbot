@@ -1,6 +1,6 @@
 import { DiscordBot } from "@src/bot/discordbot";
 import { Message, ChannelType } from 'discord.js';
-import { PickWordsError, IWolfPlugin, NotEnoughPlayersError, GamePhaseError, UserNotInGameError } from './types';
+import { PickWordsError, IWolfPlugin, NotEnoughPlayersError, GamePhaseError, UserNotInGameError, AlreadyInGameError, GameNotJoinedError } from './types';
 import { BotContext } from '@src/bot/botcontext';
 import { WolfWordGame } from "./word-wolf-game";
 
@@ -36,10 +36,13 @@ class WordWolfPlugin implements IWolfPlugin{
     
         } catch (err){
 
-            if ( err instanceof GamePhaseError ){
+            if ( err instanceof AlreadyInGameError){
+
+                m.reply("You are already in this game.");
+
+            } else if ( err instanceof GamePhaseError ){
 
                 m.reply("Game already in progress.");
-                return null;
 
             } else if ( err instanceof PickWordsError) {
 
@@ -102,10 +105,12 @@ class WordWolfPlugin implements IWolfPlugin{
              
             } catch (err){
 
-                if ( err instanceof GamePhaseError) {
+                if ( err instanceof GameNotJoinedError ){
+                    return m.reply("You have not in the active game.");
+                } else if ( err instanceof GamePhaseError) {
                    return m.reply("It's not time to vote right now.");
                 } else if ( err instanceof UserNotInGameError) {
-                    return m.reply(`User '${who}' is not playing the game.`);
+                    return m.reply(`User '${who}' is not in the game.`);
                 }
                 return m.reply("Could not vote. I don't know why.");
             

@@ -48,8 +48,8 @@ export default {
 
 		if (turns === 0) return 'instant';
 
-		let hours = Math.floor(turns / turns_per_hour);
-		let mins = Math.round((turns % turns_per_hour) / turns_per_min);
+		const hours = Math.floor(turns / turns_per_hour);
+		const mins = Math.round((turns % turns_per_hour) / turns_per_min);
 
 		return ((hours > 0) ? `${hours} hrs ` : '') + ((mins > 0) ? `${mins} mins` : '');
 	}

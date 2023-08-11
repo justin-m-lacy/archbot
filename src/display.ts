@@ -1,4 +1,4 @@
-import  { Message, TextBasedChannel, EmbedBuilder } from 'discord.js';
+import { Message, TextBasedChannel, EmbedBuilder } from 'discord.js';
 
 export const Display = {
 
@@ -67,7 +67,7 @@ export const Display = {
 	 * @returns {string} Information about the number of pages required.
 	 */
 	pageFooter(text: string) {
-		let count = this.pageCount(text);
+		const count = this.pageCount(text);
 		return '( ' + count + ' page result' + (count != 1 ? 's )' : ' )');
 	},
 

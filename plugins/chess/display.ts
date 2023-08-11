@@ -61,10 +61,9 @@ export const showBoard = async (chan: TextBasedChannel, game: ChessGame) => {
 
 		try {
 
-			let buff = await getBoardImg(game);
+			const buff = await getBoardImg(game);
 			if (buff) {
 
-				//let attach =
 				return chan.send(
 					{
 						content: game.getStatusString(),

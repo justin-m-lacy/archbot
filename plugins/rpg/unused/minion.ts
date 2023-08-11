@@ -1,4 +1,4 @@
-let templates = require('../data/minions.json');
+import templates from '../data/minions.json';
 
 export default class Minion {
 
@@ -6,7 +6,7 @@ export default class Minion {
 	 * Retrieves a minion template by name.
 	 * @param {string} s 
 	 */
-	static GetTemplate(s: string) { return templates[s]; }
+	static GetTemplate(s: keyof typeof templates) { return templates[s]; }
 
 	static FromJSON(json: any) {
 	}

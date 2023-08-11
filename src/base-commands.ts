@@ -114,13 +114,12 @@ const latestStatus = (history: UserHistory | null | undefined, statuses: string 
     if (!history) return null;
     if (Array.isArray(statuses)) {
 
-        let status = null;
         let statusTime = null;
 
         if (statuses.length === 0) { return null; }
         for (let i = statuses.length - 1; i >= 0; i--) {
 
-            status = statuses[i];
+            const status = statuses[i];
             if (history.hasOwnProperty(status) === true) {
                 statusTime = (!statusTime ? history[status] : Math.max(history[status], statusTime));
             }

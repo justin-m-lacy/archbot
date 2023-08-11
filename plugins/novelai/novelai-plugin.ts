@@ -4,22 +4,22 @@ import { AiMode, getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai
 import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
 
-const configuration:NovelAIConfig = {
+const configuration: NovelAIConfig = {
 
-    username:process.env.NOVEL_AI_USER ?? '',
-    password:process.env.NOVEL_AI_PW ?? '',
+    username: process.env.NOVEL_AI_USER ?? '',
+    password: process.env.NOVEL_AI_PW ?? '',
 
 };
 
 type StoryEntry = {
-    id:string,
-    meta:string
+    id: string,
+    meta: string
 }
 
 /**
  * Resolves after successful login with API accessToken.
  */
-let accessPromise:Promise<{accessToken:string, encryptionKey:Uint8Array}|undefined>;
+let accessPromise: Promise<{ accessToken: string, encryptionKey: Uint8Array } | undefined>;
 
 
 /*async function getOpenAi(){
@@ -28,32 +28,32 @@ let accessPromise:Promise<{accessToken:string, encryptionKey:Uint8Array}|undefin
 
 class NovelAiPlugin {
 
-    private client:ReturnType<typeof getNovelAiClient>|undefined = undefined;
+    private client: ReturnType<typeof getNovelAiClient> | undefined = undefined;
 
-    private cache:Cache
+    private cache: Cache
 
-    constructor( context:BotContext){
+    constructor(context: BotContext) {
 
         /// stories associated with this room.
         this.cache = context.subcache('novelai');
 
-        this.createClient().then( ()=>this.loadOrCreateStory( context.idObject.id ) );
+        this.createClient().then(() => this.loadOrCreateStory(context.idObject.id));
     }
 
-    async createClient(){
+    async createClient() {
 
-        try{
+        try {
             const tokenAndCryptKey = await accessPromise;
-            if ( tokenAndCryptKey ) {
+            if (tokenAndCryptKey) {
 
                 this.client = getNovelAiClient(
                     tokenAndCryptKey.accessToken,
-                    tokenAndCryptKey.encryptionKey );
+                    tokenAndCryptKey.encryptionKey);
 
-                
-                    await this.client.loadKeystore();
+
+                await this.client.loadKeystore();
             }
-        } catch(e){
+        } catch (e) {
             console.log(`Failed to create NovelAi client.`);
         }
     }
@@ -61,36 +61,36 @@ class NovelAiPlugin {
     /**
      * Create story for this room.
      */
-    async loadOrCreateStory( channelId:string ){
+    async loadOrCreateStory(channelId: string) {
 
         if (!this.client) return;
 
         const storyid = this.cache.get('storyid');
-        if ( storyid != null ) {
+        if (storyid != null) {
 
-           // await this.client.loadStoryContent(storyid);
+            await this.client.loadStoryContent(storyid);
         } else {
 
-            /*const result = await this.client.createStory( channelId );
-            if ( result ) {
+            const result = await this.client.createStory(channelId);
+            if (result) {
                 console.log(`story created: ${result}`);
-            }*/
+            }
 
         }
 
 
     }
 
-    cmdGenImage(m: Message, query: string ){
+    cmdGenImage(m: Message, query: string) {
 
     }
 
-    async cmdStory(m:Message, query:string){
+    async cmdStory(m: Message, query: string) {
 
         const result = await this.client?.generate(query, AiMode.Story);
 
-        if ( result ) {
-            return m.channel.send(result );
+        if (result) {
+            return m.channel.send(result);
         } else return m.channel.send("I can't think of any story.");
 
     }
@@ -98,36 +98,36 @@ class NovelAiPlugin {
     /**
      * Clear story history.
      */
-    async cmdClearStory(m:Message){
+    async cmdClearStory(m: Message) {
 
         try {
             await this.client?.clearStory();
             return m.channel.send('Cleared');
-        } catch(e){
+        } catch (e) {
             return m.channel.send('Clear story failed.');
         }
     }
 
-        /**
-         * Clear chat history.
-         */
-        async cmdClearChat(m:Message){
+    /**
+     * Clear chat history.
+     */
+    async cmdClearChat(m: Message) {
 
-            try {
-                await this.client?.clearChat();
-                return m.channel.send('Cleared');
-            } catch(e){
-                return m.channel.send('Clear story failed.');
-            }
+        try {
+            await this.client?.clearChat();
+            return m.channel.send('Cleared');
+        } catch (e) {
+            return m.channel.send('Clear story failed.');
         }
-    
+    }
 
-    async cmdTalk(m:Message, query:string){
 
-        const result = await this.client?.generate( `[[${m.member?.nickname}]]: ${query}`, AiMode.Chat);
+    async cmdTalk(m: Message, query: string) {
 
-        if ( result ) {
-            return m.channel.send(result );
+        const result = await this.client?.generate(`[[${m.member?.nickname}]]: ${query}`, AiMode.Chat);
+
+        if (result) {
+            return m.channel.send(result);
         } else return m.channel.send("I don't feel like talking.");
 
     }
@@ -137,18 +137,18 @@ class NovelAiPlugin {
 export const initPlugin = (bot: DiscordBot) => {
 
     bot.addContextCmd('story', 'story [prompt]', NovelAiPlugin.prototype.cmdStory, NovelAiPlugin,
-    { minArgs: 1, maxArgs: 1, group: 'right', "alias":"st"});
+        { minArgs: 1, maxArgs: 1, group: 'right', "alias": "st" });
 
     bot.addContextCmd('clearstory', 'clearstory', NovelAiPlugin.prototype.cmdClearStory, NovelAiPlugin,
-    { minArgs: 1, maxArgs: 1, group: 'right' });
+        { minArgs: 1, maxArgs: 1, group: 'right' });
 
     bot.addContextCmd('clearchat', 'clearchat', NovelAiPlugin.prototype.cmdClearChat, NovelAiPlugin,
-    { minArgs: 1, maxArgs: 1, group: 'right' });
+        { minArgs: 1, maxArgs: 1, group: 'right' });
 
     bot.addContextCmd('talk', 'talk [prompt]',
         NovelAiPlugin.prototype.cmdTalk, NovelAiPlugin,
-        { minArgs: 1, maxArgs: 1, group: 'right', alias:'t'});
-        
-    accessPromise = loginNovelAi(process.env.NOVEL_AI_USER ?? '',process.env.NOVEL_AI_PW ?? '');
+        { minArgs: 1, maxArgs: 1, group: 'right', alias: 't' });
+
+    accessPromise = loginNovelAi(process.env.NOVEL_AI_USER ?? '', process.env.NOVEL_AI_PW ?? '');
 
 }

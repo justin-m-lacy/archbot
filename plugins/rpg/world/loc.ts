@@ -190,14 +190,13 @@ export class Loc {
 
 	static FromJSON(json: any) {
 
-		let loc = new Loc(new Coord(json.coord.x, json.coord.y), json.biome);
+		const loc = new Loc(new Coord(json.coord.x, json.coord.y), json.biome);
 
-		let exits = json.exits;
+		const exits = json.exits;
 		if (exits) {
 
-			let e;
-			for (let k in exits) {
-				e = exits[k];
+			for (const k in exits) {
+				const e = exits[k];
 				loc.addExit(
 					new Exit(e.dir, new Coord(e.to.x, e.to.y))
 				);
@@ -242,7 +241,7 @@ export class Loc {
 
 	toJSON() {
 
-		let o = {
+		return {
 			coord: this._coord,
 			exits: this._exits,
 			inv: this._inv,
@@ -259,7 +258,6 @@ export class Loc {
 
 		};
 
-		return o;
 	}
 
 	setMaker(n: string) {
@@ -381,7 +379,7 @@ export class Loc {
 	 *
 	 * @param {Feature} f
 	 */
-	addFeature(f: Feature|null) { if ( f) this._features.add(f); }
+	addFeature(f: Feature | null) { if (f) this._features.add(f); }
 
 	/**
 	 *

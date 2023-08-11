@@ -257,7 +257,7 @@ export class GameCache {
 	 */
 	async printGames(m: Message, u1: User | GuildMember, u2?: User | GuildMember | null) {
 
-		let list = await this.activeGames(u1, u2);
+		const list = await this.activeGames(u1, u2);
 		return m.reply(await this.listToString(list));
 
 	}
@@ -269,7 +269,7 @@ export class GameCache {
 	*/
 	async listToString(ginfos: GameInfo[]) {
 
-		let len = ginfos.length;
+		const len = ginfos.length;
 		if (len == 0) return 'No games found.';
 
 		let res = '';
@@ -323,13 +323,13 @@ export class GameCache {
 	 */
 	filterList(list: GameInfo[], user: User | GuildMember | null = null, gnum?: number) {
 
-		let len = list.length;
+		const len = list.length;
 		var results;
 		var ginfo;
 
 		if (user != null) {
 
-			let id = user.id;
+			const id = user.id;
 			results = [];
 			for (let i = 0; i < len; i++) {
 
@@ -359,13 +359,13 @@ export class GameCache {
 	 */
 	async completeGame(game: Game) {
 
-		let [list1, list2] = await Promise.all(
+		const [list1, list2] = await Promise.all(
 			[
 				this.getUserLists(game.player1Id),
 				this.getUserLists(game.player2Id)
 			]);
 
-		let info = Game.IdParts(game.saveID);
+		const info = Game.IdParts(game.saveID);
 
 		this.removeGame(list1.active, info);
 		this.removeGame(list2.active, info);
@@ -383,7 +383,7 @@ export class GameCache {
 		let mid = Math.floor((min + max) / 2);
 
 		const gtime = ginfo[3];
-		const  id = ginfo[0];
+		const id = ginfo[0];
 
 		while (min < max) {
 
@@ -402,8 +402,6 @@ export class GameCache {
 
 		} //
 
-		console.log('ADDING ITEM AT: ' + mid);
-
 		list.splice(mid, 0, ginfo);
 
 	}
@@ -419,7 +417,7 @@ export class GameCache {
 		let mid = Math.floor((min + max) / 2);
 
 		const gtime = ginfo[3];
-		const  id = ginfo[0];
+		const id = ginfo[0];
 
 		while (min < max) {
 
@@ -451,7 +449,7 @@ export class GameCache {
 	 * @returns {number}
 	*/
 	cmpMatches(a: RegExpMatchArray, b: RegExpMatchArray) {
-		let at = a[3], bt = b[3];
+		const at = a[3], bt = b[3];
 
 		if (at === bt) return (a[0] > b[0]) ? 1 : -1;	// never happen;
 		if (at > bt) return 1;

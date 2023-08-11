@@ -17,7 +17,7 @@ export default {
 	parse(str: string) {
 
 		const parts = str.split(' ');
-		let len = parts.length;
+		const len = parts.length;
 		let part, value, num;
 
 		const date = new Date();
@@ -77,13 +77,13 @@ export default {
 	/**
 	 * Attempts to get a day of the week.
 	 * @param {string} str
-	 * @returns {number} zero-based day of week, or -1 on failure.
+	 * @returns zero-indexed day of week, or -1 on failure.
 	 */
 	tryGetDay(str: string) {
 
 		str = str.toLocaleLowerCase();
-		let day = days.indexOf(str);
-		if (day < 0) day = fullDays.indexOf(str);
+		const day = days.indexOf(str);
+		if (day < 0) return fullDays.indexOf(str);
 		return day;
 
 	},
@@ -91,13 +91,13 @@ export default {
 	/**
 	 * Get a numeric month of the year based on a month string.
 	 * @param {string} str
-	 * @returns {number} zero-based month of the year, or -1 on failure.
+	 * @returns  zero-indexed month of the year, or -1 on failure.
 	 */
 	tryGetMonth(str: string) {
 
 		str = str.toLocaleLowerCase();
-		let month = months.indexOf(str);
-		if (month < 0) month = fullMonths.indexOf(str);
+		const month = months.indexOf(str);
+		if (month < 0) return fullMonths.indexOf(str);
 		return month;
 
 	},
@@ -109,7 +109,6 @@ export default {
 	 */
 	elapsed(since: number) {
 
-		//let dt = Date.now() - since;
 		return this.timespan(Date.now() - since);
 
 	},
@@ -134,7 +133,7 @@ export default {
 
 		let dt: number;
 
-		if (date instanceof Date) {
+		if (typeof date !== 'number') {
 			dt = Date.now() - date.getTime();
 		} else {
 			dt = Date.now() - date;

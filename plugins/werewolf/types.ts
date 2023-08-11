@@ -1,4 +1,39 @@
-import { User } from 'discord.js';
+
+export enum PlayerRole {
+
+    Villager,
+    Wolf,
+    Seer,
+    Thief,
+    Troubler,
+    Minion
+
+}
+
+export enum DayPhase {
+
+    Werewolves=1,
+    Minion=2,
+    Seer=3,
+    Thief=4,
+    Troubler=5
+}
+
+export enum GamePhase {
+
+    Joining,
+    Active,
+    Voting,
+    Ended
+
+}
+
+
+export enum PlayerState {
+    Alive=1,
+    Dead=0
+}
+
 export class GamePhaseError extends Error {
     constructor(){
         super();
@@ -21,16 +56,6 @@ export class GameNotFoundError extends Error {
     }
 }
 
-
-/**
- * Target of a command is not in game.
- */
-export class UserNotInGameError extends Error {
-    constructor(){
-        super();
-        this.name='UserNotInGameError';
-    }
-}
 /**
  * User has not joined the game they are attempting
  * to interact with.
@@ -43,13 +68,12 @@ export class GameNotJoinedError extends Error {
 }
 
 /**
- * Unable to pick two words.
+ * Target of a command is not in game.
  */
-export class PickWordsError extends Error {
-
+export class UserNotInGameError extends Error {
     constructor(){
         super();
-        this.name = 'PickWordsError';
+        this.name='UserNotInGameError';
     }
 }
 
@@ -58,9 +82,4 @@ export class AlreadyInGameError extends Error {
         super();
         this.name='AlreadyInGameError'
     }
-}
-
-
-export interface IWolfPlugin {
-    getUser(id:string):Promise<User|null>;
 }

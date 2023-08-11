@@ -10,16 +10,16 @@ export interface PluginFile {
 
 }
 
-export const loadPlugins = async (plugins_dir: string ) => {
+export const loadPlugins = async (plugins_dir: string) => {
 
-	const plugins:PluginFile[] = [];
+	const plugins: PluginFile[] = [];
 
 	try {
 
 		// Result is fs.Direct[]
 		const dirs = fs.readdirSync(plugins_dir, { withFileTypes: true });
 
-		for (let dir of dirs) {
+		for (const dir of dirs) {
 
 			if (!dir.isDirectory()) continue;
 			await loadPlugs(path.resolve(plugins_dir, dir.name), plugins);
@@ -39,7 +39,7 @@ export const loadPlugins = async (plugins_dir: string ) => {
  * @param dirPath
  * @param init_func
  */
-const loadPlugs = async (dirPath: string, results:PluginFile[] ) => {
+const loadPlugs = async (dirPath: string, results: PluginFile[]) => {
 
 	const files = fs.readdirSync(dirPath, { withFileTypes: true });
 
@@ -50,9 +50,9 @@ const loadPlugs = async (dirPath: string, results:PluginFile[] ) => {
 
 			const ext = path.extname(file.name).toLowerCase();
 			if (!file.isFile() || !ParseExtensions.includes(ext)) continue;
-	
-			const plug = await import( path.resolve(dirPath, file.name));
-			if ( isPlugin(plug)){
+
+			const plug = await import(path.resolve(dirPath, file.name));
+			if (isPlugin(plug)) {
 				results.push(plug);
 			}
 
@@ -65,8 +65,8 @@ const loadPlugs = async (dirPath: string, results:PluginFile[] ) => {
 
 }
 
-const isPlugin = ( plug?:any ):plug is PluginFile =>{
+const isPlugin = (plug?: any): plug is PluginFile => {
 	return (plug && typeof plug === 'object'
-			&& 'initPlugin' in plug
-			&& typeof plug.initPlugin === 'function');
+		&& 'initPlugin' in plug
+		&& typeof plug.initPlugin === 'function');
 }
