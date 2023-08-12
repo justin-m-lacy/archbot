@@ -30,9 +30,13 @@ class NovelAiPlugin {
 
     private client: ReturnType<typeof getNovelAiClient> | undefined = undefined;
 
-    private cache: Cache
+    private readonly cache: Cache
+
+    private readonly context: BotContext;
 
     constructor(context: BotContext) {
+
+        this.context = context;
 
         /// stories associated with this room.
         this.cache = context.subcache('novelai');
@@ -68,12 +72,24 @@ class NovelAiPlugin {
         const storyid = this.cache.get('storyid');
         if (storyid != null) {
 
-            await this.client.loadStoryContent(storyid);
+            console.log(`Channel: loading cached story id: ${storyid}`);
+
+
+            if (await this.client.loadStoryContent(storyid)) {
+                console.log(`Channel story content loaded: ${channelId}`);
+            }
+
+
+
         } else {
 
             const result = await this.client.createStory(channelId);
             if (result) {
-                console.log(`story created: ${result}`);
+                console.log(`story created:`);
+                console.dir(result);
+                this.cache.cache('storyid', result.id);
+            } else {
+                console.log(`failed to create new story`);
             }
 
         }

@@ -7,6 +7,8 @@ export const STORY_CONTENT_VERSION = 1;
 
 export const LOREBOOK_VERSION = 5;
 
+export const AI_MODELS = ['euterpe-v2', 'clio-v1', '6B-v4', 'kayra-v1'];
+
 // Indicates data will be encrypted.
 export type EncryptedData = string;
 interface Encryptable {
@@ -75,7 +77,9 @@ export interface IStoryData {
     id: string,
     remoteId: string,
 
-    // Equal to StoryContent id.
+    /**
+     * remoteStoryId is equal to the StoryContent id.
+     */
     remoteStoryId: string,
     title: string,
     description?: string,

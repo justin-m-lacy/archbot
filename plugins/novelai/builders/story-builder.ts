@@ -40,7 +40,7 @@ export class StoryBuilder {
 
         const storyId = this.ids.newId();
 
-        const createTime = Date.now();
+        const createTime = getTimestamp();
         const shortTime = toShortTime(createTime);
 
         const storyContentId = this.ids.newId();

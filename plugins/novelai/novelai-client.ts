@@ -4,7 +4,7 @@ import { StoryBuilder } from './builders/story-builder';
 import { IdStore } from './id-store';
 import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, IStoryContent, IStory, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryData, IStoryContentData, STORY_METADATA_VERSION } from './novelai-types';
+import { AiMode, ObjectType, IStoryContent, IStory, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryData, IStoryContentData, AI_MODELS } from './novelai-types';
 import { Keystore } from './keystore';
 import { getNovelApi } from 'plugins/novelai/novelai-api';
 export { AiMode, ObjectType, IStoryContent, IStory as IStory, AiModel, NovelAIConfig };
@@ -16,6 +16,7 @@ const leadingPeriod = /(?:^[\.\,])/i;
 const cleanOutput = (s: string) => {
     return s.replace(leadingPeriod, '').trim();
 }
+
 
 
 /// Generate parameters to send for each AI type.
@@ -49,7 +50,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
     const novelApi = getNovelApi(accessToken);
 
     const modelIndex = 0;
-    const models = ['euterpe-v2', 'clio-v1', '6B-v4'];
+
 
     const idStore = new IdStore();
     const keystore: Keystore = new Keystore();
@@ -59,8 +60,8 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
         return storyBuilder ?? (storyBuilder = new StoryBuilder(idStore, keystore));
     }
 
-    let chatModel: string = models[modelIndex];
-    let storyModel = 'euterpe-v2';
+    let chatModel: string = AI_MODELS[modelIndex];
+    let storyModel = 'kayra-v1';
 
     const _stories = new Map<string, Story>();
     const _content = new Map<string, StoryContent>();
@@ -140,7 +141,8 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             console.dir(result);
 
             const storyResult = await novelApi.putStory(await story.encrypt(keystore));
-            console.dir(storyResult);
+
+            return storyResult;
 
         } catch (e) {
             console.log(`Create story error: ${e}`);
@@ -153,6 +155,9 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
     };
 
+    /**
+     * returns true if content successfully loaded.
+     */
     const loadStoryContent = async (id: string) => {
 
         try {
@@ -161,14 +166,16 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             //const storyContentData = await keystore.decrypt<IStoryContentData>(storyContent);
 
-            console.log(`content id: ${storyContent.id}`);
             console.dir(storyContent);
 
             _content.set(id, new StoryContent(storyContent));
+            return true;
 
         } catch (e) {
             console.log(`Load Content Error: ${e}`);
         }
+        return false;
+
     };
 
     // Add content to story
