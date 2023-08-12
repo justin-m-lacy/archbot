@@ -89,7 +89,7 @@ class NovelAiPlugin {
                 console.dir(result);
                 this.cache.cache('storyid', result.id);
             } else {
-                console.log(`failed to create new story`);
+                console.log(`failed to create story`);
             }
 
         }

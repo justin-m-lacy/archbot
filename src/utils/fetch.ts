@@ -20,7 +20,6 @@ export const makeRequest = <T>(url: string | URL, method: string, data?: { [key:
                     res.removeAllListeners();
                     resolve(JSON.parse(data) as T);
                 });
-
             } else {
 
                 reject(res.statusMessage);

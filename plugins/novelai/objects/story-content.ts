@@ -27,7 +27,7 @@ export class StoryContent {
     async decrypt(keystore: Keystore) {
 
         if (isEncrypted(this.content)) {
-
+            console.log(`Decrypting StoryContent: id:${this.content.id} meta: ${this.content.meta}`);
             this.content.data = (await keystore.decrypt(this.content))!;
         }
 

@@ -1,116 +1,174 @@
-import {decryptData, encryptData, NONCE_SIZE, generateKey } from "./novelai-crypt";
-import { randomBytes} from 'crypto';
+import { decryptData, encryptData, NONCE_SIZE, generateKey } from "./novelai-crypt";
+import { randomBytes } from 'crypto';
 
 const KEYSTORE_VERSION = 2;
 
 type EncodedKeystore = {
-    version:string;
-    nonce:number[];
-    sdata:number[];
+    version: number;
+    nonce: number[];
+    /**
+     * Encoded KeyStoreData
+     */
+    sdata: number[];
 }
 
 type KeyStoreMap = {
-    [key:string]:Uint8Array;
+    [key: string]: Uint8Array;
 }
 
-type KeyStoreData = {
-    keys:{
-        [key:string]:number[]
+type KeyStoreKeys = {
+    keys: {
+        [key: string]: number[]
     }
 }
 
 export class Keystore {
 
-    private _keystore?:EncodedKeystore;
-
     /**
      * Maps object meta fields to decryption key for object.
      */
-    private _keyMap?:KeyStoreMap;
+    private _keyMap?: KeyStoreMap;
 
-    private _decrypted:boolean = false;
+    private _decrypted: boolean = false;
 
-    private _nonce:number[]|null = null;
-    private _version:string|null = null;
+    private _nonce: number[] | null = null;
+    private _version: number = KEYSTORE_VERSION;
 
     /// Only relevant if keystore needs to be reencrypted.
-    private _compressed:boolean = false;
+    private _compressed: boolean = false;
 
-    constructor(){}
+    private readonly encryptionKey: Uint8Array;
 
-    async descryptStore( keystoreBase64:string, encryptionKey:Uint8Array ){
+    private changeIndex: number = 0;
 
+    constructor(encryptionKey: Uint8Array) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    /**
+     * Restore keystore from raw map of keys, nonce, and version.
+     * @param keyMap 
+     * @param nonce 
+     * @param version 
+     */
+    restore(keyMap: KeyStoreKeys, nonce: number[], changeIndex: number = 0, version: number = KEYSTORE_VERSION) {
+
+        this._nonce = nonce;
+        this._version = version;
+        this.changeIndex = changeIndex;
+
+        this.buildKeymap(keyMap);
+
+    }
+
+    async decryptStore({ keystore: keystoreBase64, changeIndex }: { keystore: string, changeIndex: number }) {
+
+        this.changeIndex = changeIndex;
         try {
 
-            this._keystore = JSON.parse( Buffer.from(keystoreBase64, 'base64url').toString('utf8' )) as EncodedKeystore;
-    
-            this._nonce = this._keystore.nonce;
-            this._version = this._keystore.version;
+            const encodedStore = JSON.parse(Buffer.from(keystoreBase64, 'base64url').toString('utf8')) as EncodedKeystore;
+
+            this._nonce = encodedStore.nonce;
+            this._version = encodedStore.version;
 
             const decoded = await decryptData(
-                Uint8Array.from(this._keystore.sdata),
-                encryptionKey,
-                Uint8Array.from( this._keystore.nonce ) );
+                Uint8Array.from(encodedStore.sdata),
+                this.encryptionKey,
+                Uint8Array.from(encodedStore.nonce));
 
-                if ( decoded ){
-                console.dir(JSON.parse(decoded));
-                }
+            console.dir(decoded);
+            const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreKeys) : undefined;
+            this.buildKeymap(keystoreKeys);
 
-            const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreData)?.keys : undefined;
-            
 
-    
-            this._keyMap = {};
-            if ( keystoreKeys ) {
+            this._decrypted = true;
 
-                for( const key in keystoreKeys) {
-                    this._keyMap[key] = new Uint8Array( keystoreKeys[key] );
-                }
-
-            }
-            this._decrypted=true;
-
-        } catch (e){
+        } catch (e) {
             console.log(`error: ${e}`);
         }
 
     }
 
     /**
+     * Build [meta]->UInt8Array keymap using keyStoreKeys object.
+     * @param keysData 
+     */
+    private buildKeymap(keysData?: KeyStoreKeys) {
+
+        this._keyMap = {};
+
+        const allKeys = keysData?.keys;
+        if (allKeys) {
+
+            for (const key in allKeys) {
+                this._keyMap[key] = new Uint8Array(allKeys[key]);
+            }
+
+        }
+    }
+
+    /**
      * Store must be reencrypted so created meta/key pairs can be pushed to server.
      */
-    async encryptStore(){
-    
+    async encryptStore() {
+
         try {
 
-            // Existing keystore should be required for nonce?
-            if ( !this._keystore) return;
+            const keymapData = this.keymapToJSON()
 
-            const keystoreData = JSON.stringify( {keys:this._keyMap});
-    
-            this._keystore = {
-                nonce:this._nonce!,
-                version:this._version!,
-                sdata:Array.from( Buffer.from(keystoreData).values() )
+            const sdata = await encryptData(
+                new Uint8Array(Buffer.from(keymapData)),
+                this.encryptionKey,
+                Uint8Array.from(this._nonce!));
+
+            //console.log(`encryped sdata: ${sdata?.toString()}`)
+            const encoded: EncodedKeystore = {
+                version: this._version,
+                nonce: this._nonce!,
+                sdata: [...sdata!.slice(NONCE_SIZE).values()]
             }
-            return Buffer.from( JSON.stringify(this._keystore), 'utf8' ).toString('base64url');
+
+            this.changeIndex++;
+
+            return {
+                keystore: Buffer.from(JSON.stringify(encoded)).toString('base64url'),
+                changeIndex: this.changeIndex
+            }
 
 
-        } catch(e){
+        } catch (e) {
             console.log(`encryptStore error: ${e}`);
         }
     }
 
     /**
+     * Convert the current keymap to json string before encoding.
+     */
+    private keymapToJSON() {
+
+        const newMap: KeyStoreKeys = { keys: {} };
+
+        if (this._keyMap) {
+            const keys = newMap.keys;
+
+            for (const entry of Object.entries(this._keyMap)) {
+                keys[entry[0]] = [...entry[1].values()];
+            }
+        }
+
+        return JSON.stringify(newMap);
+
+    }
+
+    /**
      * Initialize empty keystore.
      */
-    initEmpty(){
+    initEmpty() {
 
-        this._keystore = {
-            nonce: Array.from( randomBytes( NONCE_SIZE) ),
-            version:`${KEYSTORE_VERSION}`,
-            sdata:[]
-        }
+        this._nonce = Array.from(randomBytes(NONCE_SIZE));
+        this._version = KEYSTORE_VERSION;
+
+        this.changeIndex = 0;
         this._keyMap = {
         };
 
@@ -120,10 +178,10 @@ export class Keystore {
      * Create a new key for a meta object.
      * @param meta 
      */
-    addKey(meta:string, key?:Uint8Array) {
+    addKey(meta: string, key?: Uint8Array) {
 
         const newKey = key ?? generateKey();
-        if ( this._keyMap){
+        if (this._keyMap) {
             this._keyMap[meta] = newKey;
         }
 
@@ -133,19 +191,22 @@ export class Keystore {
      * @param meta 
      * @param dataObject 
      * @returns encrypted plaintext as base64 encoded string.
+     * nonce will be prefixed to encrypted data, along with a compression sequence
+     * if data is compressed.
      */
-    async encrypt( meta:string, dataObject:any, compressed?:boolean ) {
+    async encrypt(meta: string, dataObject: any, compressed?: boolean) {
 
-        if ( !this._decrypted) throw new Error('Keystore not decrypted.');
+        if (!this._decrypted) throw new Error('Keystore not decrypted.');
 
         const useKey = this._keyMap?.[meta];
-        if ( !useKey) throw new Error('Key not found.');
+        if (!useKey) throw new Error('Key not found.');
 
         /// 16 byte nonce needs to be prepended to data.
 
         const plaintext = JSON.stringify(dataObject);
         const nonce = randomBytes(NONCE_SIZE);
-        const data = await encryptData( new Uint8Array( Buffer.from( plaintext)), useKey, nonce, compressed );
+        const data = await encryptData(
+            new Uint8Array(Buffer.from(plaintext)), useKey, nonce, compressed);
 
         return data ? Buffer.from(data).toString('base64') : '';
 
@@ -155,21 +216,21 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt<T=any>( {meta,data}:{meta:string, data:string}){
-    
-        if ( !this._decrypted) {
+    async decrypt<T = any>({ meta, data }: { meta: string, data: string }) {
+
+        if (!this._decrypted) {
             console.log(`keystore not decrypted.`);
             return;
         }
 
         const useKey = this._keyMap?.[meta];
 
-        if ( !useKey) {
+        if (!useKey) {
             console.log(`key not found: meta: ${meta}`);
             return;
         }
 
-        const plaintext = await decryptData( new Uint8Array( Buffer.from(data, 'base64')), useKey );
+        const plaintext = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey);
         return plaintext ? JSON.parse(plaintext) as T : undefined;
 
     }

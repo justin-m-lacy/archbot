@@ -32,3 +32,5 @@ app.yaml
 .env
 archlog.txt
 *.log
+
+keystore.json

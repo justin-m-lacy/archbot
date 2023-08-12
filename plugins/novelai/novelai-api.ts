@@ -39,24 +39,24 @@ export const getNovelApi = (accessToken: string) => {
 
         /**
          * @returns base64 encoding of keystore object:
-         * {
-         *  version:number,
-         *  nonce:number[],
-         *  sdata:number[]
+         * {keystore:`{
+         *      version:number,
+         *      nonce:number[],
+         *      sdata:number[]
+         * }`,
+         * changeIndex:number
          * }
          */
         getKeystore: async () => {
 
-            const result = await get<{ keystore: string }>('/user/keystore');
-            return result.keystore;
+            const result = await get<{ keystore: string, changeIndex: number }>('/user/keystore');
+            return result;
 
         },
 
-        putKeystore: async (encodedKeystore: { [key: string]: unknown }) => {
+        putKeystore: async (encodedKeystore: { keystore: string, changeIndex?: number }) => {
 
             const result = await put<any>('/user/keystore', encodedKeystore);
-            console.dir(result);
-
             return result;
 
         },

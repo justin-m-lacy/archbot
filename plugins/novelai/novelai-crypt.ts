@@ -97,10 +97,7 @@ export async function encryptData(data: Uint8Array, key: Uint8Array, nonce: Uint
         }
 
         result = secretBox(key, nonce, result);
-
-        if (!startsWith(result, nonce)) {
-            result = addDataPrefix(result, nonce);
-        }
+        result = addDataPrefix(result, nonce);
 
         if (compressed) {
             return addDataPrefix(result, compressionPrefix);
