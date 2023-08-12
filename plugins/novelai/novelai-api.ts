@@ -26,6 +26,9 @@ export const getNovelApi = (accessToken: string) => {
     const put = async <T>(path: String, data?: { [key: string]: unknown }) => {
         return makeRequest<T>(API_URL + path, 'PUT', data, headers);
     }
+    const del = async <T>(path: String, data?: { [key: string]: unknown }) => {
+        return makeRequest<T>(API_URL + path, 'DELETE', data, headers);
+    }
 
     return {
         getUserData: async () => {

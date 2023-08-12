@@ -48,12 +48,12 @@ export class Keystore {
     /**
      * Restore keystore from raw map of keys, nonce, and version.
      * @param keyMap 
-     * @param nonce 
+     * @param nonce - If nonce is not supplied, a new nonce will be generated
      * @param version 
      */
-    restore(keyMap: KeyStoreKeys, nonce: number[], changeIndex: number = 0, version: number = KEYSTORE_VERSION) {
+    restore(keyMap: KeyStoreKeys, nonce: number[] | null, changeIndex: number = 0, version: number = KEYSTORE_VERSION) {
 
-        this._nonce = nonce;
+        this._nonce = nonce ?? Array.from(randomBytes(NONCE_SIZE));
         this._version = version;
         this.changeIndex = changeIndex;
 
@@ -71,10 +71,12 @@ export class Keystore {
             this._nonce = encodedStore.nonce;
             this._version = encodedStore.version;
 
-            const decoded = await decryptData(
+            const [decoded, compressed] = await decryptData(
                 Uint8Array.from(encodedStore.sdata),
                 this.encryptionKey,
                 Uint8Array.from(encodedStore.nonce));
+
+            this._compressed = compressed;
 
             console.dir(decoded);
             const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreKeys) : undefined;
@@ -127,8 +129,6 @@ export class Keystore {
                 nonce: this._nonce!,
                 sdata: [...sdata!.slice(NONCE_SIZE).values()]
             }
-
-            this.changeIndex++;
 
             return {
                 keystore: Buffer.from(JSON.stringify(encoded)).toString('base64url'),
@@ -230,8 +230,8 @@ export class Keystore {
             return;
         }
 
-        const plaintext = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey);
-        return plaintext ? JSON.parse(plaintext) as T : undefined;
+        const [decoded] = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey);
+        return decoded ? JSON.parse(decoded) as T : undefined;
 
     }
 

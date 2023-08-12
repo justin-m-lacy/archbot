@@ -55,7 +55,7 @@ const compressionPrefix = Buffer.from("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
 export const NONCE_SIZE = 24;
 
 /// If no nonce is supplied, it is expected that the first NONCE_SIZE of data is the nonce.
-export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array) {
+export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array): Promise<[string | undefined, boolean]> {
 
     const compressed = startsWith(data, compressionPrefix);
 
@@ -63,12 +63,12 @@ export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uin
         data = data.slice(compressionPrefix.length);
     }
 
-    if (nonce == null) {
-        nonce = data.slice(0, NONCE_SIZE);
-        data = data.slice(NONCE_SIZE);
-    }
-
     try {
+
+        if (nonce == null) {
+            nonce = data.slice(0, NONCE_SIZE);
+            data = data.slice(NONCE_SIZE);
+        }
 
         let result = openSecretBox(key, nonce, data);
 
@@ -76,14 +76,14 @@ export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uin
             if (compressed) {
                 result = await promisify(inflate)(result);
             }
-            return Buffer.from(result).toString('utf8');
+            return [Buffer.from(result).toString('utf8'), compressed];
         }
-
-        return undefined;
 
     } catch (e) {
         console.log(`decrypt error: ${e}`);
     }
+
+    return [undefined, false];
 
 }
 
@@ -106,7 +106,7 @@ export async function encryptData(data: Uint8Array, key: Uint8Array, nonce: Uint
         }
 
     } catch (e) {
-        console.log(`encrypt error: ${e}`);
+        console.log(`encryptData(): ${e}`);
     }
 }
 

@@ -1,7 +1,4 @@
 {
-  "ts-node":{
-    "require":["tsconfig-paths/register"],
-  },
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": ".",
@@ -9,6 +6,8 @@
     "target": "esnext",
     "module": "nodenext",
     "allowJs": true,
+    "composite": true,
+    "moduleDetection": "auto",
     "useDefineForClassFields": true,
     "moduleResolution": "node",
     "strict": true,
@@ -19,37 +18,21 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@src/*": [
-        "./src/*"
-      ]
-    },
     "lib": [
       "esnext"
-    ]
+    ],
+    "types": ["node"]
   },
-  "references": [{"path": "tsconfig.node.json"}],
   "typeAcquisition": {
     "enable": true
   },
   "exclude": [
     "dist",
     "node_modules",
-    "strip-package.ts"
+    "./src"
   ],
   "include": [
     "strip-package.ts",
-    "archbot.ts",
-    "src/**/*.json",
-    "archconfig.json",
-    "auth.json",
-    "plugins/**/*.ts",
-    "plugins/**/*.js",
-    "plugins/**/*.json",
-    "src/bot/**/*.ts",
-    "src/bot/**/*.js",
-    "src/bot/**/*.d.ts",
-    "src/bot/**/*.tsx",
-    "src/utils/users.ts",
+    "package.json"
   ]
 }
