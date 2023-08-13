@@ -1,6 +1,6 @@
 import { writeFile } from "fs/promises";
 import { resolve } from "path";
-import mainPackage from "package.json";
+import mainPackage from "./package.json";
 
 /**
  * Strip package of values not needed for compiled app,
@@ -25,6 +25,8 @@ export const stripPackage = async (outputDir: string = './dist') => {
         start: "node ."
     };
 
-    await writeFile(resolve(outputDir), JSON.stringify(newPackage));
+    await writeFile(resolve(outputDir, 'package.json'), JSON.stringify(newPackage));
 
 }
+
+stripPackage();

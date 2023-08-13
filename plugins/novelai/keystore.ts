@@ -78,7 +78,6 @@ export class Keystore {
 
             this._compressed = compressed;
 
-            console.dir(decoded);
             const keystoreKeys = decoded ? (JSON.parse(decoded) as KeyStoreKeys) : undefined;
             this.buildKeymap(keystoreKeys);
 
@@ -107,6 +106,10 @@ export class Keystore {
             }
 
         }
+    }
+
+    updateKeystore(changeIndex: number) {
+        this.changeIndex = changeIndex;
     }
 
     /**
@@ -216,7 +219,7 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt<T = any>({ meta, data }: { meta: string, data: string }) {
+    async decrypt<T = any>(meta: string, data: string) {
 
         if (!this._decrypted) {
             console.log(`keystore not decrypted.`);

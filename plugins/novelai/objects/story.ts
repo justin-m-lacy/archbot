@@ -6,17 +6,30 @@ export class Story {
     public readonly id: string;
     public readonly meta: string;
 
-    private story: IStory | EncryptedStory;
+    private story?: IStory;
+    private encrypted?: EncryptedStory;
 
-    public get isDecrypted() { return this.story !== null }
+    private baseProps: Omit<IStory, 'data'>;
+
+    public get isDecrypted() { return this.story !== undefined }
 
     constructor(story: IStory | EncryptedStory) {
 
         this.id = story.id;
         this.meta = story.meta;
 
-        this.story = story;
+        this.baseProps = Object.assign({}, story, { data: undefined });
 
+        if (isEncrypted(story)) {
+            this.encrypted = story;
+        } else {
+            this.story = story;
+        }
+
+    }
+
+    changed() {
+        this.baseProps.changeIndex++;
     }
 
     /**
@@ -25,9 +38,15 @@ export class Story {
      */
     async decrypt(keystore: Keystore) {
 
-        if (isEncrypted(this.story)) {
-            console.log(`Decrypting Story: id:${this.story.id} meta: ${this.story.meta}`);
-            this.story.data = (await keystore.decrypt(this.story))!;
+        if (this.story) {
+            return this.story;
+        } else if (this.encrypted) {
+
+            const newData = (await keystore.decrypt<IStoryData>(this.encrypted.meta, this.encrypted.data))!;
+
+            this.setData(newData);
+
+            return this.story;
         }
 
     }
@@ -42,13 +61,14 @@ export class Story {
     }
 
     /**
-     * Set the current story data.
-     * This will mark the story as decrypted.
-     * @param data - new story data.
      */
     setData(data: IStoryData) {
 
-        this.story.data = data;
+        if (this.story) {
+            this.story.data = data;
+        } else if (this.encrypted) {
+            this.story = Object.assign({}, this.encrypted, { data: data });
+        }
 
     }
 

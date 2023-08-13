@@ -85,6 +85,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
                 await novelApi.getKeystore()!
             );
 
+            loadStories();
         } catch (e) {
             console.log(`${e}`);
         }
@@ -97,7 +98,22 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             const storyObjects = await novelApi.getStories();
 
             for (const story of storyObjects!) {
-                _stories.set(story.id, new Story(story));
+
+                try {
+                    const s = new Story(story);
+                    _stories.set(story.id, s);
+
+                    const sdata = await s.decrypt(keystore);
+                    if (sdata?.data) {
+                        console.dir(sdata?.data)
+                        //loadStoryContent(sdata.data.remoteStoryId);
+                    }
+
+                } catch (err) {
+                    console.log(`decrypt story failed: ${story.id}`);
+                    console.log(err);
+                    console.log(`----`);
+                }
             }
 
         } catch (e) {
@@ -109,7 +125,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
         const story = await novelApi.getStory(id);
 
-        const storyData = await keystore.decrypt<IStoryData>(story);
+        const storyData = await keystore.decrypt<IStoryData>(story.meta, story.data);
         if (storyData) {
             console.log(`storyData id: ${storyData.id}`);
 
@@ -126,12 +142,12 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             const builder = getStoryBuilder();
 
-            /// put updated keystore
-            await sendKeystore();
-
             const [story, content] = builder.createStory(props ?? {
                 title: "New Title"
             }, meta);
+
+            /// put updated keystore
+            await sendKeystore();
 
             const storyResult = await novelApi.putStory(await story.encrypt(keystore));
 
@@ -140,13 +156,13 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             const result = await novelApi.putStoryContent(await content.encrypt(keystore));
             console.log(`story content created...`);
 
-
-
             return result;
 
         } catch (e) {
             console.log(`Create story error: ${e}`);
         }
+        return undefined;
+
     };
 
     const sendKeystore = async () => {
@@ -154,10 +170,9 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
         try {
             const encodedKeystore = (await keystore.encryptStore())!;
 
-            console.log(`SENDING... encoded keystore: ${encodedKeystore.keystore.length}`);
+            const result = await novelApi.putKeystore(encodedKeystore);
+            console.log(`keystore put RESULT: ${result}`)
 
-            await novelApi.putKeystore(encodedKeystore);
-            console.log(`keystore was encoded`)
         } catch (err) {
             console.warn(`error updating keystore: ${err}`);
             console.dir(err);
@@ -172,8 +187,24 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
         try {
 
+            console.log(`load content: ${id}`);
             const storyContent = await novelApi.getStoryContent(id);
-            _content.set(id, new StoryContent(storyContent));
+            const content = new StoryContent(storyContent);
+
+            _content.set(id, content);
+
+            const decrypt = await content.decrypt(keystore);
+            if (!decrypt.data.story) {
+                console.log(`${id}: Missing Content story.`);
+            } else {
+                if (decrypt.data.story.datablocks.length > 0) {
+                    console.log(`first block:`);
+                    console.dir(decrypt.data.story.datablocks[0]);
+                } else {
+                    console.log(`STory Content datablocks list empty.`);
+                }
+            }
+
             return true;
 
         } catch (e) {
@@ -190,12 +221,15 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             const curContent = _content.get(id);
 
-            const result = await novelApi.patchStoryContent(id, content);
-
+            /// add new fragment.
             if (curContent) {
-            }
 
-            console.dir(result);
+                const encrypted = await curContent.encrypt(keystore);
+                const result = await novelApi.patchStoryContent(encrypted!);
+
+                console.log(`Patch content complete.`);
+                console.dir(result);
+            }
 
         } catch (e) {
             console.log(`Add Content Error: ${e}`);

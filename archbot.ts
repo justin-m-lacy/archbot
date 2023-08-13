@@ -14,15 +14,15 @@ const client: Client = new Client({
 
 	closeTimeout: 4000,
 	intents: [GatewayIntentBits.Guilds,
-		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMessageReactions,
-		GatewayIntentBits.GuildMembers,
-		GatewayIntentBits.DirectMessages,
-		GatewayIntentBits.GuildEmojisAndStickers,
-		GatewayIntentBits.GuildModeration,
-		GatewayIntentBits.GuildPresences,
-		GatewayIntentBits.GuildMessageReactions
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.GuildMessageReactions,
+	GatewayIntentBits.GuildMembers,
+	GatewayIntentBits.DirectMessages,
+	GatewayIntentBits.GuildEmojisAndStickers,
+	GatewayIntentBits.GuildModeration,
+	GatewayIntentBits.GuildPresences,
+	GatewayIntentBits.GuildMessageReactions
 
 	],
 	sweepers: {

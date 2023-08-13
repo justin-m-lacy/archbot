@@ -12,21 +12,21 @@ export const getNovelApi = (accessToken: string) => {
     };
 
 
-    const get = async <T>(path: string) => {
+    const get = async <T extends object>(path: string) => {
         return archGet<T>(API_URL + path, headers);
     }
 
-    const send = async <T>(path: string, data?: { [key: string]: unknown }) => {
+    const send = async <T extends object>(path: string, data?: { [key: string]: unknown }) => {
         return archPost<T>(API_URL + path, data, headers);
     }
 
-    const patch = async <T>(path: string, data?: { [key: string]: unknown }) => {
+    const patch = async <T extends object>(path: string, data?: { [key: string]: unknown }) => {
         return archPatch<T>(API_URL + path, data, headers);
     }
-    const put = async <T>(path: String, data?: { [key: string]: unknown }) => {
-        return makeRequest<T>(API_URL + path, 'PUT', data, headers);
+    const put = async <T extends object | undefined>(path: String, data?: { [key: string]: unknown }) => {
+        return makeRequest(API_URL + path, 'PUT', data, headers) as Promise<T>;
     }
-    const del = async <T>(path: String, data?: { [key: string]: unknown }) => {
+    const del = async <T extends object>(path: String, data?: { [key: string]: unknown }) => {
         return makeRequest<T>(API_URL + path, 'DELETE', data, headers);
     }
 
@@ -59,8 +59,7 @@ export const getNovelApi = (accessToken: string) => {
 
         putKeystore: async (encodedKeystore: { keystore: string, changeIndex?: number }) => {
 
-            const result = await put<any>('/user/keystore', encodedKeystore);
-            return result;
+            return await put<any>('/user/keystore', encodedKeystore);
 
         },
 
@@ -87,6 +86,28 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
+        patchStory: async (storyInfo: { id: string, meta: string, data: string, changeIndex: number }) => {
+
+            const story =
+                await patch<EncryptedStory>(`/user/objects/${ObjectType.Stories}/${storyInfo.id}`, {
+                    meta: storyInfo.meta,
+                    data: storyInfo.data,
+                    changeIndex: storyInfo.changeIndex
+                });
+
+            return story;
+
+        },
+
+        deleteStory: async (id: string) => {
+
+            const story =
+                await del(`/user/objects/${ObjectType.Stories}/${id}`);
+
+            return story;
+
+        },
+
         putStoryContent: async (storyContent: EncryptedStoryContent) => {
 
             const result = await put<EncryptedStoryContent>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
@@ -103,13 +124,13 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
-        patchStoryContent: async (storyId: string, content: string) => {
+        patchStoryContent: async (content: { id: string, meta: string, data: string, changeIndex: number }) => {
 
             try {
-                const result = await patch(`/user/objects/${ObjectType.StoryContent}/${storyId}`, {
-                    meta: 'unknown',
-                    data: content,
-                    changeIndex: 0
+                const result = await patch(`/user/objects/${ObjectType.StoryContent}/${content.id}`, {
+                    meta: content.meta,
+                    data: content.data,
+                    changeIndex: content.changeIndex
                 });
 
                 console.dir(result);
@@ -117,6 +138,12 @@ export const getNovelApi = (accessToken: string) => {
             } catch (e) {
                 console.log(`Error: ${e}`);
             }
+
+        },
+
+        deleteStoryContent: async (id: string) => {
+
+            return await del(`/user/objects/${ObjectType.StoryContent}/${id}`);
 
         },
 

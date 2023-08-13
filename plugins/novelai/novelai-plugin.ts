@@ -72,31 +72,47 @@ class NovelAiPlugin {
         const storyid = this.cache.get('storyid');
         if (storyid != null) {
 
-            console.log(`Channel: loading cached story id: ${storyid}`);
+            console.log(`Loading cached story: ${storyid}`);
 
+            try {
+                if (await this.client.loadStoryContent(storyid)) {
+                    console.log(`Channel story content loaded: ${channelId}`);
+                }
+            } catch (err) {
 
-            if (await this.client.loadStoryContent(storyid)) {
-                console.log(`Channel story content loaded: ${channelId}`);
+                // TODO: only create on a 404?
+                this.createStory(channelId);
+
             }
-
-
 
         } else {
-
-            const result = await this.client.createStory(channelId);
-            if (result) {
-                console.log(`story created:`);
-                console.dir(result);
-                this.cache.cache('storyid', result.id);
-            } else {
-                console.log(`failed to create story`);
-            }
-
+            this.createStory(channelId);
         }
-
 
     }
 
+    private async createStory(channelId: string) {
+
+        try {
+
+            /*const channel = (await this.context.getChannel(channelId));
+
+            const result = await this.client!.createStory(channelId, {
+                title: (channel && channel.isTextBased() && 'name' in channel) ? channel.name : `Story: ${channelId}`
+            });
+            if (result) {
+                console.log(`story created:`);
+                console.dir(result);
+                //this.cache.cache('storyid', result.id);
+            } else {
+                console.log(`failed to create story`);
+            }*/
+
+        } catch (err) {
+            console.warn(`createStory(): ${err}`);
+        }
+
+    }
     cmdGenImage(m: Message, query: string) {
 
     }

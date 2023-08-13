@@ -1,3 +1,4 @@
+import { Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
 import { ObjectType, STORY_METADATA_VERSION } from 'plugins/novelai/novelai-types';
 import { IdStore } from '../id-store';
 import { Keystore } from '../keystore';
@@ -43,7 +44,8 @@ export class StoryBuilder {
         const createTime = getTimestamp();
         const shortTime = toShortTime(createTime);
 
-        const storyContentId = this.ids.newId();
+        const storyContent = this.createStoryContent(storyProps, meta)
+
 
         const storyData = {
 
@@ -52,7 +54,7 @@ export class StoryBuilder {
             title: storyProps.title ?? "",
             id: meta,
             remoteId: storyId,
-            remoteStoryId: storyContentId,
+            remoteStoryId: storyContent.id,
             createdAt: createTime,
             lastUpdatedAt: createTime,
 
@@ -69,18 +71,7 @@ export class StoryBuilder {
                 changeIndex: 0
 
             }),
-            new StoryContent(
-                {
-                    id: storyContentId,
-                    type: ObjectType.StoryContent,
-                    meta: meta,
-                    data: {
-                        title: storyProps.title ?? "",
-                    },
-                    changeIndex: 0,
-                    lastUpdatedAt: shortTime
-                }
-            )
+            storyContent
         ];
 
 
@@ -89,15 +80,40 @@ export class StoryBuilder {
     /**
      * Create new story content object.
      */
-    async createStoryContent(storyData: { title?: string }, meta: string) {
+    createStoryContent(props: { title?: string }, meta: string) {
 
-        const data = await this.keystore.encrypt(meta, storyData);
+        const storyContentId = this.ids.newId();
+        const createTime = getTimestamp();
+        const shortTime = toShortTime(createTime);
+
+        const conetentData: IStoryContentData = {
+            title: props.title ?? "",
+            story: StoryContent.createStoryBlocks()
+        };
+
+        return new StoryContent(
+            {
+                id: storyContentId,
+                type: ObjectType.StoryContent,
+                meta: meta,
+                data: conetentData,
+                changeIndex: 0,
+                lastUpdatedAt: shortTime
+            }
+        )
+
+    }
+
+
+    createLorebook(): Lorebook {
 
         return {
-            meta: meta,
-            data: data,
-            changeIndex: 0
-        };
+            lorebookVersion: LOREBOOK_VERSION,
+            entries: [],
+            settings: {
+            },
+            categories: []
+        }
 
     }
 

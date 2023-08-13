@@ -3,7 +3,9 @@
  */
 export const STORY_METADATA_VERSION = 1;
 // unknown
-export const STORY_CONTENT_VERSION = 1;
+export const STORY_CONTENT_VERSION = 6;
+
+export const STORY_VERSION = 2;
 
 export const LOREBOOK_VERSION = 5;
 
@@ -70,11 +72,13 @@ export interface IStoryData {
     storyMetadataVersion: number,
 
     /**
-     * Length 36?
-     * Remote id is used to fetch from server.
-     * According to python, this number might be the meta.
+     * Story and Content meta. Unsure why.
      */
     id: string,
+
+    /**
+     * Id of parent story.
+     */
     remoteId: string,
 
     /**
@@ -89,7 +93,8 @@ export interface IStoryData {
     tags?: string[],
     createdAt: number,
     lastUpdatedAt: number,
-    isModified?: boolean
+    isModified?: boolean,
+    hasDocument?: boolean
 }
 
 export interface IStoryContent {
@@ -108,6 +113,7 @@ export interface IStoryContentData {
     title: string,
     storyContentVersion?: number,
     settings?: object,
+    document?: EncryptedData
     story?: {
         version: number,
         step: number,
@@ -140,19 +146,23 @@ interface StoryContextConfig {
 }
 
 export interface LorebookEntry {
-    id: string;
+    id?: string;
+
+    /// content of lorebook entry.
     text: string;
-    contextConfig: object;
-    lastUpdatedAt: number;
+    contextConfig?: object;
+    lastUpdatedAt?: number;
     displayName: string;
+
+    /// Triggers
     keys: string[];
-    searchRange: number;
-    enabled: boolean;
-    forceActivation: boolean;
-    keyRelative: boolean;
-    nonStoryActivatable: boolean;
-    category: string;
-    loreBiasGroups: Array<any>;
+    searchRange?: number;
+    enabled?: boolean;
+    forceActivation?: boolean;
+    keyRelative?: boolean;
+    nonStoryActivatable?: boolean;
+    category?: string;
+    loreBiasGroups?: Array<any>;
 }
 
 export interface Lorebook {
@@ -162,7 +172,7 @@ export interface Lorebook {
     categories: [];
 }
 
-type ContentOrigin = 'user' | 'root' | 'prompt' | 'ai' | 'edit';
+export type ContentOrigin = 'user' | 'root' | 'prompt' | 'ai' | 'edit';
 export interface StoryFragment {
     data: string,
     origin: ContentOrigin
@@ -173,12 +183,12 @@ export interface StoryBlock {
     nextBlock: number[],
     prevBlock: number,
     origin: ContentOrigin,
-    startIndex: number,
-    endIndex: number,
-    dataFragment: StoryFragment,
+    startIndex?: number,
+    endIndex?: number,
+    dataFragment?: StoryFragment,
     fragmentIndex: number,
-    removedFragments: object[],
-    chain: boolean
+    removedFragments?: StoryFragment[],
+    chain?: boolean
 }
 
 export type GenerateParams = Partial<{
@@ -191,3 +201,12 @@ export type GenerateParams = Partial<{
     repetition_penalty: number,
     phrase_rep_pen: RepetitionPenalty
 }>
+
+export class NotDecryptedError extends Error {
+    constructor() {
+
+        super("Object not decrypted");
+        this.name = "NotDecryptedError";
+    }
+
+}

@@ -28,7 +28,7 @@ export type ContextClass<T extends ContextSource> = {
 /**
  * Base class for a BotContext.
  */
-export abstract class BotContext<T extends ContextSource=ContextSource> {
+export abstract class BotContext<T extends ContextSource = ContextSource> {
 
 	/**
 	 * @property {string} type - 'guild', 'user', 'dm', 'channel'
@@ -184,7 +184,7 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 	async setSetting(key: string, value?: any) {
 
 		const settings = await this.cache.fetch('settings') ?? {};
-		
+
 		settings[key] = value;
 		this.cache.cache('settings', value);
 
@@ -337,7 +337,7 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 
 	}
 
-	async getUser( id:string){
+	async getUser(id: string) {
 		try {
 			/// fetch checks cache first.
 			return await this.bot.client.users.fetch(id);
@@ -346,7 +346,7 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 		}
 	}
 
-	async getChannel(id:string) {
+	async getChannel(id: string) {
 		try {
 			/// fetch checks cache first.
 			return await this.bot.client.channels.fetch(id);
@@ -363,7 +363,7 @@ export abstract class BotContext<T extends ContextSource=ContextSource> {
 	findUser(name: string): User | GuildMember | null {
 
 		name = name.toLowerCase();
-		return this.bot.client.users.cache.find(v=>v.username===name) ?? null;
+		return this.bot.client.users.cache.find(v => v.username === name) ?? null;
 
 	}
 
@@ -576,12 +576,22 @@ export class GuildContext extends BotContext<Guild> {
 	 * @param message 
 	 * @returns 
 	 */
-	async send( channelId:string, message:string){
+	async send(channelId: string, message: string) {
 		const channel = await this.getChannel(channelId);
-		if ( channel && channel.isTextBased()){
+		if (channel && channel.isTextBased()) {
 			return channel.send(message);
 		}
 	}
+
+	async getChannel(id: string) {
+		try {
+			/// fetch checks cache first.
+			return await this.idObject.channels.fetch(id);
+		} catch {
+			return null;
+		}
+	}
+
 
 	/**
 	 * Find channel by name.
@@ -602,7 +612,7 @@ export class GuildContext extends BotContext<Guild> {
 
 		name = name.toLowerCase();
 		return this.idObject.members.cache.find(gm =>
-			gm.displayName.toLowerCase() === name || gm.nickname?.toLowerCase() === name ||  gm.user.username === name || gm.id === name
+			gm.displayName.toLowerCase() === name || gm.nickname?.toLowerCase() === name || gm.user.username === name || gm.id === name
 		) ?? null;
 
 	}

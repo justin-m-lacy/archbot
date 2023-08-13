@@ -7,7 +7,8 @@
     "start": "cross-env NODE_ENV=production node .",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
     "serve": "cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
-    "build": "rimraf dist && tsc && tsc-alias && pnpm run minify && pnpm run copydata",
+    "build": "rimraf dist && tsc && tsc-alias && pnpm run minify && pnpm run copydata && pnpm run copypackage",
+    "copypackage": "ts-node --project tsconfig.node.json strip-package.ts",
     "minify": "node mterser --glob dist/**/*.js --compress --mangle",
     "copydata": "copyfiles plugins/**/*.png dist && copyfiles .env dist && copyfiles -f assets/* dist"
   },
