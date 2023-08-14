@@ -1,7 +1,7 @@
 # Private Configuration Files
 reactions.json
 auth.json
-archconfig.json
+config.json
 
 .vscode
 

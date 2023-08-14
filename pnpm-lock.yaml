@@ -19,9 +19,6 @@ dependencies:
   bufferutil:
     specifier: ^4.0.3
     version: 4.0.3
-  chargrid:
-    specifier: 0.0.3
-    version: 0.0.3
   chess-rules:
     specifier: ^1.1.0
     version: 1.1.0
@@ -909,11 +906,6 @@ packages:
     engines: {node: '>=10.16.0'}
     dependencies:
       streamsearch: 1.1.0
-    dev: false
-
-  /chargrid@0.0.3:
-    resolution: {integrity: sha512-cszUKxTA9tZZ3WDQx0YOPtx7Wr0+fQGmG0DTj8QXISP91pwRZT+98BFoztQYuTFkjc2ZdRz8Uds+wBKw9RFtuw==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     dev: false
 
   /chess-rules@1.1.0:

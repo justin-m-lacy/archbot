@@ -161,7 +161,7 @@ export class DiscordBot {
 
 		try {
 
-			const config = require('../../archconfig.json');
+			const config = require('../../config.json');
 
 			if (process.env.NODE_ENV !== 'production' && config.dev) {
 				Object.assign(config, config.dev);

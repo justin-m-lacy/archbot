@@ -41,7 +41,7 @@
     "strip-package.ts",
     "archbot.ts",
     "src/**/*.json",
-    "archconfig.json",
+    "config.json",
     "auth.json",
     "plugins/**/*.ts",
     "plugins/**/*.js",
