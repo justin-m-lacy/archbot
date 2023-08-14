@@ -14,7 +14,7 @@ export const AI_MODELS = ['euterpe-v2', 'clio-v1', '6B-v4', 'kayra-v1'];
 // Indicates data will be encrypted.
 export type EncryptedData = string;
 interface Encryptable {
-    data: object
+    data: object | undefined | string
 }
 export type Encrypted<T extends Encryptable, K extends string = 'data'> = Omit<T, K> & { data: EncryptedData };
 
@@ -101,7 +101,7 @@ export interface IStoryContent {
     id: string,
     /// used to create encryption key?
     meta: string,
-    data: IStoryContentData,
+    data: string | IStoryContentData | undefined,
     lastUpdatedAt?: number,
     changeIndex: number,
     /// object type.

@@ -1,39 +1,80 @@
-import { Keystore } from './../keystore';
-import { IStoryContent, EncryptedStoryContent, isEncrypted, ContentOrigin, NotDecryptedError, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
+import { MaybeEncrypted } from './maybe-encrypted';
+import { IStoryContent, ContentOrigin, NotDecryptedError, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
+import { Keystore } from '../keystore';
 
 export class StoryContent {
 
     public readonly id: string;
     public readonly meta: string;
 
-    private content: IStoryContent | null = null;
-    private encryted: EncryptedStoryContent | null = null;
+    private content: IStoryContent;
 
-    public get isDecrypted() { return this.content != null }
+    private data: MaybeEncrypted<IStoryContentData>;
 
-    constructor(content: IStoryContent | EncryptedStoryContent) {
+    public get isDecrypted() { return this.data.isDecrypted() }
+
+    constructor(content: IStoryContent, keystore: Keystore) {
 
         this.id = content.id;
         this.meta = content.meta;
 
-        if (isEncrypted(content)) {
-            this.encryted = content;
-        } else {
-            this.content = content;
-        }
+        this.content = content;
+        this.data = new MaybeEncrypted(content.data, {
+
+            decrypt: async (encrypted: string) => {
+
+                const res = await keystore.decrypt<IStoryContentData>(this.meta, encrypted);
+                if (res?.document) {
+                    console.log(`has document..: ${res.document}`);
+
+                    //const doc = await keystore.decrypt(this.meta, res.document, true)
+
+                    // console.log(`decrypted document: ${doc}`);
+                    //console.dir(doc);
+
+                }
+
+                return res;
+            },
+            encrypt: (data) => {
+                return keystore.encrypt(this.meta, data);
+            }
+
+        });
+
     }
 
     changed() {
-        if (this.content) {
-            this.content.changeIndex++;
-        } else if (this.encryted) {
-            this.encryted.changeIndex++;
-        }
+        this.content.changeIndex++;
     }
 
     public addContentText(data: string, origin: ContentOrigin = "user") {
 
         this.addDataBlock(data, origin);
+
+    }
+
+    public removePreviousBlock() {
+
+        if (!this.content) throw new NotDecryptedError();
+
+        const storySection = this.getStoryBlocks();
+        const blocks = storySection.datablocks;
+        if (blocks.length === 0) {
+            return;
+        }
+        const prevBlock = blocks[blocks.length - 1];
+        const fragments = storySection.fragments;
+
+        blocks.push({
+
+            nextBlock: [],
+            prevBlock: blocks.length - 1,
+            fragmentIndex: fragments.length - 1,
+            removedFragments: [fragments[prevBlock.fragmentIndex]],
+            origin: "user"
+
+        });
 
     }
 
@@ -95,11 +136,10 @@ export class StoryContent {
 
     addLorebookEntry(keys: string[], text: string, displayName?: string) {
 
-        if (!this.content) throw new NotDecryptedError();
+        const data = this.data.getData()!;
 
-        this.content.data.lorebook ??= this.createLorebook();
-
-        this.content.data.lorebook.entries.push({
+        data.lorebook ??= this.createLorebook();
+        data.lorebook.entries.push({
 
             /// id?
             ///id:undefined,
@@ -116,28 +156,17 @@ export class StoryContent {
      * Decrypts story content data if it is encrypted.
      * @param keystore 
      */
-    async decrypt(keystore: Keystore) {
+    async decrypt() {
 
-        if (this.encryted) {
-            console.log(`Decrypting StoryContent: id:${this.encryted.id} meta: ${this.encryted.meta}`);
-            const contentData = (await keystore.decrypt<IStoryContentData>(this.encryted.meta, this.encryted.data))!;
+        const decrypted = (this.content.data = await this.data.decrypt());
 
-            this.setData(contentData!);
-
-        }
 
         return this.content!;
 
     }
 
     setData(data: IStoryContentData) {
-
-        if (this.content) {
-            this.content.data = data;
-        } else if (this.encryted) {
-            this.content = Object.assign({}, this.encryted, { data: data });
-        }
-        this.encryted = null;
+        this.data.setData(data);
     }
 
     /**
@@ -147,20 +176,16 @@ export class StoryContent {
      * @param keystore 
      * @returns 
      */
-    async encrypt(keystore: Keystore) {
+    async encrypt() {
 
-        if (this.encryted) return this.encryted;
+        const storyContent = Object.assign({}, this.content!, { data: await this.data.encrypt() });
 
-        this.encryted = Object.assign({},
-            this.content!,
-            { data: await keystore.encrypt(this.meta, this.content!.data) });
-
-        return this.encryted;
+        return storyContent;
 
     }
 
     getStoryBlocks() {
-        return this.content!.data.story ??= StoryContent.createStoryBlocks();
+        return this.data.getData()!.story ??= StoryContent.createStoryBlocks();
     }
 
     getContent() { return this.content }

@@ -1,3 +1,5 @@
+#!/usr/bin/env ts-node
+
 import { writeFile } from "fs/promises";
 import { resolve } from "path";
 import mainPackage from "./package.json";

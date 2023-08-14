@@ -99,7 +99,8 @@ export class StoryBuilder {
                 data: conetentData,
                 changeIndex: 0,
                 lastUpdatedAt: shortTime
-            }
+            },
+            this.keystore
         )
 
     }

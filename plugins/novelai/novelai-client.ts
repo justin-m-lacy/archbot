@@ -104,15 +104,17 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
                     _stories.set(story.id, s);
 
                     const sdata = await s.decrypt(keystore);
-                    if (sdata?.data) {
-                        console.dir(sdata?.data)
-                        //loadStoryContent(sdata.data.remoteStoryId);
+                    if (!sdata) {
+                        console.log(`loadStories(): Decrypted story undefined: ${story.id}`);
+                    } else if (!sdata.data) {
+                        console.log(`STORY no story data: ${story.id}`)
+                    } else if (sdata?.data?.title === "Test Story") {
+                        loadStoryContent(sdata.data.remoteStoryId);
                     }
 
                 } catch (err) {
                     console.log(`decrypt story failed: ${story.id}`);
                     console.log(err);
-                    console.log(`----`);
                 }
             }
 
@@ -153,7 +155,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             console.log(`story created: ${storyResult.id}`);
 
-            const result = await novelApi.putStoryContent(await content.encrypt(keystore));
+            const result = await novelApi.putStoryContent(await content.encrypt());
             console.log(`story content created...`);
 
             return result;
@@ -187,22 +189,16 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
         try {
 
-            console.log(`load content: ${id}`);
             const storyContent = await novelApi.getStoryContent(id);
-            const content = new StoryContent(storyContent);
+            const content = new StoryContent(storyContent, keystore);
 
             _content.set(id, content);
 
-            const decrypt = await content.decrypt(keystore);
-            if (!decrypt.data.story) {
-                console.log(`${id}: Missing Content story.`);
+            const decrypt = await content.decrypt();
+            if (!decrypt.data) {
+                console.log(`${id}: Missing StoryContent data.`);
             } else {
-                if (decrypt.data.story.datablocks.length > 0) {
-                    console.log(`first block:`);
-                    console.dir(decrypt.data.story.datablocks[0]);
-                } else {
-                    console.log(`STory Content datablocks list empty.`);
-                }
+                console.dir(decrypt.data, { depth: 3 });
             }
 
             return true;
@@ -224,7 +220,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             /// add new fragment.
             if (curContent) {
 
-                const encrypted = await curContent.encrypt(keystore);
+                const encrypted = await curContent.encrypt();
                 const result = await novelApi.patchStoryContent(encrypted!);
 
                 console.log(`Patch content complete.`);

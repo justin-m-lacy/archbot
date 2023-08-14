@@ -219,7 +219,7 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt<T = any>(meta: string, data: string) {
+    async decrypt<T = any>(meta: string, data: string, compressed?: boolean) {
 
         if (!this._decrypted) {
             console.log(`keystore not decrypted.`);
@@ -233,7 +233,7 @@ export class Keystore {
             return;
         }
 
-        const [decoded] = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey);
+        const [decoded] = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey, undefined, compressed);
         return decoded ? JSON.parse(decoded) as T : undefined;
 
     }

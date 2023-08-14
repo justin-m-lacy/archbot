@@ -55,9 +55,9 @@ const compressionPrefix = Buffer.from("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
 export const NONCE_SIZE = 24;
 
 /// If no nonce is supplied, it is expected that the first NONCE_SIZE of data is the nonce.
-export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array): Promise<[string | undefined, boolean]> {
+export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array, compressed?: boolean): Promise<[string | undefined, boolean]> {
 
-    const compressed = startsWith(data, compressionPrefix);
+    compressed ??= startsWith(data, compressionPrefix);
 
     if (compressed) {
         data = data.slice(compressionPrefix.length);
