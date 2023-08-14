@@ -4,11 +4,12 @@ import { StoryBuilder } from './builders/story-builder';
 import { IdStore } from './id-store';
 import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
-import { AiMode, ObjectType, IStoryContent, IStory, AiModel, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryData, IStoryContentData, AI_MODELS } from './novelai-types';
+import { AiMode, ObjectType, IStoryContent, IStory, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryData, IStoryContentData, AiModel, AiModels } from './novelai-types';
 import { Keystore } from './keystore';
 import { getNovelApi } from 'plugins/novelai/novelai-api';
 export { AiMode, ObjectType, IStoryContent, IStory as IStory, AiModel, NovelAIConfig };
-import SavedStore from "keystore.json";
+
+export type NovelAiClient = ReturnType<typeof getNovelAiClient>;
 
 const API_URL = 'https://api.novelai.net';
 const MAX_HISTORY = 50;
@@ -18,19 +19,17 @@ const cleanOutput = (s: string) => {
     return s.replace(leadingPeriod, '').trim();
 }
 
-
-
 /// Generate parameters to send for each AI type.
 const GenParams: {
     [Property in AiMode]: GenerateParams
 } = {
     [AiMode.Chat]: {
-        prefix: "euterpe-v2:74123c83e0c4cee8a655206014dd7bcc5adf2aee040efa66db4dbdc1e54833d0:e91fa243411b234a66bfe352d654819cd6e799887e481921107a75514b89c1e0",
+        prefix: undefined,
         use_string: true,
         generate_until_sentence: true,
         temperature: 0.65,
         min_length: 2,
-        max_length: 34,
+        max_length: 30,
         repetition_penalty: 2.975,
         phrase_rep_pen: RepetitionPenalty.Aggressive
     },
@@ -40,16 +39,16 @@ const GenParams: {
         generate_until_sentence: true,
         temperature: 0.65,
         min_length: 12,
-        max_length: 48,
+        max_length: 30,
         repetition_penalty: 2.975,
         phrase_rep_pen: RepetitionPenalty.Aggressive
     }
 }
 
+
 export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array) => {
 
     const novelApi = getNovelApi(accessToken);
-    const modelIndex = 0;
 
     const idStore = new IdStore();
     const keystore: Keystore = new Keystore(encryptionKey);
@@ -59,8 +58,8 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
         return storyBuilder ?? (storyBuilder = new StoryBuilder(idStore, keystore));
     }
 
-    let chatModel: string = AI_MODELS[modelIndex];
-    let storyModel = 'kayra-v1';
+    let chatModel: AiModels = AiModels.Kayra;
+    let storyModel = AiModels.Kayra;
 
     const _stories = new Map<string, Story>();
     const _content = new Map<string, StoryContent>();
@@ -109,7 +108,13 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
                     } else if (!sdata.data) {
                         console.log(`STORY no story data: ${story.id}`)
                     } else if (sdata?.data?.title === "Test Story") {
-                        loadStoryContent(sdata.data.remoteStoryId);
+                        loadStoryContent(sdata.data.remoteStoryId).then(success => {
+                            if (!success) {
+                                /// story has no content.
+                                void novelApi.deleteStory(story.id).then(ok => console.log(`story deleted.`));
+                                _stories.delete(story.id);
+                            }
+                        });
                     }
 
                 } catch (err) {

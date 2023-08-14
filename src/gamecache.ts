@@ -390,7 +390,6 @@ export class GameCache {
 			const cur = list[mid];
 
 			if (id === cur[0]) {
-				console.log('ITEM: ' + id + ' ALREADY IN LIST.');
 				return;		// already in list.
 			} else if (gtime < cur[3]) {
 				max = mid;
@@ -425,7 +424,6 @@ export class GameCache {
 
 			if (id === cur[0]) {
 
-				console.log('REMOVING GAME: ' + id);
 				return list.splice(mid, 1)[0];
 
 			} else if (gtime < cur[3]) {
@@ -438,7 +436,7 @@ export class GameCache {
 
 		} //
 
-		console.error('GAME: ' + id + ' NOT REMOVED.');
+		console.warn('GAME: ' + id + ' NOT REMOVED.');
 
 	}
 

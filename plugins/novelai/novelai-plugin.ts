@@ -3,6 +3,7 @@ import { Message } from 'discord.js';
 import { AiMode, getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai-client';
 import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
+import { ChannelStory } from './channel-story';
 
 const configuration: NovelAIConfig = {
 
@@ -33,6 +34,8 @@ class NovelAiPlugin {
     private readonly cache: Cache
 
     private readonly context: BotContext;
+
+    private stories: Map<string, ChannelStory> = new Map();
 
     constructor(context: BotContext) {
 

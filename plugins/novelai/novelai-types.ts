@@ -9,7 +9,11 @@ export const STORY_VERSION = 2;
 
 export const LOREBOOK_VERSION = 5;
 
-export const AI_MODELS = ['euterpe-v2', 'clio-v1', '6B-v4', 'kayra-v1'];
+export enum AiModels {
+    Euterpe = 'euterpe-v2',
+    Clio = 'clio-v1',
+    Kayra = 'kayra-v1'
+};
 
 // Indicates data will be encrypted.
 export type EncryptedData = string;

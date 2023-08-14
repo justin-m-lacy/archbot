@@ -1,8 +1,7 @@
-import { Activity, Client, GuildMember, GatewayIntentBits, Presence } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 
-import { UserHistory } from './src/history';
 import { DiscordBot } from './src/bot/discordbot';
-import { initBasicCommands, mergeMember } from './src/base-commands';
+import { initBasicCommands } from './src/base-commands';
 import { Auth } from '@src/bot/auth';
 import "dotenv/config";
 
@@ -32,7 +31,7 @@ const client: Client = new Client({
 		}
 	}
 });
-client.on('presenceUpdate', presenceUpdate);
+
 client.on('error', err => {
 	console.error('Connection error: ' + err.message);
 });
@@ -68,89 +67,5 @@ function tryLogin(auth: Auth) {
 	console.log(`login with mode: ${process.env.NODE_ENV ?? 'dev'}`);
 	client.login((process.env.NODE_ENV !== 'production' && auth.dev != null) ? auth.dev?.token ?? auth.token : auth.token);
 
-
-}
-
-/**
- *
- * @param {Presence} oldPres
- * @param {Presence} newPres
- */
-async function presenceUpdate(oldPres: Presence | null, newPres: Presence) {
-
-	// ignore bot events.
-	if (newPres.userId === client.user?.id) return;
-
-	if (!oldPres) {
-
-		if (newPres.member != null) {
-			await logHistory(newPres.member, [newPres.status]);
-			await logActivities(newPres.member, undefined, newPres.activities);
-		}
-
-	} else if (oldPres.member) {
-
-		const oldStatus = oldPres.status;
-		const newStatus = newPres.status;
-
-		/// statuses: 'offline', 'online', 'idle', 'dnd'
-		if (newStatus !== oldStatus) await logHistory(oldPres.member, [oldStatus, newStatus]);
-		await logActivities(oldPres.member, oldPres.activities, newPres.activities);
-
-	}
-
-}
-
-/**
- *
- * @param {GuildMember} guildMember
- * @param  oldActs
- * @param  newActs
- */
-const logActivities = async (guildMember: GuildMember, oldActs?: Activity[], newActs?: Activity[]) => {
-
-	const now = Date.now();
-	const gameData: UserHistory = {};
-
-	if (oldActs) {
-
-		for (let i = oldActs.length - 1; i >= 0; i--) {
-			if (!oldActs[i]) {
-				oldActs.splice(i, 1);
-				continue;
-			}
-			gameData[oldActs[i].name] = now;
-		}
-	}
-
-	if (newActs) {
-		for (let i = newActs.length - 1; i >= 0; i--) {
-			if (!newActs[i]) {
-				newActs.splice(i, 1);
-				continue;
-			}
-			gameData[newActs[i].name] = now;
-		}
-	}
-
-	return mergeMember(guildMember, { activities: gameData });
-
-}
-
-/**
- * Log a guild member's last status within the guild.
- * @param {GuildMember} guildMember
- * @param {string[]} statuses
- */
-const logHistory = async (guildMember: GuildMember, statuses: string[]) => {
-
-	const now = Date.now();
-	const history: UserHistory = {};
-	for (var i = statuses.length - 1; i >= 0; i--) {
-		//console.log( 'logging status: ' + statuses[i]);
-		history[statuses[i]] = now;
-	}
-
-	return mergeMember(guildMember, { history: history });
 
 }
