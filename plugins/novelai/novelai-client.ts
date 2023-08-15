@@ -99,16 +99,16 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             for (const story of storyObjects!) {
 
                 try {
-                    const s = new Story(story);
+                    const s = new Story(story, keystore);
                     _stories.set(story.id, s);
 
-                    const sdata = await s.decrypt(keystore);
+                    const sdata = await s.decrypt();
                     if (!sdata) {
                         console.log(`loadStories(): Decrypted story undefined: ${story.id}`);
-                    } else if (!sdata.data) {
+                    } else if (!sdata) {
                         console.log(`STORY no story data: ${story.id}`)
-                    } else if (sdata?.data?.title === "Test Story") {
-                        loadStoryContent(sdata.data.remoteStoryId).then(success => {
+                    } else if (sdata?.title === "Test Story") {
+                        loadStoryContent(sdata.remoteStoryId).then(success => {
                             if (!success) {
                                 /// story has no content.
                                 void novelApi.deleteStory(story.id).then(ok => console.log(`story deleted.`));
@@ -132,7 +132,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
         const story = await novelApi.getStory(id);
 
-        const storyData = await keystore.decrypt<IStoryData>(story.meta, story.data);
+        const storyData = await keystore.decrypt<IStoryData>(story.meta, story?.data ?? '');
         if (storyData) {
             console.log(`storyData id: ${storyData.id}`);
 
@@ -156,7 +156,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
             /// put updated keystore
             await sendKeystore();
 
-            const storyResult = await novelApi.putStory(await story.encrypt(keystore));
+            const storyResult = await novelApi.putStory(await story.encrypt());
 
             console.log(`story created: ${storyResult.id}`);
 
@@ -199,11 +199,12 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             _content.set(id, content);
 
-            const decrypt = await content.decrypt();
-            if (!decrypt.data) {
+            const data = await content.decrypt();
+            if (!data) {
                 console.log(`${id}: Missing StoryContent data.`);
             } else {
-                console.dir(decrypt.data, { depth: 3 });
+
+                console.dir(data, { depth: 3 });
             }
 
             return true;
@@ -274,6 +275,7 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
     return {
 
+        getApi() { return novelApi },
         loadKeystore,
         loadStories,
         loadStory,

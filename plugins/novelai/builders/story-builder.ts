@@ -86,7 +86,7 @@ export class StoryBuilder {
         const createTime = getTimestamp();
         const shortTime = toShortTime(createTime);
 
-        const conetentData: IStoryContentData = {
+        const contentData: IStoryContentData = {
             title: props.title ?? "",
             story: StoryContent.createStoryBlocks()
         };
@@ -96,11 +96,11 @@ export class StoryBuilder {
                 id: storyContentId,
                 type: ObjectType.StoryContent,
                 meta: meta,
-                data: conetentData,
                 changeIndex: 0,
                 lastUpdatedAt: shortTime
             },
-            this.keystore
+            this.keystore,
+            contentData
         )
 
     }

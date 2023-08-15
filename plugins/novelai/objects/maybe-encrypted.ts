@@ -61,22 +61,32 @@ export class MaybeEncrypted<T extends object> {
     }
 
     /**
-     * Set new data. Encrypted data is assumed to be out of date and cleared.
+     * Set new data.
+     * If data is unencrypted, encrypted data is erased.
+     * If data is encrypted, unencrypted data is erased.
      * @param data 
      */
-    public setData(data: T) {
+    public setData(data: T | string | undefined) {
 
-        this.data = data;
-        this.encrypted = undefined;
+        if (typeof data === 'string') {
+            this.encrypted = data;
+            this.data = undefined;
+        } else if (data !== undefined && data !== null) {
+            this.data = data;
+            this.encrypted = undefined;
+        } else {
+            this.data = undefined;
+            this.encrypted = undefined;
+        }
 
     }
 
     public getData() {
-        if (this.data !== null) return this.data;
+        if (this.data !== undefined) return this.data;
         throw new NotDecryptedError();
     }
 
     public isDecrypted() {
-        return this.data !== null;
+        return this.data !== undefined;
     }
 }

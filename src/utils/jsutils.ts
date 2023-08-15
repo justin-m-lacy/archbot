@@ -1,25 +1,4 @@
 /**
- * Promisify a function with a single param callback
- * as its last argument.
- * Unlike node Utilities promisify, the first callback param
- * is not a rejection error.
- */
-export const promisify = (f: Function, fthis?: any) => {
-
-	return (...args: any[]) => {
-
-		return new Promise((res) => {
-
-			f.apply(fthis, args.concat(res));
-
-		});
-
-	}
-
-}
-
-
-/**
  * @param {*=>boolean} pred - predicate random element must satisfy.
  * @returns {*} - Random element satisfying predicate,
  * or null.

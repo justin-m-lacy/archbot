@@ -3,6 +3,7 @@ import { Story } from 'plugins/novelai/objects/story';
 import { StoryContent } from 'plugins/novelai/objects/story-content';
 import { NovelAiClient } from './novelai-client';
 import { AiModels, GenerateParams, RepetitionPenalty, AiMode } from './novelai-types';
+import { NovelApi } from './novelai-api';
 
 /**
  * Associates a novelai story with a discord channel.
@@ -31,7 +32,9 @@ export class ChannelStory {
     }
 
     private story: Story | null = null;
+
     private readonly content: StoryContent;
+    private readonly api: NovelApi;
 
     constructor(config: {
         channel: TextBasedChannel,
@@ -44,6 +47,8 @@ export class ChannelStory {
         this.channel = config.channel;
         this.content = config.content;
         this.story = config.story ?? null;
+
+        this.api = this.client.getApi();
 
     }
 
@@ -71,6 +76,18 @@ export class ChannelStory {
     generate(text: string) {
 
         this.content.addContentText(text);
+
+        this.patchStory()
+    }
+
+    /**
+     * Patch story changes to server.
+     */
+    private async patchStory() {
+
+        const encrypted = await this.content.encrypt();
+        const result = await this.api.patchStoryContent(encrypted);
+
 
     }
 

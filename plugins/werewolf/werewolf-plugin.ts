@@ -74,12 +74,21 @@ class WerewolfPlugin {
     }
 
     async cmdStealRole(m: Message, user: string) {
+
+        const game = this.getGame(m);
+        if (!game) return;
+
     }
 
     /**
      * Troublemaker swaps two other roles.
      */
     async cmdSwapRoles(m: Message, user1: string, user2: string) {
+
+        const game = this.getGame(m);
+        if (!game) return;
+
+
     }
 
     private async completeGame(game: WerewolfGame) {
