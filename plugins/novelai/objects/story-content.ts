@@ -1,51 +1,13 @@
-import { MaybeEncrypted } from './maybe-encrypted';
-import { IStoryContent, ContentOrigin, NotDecryptedError, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
+import { EncryptedObject } from './encrypted-object';
+import { IStoryContent, ContentOrigin, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
 import { Keystore } from '../keystore';
 
-export class StoryContent {
-
-    public readonly id: string;
-    public readonly meta: string;
-
-    private content: IStoryContent;
-
-    private data: MaybeEncrypted<IStoryContentData>;
+export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentData> {
 
     public get isDecrypted() { return this.data.isDecrypted() }
 
-    constructor(content: IStoryContent, keystore: Keystore) {
-
-        this.id = content.id;
-        this.meta = content.meta;
-
-        this.content = content;
-        this.data = new MaybeEncrypted(content.data, {
-
-            decrypt: async (encrypted: string) => {
-
-                const res = await keystore.decrypt<IStoryContentData>(this.meta, encrypted);
-                if (res?.document) {
-                    console.log(`has document..: ${res.document}`);
-
-                    //const doc = await keystore.decrypt(this.meta, res.document, true)
-
-                    // console.log(`decrypted document: ${doc}`);
-                    //console.dir(doc);
-
-                }
-
-                return res;
-            },
-            encrypt: (data) => {
-                return keystore.encrypt(this.meta, data);
-            }
-
-        });
-
-    }
-
-    changed() {
-        this.content.changeIndex++;
+    constructor(content: IStoryContent, keystore: Keystore, data?: IStoryContentData) {
+        super(content, keystore, data);
     }
 
     public addContentText(data: string, origin: ContentOrigin = "user") {
@@ -55,8 +17,6 @@ export class StoryContent {
     }
 
     public removePreviousBlock() {
-
-        if (!this.content) throw new NotDecryptedError();
 
         const storySection = this.getStoryBlocks();
         const blocks = storySection.datablocks;
@@ -78,11 +38,9 @@ export class StoryContent {
 
     }
 
-    private addDataBlock(data: string, origin: ContentOrigin = "user") {
+    private addDataBlock(text: string, origin: ContentOrigin = "user") {
 
-        if (!this.content) throw new NotDecryptedError();
-
-        const fragmentIndex = this.addFragment(data, origin);
+        const fragmentIndex = this.addFragment(text, origin);
 
         const storySection = this.getStoryBlocks();
         const blocks = storySection.datablocks;
@@ -115,17 +73,15 @@ export class StoryContent {
 
     /**
      * Adds new fragment and returns fragment index.
-     * @param data 
+     * @param text 
      * @param origin 
      */
-    private addFragment(data: string, origin: ContentOrigin = "user") {
-
-        if (!this.content) throw new NotDecryptedError();
+    private addFragment(text: string, origin: ContentOrigin = "user") {
 
         const storyBlocks = this.getStoryBlocks();
         const len = storyBlocks.fragments.push(
             {
-                data: data,
+                data: text,
                 origin: origin
             }
         );
@@ -158,15 +114,12 @@ export class StoryContent {
      */
     async decrypt() {
 
-        const decrypted = (this.content.data = await this.data.decrypt());
+        const content = await this.data.decrypt();
 
+        /// fix document?
 
-        return this.content!;
+        return content;
 
-    }
-
-    setData(data: IStoryContentData) {
-        this.data.setData(data);
     }
 
     /**
@@ -178,17 +131,17 @@ export class StoryContent {
      */
     async encrypt() {
 
-        const storyContent = Object.assign({}, this.content!, { data: await this.data.encrypt() });
+        /// do something with data.document?
 
-        return storyContent;
+        this.container.data = await this.data.encrypt();
 
+
+        return this.container;
     }
 
     getStoryBlocks() {
         return this.data.getData()!.story ??= StoryContent.createStoryBlocks();
     }
-
-    getContent() { return this.content }
 
     createLorebook(): Lorebook {
 

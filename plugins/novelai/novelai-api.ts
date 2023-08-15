@@ -1,7 +1,9 @@
 import { archGet, archPost, archPatch, makeRequest } from '@src/utils/fetch';
-import { type GenerateParams, type EncryptedStory, type EncryptedStoryContent, ObjectType } from './novelai-types';
+import { type GenerateParams, ObjectType, IStory, IStoryContent } from './novelai-types';
 
 const API_URL = 'https://api.novelai.net';
+
+export type NovelApi = ReturnType<typeof getNovelApi>;
 
 export const getNovelApi = (accessToken: string) => {
 
@@ -16,17 +18,17 @@ export const getNovelApi = (accessToken: string) => {
         return archGet<T>(API_URL + path, headers);
     }
 
-    const send = async <T extends object>(path: string, data?: { [key: string]: unknown }) => {
+    const send = async <T extends object>(path: string, data?: Record<string, unknown>) => {
         return archPost<T>(API_URL + path, data, headers);
     }
 
-    const patch = async <T extends object>(path: string, data?: { [key: string]: unknown }) => {
+    const patch = async <T extends object>(path: string, data: Partial<T>) => {
         return archPatch<T>(API_URL + path, data, headers);
     }
-    const put = async <T extends object | undefined>(path: String, data?: { [key: string]: unknown }) => {
+    const put = async <T extends object | undefined>(path: String, data: Partial<T>) => {
         return makeRequest(API_URL + path, 'PUT', data, headers) as Promise<T>;
     }
-    const del = async <T extends object>(path: String, data?: { [key: string]: unknown }) => {
+    const del = async <T extends object>(path: String, data?: Record<string, unknown>) => {
         return makeRequest<T>(API_URL + path, 'DELETE', data, headers);
     }
 
@@ -65,22 +67,22 @@ export const getNovelApi = (accessToken: string) => {
 
         getStories: async () => {
 
-            const rawStories = await get<{ objects: EncryptedStory[] }>(`/user/objects/${ObjectType.Stories}`);
+            const rawStories = await get<{ objects: IStory[] }>(`/user/objects/${ObjectType.Stories}`);
             return rawStories.objects;
 
         },
 
         getStory: async (id: string) => {
 
-            const story = await get<EncryptedStory>(`/user/objects/${ObjectType.Stories}/${id}`);
+            const story = await get<IStory>(`/user/objects/${ObjectType.Stories}/${id}`);
             return story;
         },
 
 
-        putStory: async (storyInfo: EncryptedStory) => {
+        putStory: async (storyInfo: Required<IStory>) => {
 
             const story =
-                await put<EncryptedStory>(`/user/objects/${ObjectType.Stories}`, storyInfo);
+                await put<IStory>(`/user/objects/${ObjectType.Stories}`, storyInfo);
 
             return story;
 
@@ -89,7 +91,7 @@ export const getNovelApi = (accessToken: string) => {
         patchStory: async (storyInfo: { id: string, meta: string, data: string, changeIndex: number }) => {
 
             const story =
-                await patch<EncryptedStory>(`/user/objects/${ObjectType.Stories}/${storyInfo.id}`, {
+                await patch<IStory>(`/user/objects/${ObjectType.Stories}/${storyInfo.id}`, {
                     meta: storyInfo.meta,
                     data: storyInfo.data,
                     changeIndex: storyInfo.changeIndex
@@ -108,9 +110,11 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
-        putStoryContent: async (storyContent: EncryptedStoryContent) => {
+        putStoryContent: async (storyContent: IStoryContent) => {
 
-            const result = await put<EncryptedStoryContent>(`/user/objects/${ObjectType.StoryContent}`, storyContent);
+            const result = await put<IStoryContent>(
+                `/user/objects/${ObjectType.StoryContent}`,
+                storyContent);
 
             return result;
         },
@@ -118,22 +122,24 @@ export const getNovelApi = (accessToken: string) => {
         getStoryContent: async (id: string) => {
 
             const storyContent =
-                await get<EncryptedStoryContent>(`/user/objects/${ObjectType.StoryContent}/${id}`);
+                await get<IStoryContent>(`/user/objects/${ObjectType.StoryContent}/${id}`);
 
             return storyContent;
 
         },
 
-        patchStoryContent: async (content: { id: string, meta: string, data: string, changeIndex: number }) => {
+        patchStoryContent: async (content: { id: string, meta: string, data?: string, changeIndex: number }) => {
 
             try {
-                const result = await patch(`/user/objects/${ObjectType.StoryContent}/${content.id}`, {
+                const result = await patch<IStoryContent>(`/user/objects/${ObjectType.StoryContent}/${content.id}`, {
                     meta: content.meta,
                     data: content.data,
                     changeIndex: content.changeIndex
                 });
 
                 console.dir(result);
+
+                return result;
 
             } catch (e) {
                 console.log(`Error: ${e}`);

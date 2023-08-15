@@ -22,6 +22,8 @@ interface Encryptable {
 }
 export type Encrypted<T extends Encryptable, K extends string = 'data'> = Omit<T, K> & { data: EncryptedData };
 
+export type Unencrypted<T extends Encryptable, K extends string = 'data'> = Omit<T, K> & { data: object };
+
 export const isEncrypted = <T extends Encryptable>(obj: T | Encrypted<T>): obj is Encrypted<T> => {
     return typeof obj.data === 'string' ? true : false
 }
@@ -66,12 +68,11 @@ export interface IStory {
     type: ObjectType.Stories,
     /// used to create encryption key?
     meta: string,
-    data: IStoryData,
+    data: string,
     lastUpdatedAt: number,
     changeIndex: number
 }
 
-export type EncryptedStory = Encrypted<IStory>;
 export interface IStoryData {
     storyMetadataVersion: number,
 
@@ -105,7 +106,7 @@ export interface IStoryContent {
     id: string,
     /// used to create encryption key?
     meta: string,
-    data: string | IStoryContentData | undefined,
+    data: string,
     lastUpdatedAt?: number,
     changeIndex: number,
     /// object type.
@@ -136,7 +137,6 @@ export interface IStoryContentData {
 
 }
 
-export type EncryptedStoryContent = Encrypted<IStoryContent>;
 interface StoryContextConfig {
     prefix: string,
     suffix: string,
