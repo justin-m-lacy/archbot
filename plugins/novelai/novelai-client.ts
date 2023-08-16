@@ -149,21 +149,22 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
             const builder = getStoryBuilder();
 
-            const [story, content] = builder.createStory(props ?? {
+            const created = builder.createStory(props ?? {
                 title: "New Title"
             }, meta);
 
             /// put updated keystore
             await sendKeystore();
 
-            const storyResult = await novelApi.putStory(await story.encrypt());
+            const storyResult = await novelApi.putStory(await created.story.encrypt());
 
             console.log(`story created: ${storyResult.id}`);
+            console.dir(storyResult);
 
-            const result = await novelApi.putStoryContent(await content.encrypt());
-            console.log(`story content created...`);
+            const result = await novelApi.putStoryContent(await created.content.encrypt());
+            console.log(`story content created..: ${result.id}`);
 
-            return result;
+            return created;
 
         } catch (e) {
             console.log(`Create story error: ${e}`);

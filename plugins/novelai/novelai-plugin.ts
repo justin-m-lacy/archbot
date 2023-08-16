@@ -1,6 +1,6 @@
 import { DiscordBot } from '@src/bot/discordbot';
-import { Message } from 'discord.js';
-import { AiMode, getNovelAiClient, loginNovelAi, NovelAIConfig } from './novelai-client';
+import { Message, TextBasedChannel } from 'discord.js';
+import { AiMode, getNovelAiClient, loginNovelAi, NovelAiClient, NovelAIConfig } from './novelai-client';
 import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
 import { ChannelStory } from './channel-story';
@@ -13,7 +13,8 @@ const configuration: NovelAIConfig = {
 };
 
 type StoryEntry = {
-    id: string,
+    storyId?: string,
+    contentId?: string,
     meta: string
 }
 
@@ -29,7 +30,7 @@ let accessPromise: Promise<{ accessToken: string, encryptionKey: Uint8Array } | 
 
 class NovelAiPlugin {
 
-    private client: ReturnType<typeof getNovelAiClient> | undefined = undefined;
+    private client: NovelAiClient | undefined = undefined;
 
     private readonly cache: Cache
 
@@ -45,6 +46,26 @@ class NovelAiPlugin {
         this.cache = context.subcache('novelai');
 
         this.createClient().then(() => this.loadOrCreateStory(context.idObject.id));
+    }
+
+    async getChannelStory(channel: TextBasedChannel) {
+
+        let story = this.stories.get(channel.id);
+        if (!story) {
+
+            const entry = await this.cache.fetch(channel.id) as StoryEntry;
+
+            story = new ChannelStory({
+                channel: channel,
+                client: this.client!,
+                storyId: entry?.storyId,
+                contentId: entry?.contentId
+
+            })
+            this.stories.set(channel.id, story);
+
+        }
+        return story;
     }
 
     async createClient() {
@@ -72,7 +93,7 @@ class NovelAiPlugin {
 
         if (!this.client) return;
 
-        const storyid = this.cache.get('storyid');
+        const storyid = await this.cache.fetch('storyid');
         if (storyid != null) {
 
             console.log(`Loading cached story: ${storyid}`);

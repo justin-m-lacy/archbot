@@ -6,7 +6,7 @@ import { Keystore } from './../keystore';
  * @param D - type of Decrypted data.
  */
 export class EncryptedObject<
-    T extends { id: string, meta: string, data: string, changeIndex: number },
+    T extends { id: string, meta: string, data?: string, changeIndex: number },
     D extends object> {
 
     public readonly id: string;

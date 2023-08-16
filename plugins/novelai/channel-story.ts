@@ -5,6 +5,14 @@ import { NovelAiClient } from './novelai-client';
 import { AiModels, GenerateParams, RepetitionPenalty, AiMode } from './novelai-types';
 import { NovelApi } from './novelai-api';
 
+type StoryEntry = {
+    channelId: string,
+    storyId?: string,
+    contentId?: string,
+    meta: string
+}
+
+
 /**
  * Associates a novelai story with a discord channel.
  */
@@ -32,23 +40,94 @@ export class ChannelStory {
     }
 
     private story: Story | null = null;
+    private content: StoryContent | null = null;
 
-    private readonly content: StoryContent;
     private readonly api: NovelApi;
+
+    private storyId?: string;
+    private contentId?: string;
+
+    private loadingStory: boolean = false;
+    private loadingContent: boolean = false;
 
     constructor(config: {
         channel: TextBasedChannel,
-        content: StoryContent,
-        story?: Story,
-        client: NovelAiClient
+        client: NovelAiClient,
+        storyId?: string,
+        contentId?: string
     }) {
 
         this.client = config.client;
         this.channel = config.channel;
-        this.content = config.content;
-        this.story = config.story ?? null;
 
         this.api = this.client.getApi();
+
+    }
+
+    async loadOrCreateStory() {
+
+        if (this.loadingStory) return;
+
+        this.loadingContent = true;
+        this.loadingStory = true;
+
+        if (this.storyId) {
+
+        } else {
+            return this.createStory();
+        }
+
+        this.loadingContent = false;
+        this.loadingStory = false;
+
+    }
+
+    async createStory() {
+
+        try {
+
+            const params = {
+                title: ('name' in this.channel) ? this.channel.name : `Story: ${this.channel.id}`
+            };
+
+            const objects = await this.client!.createStory(this.channel.id, params);
+            if (objects) {
+
+
+                console.log(`story created:`);
+                this.storyId = objects.story.id;
+                this.contentId = objects.content.id;
+
+                this.story = objects.story;
+                this.content = objects.content;
+
+            } else {
+                console.log(`failed to create story`);
+            }
+
+            return objects;
+
+        } catch (err) {
+            console.warn(`createStory(): ${err}`);
+        }
+
+    }
+
+    createStoryEntry() {
+
+        const entry = this.cache.get(this.channel.id) ?? {
+        };
+
+        entry.meta = this.content?.meta ?? this.story?.meta;
+        if (this.story) {
+            entry.storyId = this.story?.id;
+        }
+        if (this.content) {
+            entry.contentId = this.content?.id;
+        }
+
+
+        this.cache.cache(this.channel.id, entry);
 
     }
 
@@ -75,7 +154,7 @@ export class ChannelStory {
 
     generate(text: string) {
 
-        this.content.addContentText(text);
+        this.content!.addContentText(text);
 
         this.patchStory()
     }
@@ -85,7 +164,7 @@ export class ChannelStory {
      */
     private async patchStory() {
 
-        const encrypted = await this.content.encrypt();
+        const encrypted = await this.content!.encrypt();
         const result = await this.api.patchStoryContent(encrypted);
 
 
