@@ -34,7 +34,7 @@ export class StoryBuilder {
 
     }
 
-    createStory(storyProps: Partial<IStoryContentData>, meta?: string): [Story, StoryContent] {
+    createStory(storyProps: Partial<IStoryContentData>, meta?: string) {
 
         meta = meta ?? v4();
         this.keystore.addKey(meta);
@@ -60,19 +60,21 @@ export class StoryBuilder {
 
         }
 
-        return [
-            new Story({
+        return {
+            story: new Story({
 
                 id: storyId,
                 meta: meta,
                 type: ObjectType.Stories,
-                data: storyData,
+                data: '',
                 lastUpdatedAt: shortTime,
                 changeIndex: 0
 
-            }),
-            storyContent
-        ];
+            },
+                this.keystore,
+                storyData),
+            content: storyContent
+        };
 
 
     }
@@ -96,6 +98,7 @@ export class StoryBuilder {
                 id: storyContentId,
                 type: ObjectType.StoryContent,
                 meta: meta,
+                data: '',
                 changeIndex: 0,
                 lastUpdatedAt: shortTime
             },
