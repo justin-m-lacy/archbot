@@ -5,11 +5,10 @@ import { NovelAiClient } from './novelai-client';
 import { AiModels, GenerateParams, RepetitionPenalty, AiMode } from './novelai-types';
 import { NovelApi } from './novelai-api';
 
-type StoryEntry = {
-    channelId: string,
+export type StoryEntry = {
     storyId?: string,
     contentId?: string,
-    meta: string
+    meta?: string
 }
 
 
@@ -47,8 +46,10 @@ export class ChannelStory {
     private storyId?: string;
     private contentId?: string;
 
-    private loadingStory: boolean = false;
-    private loadingContent: boolean = false;
+    /**
+     * Promise resolves on story, content loaded.
+     */
+    private waitLoad?: Promise<StoryEntry>;
 
     constructor(config: {
         channel: TextBasedChannel,
@@ -64,28 +65,60 @@ export class ChannelStory {
 
     }
 
-    async loadOrCreateStory() {
+    /**
+     * Resolves on story and content loaded.
+     * @returns 
+     */
+    public async loadOrCreateStory() {
 
-        if (this.loadingStory) return;
-
-        this.loadingContent = true;
-        this.loadingStory = true;
-
-        if (this.storyId) {
-
+        if (!this.story || !this.content) {
+            if (!this.waitLoad) this.waitLoad = this._loadOrCreate();
+            return this.waitLoad;
         } else {
-            return this.createStory();
+            return {
+                meta: this.content.meta,
+                storyId: this.story.id,
+                contentId: this.content.id
+            }
         }
-
-        this.loadingContent = false;
-        this.loadingStory = false;
 
     }
 
-    async createStory() {
+    private async _loadOrCreate() {
+
+        if (this.contentId || this.storyId) {
+
+            try {
+
+                await this.loadStory();
+            } catch (err) {
+                console.warn(`failed to load story: ${err}`);
+            }
+
+        } else {
+            await this.createStory();
+
+        }
+        return {
+            meta: this.content?.meta ?? this.story?.meta,
+            storyId: this.story?.id,
+            contentId: this.content?.id
+        }
+
+    }
+
+    private async loadStory() {
+
+        this.story = await this.client.loadStory(this.storyId!) ?? null;
+        this.content = await this.client.loadStoryContent(this.contentId!) ?? null;
+
+    }
+
+    private async createStory() {
 
         try {
 
+            console.log(`creating new story...`);
             const params = {
                 title: ('name' in this.channel) ? this.channel.name : `Story: ${this.channel.id}`
             };
@@ -101,11 +134,17 @@ export class ChannelStory {
                 this.story = objects.story;
                 this.content = objects.content;
 
+                return {
+                    storyId: this.storyId,
+                    contentId: this.contentId,
+                    meta: objects.content.meta ?? objects.story.meta
+                }
+
             } else {
                 console.log(`failed to create story`);
             }
 
-            return objects;
+            return undefined;
 
         } catch (err) {
             console.warn(`createStory(): ${err}`);
@@ -113,25 +152,7 @@ export class ChannelStory {
 
     }
 
-    createStoryEntry() {
-
-        const entry = this.cache.get(this.channel.id) ?? {
-        };
-
-        entry.meta = this.content?.meta ?? this.story?.meta;
-        if (this.story) {
-            entry.storyId = this.story?.id;
-        }
-        if (this.content) {
-            entry.contentId = this.content?.id;
-        }
-
-
-        this.cache.cache(this.channel.id, entry);
-
-    }
-
-    setGenerationParams(genParams: Partial<GenerateParams>) {
+    public setGenerationParams(genParams: Partial<GenerateParams>) {
 
         let k: keyof typeof genParams;
         for (k in genParams) {
@@ -152,7 +173,7 @@ export class ChannelStory {
         this.story = story ?? null;
     }
 
-    generate(text: string) {
+    public generate(text: string) {
 
         this.content!.addContentText(text);
 

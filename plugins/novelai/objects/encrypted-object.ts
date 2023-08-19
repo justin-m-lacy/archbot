@@ -27,7 +27,7 @@ export class EncryptedObject<
         this.meta = container.meta;
 
         this.container = container;
-        this.data = new MaybeEncrypted(data, {
+        this.data = new MaybeEncrypted(data ?? container.data, {
 
             decrypt: async (encrypted: string) => {
 

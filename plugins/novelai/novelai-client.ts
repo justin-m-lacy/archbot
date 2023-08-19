@@ -104,15 +104,14 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
                     const sdata = await s.decrypt();
                     if (!sdata) {
-                        console.log(`loadStories(): Decrypted story undefined: ${story.id}`);
-                    } else if (!sdata) {
-                        console.log(`STORY no story data: ${story.id}`)
-                    } else if (sdata?.title === "Test Story") {
+                        console.log(`loadStories(): Story undefined: ${story.id}`);
+
+                    } else {
                         loadStoryContent(sdata.remoteStoryId).then(success => {
                             if (!success) {
                                 /// story has no content.
-                                void novelApi.deleteStory(story.id).then(ok => console.log(`story deleted.`));
-                                _stories.delete(story.id);
+                                //void novelApi.deleteStory(story.id).then(ok => console.log(`story deleted.`));
+                                //_stories.delete(story.id);
                             }
                         });
                     }
@@ -131,11 +130,10 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
     const loadStory = async (id: string) => {
 
         const story = await novelApi.getStory(id);
-
         const storyData = await keystore.decrypt<IStoryData>(story.meta, story?.data ?? '');
-        if (storyData) {
-            console.log(`storyData id: ${storyData.id}`);
 
+        if (storyData) {
+            return new Story(story, keystore, storyData);
         } else {
             return undefined;
         }
@@ -205,15 +203,15 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
                 console.log(`${id}: Missing StoryContent data.`);
             } else {
 
-                console.dir(data, { depth: 3 });
+                //console.dir(data, { depth: 3 });
             }
 
-            return true;
+            return content;
 
         } catch (e) {
             console.log(`Load Content Error: ${e}`);
         }
-        return false;
+        return undefined;
 
     };
 
@@ -296,20 +294,23 @@ export const getNovelAiClient = (accessToken: string, encryptionKey: Uint8Array)
 
 }
 
-export const loginNovelAi = async (username: string, password: string) => {
+export const loginNovelAi = async ({ accessToken, username, password }: NovelAIConfig) => {
 
     try {
 
-        const json = await archPost<{ accessToken: string }>(API_URL + '/user/login',
-            { key: await getAccessKey(username, password) },
-            {
-                "content-type": "application/json",
-                "accept": "application/json"
-            }
-        );
+        if (!accessToken) {
+            const json = await archPost<{ accessToken: string }>(API_URL + '/user/login',
+                { key: await getAccessKey(username, password) },
+                {
+                    "content-type": "application/json",
+                    "accept": "application/json"
+                }
+            );
+            accessToken = json.accessToken;
+        }
 
         return {
-            accessToken: json.accessToken,
+            accessToken: accessToken,
             encryptionKey: await getEncryptionKey(username, password)
         }
 

@@ -1,16 +1,9 @@
 import { DiscordBot } from '@src/bot/discordbot';
 import { Message, TextBasedChannel } from 'discord.js';
-import { AiMode, getNovelAiClient, loginNovelAi, NovelAiClient, NovelAIConfig } from './novelai-client';
+import { AiMode, getNovelAiClient, loginNovelAi, NovelAiClient } from './novelai-client';
 import { BotContext } from '@src/bot/botcontext';
 import Cache from 'archcache';
 import { ChannelStory } from './channel-story';
-
-const configuration: NovelAIConfig = {
-
-    username: process.env.NOVEL_AI_USER ?? '',
-    password: process.env.NOVEL_AI_PW ?? '',
-
-};
 
 type StoryEntry = {
     storyId?: string,
@@ -45,7 +38,7 @@ class NovelAiPlugin {
         /// stories associated with this room.
         this.cache = context.subcache('novelai');
 
-        this.createClient().then(() => this.loadOrCreateStory(context.idObject.id));
+        this.createClient();
     }
 
     async getChannelStory(channel: TextBasedChannel) {
@@ -63,6 +56,11 @@ class NovelAiPlugin {
 
             })
             this.stories.set(channel.id, story);
+
+            const result = await story.loadOrCreateStory();
+            if (result) {
+                this.cache.cache(channel.id, result);
+            }
 
         }
         return story;
@@ -87,39 +85,39 @@ class NovelAiPlugin {
     }
 
     /**
-     * Create story for this room.
+     * Create story for the server.
      */
     async loadOrCreateStory(channelId: string) {
 
         if (!this.client) return;
 
-        const storyid = await this.cache.fetch('storyid');
-        if (storyid != null) {
+        const entry = await this.cache.fetch(this.context.idObject.id) as StoryEntry;
+        if (entry != null && entry.contentId) {
 
-            console.log(`Loading cached story: ${storyid}`);
+            console.log(`Loading cached story: ${entry}`);
 
             try {
-                if (await this.client.loadStoryContent(storyid)) {
+                if (await this.client.loadStoryContent(entry.contentId)) {
                     console.log(`Channel story content loaded: ${channelId}`);
                 }
             } catch (err) {
 
                 // TODO: only create on a 404?
-                this.createStory(channelId);
+                this.createServerStory(channelId);
 
             }
 
         } else {
-            this.createStory(channelId);
+            this.createServerStory(channelId);
         }
 
     }
 
-    private async createStory(channelId: string) {
+    private async createServerStory(channelId: string) {
 
         try {
 
-            /*const channel = (await this.context.getChannel(channelId));
+            const channel = (await this.context.getChannel(channelId));
 
             const result = await this.client!.createStory(channelId, {
                 title: (channel && channel.isTextBased() && 'name' in channel) ? channel.name : `Story: ${channelId}`
@@ -130,7 +128,7 @@ class NovelAiPlugin {
                 //this.cache.cache('storyid', result.id);
             } else {
                 console.log(`failed to create story`);
-            }*/
+            }
 
         } catch (err) {
             console.warn(`createStory(): ${err}`);
@@ -142,6 +140,8 @@ class NovelAiPlugin {
     }
 
     async cmdStory(m: Message, query: string) {
+
+        //const story = await this.getChannelStory(m.channel);
 
         const result = await this.client?.generate(query, AiMode.Story);
 
@@ -192,6 +192,13 @@ class NovelAiPlugin {
 
 export const initPlugin = (bot: DiscordBot) => {
 
+    const configuration = {
+
+        username: process.env.NOVEL_AI_USER ?? '',
+        password: process.env.NOVEL_AI_PW ?? '',
+        accessToken: process.env.NOVEL_AI_ACCESS_TOKEN,
+    };
+
     bot.addContextCmd('story', 'story [prompt]', NovelAiPlugin.prototype.cmdStory, NovelAiPlugin,
         { minArgs: 1, maxArgs: 1, group: 'right', "alias": "st" });
 
@@ -205,6 +212,6 @@ export const initPlugin = (bot: DiscordBot) => {
         NovelAiPlugin.prototype.cmdTalk, NovelAiPlugin,
         { minArgs: 1, maxArgs: 1, group: 'right', alias: 't' });
 
-    accessPromise = loginNovelAi(process.env.NOVEL_AI_USER ?? '', process.env.NOVEL_AI_PW ?? '');
+    accessPromise = loginNovelAi(configuration);
 
 }

@@ -1,7 +1,8 @@
+import { unpackDocument } from './msg-unpack';
 import { EncryptedObject } from './encrypted-object';
-import { IStoryContent, ContentOrigin, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
+import { IStoryContent, ContentOrigin, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION, IDocument } from './../novelai-types';
 import { Keystore } from '../keystore';
-
+import { inflateRaw } from "zlib";
 export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentData> {
 
     public get isDecrypted() { return this.data.isDecrypted() }
@@ -117,6 +118,18 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
         const content = await this.data.decrypt();
 
         /// fix document?
+        if (typeof content?.document === 'string') {
+
+            try {
+                console.log(`unpacking document...`);
+                const result = unpackDocument<IDocument>(content.document);
+                content.document = result;
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        }
 
         return content;
 
