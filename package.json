@@ -35,6 +35,7 @@
     "fflate": "^0.8.0",
     "formulic": "^2.0.3",
     "jimp": "^0.16.0",
+    "msgpackr": "^1.9.7",
     "uuid": "^9.0.0"
   },
   "keywords": [

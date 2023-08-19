@@ -30,7 +30,8 @@ export const isEncrypted = <T extends Encryptable>(obj: T | Encrypted<T>): obj i
 
 export type NovelAIConfig = {
     username: string,
-    password: string
+    password: string,
+    accessToken?: string,
 }
 
 export type AiModel = {
@@ -102,6 +103,26 @@ export interface IStoryData {
     hasDocument?: boolean
 }
 
+export interface IDocument {
+
+    sections: Map<number, { type: number, text: string, meta: any, source: number | undefined }>,
+    /**
+     * Key-entries of sections, defines the order of the sections in the document.
+     */
+    order: number[],
+    history: {
+        root: number,
+        current: number,
+        /**
+         * Unknown object types. Possibly sections?
+         */
+        nodes: Map<number, Object>
+    },
+    dirtySections: Map<number, any>,
+    step: number
+
+}
+
 export interface IStoryContent {
     id: string,
     /// used to create encryption key?
@@ -118,7 +139,10 @@ export interface IStoryContentData {
     title: string,
     storyContentVersion?: number,
     settings?: object,
-    document?: EncryptedData
+    /**
+     * Document is base64 encoded string of data packed with msgpack
+     */
+    document?: string | IDocument,
     story?: {
         version: number,
         step: number,
