@@ -19,7 +19,12 @@ export class EncryptedObject<
 
     protected data: MaybeEncrypted<D>;
 
-    public get isDecrypted() { return this.container !== undefined }
+    public get isDecrypted() { return this.data.isDecrypted() }
+
+    /**
+     * Whether the data should be compressed before encryption.
+     */
+    private compressed: boolean = false;
 
     constructor(container: T, keystore: Keystore, data?: D) {
 
@@ -27,15 +32,16 @@ export class EncryptedObject<
         this.meta = container.meta;
 
         this.container = container;
+
         this.data = new MaybeEncrypted(data ?? container.data, {
 
             decrypt: async (encrypted: string) => {
-
-                const res = await keystore.decrypt<D>(this.meta, encrypted);
-                return res;
+                const [decoded, compressed] = await keystore.decrypt<D>(this.meta, encrypted);
+                this.compressed = compressed;
+                return decoded;
             },
             encrypt: (data) => {
-                return keystore.encrypt(this.meta, data);
+                return keystore.encrypt(this.meta, data, this.compressed);
             }
 
         });

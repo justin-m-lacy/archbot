@@ -1,4 +1,4 @@
-import { Lorebook, LOREBOOK_VERSION, STORY_VERSION } from './../novelai-types';
+import { Lorebook, LOREBOOK_VERSION } from './../novelai-types';
 import { ObjectType, STORY_METADATA_VERSION } from 'plugins/novelai/novelai-types';
 import { IdStore } from '../id-store';
 import { Keystore } from '../keystore';
@@ -34,7 +34,7 @@ export class StoryBuilder {
 
     }
 
-    createStory(storyProps: Partial<IStoryContentData>, meta?: string) {
+    createStory(title: string, storyProps: Partial<IStoryContentData>, meta?: string) {
 
         meta = meta ?? v4();
         this.keystore.addKey(meta);
@@ -51,7 +51,7 @@ export class StoryBuilder {
 
             storyMetadataVersion: STORY_METADATA_VERSION,
 
-            title: storyProps.title ?? "",
+            title: title,
             id: meta,
             remoteId: storyId,
             remoteStoryId: storyContent.id,
@@ -82,14 +82,13 @@ export class StoryBuilder {
     /**
      * Create new story content object.
      */
-    createStoryContent(props: { title?: string }, meta: string) {
+    createStoryContent(props: IStoryContentData, meta: string) {
 
         const storyContentId = this.ids.newId();
         const createTime = getTimestamp();
         const shortTime = toShortTime(createTime);
 
         const contentData: IStoryContentData = {
-            title: props.title ?? "",
             story: StoryContent.createStoryBlocks()
         };
 

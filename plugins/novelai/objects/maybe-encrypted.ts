@@ -35,7 +35,8 @@ export class MaybeEncrypted<T extends object> {
     public async decrypt() {
 
         if (this.data) return this.data;
-        if (this.encrypted == null) return undefined;
+
+        if (this.encrypted == null) return null;
 
         this.data = await this.crypt.decrypt(this.encrypted);
 

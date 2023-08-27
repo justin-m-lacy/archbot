@@ -119,9 +119,9 @@ class NovelAiPlugin {
 
             const channel = (await this.context.getChannel(channelId));
 
-            const result = await this.client!.createStory(channelId, {
-                title: (channel && channel.isTextBased() && 'name' in channel) ? channel.name : `Story: ${channelId}`
-            });
+            const title = (channel && channel.isTextBased() && 'name' in channel) ? channel.name : `Story: ${channelId}`;
+
+            const result = await this.client!.createStory(channelId, title);
             if (result) {
                 console.log(`story created:`);
                 console.dir(result);
@@ -196,7 +196,7 @@ export const initPlugin = (bot: DiscordBot) => {
 
         username: process.env.NOVEL_AI_USER ?? '',
         password: process.env.NOVEL_AI_PW ?? '',
-        accessToken: process.env.NOVEL_AI_ACCESS_TOKEN,
+        accessToken: process.env.NOVEL_AI_API_TOKEN,
     };
 
     bot.addContextCmd('story', 'story [prompt]', NovelAiPlugin.prototype.cmdStory, NovelAiPlugin,

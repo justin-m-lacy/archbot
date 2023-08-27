@@ -3,6 +3,19 @@ import { randomBytes } from 'crypto';
 
 const KEYSTORE_VERSION = 2;
 
+export class KeyNotFoundError extends Error {
+
+    /**
+     * meta used to index the key.
+     */
+    public readonly meta: string | undefined;
+
+    constructor(meta?: string) {
+        super();
+        this.name = 'KeyNotFoundError';
+        this.meta = meta;
+    }
+}
 type EncodedKeystore = {
     version: number;
     nonce: number[];
@@ -202,7 +215,7 @@ export class Keystore {
         if (!this._decrypted) throw new Error('Keystore not decrypted.');
 
         const useKey = this._keyMap?.[meta];
-        if (!useKey) throw new Error('Key not found.');
+        if (!useKey) throw new KeyNotFoundError(meta);
 
         /// 16 byte nonce needs to be prepended to data.
 
@@ -219,22 +232,19 @@ export class Keystore {
      * Keystore maps object meta to key used to decrypt object data.
      * @param item 
      */
-    async decrypt<T = any>(meta: string, data: string, compressed?: boolean) {
+    async decrypt<T = any>(meta: string, data: string, compressed?: boolean): Promise<[T | undefined, boolean]> {
 
         if (!this._decrypted) {
             console.log(`keystore not decrypted.`);
-            return;
+            return [undefined, compressed ?? false];
         }
 
         const useKey = this._keyMap?.[meta];
 
-        if (!useKey) {
-            console.log(`key not found: meta: ${meta}`);
-            return;
-        }
+        if (!useKey) throw new KeyNotFoundError(meta);
 
-        const [decoded] = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey, undefined, compressed);
-        return decoded ? JSON.parse(decoded) as T : undefined;
+        const [decoded, compress] = await decryptData(new Uint8Array(Buffer.from(data, 'base64')), useKey, undefined, compressed);
+        return [decoded ? JSON.parse(decoded) as T : undefined, compress];
 
     }
 
