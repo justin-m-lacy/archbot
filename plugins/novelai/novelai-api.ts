@@ -101,10 +101,10 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
-        deleteStory: async (id: string) => {
+        deleteStory: async (id: string): Promise<IStory> => {
 
             const story =
-                await del(`/user/objects/${ObjectType.Stories}/${id}`);
+                await del<IStory>(`/user/objects/${ObjectType.Stories}/${id}`);
 
             return story;
 

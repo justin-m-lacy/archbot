@@ -119,11 +119,14 @@ export class ChannelStory {
         try {
 
             console.log(`creating new story...`);
+            const title = ('name' in this.channel) ?
+                this.channel.name :
+                `Story: ${this.channel.id}`;
             const params = {
-                title: ('name' in this.channel) ? this.channel.name : `Story: ${this.channel.id}`
+
             };
 
-            const objects = await this.client!.createStory(this.channel.id, params);
+            const objects = await this.client!.createStory(this.channel.id, title, params);
             if (objects) {
 
 

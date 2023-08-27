@@ -31,7 +31,7 @@ export const isEncrypted = <T extends Encryptable>(obj: T | Encrypted<T>): obj i
 export type NovelAIConfig = {
     username: string,
     password: string,
-    accessToken?: string,
+    apiToken?: string,
 }
 
 export type AiModel = {
@@ -105,24 +105,56 @@ export interface IStoryData {
 
 export interface IDocument {
 
+    /**
+     * section keys appear random? 16 digits long. not uuid
+     * type usually appears to be 1
+     * source appears to be 0 for user generated,
+     * undefined for prompt
+     * meta ex:
+     *  1 => [{ position: 0, data: 1, length: 162 },
+          { data: 2, length: 56, position: 162 } ],
+        2 => []
+     */
     sections: Map<number, { type: number, text: string, meta: any, source: number | undefined }>,
     /**
-     * Key-entries of sections, defines the order of the sections in the document.
+     * keys from sections, defines the order of the sections in the document.
      */
     order: number[],
+
+    /**
+     * Unsure what this means.
+     * Neither root, current or node keys refer to section keys.
+     */
     history: {
         root: number,
         current: number,
         /**
-         * Unknown object types. Possibly sections?
+         * keys are not same keys as sections.
+         * Sample object:
+         *      id: 1424383245752401,
+                parent: 1151486769511318,
+                children: Set(1) { 1350048921598512 },
+                route: undefined,
+                changes: Map(2) {
+                    1671454468462109 => { type: 1, diff: [Object] },
+                    2141014204757573 => { type: 0, section: [Object], after: 1641454468422109 }
+                    },
+                date: 2023-08-15T07:40:45.104Z,
+                genPosition: undefined
          */
         nodes: Map<number, Object>
     },
+    /**
+     * presumably keyed by section keys.
+     * unknown values.
+     */
     dirtySections: Map<number, any>,
+    /**
+     * Maybe a content increment count?
+     */
     step: number
 
 }
-
 export interface IStoryContent {
     id: string,
     /// used to create encryption key?
@@ -136,7 +168,6 @@ export interface IStoryContent {
 
 export interface IStoryContentData {
 
-    title: string,
     storyContentVersion?: number,
     settings?: object,
     /**

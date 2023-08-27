@@ -57,33 +57,25 @@ export const NONCE_SIZE = 24;
 /// If no nonce is supplied, it is expected that the first NONCE_SIZE of data is the nonce.
 export async function decryptData(data: Uint8Array, key: Uint8Array, nonce?: Uint8Array, compressed?: boolean): Promise<[string | undefined, boolean]> {
 
-    compressed ??= startsWith(data, compressionPrefix);
+    if (!compressed) {
+        compressed = startsWith(data, compressionPrefix);
+        if (compressed) {
+            data = data.slice(compressionPrefix.length);
+        }
+    }
+
+
+    if (nonce == null) {
+        nonce = data.slice(0, NONCE_SIZE);
+        data = data.slice(NONCE_SIZE);
+    }
+
+    let result = openSecretBox(key, nonce, data)!;
 
     if (compressed) {
-        data = data.slice(compressionPrefix.length);
+        result = await promisify(inflate)(result);
     }
-
-    try {
-
-        if (nonce == null) {
-            nonce = data.slice(0, NONCE_SIZE);
-            data = data.slice(NONCE_SIZE);
-        }
-
-        let result = openSecretBox(key, nonce, data);
-
-        if (result) {
-            if (compressed) {
-                result = await promisify(inflate)(result);
-            }
-            return [Buffer.from(result).toString('utf8'), compressed];
-        }
-
-    } catch (e) {
-        console.log(`decrypt error: ${e}`);
-    }
-
-    return [undefined, false];
+    return [Buffer.from(result).toString('utf8'), compressed];
 
 }
 

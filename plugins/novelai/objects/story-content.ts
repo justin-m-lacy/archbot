@@ -1,8 +1,9 @@
-import { unpackDocument } from './msg-unpack';
+import { unpackDocument } from './msgpackr';
 import { EncryptedObject } from './encrypted-object';
 import { IStoryContent, ContentOrigin, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION, IDocument } from './../novelai-types';
 import { Keystore } from '../keystore';
-import { inflateRaw } from "zlib";
+
+
 export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentData> {
 
     public get isDecrypted() { return this.data.isDecrypted() }
@@ -11,10 +12,37 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
         super(content, keystore, data);
     }
 
+    /**
+     * Add text to current story content.
+     * @throws Exception if StoryContent not decrypted.
+     * @param data 
+     * @param origin 
+     */
     public addContentText(data: string, origin: ContentOrigin = "user") {
 
-        this.addDataBlock(data, origin);
+        const document = this.getDocument();
+        if (document) {
 
+
+        } else {
+            this.addDataBlock(data, origin);
+        }
+
+    }
+
+    /**
+     * Add document section.
+     */
+    private addSection(document: IDocument, text: string) {
+
+        document.sections.set(1, {
+
+            type: 1,
+            text: text,
+            meta: this.meta,
+            source: 0
+
+        });
     }
 
     public removePreviousBlock() {
@@ -115,15 +143,18 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
      */
     async decrypt() {
 
-        const content = await this.data.decrypt();
+        const data = await this.data.decrypt();
 
         /// fix document?
-        if (typeof content?.document === 'string') {
+        if (typeof data?.document === 'string') {
 
             try {
-                console.log(`unpacking document...`);
-                const result = unpackDocument<IDocument>(content.document);
-                content.document = result;
+                const result = unpackDocument<IDocument>(data.document);
+                data.document = result;
+
+                /*console.dir(data.document, {
+                    depth: 7
+                });*/
 
             } catch (err) {
                 console.error(err);
@@ -131,7 +162,19 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
 
         }
 
-        return content;
+        return data;
+
+    }
+
+    getDocument() {
+
+        const data = this.data.getData();
+        const doc = data.document;
+        if (typeof doc === 'string') {
+            data.document = unpackDocument<IDocument>(doc);
+            return data.document;
+        }
+        return doc;
 
     }
 
