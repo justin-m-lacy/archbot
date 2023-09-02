@@ -1,4 +1,7 @@
 {
+  "ts-node":{
+    "require":["tsconfig-paths/register"],
+  },
   "compilerOptions": {
     "rootDir": ".",
     "baseUrl": ".",
@@ -13,7 +16,7 @@
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": false,
-    "incremental": false,
+    "incremental": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -21,6 +24,11 @@
     "lib": [
       "esnext"
     ],
+    "paths": {
+      "@src/*": [
+        "./src/*"
+      ]
+    },
     "types": ["node"]
   },
   "typeAcquisition": {
@@ -29,10 +37,11 @@
   "exclude": [
     "dist",
     "node_modules",
-    "./src"
   ],
   "include": [
-    "strip-package.ts",
+    "src/**/*.ts",
+    "./*.ts",
+    "plugins/**/*.ts",
     "package.json"
   ]
 }

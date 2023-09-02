@@ -12,12 +12,10 @@ export const initPlugin = (bot: DiscordBot) => {
 
 async function cmdGetQuote(m: Message, query?: string) {
 
-	if (query) {
-		return;
-	}
+	if (query) return;
 
 	try {
-		const data = await archGet<{quote:string, character:string, anime:string}>(ApiUrl);
+		const data = await archGet<{ quote: string, character: string, anime: string }>(ApiUrl);
 		const result = `"${data.quote}" - ${data.character} (${data.anime})`;
 		return m.channel.send(result);
 

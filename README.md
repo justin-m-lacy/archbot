@@ -48,11 +48,11 @@ Create a file called `config.json` in the project directory with the following o
 	"savedir": "./savedata",
 	"cmdprefix": "!",
 	"spamblock": {
-		"71328723764212184": {
-			"312832693452439280": true,
-			"312196432374310868": true
+		"71322723764242184": {
+			"301832693452339780": true,
+			"317196432374310868": true
 		},
-		"328369272237283926": {
+		"328369275237283926": {
 			"412644371232641306": true
 		},
 		"612495527484046435": {
