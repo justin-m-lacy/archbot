@@ -1,4 +1,4 @@
-import { unpackDocument } from './msgpackr';
+import { unpackDocument, packDocument } from './msgpackr';
 import { EncryptedObject } from './encrypted-object';
 import { IStoryContent, ContentOrigin, IStoryContentData, Lorebook, LOREBOOK_VERSION, STORY_VERSION, IDocument } from './../novelai-types';
 import { Keystore } from '../keystore';
@@ -9,7 +9,31 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
     public get isDecrypted() { return this.data.isDecrypted() }
 
     constructor(content: IStoryContent, keystore: Keystore, data?: IStoryContentData) {
-        super(content, keystore, data);
+        super(content, keystore, data,
+            {
+
+                decrypt: async (encrypted: string) => {
+                    const [decoded, compressed] = await keystore.decrypt<IStoryContentData>(
+                        this.meta, encrypted
+                    );
+                    this.compressed = compressed;
+                    return decoded;
+                },
+                encrypt: async (data) => {
+
+                    const doc = data.document;
+                    if (doc && typeof doc !== 'string') {
+                        data.document = packDocument(doc);
+                    }
+
+                    const encrypted = await keystore.encrypt(this.meta, data, this.compressed);
+                    data.document = doc;
+
+                    return encrypted;
+                }
+
+            }
+        );
     }
 
     /**
@@ -23,19 +47,23 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
         const document = this.getDocument();
         if (document) {
 
+            this.addDocumentSection(document, data);
 
         } else {
             this.addDataBlock(data, origin);
         }
+        this.getObject().lastUpdatedAt = Date.now();
 
     }
 
     /**
      * Add document section.
      */
-    private addSection(document: IDocument, text: string) {
+    private addDocumentSection(document: IDocument, text: string) {
 
-        document.sections.set(1, {
+        const sectionKey = Math.floor(Math.random() * (10 ** 16));
+        console.log(`adding doc section: ${sectionKey}`)
+        document.sections.set(sectionKey, {
 
             type: 1,
             text: text,
@@ -43,6 +71,72 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
             source: 0
 
         });
+        document.order.push(sectionKey);
+
+    }
+
+
+
+    /**
+     * Decrypts story content data if it is encrypted.
+     * @param keystore 
+     */
+    async decrypt() {
+
+        const data = await this.data.decrypt();
+
+        /// fix document?
+        if (typeof data?.document === 'string') {
+
+            console.log(`unpacking document...`);
+            try {
+
+                const result = unpackDocument<IDocument>(data.document);
+                data.document = result;
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        }
+
+        return data;
+
+    }
+
+    /**
+ * Get the result of encrypting the content.
+ * This does not change the state of the internal content:
+ * internal unencrypted content remains unencrypted.
+ * @param keystore 
+ * @returns 
+ */
+    async encrypt() {
+
+        /// do something with data.document?
+        const curData = this.data.getData();
+
+        this.container.data = await this.data.encrypt();
+
+
+        return this.container;
+    }
+
+    getDocument() {
+
+        const data = this.data.getData();
+        const doc = data.document;
+        if (typeof doc === 'string') {
+            data.document = unpackDocument<IDocument>(doc);
+            return data.document;
+        } else {
+            return doc;
+        }
+
+    }
+
+    getStoryBlocks() {
+        return this.data.getData()!.story ??= StoryContent.createStoryBlocks();
     }
 
     public removePreviousBlock() {
@@ -69,6 +163,7 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
 
     private addDataBlock(text: string, origin: ContentOrigin = "user") {
 
+        console.log(`adding data block...`);
         const fragmentIndex = this.addFragment(text, origin);
 
         const storySection = this.getStoryBlocks();
@@ -135,68 +230,6 @@ export class StoryContent extends EncryptedObject<IStoryContent, IStoryContentDa
 
         });
 
-    }
-
-    /**
-     * Decrypts story content data if it is encrypted.
-     * @param keystore 
-     */
-    async decrypt() {
-
-        const data = await this.data.decrypt();
-
-        /// fix document?
-        if (typeof data?.document === 'string') {
-
-            try {
-                const result = unpackDocument<IDocument>(data.document);
-                data.document = result;
-
-                /*console.dir(data.document, {
-                    depth: 7
-                });*/
-
-            } catch (err) {
-                console.error(err);
-            }
-
-        }
-
-        return data;
-
-    }
-
-    getDocument() {
-
-        const data = this.data.getData();
-        const doc = data.document;
-        if (typeof doc === 'string') {
-            data.document = unpackDocument<IDocument>(doc);
-            return data.document;
-        }
-        return doc;
-
-    }
-
-    /**
-     * Get the result of encrypting the content.
-     * This does not change the state of the internal content:
-     * internal unencrypted content remains unencrypted.
-     * @param keystore 
-     * @returns 
-     */
-    async encrypt() {
-
-        /// do something with data.document?
-
-        this.container.data = await this.data.encrypt();
-
-
-        return this.container;
-    }
-
-    getStoryBlocks() {
-        return this.data.getData()!.story ??= StoryContent.createStoryBlocks();
     }
 
     createLorebook(): Lorebook {

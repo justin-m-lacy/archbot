@@ -1,6 +1,6 @@
 import { Packr, addExtension } from "msgpackr";
 
-/// insert packed test text.
+/// insert sample document text.
 const testText = ``;
 
 const extensionIds = [20, 30, 31, 40, 41, 42];
@@ -14,7 +14,6 @@ export const testUnpackPack = <T extends object>(input: string) => {
     const obj = unpackDocument(input);
 
     const repack = packDocument(obj as T);
-
     const reunpack = unpackDocument(repack);
 
     console.dir(reunpack);

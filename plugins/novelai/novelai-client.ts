@@ -2,16 +2,14 @@ import { StoryContent } from './objects/story-content';
 import { Story } from './objects/story';
 import { StoryBuilder } from './builders/story-builder';
 import { IdStore } from './id-store';
-import { archPost } from '@src/utils/fetch';
 import { getAccessKey, getEncryptionKey } from './novelai-crypt';
 import { AiMode, ObjectType, IStoryContent, IStory, NovelAIConfig, RepetitionPenalty, GenerateParams, IStoryContentData, AiModel, AiModels } from './novelai-types';
 import { Keystore } from './keystore';
-import { getNovelApi } from 'plugins/novelai/novelai-api';
+import { getNovelApi, login } from 'plugins/novelai/novelai-api';
 export { AiMode, ObjectType, IStoryContent, IStory as IStory, AiModel, NovelAIConfig };
 
 export type NovelAiClient = ReturnType<typeof getNovelAiClient>;
 
-const API_URL = 'https://api.novelai.net';
 const MAX_HISTORY = 50;
 
 const leadingPeriod = /(?:^[\.\,])/i;
@@ -314,13 +312,7 @@ export const loginNovelAi = async ({ apiToken, username, password }: NovelAIConf
     try {
 
         if (!apiToken) {
-            const json = await archPost<{ accessToken: string }>(API_URL + '/user/login',
-                { key: await getAccessKey(username, password) },
-                {
-                    "content-type": "application/json",
-                    "accept": "application/json"
-                }
-            );
+            const json = await login({ key: await getAccessKey(username, password) });
             apiToken = json.accessToken as string;
         }
 

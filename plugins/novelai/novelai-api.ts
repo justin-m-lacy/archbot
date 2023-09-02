@@ -5,6 +5,17 @@ const API_URL = 'https://api.novelai.net';
 
 export type NovelApi = ReturnType<typeof getNovelApi>;
 
+export const login = async (creds: { key: string }) => {
+
+    return await archPost<{ accessToken: string }>(API_URL + '/user/login',
+        creds,
+        {
+            "content-type": "application/json",
+            "accept": "application/json"
+        }
+    );
+
+};
 export const getNovelApi = (accessToken: string) => {
 
     const headers = {
@@ -88,7 +99,7 @@ export const getNovelApi = (accessToken: string) => {
 
         },
 
-        patchStory: async (storyInfo: { id: string, meta: string, data: string, changeIndex: number }) => {
+        patchStory: async (storyInfo: { id: string, meta?: string, data?: string, changeIndex: number, lastUpdatedAt?: number }) => {
 
             const story =
                 await patch<IStory>(`/user/objects/${ObjectType.Stories}/${storyInfo.id}`, {

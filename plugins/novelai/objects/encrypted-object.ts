@@ -1,4 +1,4 @@
-import { MaybeEncrypted } from './maybe-encrypted';
+import { MaybeEncrypted, ICrypt } from './maybe-encrypted';
 import { Keystore } from './../keystore';
 
 /**
@@ -6,14 +6,16 @@ import { Keystore } from './../keystore';
  * @param D - type of Decrypted data.
  */
 export class EncryptedObject<
-    T extends { id: string, meta: string, data?: string, changeIndex: number },
+    T extends { id: string, meta: string, data?: string, changeIndex: number, lastUpdatedAt?: number },
     D extends object> {
 
     public readonly id: string;
     public readonly meta: string;
 
+    public get changeIndex() { return this.container.changeIndex };
+
     /**
-     * Container for the encrypted data.
+     * Base object holding id,meta, changeIndex, and encrypted data.
      */
     protected container: T;
 
@@ -24,16 +26,16 @@ export class EncryptedObject<
     /**
      * Whether the data should be compressed before encryption.
      */
-    private compressed: boolean = false;
+    protected compressed: boolean = false;
 
-    constructor(container: T, keystore: Keystore, data?: D) {
+    constructor(container: T, keystore: Keystore, data?: D, crypter?: ICrypt<D>) {
 
         this.id = container.id;
         this.meta = container.meta;
 
         this.container = container;
 
-        this.data = new MaybeEncrypted(data ?? container.data, {
+        this.data = new MaybeEncrypted(data ?? container.data, crypter ?? {
 
             decrypt: async (encrypted: string) => {
                 const [decoded, compressed] = await keystore.decrypt<D>(this.meta, encrypted);
@@ -49,6 +51,8 @@ export class EncryptedObject<
     }
 
     setChangeIndex(index: number) {
+
+        this.container.lastUpdatedAt = Date.now();
         this.container.changeIndex = index;
     }
 
