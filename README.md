@@ -110,10 +110,3 @@ Linux/Unix Run script:
 Windows Run script:
 
 4) archrun.bat - Double click the script to run the bot.
-
-
-## Tests
-
-### Testing Novel AI
-
-`ts-node --project tsconfig.node.json test-novelai.ts`
