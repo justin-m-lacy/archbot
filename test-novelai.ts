@@ -39,6 +39,7 @@ async function initClient() {
 
 }
 
+
 async function testStories(stories: Story[], contents: (StoryContent | undefined)[]) {
 
     for (let i = 0; i < stories.length; i++) {
@@ -46,10 +47,11 @@ async function testStories(stories: Story[], contents: (StoryContent | undefined
         try {
             const story = stories[i];
             const data = await story.decrypt();
-            console.log(`story: ${data?.title}`);
             if (data?.title.toLowerCase().includes("test")) {
-                console.log(`loading story content...: ${data.title}`);
-                await testEditContent(contents[i]);
+                console.log(`testing patch story...`);
+                await testPatchStoryChange(story);
+                console.log(`story changeIndex: ${story.getObject().changeIndex}`);
+                // await testEditContent(contents[i]);
             }
         } catch (err) {
             console.log(`failed story load: ${stories[i].id}`);
@@ -79,6 +81,25 @@ async function testStories(stories: Story[], contents: (StoryContent | undefined
     }*/
 }
 
+
+async function testPatchStoryChange(story: Story) {
+
+    try {
+        const result = await client.getApi().patchStory({
+            id: story.id,
+            meta: story.meta,
+            lastUpdatedAt: Date.now(),
+            changeIndex: story.changeIndex
+
+        });
+
+        console.log(`result: ${result}`);
+    } catch (err) {
+        console.log(`patch story failed: ${err}`);
+
+    }
+}
+
 async function testEditContent(content?: StoryContent) {
     if (!content) {
         console.warn(`content not found`);
@@ -90,7 +111,22 @@ async function testEditContent(content?: StoryContent) {
         console.log(`data not found`);
     } else {
 
+        console.log(`changeIndex: ${content.getObject().changeIndex}`);
+
         content.addContentText("This is more nifty content.");
+        const encrypted = await content.encrypt();
+        console.log(`encrypted: ${encrypted}`);
+
+        try {
+            console.log(`starting patch story...`);
+            const result = await client.getApi().patchStoryContent(encrypted);
+            console.log(`patch content result:`);
+            console.dir(result);
+
+        } catch (err) {
+            console.log(`error patching content:`);
+            console.log(err);
+        }
 
     }
 

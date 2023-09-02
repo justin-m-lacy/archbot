@@ -1,17 +1,16 @@
 import { Packr, addExtension } from "msgpackr";
-import { IDocument } from "plugins/novelai/novelai-types";
 
 const extensionIds = [20, 30, 31, 40, 41, 42];
 
 let initialized = false;
 let packer: Packr | null = null;
 
-export const testUnpackPack = (input: string) => {
+export const testUnpackPack = <T extends Object = Object>(input: string) => {
 
     if (!initialized) initialize();
     const obj = unpackDocument(input);
 
-    const repack = packDocument(obj as IDocument);
+    const repack = packDocument(obj as T);
 
     console.log(`same? ${input === repack}`);
 
@@ -25,15 +24,11 @@ export const unpackDocument = <T extends Object = Object>(document: string) => {
 
 }
 
-export const packDocument = <T extends Object = Object>(document: IDocument) => {
+export const packDocument = <T extends Object = Object>(data: T) => {
 
     if (!initialized) initialize();
 
-    packer ??= new Packr({
-
-    });
-
-    return packer.pack(document).toString("base64");
+    return packer!.pack(data).toString("base64");
 
 }
 

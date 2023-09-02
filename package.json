@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node .",
     "dev": "cross-env NODE_ENV=dev ts-node archbot.ts",
-    "serve": "cross-env NODE_ENV=production ts-node archbot.ts --transpileOnly",
+    "serve": "cross-env NODE_ENV=production ts-node archbot.ts ----transpile-only",
     "build": "rimraf dist && tsc && tsc-alias && pnpm run minify && pnpm run copydata && pnpm run copypackage",
     "copypackage": "ts-node --project tsconfig.node.json strip-package.ts",
     "minify": "node mterser --glob dist/**/*.js --compress --mangle",
