@@ -1,9 +1,9 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 
-import { DiscordBot } from './src/bot/discordbot';
-import { initBasicCommands } from './src/base-commands';
 import { Auth } from '@src/bot/auth';
 import "dotenv/config";
+import { initBasicCommands } from './src/base-commands';
+import { DiscordBot } from './src/bot/discordbot';
 
 // Ensure current working directory is directory of the base script.
 process.chdir(__dirname);
@@ -21,7 +21,6 @@ const client: Client = new Client({
 	GatewayIntentBits.GuildEmojisAndStickers,
 	GatewayIntentBits.GuildModeration,
 	GatewayIntentBits.GuildPresences,
-	GatewayIntentBits.GuildMessageReactions
 
 	],
 	sweepers: {
