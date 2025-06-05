@@ -1,14 +1,12 @@
-import { Channel, Client, Guild, GuildMember, Message, TextBasedChannel, User, ChannelType, PermissionResolvable, PermissionFlagsBits } from 'discord.js';
-import { Auth } from './auth';
-import Command from './command';
-import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
-import CmdDispatch from './dispatch';
-import { CommandOpts } from './dispatch';
-import { PluginFile } from "./plugsupport";
 import Cache from 'archcache';
-import fsys from './botfs';
+import { Channel, ChannelType, Client, Guild, GuildMember, Message, PermissionFlagsBits, PermissionResolvable, TextBasedChannel, User } from 'discord.js';
 import { Display } from '../display';
-import { loadPlugins } from './plugsupport';
+import { Auth } from './auth';
+import { BotContext, ContextClass, ContextSource, GuildContext, UserContext } from './botcontext';
+import fsys from './botfs';
+import Command from './command';
+import CmdDispatch, { CommandOpts } from './dispatch';
+import { loadPlugins, PluginFile } from "./plugsupport";
 
 const path = require('path');
 

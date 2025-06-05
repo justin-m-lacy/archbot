@@ -1,11 +1,10 @@
-import { Channel, Guild, User, GuildMember, Message, TextBasedChannel, PermissionResolvable } from 'discord.js';
-import { DiscordBot } from './discordbot';
-import Command from './command';
 import ArchCache from 'archcache';
+import { Channel, Guild, GuildMember, Message, PermissionResolvable, TextBasedChannel, User } from 'discord.js';
+import * as afs from '../afs';
 import Access from './access';
-
-const fsys = require('./botfs');
-const afs = require('../afs');
+import fsys from './botfs';
+import Command from './command';
+import { DiscordBot } from './discordbot';
 
 /**
  * A discord object associated with this bot context.
@@ -266,7 +265,7 @@ export abstract class BotContext<T extends ContextSource = ContextSource> {
 	 */
 	async getDataList(path: string) {
 
-		const files = await afs.readfiles(fsys.BASE_DIR + this.cache.cacheKey + path);
+		const files = await afs.readfiles(fsys.BaseDir + this.cache.cacheKey + path);
 		for (let i = files.length - 1; i >= 0; i--) {
 
 			files[i] = files[i].replace(/.[^/.]+$/, '');;
