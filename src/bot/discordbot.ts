@@ -319,7 +319,6 @@ export class DiscordBot {
 		// check command access.
 		const context = await this.getMsgContext(m);
 		if (context) {
-			console.log(`using context: ${context.idObject.id}`);
 			if (this.testAccess(m, command, context) === false) return this.sendNoPerm(m, command);
 		}
 

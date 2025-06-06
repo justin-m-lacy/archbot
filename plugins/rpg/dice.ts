@@ -33,9 +33,9 @@ export class Roller {
 
 	constructor(count: number = 1, sides: number = 0, bonus: number = 0) {
 
-		this.sides = sides;
-		this.count = count;
-		this.bonus = bonus;
+		this.sides = Math.min(sides, 999999);
+		this.count = Math.min(count, 99999);
+		this.bonus = Math.min(bonus, 999999);
 
 	}
 
@@ -68,9 +68,9 @@ export const parseRoll = (str: string) => {
 	const res = rollex.exec(str);
 	if (res === null) return roll(1, 6);
 
-	let num = parseInt(res[1]);
-	let sides = parseInt(res[2]);
-	let bonus = parseInt(res[3]);
+	let num = Math.min(parseInt(res[1]), 10000);
+	let sides = Math.min(parseInt(res[2]), 999999);
+	let bonus = Math.min(parseInt(res[3]), 999999);
 
 	if (Number.isNaN(num)) num = 1;
 	if (Number.isNaN(sides)) sides = 6;
